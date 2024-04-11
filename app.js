@@ -99,7 +99,7 @@ app.post('/webhook', (req, res) => {
         sendEmailWithAttachment(uploadedFile.path, companyName, fileExtension)
         .then(() => {
           console.log('E-mail envoyé avec succès.')
-          deleteFile(uploadedFile.path);
+          //deleteFile(uploadedFile.path);
         })
         .catch(error => console.error('Erreur lors de l\'envoi de l\'e-mail :', error));
 
