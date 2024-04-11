@@ -17,7 +17,7 @@ const MAILSENDER = process.env.MAILSENDER;
 const MAILSENDERPASS = process.env.MAILSENDERPASS;
 const MAILRECIPIENT = process.env.MAILRECIPIENT;
 
-const upload = multer({dest: 'uploads/'});
+//const upload = multer({dest: 'uploads/'});
 
 app.set('appName', 'potironAppPro');
 
@@ -32,6 +32,7 @@ function extractInfoFromNote(note, infoLabel) {
     return null;
   }
 }
+
 function deleteFile(filePath) {
   fs.unlink(filePath, (err) => {
       if (err) {
@@ -46,9 +47,11 @@ app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
     res.send('Bienvenue sur votre application !');
-  });
-let uploadedFile = null;
-let fileName = null;
+});
+
+//let uploadedFile = null;
+//let fileName = null;
+//let fileExtension = null;
 
 async function sendEmailWithAttachment(filePath, companyName, fileExtension) {
   const transporter = nodemailer.createTransport({
@@ -61,9 +64,10 @@ async function sendEmailWithAttachment(filePath, companyName, fileExtension) {
           pass: MAILSENDERPASS
       }
   });
+
   const mailOptions = {
       from: MAILSENDER, 
-      to: MAILRECIPIENT, //mailmagali ou laura
+      to: MAILRECIPIENT,
       subject: 'Nouveau Kbis (' + companyName + ') à vérifier et valider !', 
       text: "Une nouvelle demande d'inscription pro est arrivée. Voici le kbis ci-joint, pensez à le valider pour que le client B2B ait accès aux prix de gros", 
       attachments: [
@@ -76,11 +80,13 @@ async function sendEmailWithAttachment(filePath, companyName, fileExtension) {
 
   return transporter.sendMail(mailOptions);
 }
-app.post('/upload', upload.single('uploadFile'), (req, res) => {
-  uploadedFile = req.file
-  fileName = req.file.originalname;  
-  res.send('Fichier téléversé avec succès.');
-});
+
+/*app.post('/upload', upload.single('uploadFile'), (req, res) => {
+  uploadedFile = req.file;
+  fileName = req.file.originalname;
+  fileExtension = path.extname(fileName); // Récupérer l'extension du fichier
+  //res.send('Fichier téléversé avec succès.');
+});*/
 
 app.post('/webhook', (req, res) => {
     var myData = req.body;
@@ -94,15 +100,25 @@ app.post('/webhook', (req, res) => {
         const phone = extractInfoFromNote(myData.note, 'phone');
         const sector = extractInfoFromNote(myData.note, 'sector');
         const mailCustomer = myData.email;
-        const fileExtension = path.extname(fileName);
 
-        sendEmailWithAttachment(uploadedFile.path, companyName, fileExtension)
-        .then(() => {
-          console.log('E-mail envoyé avec succès.')
-          //deleteFile(uploadedFile.path);
-        })
-        .catch(error => console.error('Erreur lors de l\'envoi de l\'e-mail :', error));
-
+        // Vérifier si un fichier a été téléchargé
+       /* if (!uploadedFile) {
+          res.status(400).send('Aucun fichier téléchargé.');
+          return;
+        }*/
+        // Envoi du fichier par e-mail
+        /*sendEmailWithAttachment(uploadedFile.path, companyName, fileExtension)
+          .then(() => {
+            console.log('E-mail envoyé avec succès.')
+            deleteFile(uploadedFile.path); // Suppression du fichier après l'envoi par e-mail
+            uploadedFile = null; // Réinitialisation du fichier
+            //res.status(200).send('E-mail envoyé avec succès.');
+          })
+          .catch(error => {
+            console.error('Erreur lors de l\'envoi de l\'e-mail :', error);
+            res.status(500).send('Erreur lors de l\'envoi de l\'e-mail.');
+          });*/
+        
       const updatedCustomerData = {
         customer: {
           id: clientToUpdate,
@@ -143,6 +159,7 @@ app.post('/webhook', (req, res) => {
           ]
         }
       };
+
     const updateCustomerUrl = `https://potiron2021.myshopify.com/admin/api/2024-04/customers/${clientToUpdate}.json`
     const updateOptions = {
         method: 'PUT',
