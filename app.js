@@ -4,7 +4,6 @@ const bodyParser = require('body-parser');
 const fetch = require('node-fetch');
 const nodemailer = require('nodemailer'); 
 const path = require('path');
-const fs = require('fs');
 require('dotenv').config();
 
 const app = express();
@@ -17,10 +16,11 @@ const MAILSENDER = process.env.MAILSENDER;
 const MAILSENDERPASS = process.env.MAILSENDERPASS;
 const MAILRECIPIENT = process.env.MAILRECIPIENT;
 
-//const upload = multer({dest: 'uploads/'});
+const upload = multer({ storage: multer.memoryStorage() });
 
 app.set('appName', 'potironAppPro');
 
+//extract data from notes added fields create_customer form
 function extractInfoFromNote(note, infoLabel) {
   if(note) {
     const lines = note.split('\n');
@@ -33,27 +33,18 @@ function extractInfoFromNote(note, infoLabel) {
   }
 }
 
-function deleteFile(filePath) {
-  fs.unlink(filePath, (err) => {
-      if (err) {
-          console.error('Erreur lors de la suppression du fichier :', err);
-      } else {
-          console.log('Fichier supprimé avec succès :', filePath);
-      }
-  });
-}
-
 app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
     res.send('Bienvenue sur votre application !');
 });
 
-//let uploadedFile = null;
-//let fileName = null;
-//let fileExtension = null;
+let uploadedFile = null;
+let originalFileName = null;
+let fileExtension = null;
 
-async function sendEmailWithAttachment(filePath, companyName, fileExtension) {
+//send email with kbis to Potiron Team
+async function sendEmailWithAttachment(uploadedFile, companyName, fileExtension) {
   const transporter = nodemailer.createTransport({
       service: MAILSERVICE,
       host: MAILHOST,
@@ -73,7 +64,7 @@ async function sendEmailWithAttachment(filePath, companyName, fileExtension) {
       attachments: [
           {
               filename: 'kbis_' + companyName + fileExtension,
-              path: filePath
+              content: uploadedFile
           }
       ]
   };
@@ -81,16 +72,16 @@ async function sendEmailWithAttachment(filePath, companyName, fileExtension) {
   return transporter.sendMail(mailOptions);
 }
 
-/*app.post('/upload', upload.single('uploadFile'), (req, res) => {
-  uploadedFile = req.file;
-  fileName = req.file.originalname;
-  fileExtension = path.extname(fileName); // Récupérer l'extension du fichier
-  //res.send('Fichier téléversé avec succès.');
-});*/
+app.post('/upload', upload.single('uploadFile'), (req, res) => {
+  uploadedFile = req.file.buffer;
+  originalFileName = req.file.originalname;
+  fileExtension = path.extname(originalFileName); 
+});
 
 app.post('/webhook', (req, res) => {
     var myData = req.body;
     var b2BState = myData.tags;
+
     if (b2BState.includes("VIP")) {
         const clientToUpdate = myData.id;
         idCustomer = myData.id;
@@ -107,17 +98,18 @@ app.post('/webhook', (req, res) => {
           return;
         }*/
         // Envoi du fichier par e-mail
-        /*sendEmailWithAttachment(uploadedFile.path, companyName, fileExtension)
+        sendEmailWithAttachment(uploadedFile, companyName, fileExtension)
           .then(() => {
-            console.log('E-mail envoyé avec succès.')
-            deleteFile(uploadedFile.path); // Suppression du fichier après l'envoi par e-mail
-            uploadedFile = null; // Réinitialisation du fichier
-            //res.status(200).send('E-mail envoyé avec succès.');
+            console.log('Mail nouveau client B2B envoyé');
+            uploadedFile = null; 
+            originalFileName = null;
+            fileExtension = null;
+            
           })
           .catch(error => {
             console.error('Erreur lors de l\'envoi de l\'e-mail :', error);
             res.status(500).send('Erreur lors de l\'envoi de l\'e-mail.');
-          });*/
+          });
         
       const updatedCustomerData = {
         customer: {
@@ -172,7 +164,8 @@ app.post('/webhook', (req, res) => {
     fetch(updateCustomerUrl, updateOptions)
       .then(response => response.json())
       .then(updatedCustomer => {
-        res.status(200).json(updatedCustomer);
+        console.log('nouveau client B2B')
+        //res.status(200).json(updatedCustomer);
       })
       .catch(error => {
         console.error('Erreur lors de la mise à jour du client :', error);
