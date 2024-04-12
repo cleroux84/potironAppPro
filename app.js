@@ -88,15 +88,12 @@ app.post('/upload', upload.single('uploadFile'), (req, res) => {
   originalFileName = req.file.originalname;
   fileExtension = path.extname(originalFileName); 
   filePath = req.file.path;
-  console.log('chemin: ', filePath);
   res.status(200).send('Fichier téléchargé avec succès.');
 });
 
 app.post('/webhook', (req, res) => {
     var myData = req.body;
     var b2BState = myData.tags;
-  console.log('chemin webhook: ', filePath);
-
     if (b2BState.includes("VIP")) {
         const clientToUpdate = myData.id;
         idCustomer = myData.id;
@@ -120,7 +117,7 @@ app.post('/webhook', (req, res) => {
               if (err) {
                   console.error('Erreur lors de la suppression du fichier :', err);
               } else {
-                  console.log('Fichier supprimé avec succès.');
+                  //console.log('Fichier supprimé avec succès.');
               }
           });
             uploadedFile = null; 
