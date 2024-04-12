@@ -45,7 +45,6 @@ let fileExtension = null;
 
 //send email with kbis to Potiron Team
 async function sendEmailWithAttachment(uploadedFile, companyName, fileExtension) {
-  console.log('file dans function sendemail', uploadedFile);
   const transporter = nodemailer.createTransport({
       service: MAILSERVICE,
       host: MAILHOST,
@@ -75,15 +74,15 @@ async function sendEmailWithAttachment(uploadedFile, companyName, fileExtension)
 
 app.post('/upload', upload.single('uploadFile'), (req, res) => {
   uploadedFile = req.file.buffer;
+  console.log('file dans upload:', uploadedFile);
+
   originalFileName = req.file.originalname;
   fileExtension = path.extname(originalFileName); 
-  console.log('file dans upload:', uploadedFile);
 });
 
 app.post('/webhook', (req, res) => {
     var myData = req.body;
     var b2BState = myData.tags;
-console.log('file dans webhook: ', uploadedFile);
     if (b2BState.includes("VIP")) {
         const clientToUpdate = myData.id;
         idCustomer = myData.id;
@@ -102,7 +101,6 @@ console.log('file dans webhook: ', uploadedFile);
         // Envoi du fichier par e-mail
         sendEmailWithAttachment(uploadedFile, companyName, fileExtension)
           .then(() => {
-            console.log('file dans sendemail de webhook', uploadedFile);
             uploadedFile = null; 
             originalFileName = null;
             fileExtension = null;
