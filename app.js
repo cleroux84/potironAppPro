@@ -105,10 +105,10 @@ app.post('/webhook', (req, res) => {
         const mailCustomer = myData.email;
 
         // Vérifier si un fichier a été téléchargé
-       /* if (!uploadedFile) {
+        if (!uploadedFile) {
           res.status(400).send('Aucun fichier téléchargé.');
           return;
-        }*/
+        }
         // Envoi du fichier par e-mail
         sendEmailWithAttachment(filePath, companyName, fileExtension)
           .then(() => {
