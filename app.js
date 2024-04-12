@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const fetch = require('node-fetch');
 const nodemailer = require('nodemailer'); 
 const path = require('path');
+const fs = require('fs');
 require('dotenv').config();
 
 const app = express();
@@ -16,8 +17,16 @@ const MAILSENDER = process.env.MAILSENDER;
 const MAILSENDERPASS = process.env.MAILSENDERPASS;
 const MAILRECIPIENT = process.env.MAILRECIPIENT;
 
-const upload = multer({ storage: multer.memoryStorage() });
-
+const upload = multer({ 
+  storage: multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, 'uploads/') // Spécifiez le répertoire de destination ici
+    },
+    filename: function (req, file, cb) {
+      cb(null, file.originalname)
+    }
+  })
+});
 app.set('appName', 'potironAppPro');
 
 //extract data from notes added fields create_customer form
@@ -42,9 +51,11 @@ app.get('/', (req, res) => {
 let uploadedFile = null;
 let originalFileName = null;
 let fileExtension = null;
+let filePath = null;
 
 //send email with kbis to Potiron Team
-async function sendEmailWithAttachment(uploadedFile, companyName, fileExtension) {
+
+async function sendEmailWithAttachment(filePath, companyName, fileExtension) {
   const transporter = nodemailer.createTransport({
       service: MAILSERVICE,
       host: MAILHOST,
@@ -64,7 +75,7 @@ async function sendEmailWithAttachment(uploadedFile, companyName, fileExtension)
       attachments: [
           {
               filename: 'kbis_' + companyName + fileExtension,
-              content: uploadedFile
+              content: fs.createReadStream(filePath)
           }
       ]
   };
@@ -73,11 +84,11 @@ async function sendEmailWithAttachment(uploadedFile, companyName, fileExtension)
 }
 
 app.post('/upload', upload.single('uploadFile'), (req, res) => {
-  uploadedFile = req.file.buffer;
-  console.log('file dans upload:', uploadedFile);
-
+  uploadedFile = req.file;
   originalFileName = req.file.originalname;
   fileExtension = path.extname(originalFileName); 
+  filePath = req.file.path;
+  res.status(200).send('Fichier téléchargé avec succès.');
 });
 
 app.post('/webhook', (req, res) => {
@@ -99,8 +110,16 @@ app.post('/webhook', (req, res) => {
           return;
         }*/
         // Envoi du fichier par e-mail
-        sendEmailWithAttachment(uploadedFile, companyName, fileExtension)
+        sendEmailWithAttachment(filePath, companyName, fileExtension)
           .then(() => {
+            console.log('mail envoyé');
+            fs.unlink(uploadedFile.path, (err) => {
+              if (err) {
+                  console.error('Erreur lors de la suppression du fichier :', err);
+              } else {
+                  console.log('Fichier supprimé avec succès.');
+              }
+          });
             uploadedFile = null; 
             originalFileName = null;
             fileExtension = null;
