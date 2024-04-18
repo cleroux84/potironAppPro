@@ -55,7 +55,7 @@ let filePath = null;
 
 //send email with kbis to Potiron Team
 
-async function sendEmailWithAttachment(filePath, companyName, fileExtension) {
+async function sendEmailWithAttachment(filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone) {
   const transporter = nodemailer.createTransport({
       service: MAILSERVICE,
       host: MAILHOST,
@@ -71,7 +71,10 @@ async function sendEmailWithAttachment(filePath, companyName, fileExtension) {
       from: MAILSENDER, 
       to: MAILRECIPIENT,
       subject: 'Nouveau Kbis (' + companyName + ') à vérifier et valider !', 
-      text: "Une nouvelle demande d'inscription pro est arrivée. Voici le kbis ci-joint, pensez à le valider pour que le client B2B ait accès aux prix de gros", 
+      text: "Une nouvelle demande d'inscription pro est arrivée pour " + firstnameCustomer + nameCustomer + " .Voici le kbis ci-joint, pensez à le valider pour que le client B2B ait accès aux prix de gros."+
+      "Ce nouveau client est joignable à " + mailCustomer + "et au " + phone +
+      "Bonne journée, Céline"      
+      , 
       attachments: [
           {
               filename: 'kbis_' + companyName + fileExtension,
@@ -103,6 +106,8 @@ app.post('/webhook', (req, res) => {
         const phone = extractInfoFromNote(myData.note, 'phone');
         const sector = extractInfoFromNote(myData.note, 'sector');
         const mailCustomer = myData.email;
+        const nameCustomer = myData.last_name;
+        const firstnameCustomer = myData.first_name;
 
         // Vérifier si un fichier a été téléchargé
         if (!uploadedFile) {
@@ -110,7 +115,7 @@ app.post('/webhook', (req, res) => {
           return;
         }
         // Envoi du fichier par e-mail
-        sendEmailWithAttachment(filePath, companyName, fileExtension)
+        sendEmailWithAttachment(filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone)
           .then(() => {
             console.log('mail envoyé');
             fs.unlink(uploadedFile.path, (err) => {
