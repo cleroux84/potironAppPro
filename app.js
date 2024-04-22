@@ -98,6 +98,8 @@ app.post('/upload', upload.single('uploadFile'), (req, res) => {
 app.post('/webhook', (req, res) => {
     var myData = req.body;
     var b2BState = myData.tags;
+    console.log("mydata", myData);
+    console.log("b2B", b2BState);
     if (b2BState.includes("VIP")) {
         const clientToUpdate = myData.id;
         idCustomer = myData.id;
