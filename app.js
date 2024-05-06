@@ -72,14 +72,25 @@ async function sendEmailWithAttachment(filePath, companyName, fileExtension, fir
       to: MAILRECIPIENT,
       cc: MAILSENDER,
       subject: 'Nouveau Kbis (' + companyName + ') à vérifier et valider !', 
-      text: "Une nouvelle demande d'inscription pro est arrivée pour " + firstnameCustomer + " " + nameCustomer + " .Voici le kbis ci-joint, pensez à le valider pour que le client B2B ait accès aux prix de gros."+
-      " Ce nouveau client est joignable à " + mailCustomer + " et au " + phone +
-      ". Bonne journée, Céline"      
-      , 
+      html:`
+      <p>Bonjour</p>
+      <p>Une nouvelle demande d'inscription pro est arrivée pour ${firstnameCustomer} ${nameCustomer}.</p>
+      <p>Vous trouverez le KBIS ci-joint.</p>
+      <p>Ce nouveau client est joignable à ${mailCustomer} et au ${phone}</p>
+      <p>Pensez à le valider pour que le client ait accès aux prix destinés aux professionnels.</p>
+      <p>Bonne journée,</p>
+      <p>Céline Leroux</p>
+      <img src='cid:signature'/>
+      `,     
       attachments: [
           {
               filename: 'kbis_' + companyName + fileExtension,
               content: fs.createReadStream(filePath)
+          },
+          {
+            filename: 'signature.png',
+            path: 'assets/signature.png',
+            cid: 'signature'
           }
       ]
   };
