@@ -73,10 +73,10 @@ async function sendEmailWithAttachment(filePath, companyName, fileExtension, fir
       cc: MAILSENDER,
       subject: 'Nouveau Kbis (' + companyName + ') à vérifier et valider !', 
       html:`
-      <p>Bonjour</p>
-      <p>Une nouvelle demande d'inscription pro est arrivée pour ${firstnameCustomer} ${nameCustomer}.</p>
-      <p>Vous trouverez le KBIS ci-joint.</p>
-      <p>Ce nouveau client est joignable à ${mailCustomer} et au ${phone}</p>
+      <p>Bonjour, </p>
+      <p>Une nouvelle demande d'inscription pro est arrivée pour <strong>${firstnameCustomer} ${nameCustomer}</strong>.</p>
+      <p>Vous trouverez le KBIS de <strong>${companyName}</strong> ci-joint.</p>
+      <p>Ce nouveau client est joignable à ${mailCustomer} et au ${phone}.</p>
       <p>Pensez à le valider pour que le client ait accès aux prix destinés aux professionnels.</p>
       <p>Bonne journée,</p>
       <p>Céline Leroux</p>
