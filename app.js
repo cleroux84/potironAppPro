@@ -64,9 +64,6 @@ async function sendEmailWithAttachment(filePath, companyName, fileExtension, fir
       auth: {
           user: MAILSENDER, 
           pass: MAILSENDERPASS
-      },
-      tls: {
-        rejectUnauthorized: false
       }
   });
 
