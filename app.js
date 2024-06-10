@@ -60,7 +60,7 @@ async function sendEmailWithAttachment(filePath, companyName, fileExtension, fir
       service: MAILSERVICE,
       host: MAILHOST,
       port: MAILPORT,
-      secure: 'false',
+      secure: false,
       auth: {
           user: MAILSENDER, 
           pass: MAILSENDERPASS
