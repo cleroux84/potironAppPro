@@ -57,17 +57,14 @@ let filePath = null;
 
 async function sendEmailWithAttachment(filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone) {
   const transporter = nodemailer.createTransport({
-
+      service: MAILSERVICE,
       host: MAILHOST,
       port: MAILPORT,
-      secure: false,
+      secure: 'false',
       auth: {
           user: MAILSENDER, 
           pass: MAILSENDERPASS
-      },
-      tls: {
-        ciphers: "SSLv3"
-      },
+      }
   });
 
   const mailOptions = {
