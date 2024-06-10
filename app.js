@@ -66,7 +66,7 @@ async function sendEmailWithAttachment(filePath, companyName, fileExtension, fir
           pass: MAILSENDERPASS
       },
       tls: {
-        ciphers: 'TLSv1.2'
+        ciphers: 'SSLv3'
     }
   });
 
