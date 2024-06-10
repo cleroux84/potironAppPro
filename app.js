@@ -60,14 +60,14 @@ async function sendEmailWithAttachment(filePath, companyName, fileExtension, fir
 
       host: MAILHOST,
       port: MAILPORT,
-      secure: 'false',
-      tls: {
-        ciphers: "SSLv3"
-      },
+      secure: false,
       auth: {
           user: MAILSENDER, 
           pass: MAILSENDERPASS
-      }
+      },
+      tls: {
+        ciphers: "SSLv3"
+      },
   });
 
   const mailOptions = {
