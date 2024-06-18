@@ -110,8 +110,24 @@ app.post('/upload', upload.single('uploadFile'), (req, res) => {
 });
 
 app.post('/updateKbis', (req, res) => {
-  var receivedData = req.body;
-  console.log('data recu : ', receivedData);
+  var updatedData = req.body;
+  const clientUpdated = updatedData.id;
+
+  const metafieldsUrl = `https://potiron2021.myshopify.com/admin/api/2024-04/customers/${clientUpdated}/metafields.json`
+  const fetchOptions = {         
+    method: 'GET',         
+    headers: {             
+      'Content-Type': 'application/json',             
+      'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
+    } 
+  };
+  fetch(metafieldsUrl, fetchOptions)
+    .then(response => response.json())
+    .then(data => {
+      const metafields = data.metafields;
+      const checkedKbisField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'checkedkbis');
+      console.log('kBisCheckedState: ', checkedKbisField);
+    })
 })
 
 app.post('/webhook', (req, res) => {
