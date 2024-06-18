@@ -126,6 +126,7 @@ app.post('/updateKbis', (req, res) => {
     .then(data => {
       const metafields = data.metafields;
       const checkedKbisField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'checkedkbis');
+      console.log('updatedClient', updatedData.last_name);
       console.log('kBisCheckedState: ', checkedKbisField);
     })
 })
