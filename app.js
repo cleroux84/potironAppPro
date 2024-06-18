@@ -71,7 +71,7 @@ async function sendEmailWithAttachment(filePath, companyName, fileExtension, fir
   });
 
   const mailOptions = {
-      from: MAILSENDER, 
+      replyTo: MAILSENDER, 
       to: MAILRECIPIENT,
       cc: MAILSENDER,
       subject: 'Nouveau Kbis (' + companyName + ') à vérifier et valider !', 
