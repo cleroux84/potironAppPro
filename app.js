@@ -72,7 +72,7 @@ async function sendEmailWithAttachment(filePath, companyName, fileExtension, fir
   });
 
   const mailOptions = {
-      from: 'POTIRON PARIS',
+      from: `POTIRON PARIS - Nouveau kBis <noreply@potiron.com`,
       replyTo: 'bonjour@potiron.com', 
       to: MAILRECIPIENT,
       cc: MAILSENDER,
