@@ -109,6 +109,11 @@ app.post('/upload', upload.single('uploadFile'), (req, res) => {
   res.status(200).send('Fichier téléchargé avec succès.');
 });
 
+app.post('/updateKbis', (req, res) => {
+  var receivedData = req.body;
+  console.log('data recu : ', receivedData);
+})
+
 app.post('/webhook', (req, res) => {
     var myData = req.body;
     var b2BState = myData.tags;
