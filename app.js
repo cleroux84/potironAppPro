@@ -5,6 +5,7 @@ const fetch = require('node-fetch');
 const nodemailer = require('nodemailer'); 
 const path = require('path');
 const fs = require('fs');
+const { from } = require('form-data');
 require('dotenv').config();
 
 const app = express();
@@ -71,7 +72,8 @@ async function sendEmailWithAttachment(filePath, companyName, fileExtension, fir
   });
 
   const mailOptions = {
-      replyTo: MAILSENDER, 
+      from: 'POTIRON PARIS',
+      replyTo: 'bonjour@potiron.com', 
       to: MAILRECIPIENT,
       cc: MAILSENDER,
       subject: 'Nouveau Kbis (' + companyName + ') à vérifier et valider !', 
