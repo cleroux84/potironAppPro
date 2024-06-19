@@ -197,7 +197,7 @@ app.post('/updateKbis', (req, res) => {
             const updatedCustomerKbis = {
               customer: {
                 id: clientUpdated,
-
+                tags: "VIP, PRO validé",
                 metafields: [
                   {
                     id: mailProSentField.id,
