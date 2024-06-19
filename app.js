@@ -127,8 +127,8 @@ async function sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer,
     <p>Nos équipes ont validé votre KBIS concernant ${companyName}, nous vous souhaitons la bienvenue !</p>
     <p>Vous avez désormais accès, une fois connecté avec votre login et mot de passe, à l'ensemble du site avec les prix dédiés aux professionnels.</p>
     <p><a href="https://potiron.com">Visitez notre boutique</a></p>
-    <p>Nous restons à votre disposition pour toute question.</p>
-    <p>Bonne journée,</p>
+    <p>Nous restons à votre entière disposition.</p>
+    <p>Très belle journée,</p>
     <p>L'équipe de Potiron</p>
     <img src='cid:signature'/>
     `,     
@@ -185,15 +185,48 @@ app.post('/updateKbis', (req, res) => {
         if(kbisState === true && mailProState === false) {
           sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer, companyName)
             .then(() => {
-              console.log('mail envoyé au client pro');             
+              console.log('mail envoyé au client pro');    
+              const updatedCustomerKbis = {
+                customer: {
+                  tags: newTags.join('VIP, PRO validé'), 
+                  metafields: [
+                    {
+                      key: 'mailProSent',
+                      value: true,
+                      type: 'boolean',
+                      namespace: 'custom'
+                    }
+                  ]
+                }
+              };  
+              const updateCustomerUrl = `https://potiron2021.myshopify.com/admin/api/2024-04/customers/${clientUpdated}.json`
+              const updateOptions = {
+                  method: 'PUT',
+                  headers: {
+                      'Content-Type': 'application/json',
+                      'X-Shopify-Access-Token': SHOPIFYAPPTOKEN
+                    },
+                    body: JSON.stringify(updatedCustomerKbis)
+              };      
+               fetch(updateCustomerUrl, updateOptions)
+               .then(updatedKebisState => {
+                console.log('mise à jour fiche client suite envoie du mail acces PRO')
+               })
+               .catch(error => {
+                console.error('Erreur lors de la mise à jour du client', error);
+                res.status(500).send('Erreur lors de la mise à jour des données clients')
+               });
             })
+            
             .catch(error => {
               console.error('Erreur lors de l\'envoi de l\'e-mail :', error);
               res.status(500).send('Erreur lors de l\'envoi de l\'e-mail.');
             });
           console.log("maj mailProSent + add tag proValide");
+        } else if(kbisState === false && mailProState === false) {
+          console.log("Kbis à valider");
         } else {
-          console.log("mail already sent");
+          console.log("mail déjà envoyé");
         }
       }
     })
