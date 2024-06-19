@@ -170,7 +170,7 @@ app.post('/updateKbis', (req, res) => {
       const mailProSentField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'mailProSent');
       const companyNameField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'company');
 
-      if(checkedKbisField && mailProSentField) {
+      if(checkedKbisField) {
         console.log('updatedClient', updatedData.last_name);
         console.log('kBisCheckedState: ', checkedKbisField.value);
         console.log('mailProSentState: ', mailProSentField.value);
