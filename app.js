@@ -170,7 +170,7 @@ app.post('/updateKbis', (req, res) => {
       const mailProSentField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'mailProSent');
       const companyNameField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'company');
 
-      if(checkedKbisField) {
+      if(checkedKbisField && mailProSentField) {
         console.log('updatedClient', updatedData.last_name);
         console.log('kBisCheckedState: ', checkedKbisField.value);
         console.log('mailProSentState: ', mailProSentField.value);
@@ -182,7 +182,7 @@ app.post('/updateKbis', (req, res) => {
         var kbisState = checkedKbisField.value;
         var mailProState = mailProSentField.value;
 
-        if(kbisState === true && mailProState !== true) {
+        if(kbisState === true && mailProState === false) {
           sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer, companyName)
             .then(() => {
               console.log('mail envoyé au client pro');  
@@ -197,8 +197,10 @@ app.post('/updateKbis', (req, res) => {
             const updatedCustomerKbis = {
               customer: {
                 id: clientUpdated,
+
                 metafields: [
                   {
+                    id: mailProSentField.id,
                     key: 'mailProSent',
                     value: true,
                     type: 'boolean',
@@ -309,6 +311,12 @@ app.post('/webhook', (req, res) => {
             },
             {
               key: 'checkedkbis',
+              value: false,
+              type: 'boolean',
+              namespace: 'custom'
+            },
+            {
+              key: 'mailProSent',
               value: false,
               type: 'boolean',
               namespace: 'custom'
