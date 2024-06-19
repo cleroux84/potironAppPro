@@ -56,7 +56,6 @@ let fileExtension = null;
 let filePath = null;
 
 //send email with kbis to Potiron Team
-
 async function sendEmailWithAttachment(filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone) {
   const transporter = nodemailer.createTransport({
       service: MAILSERVICE,
@@ -103,7 +102,46 @@ async function sendEmailWithAttachment(filePath, companyName, fileExtension, fir
 
   return transporter.sendMail(mailOptions);
 }
-
+async function sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer, companyName) {
+  const transporter = nodemailer.createTransport({
+    service: MAILSERVICE,
+    host: MAILHOST,
+    port: MAILPORT,
+    secure: false,
+    auth: {
+        user: MAILSENDER, 
+        pass: MAILSENDERPASS
+    },
+    tls: {
+      ciphers: 'SSLv3'
+    }
+  });
+  const mailOptions = {
+    from: '"POTIRON PARIS PRO" <noreply@potiron.com>',
+    replyTo: 'bonjour@potiron.com', 
+    to: mailCustomer,
+    cc: MAILSENDER,
+    subject: 'Accès Pro Potiron Paris', 
+    html:`
+    <p>Bonjour ${firstnameCustomer} ${nameCustomer},</p>
+    <p>Nos équipes ont validé votre KBIS concernant ${companyName}, nous vous souhaitons la bienvenue !</p>
+    <p>Vous avez désormais accès, une fois connecté avec votre login et mot de passe, à l'ensemble du site avec les prix dédiés aux professionnels.</p>
+    <p><a href="https://potiron.com">Visitez notre boutique</a></p>
+    <p>Nous restons à votre disposition pour toute question.</p>
+    <p>Bonne journée,</p>
+    <p>L'équipe de Potiron</p>
+    <img src='cid:signature'/>
+    `,     
+    attachments: [
+        {
+          filename: 'signature.png',
+          path: 'assets/signature.png',
+          cid: 'signature'
+        }
+    ]
+  };
+  return transporter.sendMail(mailOptions);
+}
 app.post('/upload', upload.single('uploadFile'), (req, res) => {
   uploadedFile = req.file;
   originalFileName = req.file.originalname;
@@ -130,15 +168,30 @@ app.post('/updateKbis', (req, res) => {
       const metafields = data.metafields;
       const checkedKbisField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'checkedkbis');
       const mailProSentField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'mailProSent');
+      const companyNameField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'company');
+
       if(checkedKbisField && mailProSentField) {
         console.log('updatedClient', updatedData.last_name);
         console.log('kBisCheckedState: ', checkedKbisField.value);
         console.log('mailProSentState: ', mailProSentField.value);
+        var firstnameCustomer = updatedData.first_name;
+        var nameCustomer = updatedData.last_name;
+        var mailCustomer = updatedData.email;
+        var companyName = companyNameField.value;
+        console.log('companyName', companyName);
         var kbisState = checkedKbisField.value;
         var mailProState = mailProSentField.value;
 
         if(kbisState === true && mailProState === false) {
-          console.log("send email");
+          sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer, companyName)
+            .then(() => {
+              console.log('mail envoyé au client pro');             
+            })
+            .catch(error => {
+              console.error('Erreur lors de l\'envoi de l\'e-mail :', error);
+              res.status(500).send('Erreur lors de l\'envoi de l\'e-mail.');
+            });
+          console.log("maj mailProSent + add tag proValide");
         } else {
           console.log("mail already sent");
         }
