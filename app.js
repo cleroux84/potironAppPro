@@ -192,6 +192,7 @@ app.post('/updateKbis', (req, res) => {
               console.error('Erreur lors de l\'envoi de l\'e-mail :', error);
               res.status(500).send('Erreur lors de l\'envoi de l\'e-mail.');
             });
+
             const newTags = ['VIP', 'PRO validé']  
             const updatedCustomerKbis = {
               customer: {
@@ -217,6 +218,7 @@ app.post('/updateKbis', (req, res) => {
                   body: JSON.stringify(updatedCustomerKbis)
             };      
              fetch(updateCustomerUrl, updateOptions)
+             .then(response => response.json())
              .then(updatedKebisState => {
               console.log('mise à jour fiche client suite envoie du mail acces PRO')
              })
