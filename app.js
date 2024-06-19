@@ -130,11 +130,19 @@ app.post('/updateKbis', (req, res) => {
       const metafields = data.metafields;
       const checkedKbisField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'checkedkbis');
       const mailProSentField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'mailProSent');
+      if(checkedKbisField && mailProSentField) {
+        console.log('updatedClient', updatedData.last_name);
+        console.log('kBisCheckedState: ', checkedKbisField.value);
+        console.log('mailProSentState: ', mailProSentField.value);
+        var kbisState = checkedKbisField.value;
+        var mailProState = mailProSentField.value;
 
-      console.log('updatedClient', updatedData.last_name);
-      console.log('kBisCheckedState: ', checkedKbisField.value);
-      console.log('mailProSentState: ', mailProSentField.value);
-
+        if(kbisState === true && mailProState === true) {
+          console.log("send email");
+        } else {
+          console.log("mail already sent");
+        }
+      }
     })
 })
 
