@@ -6,6 +6,7 @@ const nodemailer = require('nodemailer');
 const path = require('path');
 const fs = require('fs');
 const { from } = require('form-data');
+const { type } = require('os');
 require('dotenv').config();
 
 const app = express();
@@ -128,8 +129,12 @@ app.post('/updateKbis', (req, res) => {
     .then(data => {
       const metafields = data.metafields;
       const checkedKbisField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'checkedkbis');
+      const mailProSentField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'mailProSent');
+
       console.log('updatedClient', updatedData.last_name);
-      console.log('kBisCheckedState: ', checkedKbisField);
+      console.log('kBisCheckedState: ', checkedKbisField.value);
+      console.log('mailProSentState: ', mailProSentField.value);
+
     })
 })
 
@@ -138,7 +143,7 @@ app.post('/webhook', (req, res) => {
     var b2BState = myData.tags;
     if (b2BState && b2BState.includes("VIP")) {
         const clientToUpdate = myData.id;
-        idCustomer = myData.id;
+        //idCustomer = myData.id;
         const siret = extractInfoFromNote(myData.note, 'siret');
         const companyName = extractInfoFromNote(myData.note, 'company_name');
         const tva = extractInfoFromNote(myData.note, 'tva');
@@ -207,6 +212,12 @@ app.post('/webhook', (req, res) => {
             },
             {
               key: 'checkedkbis',
+              value: false,
+              type: 'boolean',
+              namespace: 'custom'
+            },
+            {
+              key: 'mailProSent',
               value: false,
               type: 'boolean',
               namespace: 'custom'
