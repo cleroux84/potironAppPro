@@ -151,10 +151,10 @@ app.post('/upload', upload.single('uploadFile'), (req, res) => {
 });
 
 
-app.post('/proOrder', (req, res) => {
-  var orderData = req.body;
-  console.log('order', orderData);
-});
+// app.post('/proOrder', (req, res) => {
+//   var orderData = req.body;
+//   console.log('order', orderData);
+// });
 
 app.post('/updateKbis', (req, res) => {
   var updatedData = req.body;
