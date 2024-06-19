@@ -171,14 +171,10 @@ app.post('/updateKbis', (req, res) => {
       const companyNameField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'company');
 
       if(checkedKbisField && mailProSentField) {
-        console.log('updatedClient', updatedData.last_name);
-        console.log('kBisCheckedState: ', checkedKbisField.value);
-        console.log('mailProSentState: ', mailProSentField.value);
         var firstnameCustomer = updatedData.first_name;
         var nameCustomer = updatedData.last_name;
         var mailCustomer = updatedData.email;
         var companyName = companyNameField.value;
-        console.log('companyName', companyName);
         var kbisState = checkedKbisField.value;
         var mailProState = mailProSentField.value;
 
@@ -227,7 +223,6 @@ app.post('/updateKbis', (req, res) => {
               console.error('Erreur lors de la mise à jour du client', error);
               res.status(500).send('Erreur lors de la mise à jour des données clients')
              });
-          //console.log("maj mailProSent + add tag proValide");
         } else if(kbisState === false && mailProState === false) {
           console.log("Kbis à valider");
         } else {
@@ -337,7 +332,7 @@ app.post('/webhook', (req, res) => {
     fetch(updateCustomerUrl, updateOptions)
       .then(response => response.json())
       .then(updatedCustomer => {
-        console.log('nouveau client B2B')
+        console.log('nouveau client pro')
         //res.status(200).json(updatedCustomer);
       })
       .catch(error => {
@@ -345,7 +340,7 @@ app.post('/webhook', (req, res) => {
         res.status(500).send('Erreur lors de la mise à jour du client.');
       });
   } else {
-      console.log("pas vip");
+      console.log("client non pro");
   }
 });
 
