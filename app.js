@@ -153,15 +153,16 @@ app.post('/upload', upload.single('uploadFile'), (req, res) => {
 app.post('/updateKbis', (req, res) => {
   var updatedData = req.body;
   const clientUpdated = updatedData.id;
-
-  const metafieldsUrl = `https://potiron2021.myshopify.com/admin/api/2024-04/customers/${clientUpdated}/metafields.json`
-  const fetchOptions = {         
-    method: 'GET',         
-    headers: {             
-      'Content-Type': 'application/json',             
-      'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
-    } 
+ 
+  const metafieldsUrl = `https://potiron2021.myshopify.com/admin/api/2024-04/customers/${clientUpdated}/metafields.json`;
+  const fetchOptions = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Shopify-Access-Token': SHOPIFYAPPTOKEN
+    }
   };
+ 
   fetch(metafieldsUrl, fetchOptions)
     .then(response => response.json())
     .then(data => {
@@ -169,26 +170,29 @@ app.post('/updateKbis', (req, res) => {
       const checkedKbisField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'checkedkbis');
       const mailProSentField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'mailProSent');
       const companyNameField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'company');
-
-      if(checkedKbisField && mailProSentField) {
+ 
+      if (checkedKbisField && mailProSentField) {
         console.log('updatedClient', updatedData.last_name);
         console.log('kBisCheckedState: ', checkedKbisField.value);
         console.log('mailProSentState: ', mailProSentField.value);
         var firstnameCustomer = updatedData.first_name;
         var nameCustomer = updatedData.last_name;
         var mailCustomer = updatedData.email;
-        var companyName = companyNameField.value;
+        var companyName = companyNameField ? companyNameField.value : 'Company Name';
         console.log('companyName', companyName);
-        var kbisState = checkedKbisField.value;
-        var mailProState = mailProSentField.value;
-
-        if(kbisState === true && mailProState === false) {
+        var kbisState = checkedKbisField.value === 'true'; // Convert to boolean
+        var mailProState = mailProSentField.value === 'true'; // Convert to boolean
+ 
+        if (kbisState && !mailProState) {
           sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer, companyName)
             .then(() => {
-              console.log('mail envoyé au client pro');    
+              console.log('mail envoyé au client pro');
+ 
+              const newTags = ['VIP', 'PRO validé']; // New tags
               const updatedCustomerKbis = {
                 customer: {
-                  tags: newTags.join('VIP, PRO validé'), 
+                  id: clientUpdated,
+                  tags: newTags.join(', '),
                   metafields: [
                     {
                       key: 'mailProSent',
@@ -198,39 +202,45 @@ app.post('/updateKbis', (req, res) => {
                     }
                   ]
                 }
-              };  
-              const updateCustomerUrl = `https://potiron2021.myshopify.com/admin/api/2024-04/customers/${clientUpdated}.json`
+              };
+ 
+              const updateCustomerUrl = `https://potiron2021.myshopify.com/admin/api/2024-04/customers/${clientUpdated}.json`;
               const updateOptions = {
-                  method: 'PUT',
-                  headers: {
-                      'Content-Type': 'application/json',
-                      'X-Shopify-Access-Token': SHOPIFYAPPTOKEN
-                    },
-                    body: JSON.stringify(updatedCustomerKbis)
-              };      
-               fetch(updateCustomerUrl, updateOptions)
-               .then(updatedKebisState => {
-                console.log('mise à jour fiche client suite envoie du mail acces PRO')
-               })
-               .catch(error => {
-                console.error('Erreur lors de la mise à jour du client', error);
-                res.status(500).send('Erreur lors de la mise à jour des données clients')
-               });
+                method: 'PUT',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'X-Shopify-Access-Token': SHOPIFYAPPTOKEN
+                },
+                body: JSON.stringify(updatedCustomerKbis)
+              };
+ 
+              return fetch(updateCustomerUrl, updateOptions);
             })
-            
+            .then(updatedKebisState => {
+              console.log('mise à jour fiche client suite envoie du mail acces PRO');
+              res.status(200).send('Client updated successfully');
+            })
             .catch(error => {
-              console.error('Erreur lors de l\'envoi de l\'e-mail :', error);
-              res.status(500).send('Erreur lors de l\'envoi de l\'e-mail.');
+              console.error('Erreur lors de l\'envoi de l\'e-mail ou la mise à jour du client:', error);
+              res.status(500).send('Erreur lors de l\'envoi de l\'e-mail ou la mise à jour du client.');
             });
           console.log("maj mailProSent + add tag proValide");
-        } else if(kbisState === false && mailProState === false) {
+        } else if (!kbisState && !mailProState) {
           console.log("Kbis à valider");
+          res.status(200).send("Kbis à valider");
         } else {
           console.log("mail déjà envoyé");
+          res.status(200).send("mail déjà envoyé");
         }
+      } else {
+        res.status(400).send('Metafields not found');
       }
     })
-})
+    .catch(error => {
+      console.error('Erreur lors de la récupération des données du client:', error);
+      res.status(500).send('Erreur lors de la récupération des données du client.');
+    });
+});
 
 app.post('/webhook', (req, res) => {
     var myData = req.body;
