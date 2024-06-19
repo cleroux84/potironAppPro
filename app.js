@@ -150,6 +150,12 @@ app.post('/upload', upload.single('uploadFile'), (req, res) => {
   res.status(200).send('Fichier téléchargé avec succès.');
 });
 
+
+app.post('/proOrder', (req, res) => {
+  var orderData = req.body;
+  console.log('order', orderData);
+});
+
 app.post('/updateKbis', (req, res) => {
   var updatedData = req.body;
   const clientUpdated = updatedData.id;
@@ -189,7 +195,6 @@ app.post('/updateKbis', (req, res) => {
               res.status(500).send('Erreur lors de l\'envoi de l\'e-mail.');
             });
 
-            const newTags = ['VIP', 'PRO validé']  
             const updatedCustomerKbis = {
               customer: {
                 id: clientUpdated,
