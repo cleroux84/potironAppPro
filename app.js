@@ -189,6 +189,7 @@ app.post('/updateKbis', (req, res) => {
               const newTags = ['VIP', 'PRO validé']  
               const updatedCustomerKbis = {
                 customer: {
+                  id: clientUpdated,
                   tags: newTags.join(', '), 
                   metafields: [
                     {
@@ -211,7 +212,7 @@ app.post('/updateKbis', (req, res) => {
               };      
                fetch(updateCustomerUrl, updateOptions)
                .then(updatedKebisState => {
-                console.log('mise à jour fiche client suite envoie du mail acces PRO')
+                console.log('envoie maj:', updatedCustomerKbis)
                })
                .catch(error => {
                 console.error('Erreur lors de la mise à jour du client', error);
