@@ -182,7 +182,7 @@ app.post('/updateKbis', (req, res) => {
         var kbisState = checkedKbisField.value;
         var mailProState = mailProSentField.value;
 
-        if(kbisState && !mailProState) {
+        if(kbisState === true && mailProState === false) {
           sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer, companyName)
             .then(() => {
               console.log('mail envoyé au client pro');  
@@ -212,7 +212,7 @@ app.post('/updateKbis', (req, res) => {
               };      
                fetch(updateCustomerUrl, updateOptions)
                .then(updatedKebisState => {
-                console.log('envoie maj:', updatedCustomerKbis)
+                console.log('mise à jour fiche client suite envoie du mail acces PRO')
                })
                .catch(error => {
                 console.error('Erreur lors de la mise à jour du client', error);
@@ -224,7 +224,7 @@ app.post('/updateKbis', (req, res) => {
               console.error('Erreur lors de l\'envoi de l\'e-mail :', error);
               res.status(500).send('Erreur lors de l\'envoi de l\'e-mail.');
             });
-          console.log("maj mailProSent + add tag proValide");
+          //console.log("maj mailProSent + add tag proValide");
         } else if(kbisState === false && mailProState === false) {
           console.log("Kbis à valider");
         } else {
