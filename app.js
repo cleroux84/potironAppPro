@@ -182,7 +182,7 @@ app.post('/updateKbis', (req, res) => {
         var kbisState = checkedKbisField.value;
         var mailProState = mailProSentField.value;
 
-        if(kbisState === true && mailProState === false) {
+        if(kbisState === true && mailProState !== true) {
           sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer, companyName)
             .then(() => {
               console.log('mail envoyé au client pro');  
@@ -309,12 +309,6 @@ app.post('/webhook', (req, res) => {
             },
             {
               key: 'checkedkbis',
-              value: false,
-              type: 'boolean',
-              namespace: 'custom'
-            },
-            {
-              key: 'mailProSent',
               value: false,
               type: 'boolean',
               namespace: 'custom'
