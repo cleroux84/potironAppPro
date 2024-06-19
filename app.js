@@ -186,44 +186,44 @@ app.post('/updateKbis', (req, res) => {
           sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer, companyName)
             .then(() => {
               console.log('mail envoyé au client pro');  
-              const newTags = ['VIP', 'PRO validé']  
-              const updatedCustomerKbis = {
-                customer: {
-                  id: clientUpdated,
-                  tags: newTags.join(', '), 
-                  metafields: [
-                    {
-                      key: 'mailProSent',
-                      value: true,
-                      type: 'boolean',
-                      namespace: 'custom'
-                    }
-                  ]
-                }
-              };  
-              const updateCustomerUrl = `https://potiron2021.myshopify.com/admin/api/2024-04/customers/${clientUpdated}.json`
-              const updateOptions = {
-                  method: 'PUT',
-                  headers: {
-                      'Content-Type': 'application/json',
-                      'X-Shopify-Access-Token': SHOPIFYAPPTOKEN
-                    },
-                    body: JSON.stringify(updatedCustomerKbis)
-              };      
-               fetch(updateCustomerUrl, updateOptions)
-               .then(updatedKebisState => {
-                console.log('mise à jour fiche client suite envoie du mail acces PRO')
-               })
-               .catch(error => {
-                console.error('Erreur lors de la mise à jour du client', error);
-                res.status(500).send('Erreur lors de la mise à jour des données clients')
-               });
             })
             
             .catch(error => {
               console.error('Erreur lors de l\'envoi de l\'e-mail :', error);
               res.status(500).send('Erreur lors de l\'envoi de l\'e-mail.');
             });
+            const newTags = ['VIP', 'PRO validé']  
+            const updatedCustomerKbis = {
+              customer: {
+                id: clientUpdated,
+                tags: newTags.join(', '), 
+                metafields: [
+                  {
+                    key: 'mailProSent',
+                    value: true,
+                    type: 'boolean',
+                    namespace: 'custom'
+                  }
+                ]
+              }
+            };  
+            const updateCustomerUrl = `https://potiron2021.myshopify.com/admin/api/2024-04/customers/${clientUpdated}.json`
+            const updateOptions = {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Shopify-Access-Token': SHOPIFYAPPTOKEN
+                  },
+                  body: JSON.stringify(updatedCustomerKbis)
+            };      
+             fetch(updateCustomerUrl, updateOptions)
+             .then(updatedKebisState => {
+              console.log('mise à jour fiche client suite envoie du mail acces PRO')
+             })
+             .catch(error => {
+              console.error('Erreur lors de la mise à jour du client', error);
+              res.status(500).send('Erreur lors de la mise à jour des données clients')
+             });
           //console.log("maj mailProSent + add tag proValide");
         } else if(kbisState === false && mailProState === false) {
           console.log("Kbis à valider");
