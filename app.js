@@ -137,7 +137,7 @@ app.post('/updateKbis', (req, res) => {
         var kbisState = checkedKbisField.value;
         var mailProState = mailProSentField.value;
 
-        if(kbisState === true && mailProState === true) {
+        if(kbisState === true && mailProState === false) {
           console.log("send email");
         } else {
           console.log("mail already sent");
