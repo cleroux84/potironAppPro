@@ -151,7 +151,7 @@ app.post('/upload', upload.single('uploadFile'), (req, res) => {
 });
 
 
-app.post('/proOrder', (req, res) => {
+app.post('/proOrder', async (req, res) => {
   var orderData = req.body;
   var orderId = orderData.id;
   console.log("order id", orderId);
@@ -160,18 +160,49 @@ app.post('/proOrder', (req, res) => {
   const tagsArr = orderData.customer.tags.split(', ');
   console.log('tags customer', tagsArr);
   const isB2B = tagsArr.includes('PRO validé');
-  if(isB2B) {
-    console.log('is pro with validate tag');
-  } else {
-    console.log('is not pro')
-  }
+  // if(isB2B) {
+  //   console.log('is pro with validate tag');
+  // } else {
+  //   console.log('is not pro')
+  // }
   var originalNumber = orderData.order_number;
   const orderNameToUpdate = 'PRO' + originalNumber.toString();
   console.log('order name to update:', orderNameToUpdate);
-  console.log('type of nametoupdate', typeof orderNameToUpdate);
 
   //search origin
-  console.log("origin", orderData.shipping_lines.source);
+  console.log("origin", orderData.shipping_lines[0].source);
+  console.log("identifier", orderData.source_identifier);
+  console.log("source_name", orderData.source_name);
+
+  if(isB2B) {
+    const updatedOrder = {
+      order: {
+        id: orderId,
+        name: orderNameToUpdate,
+        tags: "Commande PRO"
+      }
+    };
+    const updateOrderUrl = `https://your-store.myshopify.com/admin/api/2024-04/orders/${orderId}.json`;
+    const updateOptions = {
+      method: 'PUT',
+      headers: {             
+        'Content-Type': 'application/json',             
+        'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
+      },
+      body: JSON.stringify(updatedOrder)
+    };
+    try {
+      const response = await fetch(updateOrderUrl, updateOptions);
+      const data = await response.json();       
+      console.log('Order updated :', data);  
+      res.status(200).send('Order updated');  
+    } catch (error) {
+      console.error('Error updating order:', error);
+      res.status(500).send('Error updating order');
+    }
+  } else {
+    console.log('order not for b2B');
+  }
 
 });
 
