@@ -151,10 +151,29 @@ app.post('/upload', upload.single('uploadFile'), (req, res) => {
 });
 
 
-// app.post('/proOrder', (req, res) => {
-//   var orderData = req.body;
-//   console.log('order', orderData);
-// });
+app.post('/proOrder', (req, res) => {
+  var orderData = req.body;
+  var orderId = orderData.id;
+  console.log("order id", orderId);
+  console.log('original name', orderData.name);
+  //retrieve if is b2B
+  const tagsArr = orderData.customer.tags.split(', ');
+  console.log('tags customer', tagsArr);
+  const isB2B = tagsArr.includes('PRO validé');
+  if(isB2B) {
+    console.log('is pro with validate tag');
+  } else {
+    console.log('is not pro')
+  }
+  var originalNumber = orderData.order_number;
+  const orderNameToUpdate = 'PRO' + originalNumber.toString();
+  console.log('order name to update:', orderNameToUpdate);
+  console.log('type of nametoupdate', typeof orderNameToUpdate);
+
+  //search origin
+  console.log("origin", orderData.shipping_lines.source);
+
+});
 
 app.post('/updateKbis', (req, res) => {
   var updatedData = req.body;
