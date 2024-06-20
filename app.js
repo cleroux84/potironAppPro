@@ -182,7 +182,7 @@ app.post('/proOrder', async (req, res) => {
   //       tags: "Commande PRO"
   //     }
   //   };
-  //   const updateOrderUrl = `https://your-store.myshopify.com/admin/api/2024-04/orders/${orderId}.json`;
+  //   const updateOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-04/orders/${orderId}.json`;
   //   const updateOptions = {
   //     method: 'PUT',
   //     headers: {             
@@ -211,7 +211,7 @@ app.post('/proOrder', async (req, res) => {
           tags: "Commande PRO"
         }
       };
-  const updateOrderUrl = `https://your-store.myshopify.com/admin/api/2024-04/orders/${orderId}.json`;
+  const updateOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-04/orders/${orderId}.json`;
   const updateOptions = {
     method: 'PUT',
     headers: {             
