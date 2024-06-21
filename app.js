@@ -55,10 +55,25 @@ app.get('/', (req, res) => {
 });
 
 //auth for shippingbo
-app.get('/auth', (req, res) => {
-  const authUrl = `https://app.shippingbo.com/oauth/authorize?response_type=code&client_id=4CNNGTrBZt4dEzC5F71kdyNeijlnZKbhWMxu-oEUA0A&redirect_uri=urn:ietf:wg:oauth:2.0:oob`;
-  res.redirect(authUrl);
-});
+
+const getToken = async () => {
+  const tokenUrl = 'http://app.shippingbo.com/oauth/token';
+  const tokenOptions = {
+    method: 'POST',
+    headers: {
+      'Content-type': 'application/json',
+      Accept: 'application/json'
+    },
+    body: '{"grant_type":"authorization_code","client_id":"4CNNGTrBZt4dEzC5F71kdyNeijlnZKbhWMxu-oEUA0A","client_secret":"t9CLr3HVyXnKKuQLs5vw9hZcnK9NqWqY37Pd7YQFZRQ","code":"BSL4kHsP_VrCuM5N8d8hDx5ceL-BilbvjrBxGaaw-NU","redirect_uri":"urn:ietf:wg:oauth:2.0:oob"}'
+  }
+  try {
+    const response = await fetch(tokenUrl, tokenOptions);
+    const data = await response.json();
+    console.log('data gettoken: ', data);
+  } catch (error) {
+    console.log('error gettoken', error);
+  }
+}
 
 
 
@@ -67,15 +82,18 @@ app.post('/updateOrder', async (req, res) => {
   const orderId = orderUpdated.id;
   const tags = orderUpdated.tags;
   console.log('order updated', orderUpdated);
+  const accessToken = await getToken();
+  console.log('accessToken', accessToken);
 
-//   try {
-//     const accessToken = await getAccessToken('');
-//     await updateShippingboOrder(orderId, tags, accessToken);
-//     res.status(200).send('Order updated successfully in Shippingbo');
-// } catch (error) {
-//     console.error('Error updating order in Shippingbo:', error);
-//     res.status(500).send('Error updating order in Shippingbo');
-// }
+  // const updateShippingboUrl = `https://app.shippingbo.com/orders/${orderId}`;
+  // const updateShippingboOptions = {
+  //   method: 'PATCH',
+  //   headers: {
+  //     'Content-type': 'application/json',
+  //     Accept: 'application/json',
+
+  //   }
+  // }
 
 });
 
