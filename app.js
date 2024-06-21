@@ -57,7 +57,7 @@ app.get('/', (req, res) => {
 //auth for shippingbo
 
 const getToken = async () => {
-  const tokenUrl = 'http://app.shippingbo.com/oauth/token';
+  const tokenUrl = 'https://app.shippingbo.com/oauth/token';
   const tokenOptions = {
     method: 'POST',
     headers: {
