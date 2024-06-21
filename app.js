@@ -64,7 +64,13 @@ const getToken = async () => {
       'Content-type': 'application/json',
       Accept: 'application/json'
     },
-    body: '{"grant_type":"authorization_code","client_id":"4CNNGTrBZt4dEzC5F71kdyNeijlnZKbhWMxu-oEUA0A","client_secret":"t9CLr3HVyXnKKuQLs5vw9hZcnK9NqWqY37Pd7YQFZRQ","code":"BSL4kHsP_VrCuM5N8d8hDx5ceL-BilbvjrBxGaaw-NU","redirect_uri":"urn:ietf:wg:oauth:2.0:oob"}'
+    body: JSON.stringify({
+      grant_type: 'authorization_code',       
+      client_id: CLIENT_ID,       
+      client_secret: CLIENT_SECRET,       
+      code: YOUR_AUTHORIZATION_CODE,       
+      redirect_uri: 'urn:ietf:wg:oauth:2.0:oob' 
+    })
   }
   try {
     const response = await fetch(tokenUrl, tokenOptions);
@@ -82,8 +88,15 @@ app.post('/updateOrder', async (req, res) => {
   const orderId = orderUpdated.id;
   const tags = orderUpdated.tags;
   console.log('order updated', orderUpdated);
-  const accessToken = await getToken();
-  console.log('accessToken', accessToken);
+
+  try {
+    const accessToken = await getToken();
+    console.log('accessToken', accessToken);
+    res.status(200).send('token obtained');
+  } catch (error) {
+    console.log('error token ')
+  }
+
 
   // const updateShippingboUrl = `https://app.shippingbo.com/orders/${orderId}`;
   // const updateShippingboOptions = {
