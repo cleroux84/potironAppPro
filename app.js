@@ -62,6 +62,7 @@ app.get('/auth', (req, res) => {
 
 app.post('/get-token', async (req, res) => {
   const code = req.body.code;
+  console.log('codegettoken', code);
   try {         
       const accessToken = await getAccessToken(code);
       res.status(200).send('Access token obtained successfully');
@@ -71,6 +72,7 @@ app.post('/get-token', async (req, res) => {
     } });
     
     async function getAccessToken(code) {
+      console.log('codegetaccess', code);
       try {
         const response = await fetch('https://app.shippingbo.com/oauth/token', {
           method: 'POST',
@@ -79,7 +81,7 @@ app.post('/get-token', async (req, res) => {
           },
           body: JSON.stringify({
             grant_type: 'authorization_code',
-            code: code,
+            code: YOUR_AUTHORIZATION_CODE,
             redirect_uri: 'urn:ietf:wg:oauth:2.0:oob',
             client_id: CLIENT_ID,
             client_secret: CLIENT_SECRET
