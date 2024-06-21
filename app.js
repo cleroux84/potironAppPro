@@ -199,7 +199,7 @@ app.post('/proOrder', async (req, res) => {
   }
 });
 
-app.post('/updateOrder', (req, req) => {
+app.post('/updateOrder', (req, res) => {
   const orderUpdated = req.body;
   console.log("commande mise à jour: ", orderUpdated);
 });
