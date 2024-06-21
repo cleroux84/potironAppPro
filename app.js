@@ -18,8 +18,8 @@ const MAILPORT = process.env.MAILPORT;
 const MAILSENDER = process.env.MAILSENDER;
 const MAILSENDERPASS = process.env.MAILSENDERPASS;
 const MAILRECIPIENT = process.env.MAILRECIPIENT;
-const CLIENT_ID = process.env.CLIENT_ID;
-const CLIENT_SECRET = process.env.CLIENT_SECRET;
+const CLIENT_ID = process.env.CLIENT_ID_SHIPPINBO;
+const CLIENT_SECRET = process.env.CLIENT_SECRET_SHIPPINGBO;
 const API_APP_ID = process.env.API_APP_ID;
 const YOUR_AUTHORIZATION_CODE = process.env.YOUR_AUTHORIZATION_CODE
 
