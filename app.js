@@ -18,6 +18,9 @@ const MAILPORT = process.env.MAILPORT;
 const MAILSENDER = process.env.MAILSENDER;
 const MAILSENDERPASS = process.env.MAILSENDERPASS;
 const MAILRECIPIENT = process.env.MAILRECIPIENT;
+const CLIENT_ID = process.env.CLIENT_ID;
+const CLIENT_SECRET = process.env.CLIENT_SECRET;
+const API_APP_ID = process.env.API_APP_ID;
 
 const upload = multer({ 
   storage: multer.diskStorage({
@@ -48,6 +51,82 @@ app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
     res.send('Bienvenue sur votre application !');
+});
+
+//auth for shippingbo
+app.get('/auth', (req, res) => {
+  const authUrl = `https://app.shippingbo.com/oauth/authorize?response_type=code&client_id=4CNNGTrBZt4dEzC5F71kdyNeijlnZKbhWMxu-oEUA0A&redirect_uri=urn:ietf:wg:oauth:2.0:oob`;
+  res.redirect(authUrl);
+});
+
+app.post('/get-token', async (req, res) => {
+  const code = req.body.code;
+  try {         
+      const accessToken = await getAccessToken(code);
+      res.status(200).send('Access token obtained successfully');
+    } catch (error) {         
+      console.error('Error obtaining access token:', error);
+      res.status(500).send('Error obtaining access token');     
+    } });
+    
+async function getAccessToken(code) {
+  const response = await fetch('https://app.shippingbo.com/oauth/token', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+          grant_type: 'authorization_code',
+          code: code,
+          redirect_uri: 'urn:ietf:wg:oauth:2.0:oob',
+          client_id: CLIENT_ID,
+          client_secret: CLIENT_SECRET
+      })
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+      throw new Error(data.error || 'Failed to obtain access token');
+  }
+
+  return data.access_token;
+}
+
+async function updateShippingboOrder(orderId, tags, accessToken) {
+  const shippingboApiUrl = `https://app.shippingbo.com/orders/${orderId}`;
+  const payload = { tags: tags };
+
+  const response = await fetch(shippingboApiUrl, {
+      method: 'PATCH',
+      headers: {
+          'Content-Type': 'application/json',
+          'x-api-version': 'v1',
+          'x-api-app-id': process.env.API_APP_ID,
+          'Authorization': `Bearer ${accessToken}`
+      },
+      body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to update order');
+  }
+}
+
+app.post('/updateOrder', async (req, res) => {
+  const orderUpdated = req.body;
+  const orderId = orderUpdated.id;
+  const tags = orderUpdated.tags;
+
+  try {
+    const accessToken = await getAccessToken('YOUR_AUTHORIZATION_CODE');
+    await updateShippingboOrder(orderId, tags, accessToken);
+    res.status(200).send('Order updated successfully in Shippingbo');
+} catch (error) {
+    console.error('Error updating order in Shippingbo:', error);
+    res.status(500).send('Error updating order in Shippingbo');
+}
+
 });
 
 let uploadedFile = null;
@@ -199,10 +278,6 @@ app.post('/proOrder', async (req, res) => {
   }
 });
 
-app.post('/updateOrder', (req, res) => {
-  const orderUpdated = req.body;
-  console.log("commande mise à jour: ", orderUpdated);
-});
 
 app.post('/updateKbis', (req, res) => {
   var updatedData = req.body;
