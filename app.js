@@ -199,6 +199,11 @@ app.post('/proOrder', async (req, res) => {
   }
 });
 
+app.post('/updateOrder', (req, req) => {
+  const orderUpdated = req.body;
+  console.log("commande mise à jour: ", orderUpdated);
+})
+
 app.post('/updateKbis', (req, res) => {
   var updatedData = req.body;
   const clientUpdated = updatedData.id;
