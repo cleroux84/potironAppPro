@@ -70,28 +70,35 @@ app.post('/get-token', async (req, res) => {
       res.status(500).send('Error obtaining access token');     
     } });
     
-async function getAccessToken(code) {
-  const response = await fetch('https://app.shippingbo.com/oauth/token', {
-      method: 'POST',
-      headers: {
-          'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-          grant_type: 'authorization_code',
-          code: code,
-          redirect_uri: 'urn:ietf:wg:oauth:2.0:oob',
-          client_id: CLIENT_ID,
-          client_secret: CLIENT_SECRET
-      })
-  });
-
-  const data = await response.json();
-  if (!response.ok) {
-      throw new Error(data.error || 'Failed to obtain access token');
-  }
-
-  return data.access_token;
-}
+    async function getAccessToken(code) {
+      try {
+        const response = await fetch('https://app.shippingbo.com/oauth/token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            grant_type: 'authorization_code',
+            code: code,
+            redirect_uri: 'urn:ietf:wg:oauth:2.0:oob',
+            client_id: CLIENT_ID,
+            client_secret: CLIENT_SECRET
+          })
+        });
+     
+        const data = await response.json();
+        const responseText = await response.text();
+        console.log('response', responseText);
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to obtain access token');
+        }
+     
+        return data.access_token;
+      } catch (error) {
+        console.error('Error obtaining access token:', error);
+        throw error; // Réémettre l'erreur pour qu'elle soit capturée plus haut
+      }
+    }
 
 async function updateShippingboOrder(orderId, tags, accessToken) {
   const shippingboApiUrl = `https://app.shippingbo.com/orders/${orderId}`;
