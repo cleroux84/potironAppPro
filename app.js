@@ -7,6 +7,7 @@ const path = require('path');
 const fs = require('fs');
 const { from } = require('form-data');
 const { type } = require('os');
+const { error } = require('console');
 require('dotenv').config();
 
 const app = express();
@@ -75,9 +76,11 @@ const getToken = async () => {
   try {
     const response = await fetch(tokenUrl, tokenOptions);
     const data = await response.json();
-    console.log('data gettoken: ', data);
+    // console.log('data getToken: ', data);
+    // console.log('error', error.headers);
   } catch (error) {
-    console.log('error gettoken', error);
+    console.log('error getToken', error);
+    console.log('error headers', error.headers);
   }
 }
 
