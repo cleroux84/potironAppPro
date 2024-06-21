@@ -21,6 +21,7 @@ const MAILRECIPIENT = process.env.MAILRECIPIENT;
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const API_APP_ID = process.env.API_APP_ID;
+const YOUR_AUTHORIZATION_CODE = process.env.YOUR_AUTHORIZATION_CODE
 
 const upload = multer({ 
   storage: multer.diskStorage({
@@ -119,7 +120,7 @@ app.post('/updateOrder', async (req, res) => {
   const tags = orderUpdated.tags;
 
   try {
-    const accessToken = await getAccessToken('YOUR_AUTHORIZATION_CODE');
+    const accessToken = await getAccessToken(YOUR_AUTHORIZATION_CODE);
     await updateShippingboOrder(orderId, tags, accessToken);
     res.status(200).send('Order updated successfully in Shippingbo');
 } catch (error) {
