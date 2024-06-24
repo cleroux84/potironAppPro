@@ -86,21 +86,22 @@ app.post('/updateOrder', async (req, res) => {
   const orderUpdated = req.body;
   //console.log("order", orderUpdated)
   const orderId = orderUpdated.id;
-  const tags = orderUpdated.tags;
+  const tagsPRO = orderUpdated.tags;
   console.log("tags: ", tags);
 
  const accessToken = await getToken();
 if(!accessToken) {
   res.status(500).json({error: 'Failed to obtain access token'});
 }
+if(tagsPRO.includes('Commande PRO')) {
 
 const updateData = {
  order: {
     id: orderId,
-    tags: tags
+    tags: tagsPRO
   }
 }
-
+console.log('ppl');
   const updateShippingboUrl = `https://app.shippingbo.com/orders/${orderId}`;
   const updateShippingboOptions = {
     method: 'PATCH',
@@ -113,10 +114,12 @@ const updateData = {
     },
     body: JSON.stringify(updateData)
   };
+
   try{
     const response = await fetch(updateShippingboUrl, updateShippingboOptions);
     const data = await response.json();
     if(response.ok) {
+      console.log('ici')
       console.log('order updated in shippingbo', data);
       res.status(200).json(data);
     }
@@ -124,7 +127,9 @@ const updateData = {
     console.error('Error updating shippingbo order', error);
     res.status(500).json({error: 'Error updating order shippingbo'});
   }
-
+} else {
+  console.log("non pro")
+}
 });
 
 let uploadedFile = null;
