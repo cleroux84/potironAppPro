@@ -99,13 +99,13 @@ if(tagsPRO.includes('Commande PRO')) {
 
 const updateData = {
     id: orderId,
-    tags_to_add: tagsPRO, 
+    tags_to_add: [tagsPRO], 
     origin: "PRO",
     origin_ref: 'PRO_'
 }
 console.log(updateData);
 console.log('ppl');
-  const updateShippingboUrl = `https://app.shippingbo.com/orders/${orderId}`;
+  const updateShippingboUrl = `https://app.shippingbo.com/orders/94409872`;
   const updateShippingboOptions = {
     method: 'PATCH',
     headers: {
