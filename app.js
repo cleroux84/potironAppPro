@@ -161,7 +161,7 @@ const getShippingboId = async (shopifyOrderId) => {
   try {
     const response = await fetch(giveIdurl, giveIdOptions);
     const data = await response.json();
-    console.log('shippingboId: ', data[0].id);
+    console.log('shippingboId: ', data);
   } catch (err) {
     console.log('nop', err);
   }
