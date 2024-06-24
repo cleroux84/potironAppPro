@@ -65,74 +65,41 @@ const getToken = async () => {
       'Content-type': 'application/json',
       Accept: 'application/json'
     },
-    body: {
-      "grant_type": "authorization_code",       
-      "client_id": CLIENT_ID,       
-      "client_secret": CLIENT_SECRET,       
-      "code": YOUR_AUTHORIZATION_CODE,       
-      "redirect_uri": "urn:ietf:wg:oauth:2.0:oob"
-    }
+    body: JSON.stringify({
+      grant_type: 'authorization_code',       
+      client_id: CLIENT_ID,       
+      client_secret: CLIENT_SECRET,       
+      code: YOUR_AUTHORIZATION_CODE,       
+      redirect_uri: 'urn:ietf:wg:oauth:2.0:oob' 
+    })
   }
   try {
     const response = await fetch(tokenUrl, tokenOptions);
     const data = await response.json();
       console.log('data getToken: ', data);
-      console.log("secret", CLIENT_SECRET);
-      console.log("client", CLIENT_ID);
-      
-      return data;
+      console.log('headers', headers);
+     console.log('error', data.headers);
   } catch (error) {
     console.log('error getToken', error);
     console.log('error headers', error.headers);
   }
 }
 
+
+
 app.post('/updateOrder', async (req, res) => {
-  const url = 'https://oauth.shippingbo.com/oauth/token';
-const options = {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    Accept: 'application/json'
-  },
-  body: JSON.stringify({
-    grant_type: 'authorization_code',
-    client_id: CLIENT_ID,
-    client_secret: CLIENT_SECRET,
-    code: YOUR_AUTHORIZATION_CODE,
-    redirect_uri: 'urn:ietf:wg:oauth:2.0:oob'
-  })
-};
- 
-(async () => {
+  const orderUpdated = req.body;
+  const orderId = orderUpdated.id;
+  const tags = orderUpdated.tags;
+  console.log('order updated', orderUpdated);
+
   try {
-    const response = await fetch(url, options);
-    console.log("secret", CLIENT_SECRET);
-    console.log("client", CLIENT_ID);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const data = await response.json();
-    console.log(data);
+    const accessToken = await getToken();
+    console.log('accessToken', accessToken);
+    res.status(200).send('token obtained');
   } catch (error) {
-    console.error('Error obtaining access token:', error);
+    console.log('error token ')
   }
-})();
-})
-
-// app.post('/updateOrder', async (req, res) => {
-//   const orderUpdated = req.body;
-//   const orderId = orderUpdated.id;
-//   const tags = orderUpdated.tags;
-//   console.log('order updated', orderUpdated);
-
-//   try {
-//     const accessToken = await getToken();
-//     console.log('accessToken', accessToken);
-//     res.status(200).send('token obtained');
-//   } catch (error) {
-//     console.log('error token ')
-//   }
 
 
   // const updateShippingboUrl = `https://app.shippingbo.com/orders/${orderId}`;
@@ -145,7 +112,7 @@ const options = {
   //   }
   // }
 
-// });
+});
 
 let uploadedFile = null;
 let originalFileName = null;
