@@ -58,6 +58,32 @@ app.get('/', (req, res) => {
 });
 
 //auth for shippingbo
+const getClientCredentialsToken = async () => {
+  const tokenUrl = 'https://oauth.shippingbo.com/oauth/token';
+  const tokenOptions = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json'
+    },
+    body: JSON.stringify({
+      grant_type: 'client_credentials',
+      client_id: CLIENT_ID,
+      client_secret: CLIENT_SECRET
+    })
+  };
+ 
+  try {
+    const response = await fetch(tokenUrl, tokenOptions);
+    const data = await response.json();
+    accessToken = data.access_token;
+    return accessToken;
+  } catch (error) {
+    console.error('Error obtaining client credentials token:', error);
+    throw error;
+  }
+};
+ 
 const getToken = async (authorizationCode) => {
   const tokenUrl = 'https://oauth.shippingbo.com/oauth/token';
   const tokenOptions = {
@@ -90,8 +116,7 @@ const getToken = async (authorizationCode) => {
   }
 };
  
-// Fonction pour rafraîchir le token d'accès avec le refresh_token
-const refreshAccessToken = async (refreshToken) => {
+const refreshAccessToken = async () => {
   const refreshUrl = 'https://oauth.shippingbo.com/oauth/token';
   const refreshOptions = {
     method: 'POST',
@@ -111,13 +136,14 @@ const refreshAccessToken = async (refreshToken) => {
     const response = await fetch(refreshUrl, refreshOptions);
     const data = await response.json();
     accessToken = data.access_token;
-    refreshToken = data.refresh_token; // Mettre à jour le refresh_token au cas où il change
+    refreshToken = data.refresh_token; 
     return accessToken;
   } catch (error) {
     console.error('Error refreshing access token:', error);
     throw error;
   }
 };
+ 
 
 app.post('/updateOrder', async (req, res) => {
   const orderUpdated = req.body;
@@ -136,15 +162,20 @@ if(tagsPRO.includes('Commande PRO')) {
   try {
     // Si l'accessToken est expiré ou non défini, rafraîchir avec refreshToken
     if (!accessToken) {
-      const tokens = await getToken(YOUR_AUTHORIZATION_CODE);
-      if (!tokens.accessToken || !tokens.refreshToken) {
-        throw new Error('Failed to obtain access tokens');
+      // Si refreshToken est disponible, rafraîchir l'accessToken
+      if (refreshToken) {
+        accessToken = await refreshAccessToken();
+      } else {
+        // Sinon, obtenir un nouvel accessToken avec authorization_code
+        const tokens = await getToken(YOUR_AUTHORIZATION_CODE);
+        if (!tokens.accessToken || !tokens.refreshToken) {
+          throw new Error('Failed to obtain access tokens');
+        }
+        accessToken = tokens.accessToken;
+        refreshToken = tokens.refreshToken;
+        console.log(accessToken);
       }
-      accessToken = tokens.accessToken;
-      refreshToken = tokens.refreshToken;
     }
-console.log("accesstoken", accessToken);
-console.log("refreshToken", refreshToken);
   // const giveIdurl = `https://app.shippingbo.com/orders?sources_ref=${orderId}`;
   // const giveIdOptions = {
   //   method: 'GET',
