@@ -146,8 +146,8 @@ const refreshAccessToken = async () => {
 };
  
 const getShippingboId = async (shopifyOrderId) => {
-  console.log('shopify order name', shopifyOrderId);
-  const giveIdurl = `https://app.shippingbo.com/orders?origin_ref=${shopifyOrderId}`;
+  console.log('shopify order id', shopifyOrderId);
+  const giveIdurl = `https://app.shippingbo.com/orders?source_ref=${shopifyOrderId}`;
   const giveIdOptions = {
     method: 'GET',
     headers: {
@@ -161,7 +161,7 @@ const getShippingboId = async (shopifyOrderId) => {
   try {
     const response = await fetch(giveIdurl, giveIdOptions);
     const data = await response.json();
-    console.log('shippingboId: ', data);
+    console.log('shippingboId: ', data[0].id);
   } catch (err) {
     console.log('nop', err);
   }
@@ -170,7 +170,7 @@ const getShippingboId = async (shopifyOrderId) => {
 app.post('/updateOrder', async (req, res) => {
   const orderUpdated = req.body;
   //console.log("order", orderUpdated)
-  const orderId = orderUpdated.name;
+  const orderId = orderUpdated.id;
   const tagsPRO = orderUpdated.tags;
   console.log('id', orderId);
   console.log("tags: ", tagsPRO);
