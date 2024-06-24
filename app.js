@@ -84,9 +84,10 @@ const getToken = async () => {
 
 app.post('/updateOrder', async (req, res) => {
   const orderUpdated = req.body;
-  console.log("order", orderUpdated)
+  //console.log("order", orderUpdated)
   const orderId = orderUpdated.id;
   const tags = orderUpdated.tags;
+  console.log("tags: ", tags);
 
  const accessToken = await getToken();
 if(!accessToken) {
