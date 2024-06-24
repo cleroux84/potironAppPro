@@ -94,8 +94,10 @@ if(!accessToken) {
 }
 
 const updateData = {
-  id: orderId,
-  tags: tags
+ order: {
+    id: orderId,
+    tags: tags
+  }
 }
 
   const updateShippingboUrl = `https://app.shippingbo.com/orders/${orderId}`;
