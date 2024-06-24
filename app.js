@@ -87,9 +87,11 @@ app.post('/updateOrder', async (req, res) => {
   //console.log("order", orderUpdated)
   const orderId = orderUpdated.id;
   const tagsPRO = orderUpdated.tags;
+  console.log('id', orderId);
   console.log("tags: ", tagsPRO);
 
  const accessToken = await getToken();
+ console.log('token', accessToken);
 if(!accessToken) {
   res.status(500).json({error: 'Failed to obtain access token'});
 }
@@ -98,9 +100,11 @@ if(tagsPRO.includes('Commande PRO')) {
 const updateData = {
  order: {
     id: orderId,
-    tags: tagsPRO
+    tags: tagsPRO, 
+    origin: "PRO"
   }
 }
+console.log(updateData);
 console.log('ppl');
   const updateShippingboUrl = `https://app.shippingbo.com/orders/${orderId}`;
   const updateShippingboOptions = {
@@ -108,7 +112,7 @@ console.log('ppl');
     headers: {
       'Content-type': 'application/json',
       Accept: 'application/json',
-      'X-API-VERSION' : '1.0',
+      'X-API-VERSION' : '1',
       'X-API-APP-ID': API_APP_ID,
       Authorization: `Bearer ${accessToken}`
     },
