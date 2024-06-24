@@ -96,42 +96,62 @@ if(!accessToken) {
   res.status(500).json({error: 'Failed to obtain access token'});
 }
 if(tagsPRO.includes('Commande PRO')) {
-
-const updateData = {
-    id: orderId,
-    tags_to_add: [tagsPRO], 
-    origin: "PRO",
-    origin_ref: 'PRO_'
-}
-console.log(updateData);
-console.log('ppl');
-  const updateShippingboUrl = `https://app.shippingbo.com/orders/94409872`;
-  const updateShippingboOptions = {
-    method: 'PATCH',
+  const giveIdurl = `https://app.shippingbo.com/orders?sources_ref=${orderId}`;
+  const giveIdOptions = {
+    method: 'GET',
     headers: {
-      'Content-type': 'application/json',
       Accept: 'application/json',
-      'X-API-VERSION' : '1',
-      'X-API-APP-ID': API_APP_ID,
       Authorization: `Bearer ${accessToken}`
-    },
-    body: JSON.stringify(updateData)
-  };
-
-  try{
-    const response = await fetch(updateShippingboUrl, updateShippingboOptions);
-    const data = await response.json();
-    if(response.ok) {
-      console.log('ici')
-      console.log('order updated in shippingbo', data);
-      res.status(200).json(data);
     }
-  } catch (error) {
-    console.error('Error updating shippingbo order', error);
-    res.status(500).json({error: 'Error updating order shippingbo'});
+  };
+  try {
+    const response = await fetch(giveIdurl, giveIdOptions);
+    const data = await response.json;
+    if(response.ok && data.length > 0) {
+      console.log('shippingboId: ', data[0].id)
+      return data[0].id;
+    } else {
+      console.log("wtf");
+    }
+  } catch(err) {
+    console.log('error shiipingboId', err);
   }
-} else {
-  console.log("non pro")
+
+// const updateData = {
+//     id: orderId,
+//     tags_to_add: ["Commande PRO"], 
+//     origin: "PRO",
+//     origin_ref: 'PRO_'
+// }
+// console.log(updateData);
+// console.log('ppl');
+//   const updateShippingboUrl = `https://app.shippingbo.com/orders/${orderId}`;
+//   const updateShippingboOptions = {
+//     method: 'PATCH',
+//     headers: {
+//       'Content-type': 'application/json',
+//       Accept: 'application/json',
+//       'X-API-VERSION' : '1',
+//       'X-API-APP-ID': API_APP_ID,
+//       Authorization: `Bearer ${accessToken}`
+//     },
+//     body: JSON.stringify(updateData)
+//   };
+
+//   try{
+//     const response = await fetch(updateShippingboUrl, updateShippingboOptions);
+//     const data = await response.json();
+//     if(response.ok) {
+//       console.log('ici')
+//       console.log('order updated in shippingbo', data);
+//       res.status(200).json(data);
+//     }
+//   } catch (error) {
+//     console.error('Error updating shippingbo order', error);
+//     res.status(500).json({error: 'Error updating order shippingbo'});
+//   }
+// } else {
+//   console.log("non pro")
 }
 });
 
