@@ -173,9 +173,10 @@ if(tagsPRO.includes('Commande PRO')) {
         }
         accessToken = tokens.accessToken;
         refreshToken = tokens.refreshToken;
-        console.log('token' ,accessToken);
       }
     }
+    console.log('token' ,accessToken);
+
   // const giveIdurl = `https://app.shippingbo.com/orders?sources_ref=${orderId}`;
   // const giveIdOptions = {
   //   method: 'GET',
