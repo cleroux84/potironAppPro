@@ -76,39 +76,51 @@ const getToken = async () => {
   try {
     const response = await fetch(tokenUrl, tokenOptions);
     const data = await response.json();
-      console.log('data getToken: ', data);
+    return data.access_token;
   } catch (error) {
     console.log('error getToken', error);
-    console.log('error headers', error.headers);
   }
 }
 
-
-
 app.post('/updateOrder', async (req, res) => {
   const orderUpdated = req.body;
+  console.log("order", orderUpdated)
   const orderId = orderUpdated.id;
   const tags = orderUpdated.tags;
-  console.log('order updated', orderUpdated);
 
-  try {
-    const accessToken = await getToken();
-    console.log('accessToken', accessToken);
-    res.status(200).send('token obtained');
+ const accessToken = await getToken();
+if(!accessToken) {
+  res.status(500).json({error: 'Failed to obtain access token'});
+}
+
+const updateData = {
+  id: orderId,
+  tags: tags
+}
+
+  const updateShippingboUrl = `https://app.shippingbo.com/orders/${orderId}`;
+  const updateShippingboOptions = {
+    method: 'PATCH',
+    headers: {
+      'Content-type': 'application/json',
+      Accept: 'application/json',
+      'X-API-VERSION' : '1.0',
+      'X-API-APP-ID': API_APP_ID,
+      Authorization: `Bearer ${accessToken}`
+    },
+    body: JSON.stringify(updateData)
+  };
+  try{
+    const response = await fetch(updateShippingboUrl, updateShippingboOptions);
+    const data = await response.json();
+    if(response.ok) {
+      console.log('order updated in shippingbo', data);
+      res.status(200).json(data);
+    }
   } catch (error) {
-    console.log('error token ')
+    console.error('Error updating shippingbo order', error);
+    res.status(500).json({error: 'Error updating order shippingbo'});
   }
-
-
-  // const updateShippingboUrl = `https://app.shippingbo.com/orders/${orderId}`;
-  // const updateShippingboOptions = {
-  //   method: 'PATCH',
-  //   headers: {
-  //     'Content-type': 'application/json',
-  //     Accept: 'application/json',
-
-  //   }
-  // }
 
 });
 
