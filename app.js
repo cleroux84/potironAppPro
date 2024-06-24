@@ -192,7 +192,7 @@ if(tagsPRO.includes('Commande PRO')) {
       }
     }
     console.log('token' ,accessToken);
-    getShippingboId(orderId);
+    await getShippingboId(orderId);
 
   // try {
   //   const response = await fetch(giveIdurl, giveIdOptions);
