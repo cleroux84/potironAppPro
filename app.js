@@ -99,8 +99,9 @@ if(tagsPRO.includes('Commande PRO')) {
 
 const updateData = {
     id: orderId,
-    tags: tagsPRO, 
-    origin: "PRO"
+    tags_to_add: tagsPRO, 
+    origin: "PRO",
+    origin_ref: 'PRO_'
 }
 console.log(updateData);
 console.log('ppl');
