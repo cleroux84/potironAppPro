@@ -98,11 +98,9 @@ if(!accessToken) {
 if(tagsPRO.includes('Commande PRO')) {
 
 const updateData = {
- order: {
     id: orderId,
     tags: tagsPRO, 
     origin: "PRO"
-  }
 }
 console.log(updateData);
 console.log('ppl');
