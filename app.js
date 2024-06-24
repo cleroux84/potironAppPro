@@ -146,7 +146,7 @@ const refreshAccessToken = async () => {
 };
  
 const getShippingboId = async (shopifyOrderId) => {
-  const giveIdurl = `https://app.shippingbo.com/orders?sources_ref=${orderId}`;
+  const giveIdurl = `https://app.shippingbo.com/orders?sources_ref=${shopifyOrderId}`;
   const giveIdOptions = {
     method: 'GET',
     headers: {
