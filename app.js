@@ -87,7 +87,7 @@ app.post('/updateOrder', async (req, res) => {
   //console.log("order", orderUpdated)
   const orderId = orderUpdated.id;
   const tagsPRO = orderUpdated.tags;
-  console.log("tags: ", tags);
+  console.log("tags: ", tagsPRO);
 
  const accessToken = await getToken();
 if(!accessToken) {
