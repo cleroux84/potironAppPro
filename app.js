@@ -77,8 +77,6 @@ const getToken = async () => {
     const response = await fetch(tokenUrl, tokenOptions);
     const data = await response.json();
       console.log('data getToken: ', data);
-      console.log('headers', headers);
-     console.log('error', data.headers);
   } catch (error) {
     console.log('error getToken', error);
     console.log('error headers', error.headers);
