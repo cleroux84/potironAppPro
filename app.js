@@ -22,7 +22,9 @@ const MAILRECIPIENT = process.env.MAILRECIPIENT;
 const CLIENT_ID = process.env.CLIENT_ID_SHIPPINGBO;
 const CLIENT_SECRET = process.env.CLIENT_SECRET_SHIPPINGBO;
 const API_APP_ID = process.env.API_APP_ID;
-const YOUR_AUTHORIZATION_CODE = process.env.YOUR_AUTHORIZATION_CODE
+const YOUR_AUTHORIZATION_CODE = process.env.YOUR_AUTHORIZATION_CODE;
+let accessToken = null;
+let refreshToken = null;
 
 const upload = multer({ 
   storage: multer.diskStorage({
@@ -56,31 +58,66 @@ app.get('/', (req, res) => {
 });
 
 //auth for shippingbo
-
-const getToken = async () => {
+const getToken = async (authorizationCode) => {
   const tokenUrl = 'https://oauth.shippingbo.com/oauth/token';
   const tokenOptions = {
     method: 'POST',
     headers: {
-      'Content-type': 'application/json',
+      'Content-Type': 'application/json',
       Accept: 'application/json'
     },
     body: JSON.stringify({
-      grant_type: 'authorization_code',       
-      client_id: CLIENT_ID,       
-      client_secret: CLIENT_SECRET,       
-      code: YOUR_AUTHORIZATION_CODE,       
-      redirect_uri: 'urn:ietf:wg:oauth:2.0:oob' 
+      grant_type: 'authorization_code',
+      client_id: CLIENT_ID,
+      client_secret: CLIENT_SECRET,
+      code: authorizationCode,
+      redirect_uri: 'urn:ietf:wg:oauth:2.0:oob'
     })
-  }
+  };
+ 
   try {
     const response = await fetch(tokenUrl, tokenOptions);
     const data = await response.json();
-    return data.access_token;
+    accessToken = data.access_token;
+    refreshToken = data.refresh_token;
+    return {
+      accessToken,
+      refreshToken
+    };
   } catch (error) {
-    console.log('error getToken', error);
+    console.error('Error obtaining access token:', error);
+    throw error;
   }
-}
+};
+ 
+// Fonction pour rafraîchir le token d'accès avec le refresh_token
+const refreshAccessToken = async (refreshToken) => {
+  const refreshUrl = 'https://oauth.shippingbo.com/oauth/token';
+  const refreshOptions = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json'
+    },
+    body: JSON.stringify({
+      grant_type: 'refresh_token',
+      client_id: CLIENT_ID,
+      client_secret: CLIENT_SECRET,
+      refresh_token: refreshToken
+    })
+  };
+ 
+  try {
+    const response = await fetch(refreshUrl, refreshOptions);
+    const data = await response.json();
+    accessToken = data.access_token;
+    refreshToken = data.refresh_token; // Mettre à jour le refresh_token au cas où il change
+    return accessToken;
+  } catch (error) {
+    console.error('Error refreshing access token:', error);
+    throw error;
+  }
+};
 
 app.post('/updateOrder', async (req, res) => {
   const orderUpdated = req.body;
@@ -90,29 +127,41 @@ app.post('/updateOrder', async (req, res) => {
   console.log('id', orderId);
   console.log("tags: ", tagsPRO);
 
- const accessToken = await getToken();
- console.log('token', accessToken);
-if(!accessToken) {
-  res.status(500).json({error: 'Failed to obtain access token'});
-}
+//  const accessToken = await getToken();
+//  console.log('token', accessToken);
+// if(!accessToken) {
+//   res.status(500).json({error: 'Failed to obtain access token'});
+// }
 if(tagsPRO.includes('Commande PRO')) {
-  const giveIdurl = `https://app.shippingbo.com/orders?sources_ref=${orderId}`;
-  const giveIdOptions = {
-    method: 'GET',
-    headers: {
-      Accept: 'application/json',
-      Authorization: `Bearer ${accessToken}`
-    }
-  };
   try {
-    const response = await fetch(giveIdurl, giveIdOptions);
-    const data = await response.json;
-    if(response.ok && data.length > 0) {
-      console.log('shippingboId: ', data[0].id)
-      return data[0].id;
-    } else {
-      console.log("wtf");
+    // Si l'accessToken est expiré ou non défini, rafraîchir avec refreshToken
+    if (!accessToken) {
+      const tokens = await getToken(YOUR_AUTHORIZATION_CODE);
+      if (!tokens.accessToken || !tokens.refreshToken) {
+        throw new Error('Failed to obtain access tokens');
+      }
+      accessToken = tokens.accessToken;
+      refreshToken = tokens.refreshToken;
     }
+console.log("accesstoken", accessToken);
+console.log("refreshToken", refreshToken);
+  // const giveIdurl = `https://app.shippingbo.com/orders?sources_ref=${orderId}`;
+  // const giveIdOptions = {
+  //   method: 'GET',
+  //   headers: {
+  //     Accept: 'application/json',
+  //     Authorization: `Bearer ${accessToken}`
+  //   }
+  // };
+  // try {
+  //   const response = await fetch(giveIdurl, giveIdOptions);
+  //   const data = await response.json;
+  //   if(response.ok && data.length > 0) {
+  //     console.log('shippingboId: ', data[0].id)
+  //     return data[0].id;
+  //   } else {
+  //     console.log("wtf");
+  //   }
   } catch(err) {
     console.log('error shiipingboId', err);
   }
