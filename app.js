@@ -77,6 +77,7 @@ const getToken = async () => {
     const response = await fetch(tokenUrl, tokenOptions);
     const data = await response.json();
       console.log('data getToken: ', data);
+      return data;
   } catch (error) {
     console.log('error getToken', error);
     console.log('error headers', error.headers);
@@ -84,12 +85,34 @@ const getToken = async () => {
 }
 
 app.post('/updateOrder', async (req, res) => {
+  const url = 'https://oauth.shippingbo.com/oauth/token';
+const options = {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    Accept: 'application/json'
+  },
+  body: JSON.stringify({
+    grant_type: 'authorization_code',
+    client_id: CLIENT_ID,
+    client_secret: CLIENT_SECRET,
+    code: YOUR_AUTHORIZATION_CODE,
+    redirect_uri: 'urn:ietf:wg:oauth:2.0:oob'
+  })
+};
+ 
+(async () => {
   try {
-    const accessToken = await getToken();
-    console.log("accessToken", accessToken);
-  } catch (err) {
-    console.log("err", err);
+    const response = await fetch(url, options);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    console.log(data);
+  } catch (error) {
+    console.error('Error obtaining access token:', error);
   }
+})();
 })
 
 // app.post('/updateOrder', async (req, res) => {
