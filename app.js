@@ -65,20 +65,18 @@ const getToken = async () => {
       'Content-type': 'application/json',
       Accept: 'application/json'
     },
-    body: JSON.stringify({
-      grant_type: 'authorization_code',       
-      client_id: CLIENT_ID,       
-      client_secret: CLIENT_SECRET,       
-      code: YOUR_AUTHORIZATION_CODE,       
-      redirect_uri: 'urn:ietf:wg:oauth:2.0:oob' 
-    })
+    body: {
+      "grant_type": "authorization_code",       
+      "client_id": CLIENT_ID,       
+      "client_secret": CLIENT_SECRET,       
+      "code": YOUR_AUTHORIZATION_CODE,       
+      "redirect_uri": "urn:ietf:wg:oauth:2.0:oob"
+    }
   }
   try {
     const response = await fetch(tokenUrl, tokenOptions);
     const data = await response.json();
       console.log('data getToken: ', data);
-      console.log('headers', headers);
-     console.log('error', data.headers);
   } catch (error) {
     console.log('error getToken', error);
     console.log('error headers', error.headers);
@@ -88,7 +86,7 @@ const getToken = async () => {
 app.post('/updateOrder', async (req, res) => {
   try {
     const accessToken = await getToken();
-    console.log(accessToken);
+    console.log("accessToken", accessToken);
   } catch (err) {
     console.log("err", err);
   }
