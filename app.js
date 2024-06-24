@@ -107,6 +107,8 @@ const options = {
 (async () => {
   try {
     const response = await fetch(url, options);
+    console.log("secret", CLIENT_SECRET);
+    console.log("client", CLIENT_ID);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
