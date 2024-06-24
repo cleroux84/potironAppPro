@@ -170,7 +170,7 @@ const getShippingboId = async (shopifyOrderId) => {
 app.post('/updateOrder', async (req, res) => {
   const orderUpdated = req.body;
   //console.log("order", orderUpdated)
-  const orderId = orderUpdated.id;
+  const orderId = (orderUpdated.id).toString();
   const tagsPRO = orderUpdated.tags;
   console.log('id', orderId);
   console.log("tags: ", tagsPRO);
