@@ -8,6 +8,7 @@ const fs = require('fs');
 const { from } = require('form-data');
 const { type } = require('os');
 const { error } = require('console');
+const Shopify = require('shopify-api-node');
 require('dotenv').config();
 
 const app = express();
@@ -144,6 +145,26 @@ const refreshAccessToken = async () => {
   }
 };
  
+const getShippingboId = async (shopifyOrderId) => {
+  const giveIdurl = `https://app.shippingbo.com/orders?sources_ref=${orderId}`;
+  const giveIdOptions = {
+    method: 'GET',
+    headers: {
+      'Content-type': 'application/json',
+      Accept: 'application/json',
+      'X-API-VERSION' : '1',
+      'X-API-APP-ID': API_APP_ID,
+      Authorization: `Bearer ${accessToken}`
+    },
+  };
+  try {
+    const response = await fetch(giveIdurl, giveIdOptions);
+    const data = await response.json();
+    console.log('shippingboId: ', data[0].id);
+  } catch (err) {
+    
+  }
+}
 
 app.post('/updateOrder', async (req, res) => {
   const orderUpdated = req.body;
@@ -153,11 +174,6 @@ app.post('/updateOrder', async (req, res) => {
   console.log('id', orderId);
   console.log("tags: ", tagsPRO);
 
-//  const accessToken = await getToken();
-//  console.log('token', accessToken);
-// if(!accessToken) {
-//   res.status(500).json({error: 'Failed to obtain access token'});
-// }
 if(tagsPRO.includes('Commande PRO')) {
   try {
     // Si l'accessToken est expiré ou non défini, rafraîchir avec refreshToken
@@ -176,15 +192,8 @@ if(tagsPRO.includes('Commande PRO')) {
       }
     }
     console.log('token' ,accessToken);
+    getShippingboId(orderId);
 
-  // const giveIdurl = `https://app.shippingbo.com/orders?sources_ref=${orderId}`;
-  // const giveIdOptions = {
-  //   method: 'GET',
-  //   headers: {
-  //     Accept: 'application/json',
-  //     Authorization: `Bearer ${accessToken}`
-  //   }
-  // };
   // try {
   //   const response = await fetch(giveIdurl, giveIdOptions);
   //   const data = await response.json;
