@@ -146,12 +146,11 @@ const refreshAccessToken = async () => {
 };
 
 const updateShippingboOrder = async (shippingboOrderId, originRef) => {
-  let newRef = "PRO-" + originRef;
   const updatedOrder= {
     id: shippingboOrderId,
-    tags_to_add: "Commande PRO", 
+    order_tags: "Commande PRO", 
     origin: "Commande PRO",
-    origin_ref: newRef
+    origin_ref: "PRO-" + originRef
 }
   const updateOrderUrl = `https://app.shippingbo.com/orders/${shippingboOrderId}`;
   const updateOrderOptions = {
