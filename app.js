@@ -146,11 +146,14 @@ const refreshAccessToken = async () => {
 };
 
 const updateShippingboOrder = async (shippingboOrderId, originRef) => {
+  if(originRef.includes('PRO-') === false)  {
+    originRef = "PRO-" + originRef;
+  }
   const updatedOrder= {
     id: shippingboOrderId,
-    order_tags: "Commande PRO", 
+    order_tags: ["Commande PRO"], 
     origin: "Commande PRO",
-    origin_ref: "PRO-" + originRef
+    origin_ref: originRef
 }
   const updateOrderUrl = `https://app.shippingbo.com/orders/${shippingboOrderId}`;
   const updateOrderOptions = {
@@ -193,7 +196,7 @@ const getShippingboId = async (shopifyOrderId) => {
     const response = await fetch(getOrderUrl, getOrderOptions);
     const data = await response.json();
     const shippingboOrderId = data.orders[0].id;
-    const originRef = data.orders[0].origin_ref
+    let originRef = data.orders[0].origin_ref
     console.log('shippingboId: ', shippingboOrderId);
     await updateShippingboOrder(shippingboOrderId, originRef);
   } catch (err) {
