@@ -170,11 +170,11 @@ const updateShippingboOrder = async (shippingboOrderId, originRef) => {
         const data = await response.json();
         if(response.ok) {
           console.log('order updated in shippingbo', data);
-          res.status(200).json(data);
+          //res.status(200).json(data);
         }
       } catch (error) {
         console.error('Error updating shippingbo order', error);
-        res.status(500).json({error: 'Error updating order shippingbo'});
+        //res.status(500).json({error: 'Error updating order shippingbo'});
       }
 }
 
