@@ -151,7 +151,7 @@ const updateShippingboOrder = async (shippingboOrderId, originRef) => {
   }
   const updatedOrder= {
     id: shippingboOrderId,
-    order_tags: ["Commande PRO"], 
+    tags_to_add: ["Commande PRO"], 
     origin: "Commande PRO",
     origin_ref: originRef
 }
