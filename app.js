@@ -313,22 +313,11 @@ app.post('/proOrder', async (req, res) => {
   const tagsArr = orderData.customer.tags.split(', ');
   console.log('tags customer', tagsArr);
   const isB2B = tagsArr.includes('PRO validé');
-  console.log("origin", orderData.shipping_lines[0].source);
-  console.log("identifier", orderData.source_identifier);
-  console.log("source_name", orderData.source_name);
   if(isB2B) {
    const updatedOrder = {
     order: {
       id: orderId,
-      source_identifier: 'TESTCL',
-      source_name: 'CLTEST',
-      tags: "Commande PRO",
-      shipping_lines : [
-        {
-          id: orderData.shipping_lines[0].id,
-          source: 'TEST'
-        }
-      ]
+      tags: "Commande PRO"
     }
   };
     const updateOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-04/orders/${orderId}.json`;
@@ -343,14 +332,14 @@ app.post('/proOrder', async (req, res) => {
     try {
       const response = await fetch(updateOrderUrl, updateOptions);
       const data = await response.json();       
-      console.log('Order updated :', data);  
+      console.log('Commande pro maj sur Shopify:', data);  
       res.status(200).send('Order updated');  
     } catch (error) {
       console.error('Error updating order:', error);
       res.status(500).send('Error updating order');
     }
   } else {
-    console.log('order not for b2B');
+    console.log('commande pour client non pro');
   }
 });
 
@@ -436,7 +425,7 @@ app.post('/updateKbis', (req, res) => {
     })
 })
 
-app.post('/webhook', (req, res) => {
+app.post('/createProCsutomer', (req, res) => {
     var myData = req.body;
     var b2BState = myData.tags;
     if (b2BState && b2BState.includes("VIP")) {
@@ -544,7 +533,7 @@ app.post('/webhook', (req, res) => {
         res.status(500).send('Erreur lors de la mise à jour du client.');
       });
   } else {
-      console.log("client non pro");
+      console.log("nouveau client créé non pro");
   }
 });
 
