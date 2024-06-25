@@ -30,7 +30,7 @@ let refreshToken = null;
 const upload = multer({ 
   storage: multer.diskStorage({
     destination: function (req, file, cb) {
-      cb(null, 'uploads/') // Spécifiez le répertoire de destination ici
+      cb(null, 'uploads/')
     },
     filename: function (req, file, cb) {
       cb(null, file.originalname)
@@ -59,32 +59,6 @@ app.get('/', (req, res) => {
 });
 
 //auth for shippingbo
-const getClientCredentialsToken = async () => {
-  const tokenUrl = 'https://oauth.shippingbo.com/oauth/token';
-  const tokenOptions = {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json'
-    },
-    body: JSON.stringify({
-      grant_type: 'client_credentials',
-      client_id: CLIENT_ID,
-      client_secret: CLIENT_SECRET
-    })
-  };
- 
-  try {
-    const response = await fetch(tokenUrl, tokenOptions);
-    const data = await response.json();
-    accessToken = data.access_token;
-    return accessToken;
-  } catch (error) {
-    console.error('Error obtaining client credentials token:', error);
-    throw error;
-  }
-};
- 
 const getToken = async (authorizationCode) => {
   const tokenUrl = 'https://oauth.shippingbo.com/oauth/token';
   const tokenOptions = {
@@ -137,7 +111,7 @@ const refreshAccessToken = async () => {
     const response = await fetch(refreshUrl, refreshOptions);
     const data = await response.json();
     accessToken = data.access_token;
-    refreshToken = data.refresh_token; 
+    refreshToken = data.refresh_token;
     return accessToken;
   } catch (error) {
     console.error('Error refreshing access token:', error);
@@ -145,13 +119,13 @@ const refreshAccessToken = async () => {
   }
 };
 
+//update order in shippingbo : change origin Commande PRO
 const updateShippingboOrder = async (shippingboOrderId, originRef) => {
   if(originRef.includes('PRO-') === false)  {
     originRef = "PRO-" + originRef;
   }
   const updatedOrder= {
     id: shippingboOrderId,
-    tags_to_add: ["Commande PRO"], 
     origin: "Commande PRO",
     origin_ref: originRef
 }
@@ -171,15 +145,14 @@ const updateShippingboOrder = async (shippingboOrderId, originRef) => {
         const response = await fetch(updateOrderUrl, updateOrderOptions);
         const data = await response.json();
         if(response.ok) {
-          console.log('order updated in shippingbo', data);
-          //res.status(200).json(data);
+          console.log('pro order updated in shippingbo: ', shippingboOrderId);
         }
       } catch (error) {
-        console.error('Error updating shippingbo order', error);
-        //res.status(500).json({error: 'Error updating order shippingbo'});
+         console.error('Error updating shippingbo order', error);
       }
 }
 
+//Retrieve shippingbo order ID from Shopify ID
 const getShippingboId = async (shopifyOrderId) => {
   const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
   const getOrderOptions = {
@@ -197,7 +170,6 @@ const getShippingboId = async (shopifyOrderId) => {
     const data = await response.json();
     const shippingboOrderId = data.orders[0].id;
     let originRef = data.orders[0].origin_ref
-    console.log('shippingboId: ', shippingboOrderId);
     await updateShippingboOrder(shippingboOrderId, originRef);
   } catch (err) {
     console.log('nop', err);
@@ -230,42 +202,6 @@ if(tagsPRO.includes('Commande PRO')) {
   } catch(err) {
     console.log('error shiipingboId', err);
   }
-
-// const updateData = {
-//     id: orderId,
-//     tags_to_add: ["Commande PRO"], 
-//     origin: "PRO",
-//     origin_ref: 'PRO_'
-// }
-// console.log(updateData);
-// console.log('ppl');
-//   const updateShippingboUrl = `https://app.shippingbo.com/orders/${orderId}`;
-//   const updateShippingboOptions = {
-//     method: 'PATCH',
-//     headers: {
-//       'Content-type': 'application/json',
-//       Accept: 'application/json',
-//       'X-API-VERSION' : '1',
-//       'X-API-APP-ID': API_APP_ID,
-//       Authorization: `Bearer ${accessToken}`
-//     },
-//     body: JSON.stringify(updateData)
-//   };
-
-//   try{
-//     const response = await fetch(updateShippingboUrl, updateShippingboOptions);
-//     const data = await response.json();
-//     if(response.ok) {
-//       console.log('ici')
-//       console.log('order updated in shippingbo', data);
-//       res.status(200).json(data);
-//     }
-//   } catch (error) {
-//     console.error('Error updating shippingbo order', error);
-//     res.status(500).json({error: 'Error updating order shippingbo'});
-//   }
-// } else {
-//   console.log("non pro")
 }
 });
 
@@ -274,7 +210,7 @@ let originalFileName = null;
 let fileExtension = null;
 let filePath = null;
 
-//send email with kbis to Potiron Team
+//send email with kbis to Potiron Team 
 async function sendEmailWithAttachment(filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone) {
   const transporter = nodemailer.createTransport({
       service: MAILSERVICE,
