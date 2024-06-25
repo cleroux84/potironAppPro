@@ -194,7 +194,7 @@ const getShippingboId = async (shopifyOrderId) => {
     const response = await fetch(getOrderUrl, getOrderOptions);
     const data = await response.json();
     const shippingboOrderId = data.orders[0].id;
-    const originRef = data.order[0].origin_ref
+    const originRef = data.orders[0].origin_ref
     console.log('shippingboId: ', shippingboOrderId);
     await updateShippingboOrder(shippingboOrderId, originRef);
   } catch (err) {
