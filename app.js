@@ -144,11 +144,43 @@ const refreshAccessToken = async () => {
     throw error;
   }
 };
- 
+
+const updateShippingboOrder = async (shippingboOrderId, originRef) => {
+  let newRef = "PRO-" + originRef;
+  const updatedOrder= {
+    id: shippingboOrderId,
+    tags_to_add: "Commande PRO", 
+    origin: "Commande PRO",
+    origin_ref: newRef
+}
+  const updateOrderUrl = `https://app.shippingbo.com/orders/${shippingboOrderId}`;
+  const updateOrderOptions = {
+    method: 'PATCH',
+    headers: {
+      'Content-type': 'application/json',
+      Accept: 'application/json',
+      'X-API-VERSION' : '1',
+      'X-API-APP-ID': API_APP_ID,
+      Authorization: `Bearer ${accessToken}`
+    },
+    body: JSON.stringify(updatedOrder)
+  };
+  try{
+        const response = await fetch(updateOrderUrl, updateOrderOptions);
+        const data = await response.json();
+        if(response.ok) {
+          console.log('order updated in shippingbo', data);
+          res.status(200).json(data);
+        }
+      } catch (error) {
+        console.error('Error updating shippingbo order', error);
+        res.status(500).json({error: 'Error updating order shippingbo'});
+      }
+}
+
 const getShippingboId = async (shopifyOrderId) => {
-  console.log('shopify order id', shopifyOrderId);
-  const giveIdurl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
-  const giveIdOptions = {
+  const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
+  const getOrderOptions = {
     method: 'GET',
     headers: {
       'Content-type': 'application/json',
@@ -159,9 +191,12 @@ const getShippingboId = async (shopifyOrderId) => {
     },
   };
   try {
-    const response = await fetch(giveIdurl, giveIdOptions);
+    const response = await fetch(getOrderUrl, getOrderOptions);
     const data = await response.json();
-    console.log('shippingboId: ', data);
+    const shippingboOrderId = data.orders[0].id;
+    const originRef = data.order[0].origin_ref
+    console.log('shippingboId: ', shippingboOrderId);
+    await updateShippingboOrder(shippingboOrderId, originRef);
   } catch (err) {
     console.log('nop', err);
   }
@@ -169,13 +204,10 @@ const getShippingboId = async (shopifyOrderId) => {
 
 app.post('/updateOrder', async (req, res) => {
   const orderUpdated = req.body;
-  //console.log("order", orderUpdated)
-  const orderId = (orderUpdated.id);
+  const shopifyOrderId = orderUpdated.id;
   const tagsPRO = orderUpdated.tags;
-  console.log('id', orderId);
-  console.log("tags: ", tagsPRO);
-
 if(tagsPRO.includes('Commande PRO')) {
+  // TODO REVOIR CECI !
   try {
     // Si l'accessToken est expiré ou non défini, rafraîchir avec refreshToken
     if (!accessToken) {
@@ -192,18 +224,7 @@ if(tagsPRO.includes('Commande PRO')) {
         refreshToken = tokens.refreshToken;
       }
     }
-    console.log('token' ,accessToken);
-    await getShippingboId(orderId);
-
-  // try {
-  //   const response = await fetch(giveIdurl, giveIdOptions);
-  //   const data = await response.json;
-  //   if(response.ok && data.length > 0) {
-  //     console.log('shippingboId: ', data[0].id)
-  //     return data[0].id;
-  //   } else {
-  //     console.log("wtf");
-  //   }
+    await getShippingboId(shopifyOrderId);
   } catch(err) {
     console.log('error shiipingboId', err);
   }
