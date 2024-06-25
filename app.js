@@ -425,7 +425,7 @@ app.post('/updateKbis', (req, res) => {
     })
 })
 
-app.post('/createProCsutomer', (req, res) => {
+app.post('/createProCustomer', (req, res) => {
     var myData = req.body;
     var b2BState = myData.tags;
     if (b2BState && b2BState.includes("VIP")) {
