@@ -309,9 +309,7 @@ app.post('/upload', upload.single('uploadFile'), (req, res) => {
 app.post('/proOrder', async (req, res) => {
   var orderData = req.body;
   var orderId = orderData.id;
-  console.log("order id", orderId);
   const tagsArr = orderData.customer.tags.split(', ');
-  console.log('tags customer', tagsArr);
   const isB2B = tagsArr.includes('PRO validé');
   if(isB2B) {
    const updatedOrder = {
