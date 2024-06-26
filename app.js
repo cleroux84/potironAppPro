@@ -180,7 +180,7 @@ const getShippingboId = async (shopifyOrderId) => {
 
 app.post('/updateOrder', async (req, res) => {
   const orderUpdated = req.body;
-  console.log(orderUpdated);
+  console.log("commande mise à jour", orderUpdated);
   const shopifyOrderId = orderUpdated.id;
   const tagsPRO = orderUpdated.tags;
 if(tagsPRO.includes('Commande PRO')) {
@@ -311,6 +311,7 @@ app.post('/upload', upload.single('uploadFile'), (req, res) => {
 
 app.post('/proOrder', async (req, res) => {
   var orderData = req.body;
+  console.log("commande créée", orderData);
   var orderId = orderData.id;
   const tagsArr = orderData.customer.tags.split(', ');
   const isB2B = tagsArr.includes('PRO validé');
