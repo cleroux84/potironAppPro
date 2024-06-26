@@ -169,8 +169,10 @@ const getShippingboId = async (shopifyOrderId) => {
     const response = await fetch(getOrderUrl, getOrderOptions);
     const data = await response.json();
     const shippingboOrderId = data.orders[0].id;
-    let originRef = data.orders[0].origin_ref
-    await updateShippingboOrder(shippingboOrderId, originRef);
+    let originRef = data.orders[0].origin_ref;
+    if(shippingboOrderId){
+      await updateShippingboOrder(shippingboOrderId, originRef);
+    }
   } catch (err) {
     console.log('nop', err);
   }
@@ -178,6 +180,7 @@ const getShippingboId = async (shopifyOrderId) => {
 
 app.post('/updateOrder', async (req, res) => {
   const orderUpdated = req.body;
+  console.log(orderUpdated);
   const shopifyOrderId = orderUpdated.id;
   const tagsPRO = orderUpdated.tags;
 if(tagsPRO.includes('Commande PRO')) {
