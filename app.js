@@ -178,13 +178,15 @@ const getShippingboId = async (shopifyOrderId) => {
   }
 }
 
+//webhook on order update : https://potironapppro.onrender.com/updateOrder
+//à revoir avec solution finale pour livraison
+
 app.post('/updateOrder', async (req, res) => {
   const orderUpdated = req.body;
   console.log("commande mise à jour", orderUpdated);
   const shopifyOrderId = orderUpdated.id;
   const tagsPRO = orderUpdated.tags;
 if(tagsPRO.includes('Commande PRO')) {
-  // TODO REVOIR CECI !
   try {
     // Si l'accessToken est expiré ou non défini, rafraîchir avec refreshToken
     if (!accessToken) {
@@ -308,10 +310,9 @@ app.post('/upload', upload.single('uploadFile'), (req, res) => {
   res.status(200).send('Fichier téléchargé avec succès.');
 });
 
-
+//webhook on order creation : https://potironapppro.onrender.com/proOrder
 app.post('/proOrder', async (req, res) => {
   var orderData = req.body;
-  console.log("commande créée", orderData);
   var orderId = orderData.id;
   const tagsArr = orderData.customer.tags.split(', ');
   const isB2B = tagsArr.includes('PRO validé');
@@ -346,6 +347,7 @@ app.post('/proOrder', async (req, res) => {
 });
 
 
+//webhook on customer update : https://potironapppro.onrender.com/updatekBis
 app.post('/updateKbis', (req, res) => {
   var updatedData = req.body;
   const clientUpdated = updatedData.id;
@@ -362,10 +364,11 @@ app.post('/updateKbis', (req, res) => {
     .then(response => response.json())
     .then(data => {
       const metafields = data.metafields;
+      if(metafields){
       const checkedKbisField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'checkedkbis');
       const mailProSentField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'mailProSent');
       const companyNameField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'company');
-
+}
       if(checkedKbisField && mailProSentField) {
         var firstnameCustomer = updatedData.first_name;
         var nameCustomer = updatedData.last_name;
@@ -427,6 +430,7 @@ app.post('/updateKbis', (req, res) => {
     })
 })
 
+//webhook on customer creation : https://potironapppro.onrender.com/createProCustomer
 app.post('/createProCustomer', (req, res) => {
     var myData = req.body;
     var b2BState = myData.tags;
