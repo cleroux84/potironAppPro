@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const multer = require('multer');
 const bodyParser = require('body-parser');
 const fetch = require('node-fetch');
@@ -9,6 +10,7 @@ const { from } = require('form-data');
 const { type } = require('os');
 const { error } = require('console');
 const Shopify = require('shopify-api-node');
+const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
@@ -39,6 +41,12 @@ const upload = multer({
 });
 app.set('appName', 'potironAppPro');
 
+const corsOptions = {
+  origin: "https://potiron.com",
+  method: 'GET, HEAD, PUT, PATCH, POST, DELETE',
+  credentials: true,
+  optionSuccessStatus: 204
+}
 //extract data from notes added fields create_customer form
 function extractInfoFromNote(note, infoLabel) {
   if(note) {
@@ -51,7 +59,7 @@ function extractInfoFromNote(note, infoLabel) {
     return null;
   }
 }
-
+app.use(cors(corsOptions));
 app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
