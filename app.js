@@ -354,9 +354,37 @@ app.post('/proOrder', async (req, res) => {
 });
 
 app.post('/create-pro-draft-order', async (req, res) => {
-  console.log('reçoit la commande');
   try {
-    console.log('req', req.body);
+    const orderData = req.body.items;
+    const orderCustomer = req.body.customer_id;
+    const lineItems = orderData.map(item => ({   
+      title: item.title,   
+      price: (item.price / 100).toFixed(2), 
+      quantity: item.quantity,   
+      variant_id: item.variant_id
+    }));
+
+    const draftOrder = {
+      draft_order: {
+        line_items : lineItems,
+        customer : {
+          "id": orderCustomer
+        }
+      }
+    };
+    console.log("draftToCrate", draftOrder)
+      // const draftOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-04/draft_orders.json`;
+      // const draftOrderOptions = {
+      //   method: 'POST',
+      //   headers: {             
+      //     'Content-Type': 'application/json',             
+      //     'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
+      //   },
+      //   body: JSON.stringify(draftOrder);
+      // };
+      // .then(responsec=> response.json());
+      // console.log('success', data);
+      // window.location.href = 'https://potiron.com/collections';
   } catch (error) {
     console.log(error);
   }
@@ -561,6 +589,8 @@ app.post('/createProCustomer', (req, res) => {
       console.log("nouveau client créé non pro");
   }
 });
+
+
 
 app.listen(PORT, () => {
   console.log(`Serveur en cours d'écoute sur le port ${PORT}`);
