@@ -369,7 +369,7 @@ app.post('/updateKbis', (req, res) => {
       const mailProSentField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'mailProSent');
       const companyNameField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'company');
 }
-      if(checkedKbisField && mailProSentField) {
+      if(checkedKbisField !== '' && mailProSentField !== '') {
         var firstnameCustomer = updatedData.first_name;
         var nameCustomer = updatedData.last_name;
         var mailCustomer = updatedData.email;
