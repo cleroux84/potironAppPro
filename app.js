@@ -346,6 +346,14 @@ app.post('/proOrder', async (req, res) => {
   }
 });
 
+app.post('/create-pro-draft-order', async (req, res) => {
+  console.log('reçoit la commande');
+  try {
+    console.log('req', req.body);
+  } catch (error) {
+    console.log(error);
+  }
+})
 
 //webhook on customer update : https://potironapppro.onrender.com/updatekBis
 app.post('/updateKbis', (req, res) => {
