@@ -373,6 +373,7 @@ app.post('/create-pro-draft-order', async (req, res) => {
       }
     };
     console.log("draftToCrate", draftOrder)
+    console.log("first item", draftOrder[0])
       // const draftOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-04/draft_orders.json`;
       // const draftOrderOptions = {
       //   method: 'POST',
