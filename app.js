@@ -358,14 +358,14 @@ app.post('/create-pro-draft-order', async (req, res) => {
     const orderData = req.body; 
     console.log("order received", orderData);
     const items = orderData.items;
- 
+    console.log("testouille", items[0].id);
     const lineItems = items.map(item => ({
       title: item.title,
       price: (item.price / 100).toFixed(2),
       quantity: item.quantity,
       variant_id: item.variant_id 
     }));
-
+    console.log("lineItems", lineItems);
     const draftOrder = {
       draft_order: {
         line_items: lineItems,
@@ -377,7 +377,7 @@ app.post('/create-pro-draft-order', async (req, res) => {
  
     console.log("Draft Order à créer :", draftOrder);
     console.log('first item', draftOrder.line_items[0]);
-    // const draftOrderUrl = `https://votre-boutique.myshopify.com/admin/api/2024-04/draft_orders.json`;
+    // const draftOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-04/draft_orders.json`;
     // const draftOrderOptions = {
     //   method: 'POST',
     //   headers: {
