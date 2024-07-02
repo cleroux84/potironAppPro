@@ -389,8 +389,14 @@ app.post('/create-pro-draft-order', async (req, res) => {
  
     const response = await fetch(draftOrderUrl, draftOrderOptions);
     const data = await response.json();
-    console.log('ordercreate', data);
-    sendNewDraftOrderMail()
+    // console.log('ordercreate', data);
+    const firstnameCustomer = data.customer.first_name;
+    const nameCustomer = data.customer.last_name;
+    const draftOrderId = data.name;
+    const customerMail = data.customer.email;
+    const customerPhone = data.customer.phone;
+
+    sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone);
     // console.log('Réponse de Shopify :', data);
  
     res.status(200).json(data); 
@@ -400,7 +406,7 @@ app.post('/create-pro-draft-order', async (req, res) => {
   }
 });
 
-async function sendNewDraftOrderMail() {
+async function sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone) {
   const transporter = nodemailer.createTransport({
     service: MAILSERVICE,
     host: MAILHOST,
@@ -419,12 +425,11 @@ async function sendNewDraftOrderMail() {
     replyTo: 'bonjour@potiron.com', 
     to: MAILRECIPIENT,
     cc: MAILSENDER,
-    subject: 'Nouvelle demande de cotation pour Commande Provisoire', 
+    subject: 'Nouvelle demande de cotation pour Commande Provisoire ' + draftOrderId, 
     html:`
     <p>Bonjour, </p>
-    <p>Une nouvelle commande provisoire a été créée pour un client PRO.</p>
-    <p>Il s'agit d'une commande de ${firstnameCustomer} ${nameCustomer}</p>
-    <p>TODO TAGS Numéro ? </p>
+    <p>Une nouvelle commande provisoire a été créée pour le client PRO. ${firstnameCustomer} ${nameCustomer}</p>
+    <p>Il est joignable pour valider la cotation à ${customerMail} et au ${customerPhone} </p>
     <img src='cid:signature'/>
     `,     
     attachments: [
