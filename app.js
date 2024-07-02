@@ -406,7 +406,8 @@ app.post('/create-pro-draft-order', async (req, res) => {
         price_tax_included_currency: 'EUR',
         product_ref: item.variant_id,
         quantity: item.quantity,
-        title: item.title
+        title: item.title,
+        source: 'Potiron PRO'
       })),
       origin: 'Potiron PRO',
       origin_created_at: new Date(data.draft_order.created_at).toISOString(),
@@ -414,7 +415,7 @@ app.post('/create-pro-draft-order', async (req, res) => {
       shipping_address_id: data.draft_order.shipping_address.id,
       source: 'Shopify',
       source_ref: draftOrderId,
-      state: 'pending_payment',
+      state: 'waiting_for_payment',
       total_price_cents: data.draft_order.subtotal_price * 100,
       total_price_currency: 'EUR'
     };
