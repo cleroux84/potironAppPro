@@ -407,13 +407,13 @@ app.post('/create-pro-draft-order', async (req, res) => {
         product_ref: item.variant_id,
         quantity: item.quantity,
         title: item.title,
-        source: 'POTIRONPRO'
+        source: 'potironpro'
       })),
-      origin: 'POTIRONPRO',
+      origin: 'potironpro',
       origin_created_at: new Date(data.draft_order.created_at).toISOString(),
       origin_ref: draftOrderId + 'provisoire',
       shipping_address_id: data.draft_order.shipping_address.id,
-      source: 'POTIRONPRO',
+      source: 'potironpro',
       source_ref: draftOrderId,
       state: 'waiting_for_payment',
       total_price_cents: data.draft_order.subtotal_price * 100,
