@@ -389,6 +389,8 @@ app.post('/create-pro-draft-order', async (req, res) => {
  
     const response = await fetch(draftOrderUrl, draftOrderOptions);
     const data = await response.json();
+    console.log("order from shopify", data);
+
    if(data && data.draft_order && data.draft_order.customer){
     const firstnameCustomer = data.draft_order.customer.first_name;
     const nameCustomer = data.draft_order.customer.last_name;
@@ -397,6 +399,45 @@ app.post('/create-pro-draft-order', async (req, res) => {
     const customerPhone = data.draft_order.customer.phone;
 
     await sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone);
+    const shippingBoOrder = {
+      billing_address_id: data.draft_order.customer.default_address.id,
+      order_items_attributes: lineItems.map(item => ({
+        price_tax_included_cents: item.price * 100,
+        price_tax_included_currency: 'EUR',
+        product_ref: item.variant_id,
+        quantity: item.quantity,
+        title: item.title
+      })),
+      origin: 'Potiron PRO',
+      origin_created_at: new Date(data.draft_order.created_at).toISOString(),
+      origin_ref: draftOrderId + 'provisoire',
+      shipping_address_id: data.draft_order.shipping_address.id,
+      source: 'Shopify',
+      source_ref: draftOrderId,
+      state: 'pending_payment',
+      total_price_cents: data.draft_order.subtotal_price * 100,
+      total_price_currency: 'EUR'
+    };
+    const createOrderUrl = `https://app.shippingbo.com/orders`;
+    const createOrderOptions = {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json',
+        Accept: 'application/json',
+        'X-API-VERSION' : '1',
+        'X-API-APP-ID': API_APP_ID,
+        Authorization: `Bearer ${accessToken}`
+      },
+      body: JSON.stringify(shippingBoOrder)
+    };
+    try {
+        const responseShippingbo = await fetch(createOrderUrl, createOrderOptions);
+        const data = await response.json();
+        console.log('data creation shippingbo', data);
+    } catch (error) {
+      console.error('error in creation order from draft shopify', error);
+    }
+
  } else {
   throw new Error('Invalid response structure from Shopify to create draft order for PRO')
  }
@@ -406,6 +447,7 @@ app.post('/create-pro-draft-order', async (req, res) => {
     res.status(500).json({ error: 'Erreur lors de la création du brouillon de commande.' });
   }
 });
+
 
 async function sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone) {
   const transporter = nodemailer.createTransport({
@@ -429,7 +471,7 @@ async function sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrder
     subject: 'Nouvelle demande de cotation pour Commande Provisoire ' + draftOrderId, 
     html:`
     <p>Bonjour, </p>
-    <p>Une nouvelle commande provisoire a été créée pour le client PRO. ${firstnameCustomer} ${nameCustomer}</p>
+    <p>Une nouvelle commande provisoire a été créée pour le client PRO : ${firstnameCustomer} ${nameCustomer}</p>
     <p>Il est joignable pour valider la cotation à ${customerMail} et au ${customerPhone} </p>
     <img src='cid:signature'/>
     `,     
