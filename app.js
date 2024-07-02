@@ -363,7 +363,6 @@ app.post('/create-pro-draft-order', async (req, res) => {
       price: (item.price / 100).toFixed(2),
       quantity: item.quantity,
       variant_id: item.variant_id,
-      tags: "Commande PRO" 
     }));
     console.log("lineItems", lineItems);
     const draftOrder = {
@@ -372,7 +371,8 @@ app.post('/create-pro-draft-order', async (req, res) => {
         customer: {
           id: orderData.customer_id 
         },
-        use_customer_default_address: true
+        use_customer_default_address: true,
+        tags: "Commande PRO"
       }
     };
  
