@@ -396,7 +396,7 @@ app.post('/create-pro-draft-order', async (req, res) => {
     const customerMail = data.customer.email;
     const customerPhone = data.customer.phone;
 
-    sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone);
+    await sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone);
     // console.log('Réponse de Shopify :', data);
  
     res.status(200).json(data); 
