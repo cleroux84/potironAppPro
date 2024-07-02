@@ -190,7 +190,7 @@ const getShippingboId = async (shopifyOrderId) => {
 
 app.post('/updateOrder', async (req, res) => {
   const orderUpdated = req.body;
-  console.log("commande mise à jour", orderUpdated);
+  // console.log("commande mise à jour", orderUpdated);
   const shopifyOrderId = orderUpdated.id;
   const tagsPRO = orderUpdated.tags;
 if(tagsPRO.includes('Commande PRO')) {
@@ -371,11 +371,12 @@ app.post('/create-pro-draft-order', async (req, res) => {
         line_items: lineItems,
         customer: {
           id: orderData.customer_id 
-        }
+        },
+        use_customer_default_address: true
       }
     };
  
-    console.log("Draft Order à créer :", draftOrder);
+    // console.log("Draft Order à créer :", draftOrder);
     const draftOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-04/draft_orders.json`;
     const draftOrderOptions = {
       method: 'POST',
@@ -388,8 +389,9 @@ app.post('/create-pro-draft-order', async (req, res) => {
  
     const response = await fetch(draftOrderUrl, draftOrderOptions);
     const data = await response.json();
- 
-    console.log('Réponse de Shopify :', data);
+    console.log('ordercreate', data);
+    sendNewDraftOrderMail()
+    // console.log('Réponse de Shopify :', data);
  
     res.status(200).json(data); 
   } catch (error) {
@@ -397,6 +399,44 @@ app.post('/create-pro-draft-order', async (req, res) => {
     res.status(500).json({ error: 'Erreur lors de la création du brouillon de commande.' });
   }
 });
+
+async function sendNewDraftOrderMail() {
+  const transporter = nodemailer.createTransport({
+    service: MAILSERVICE,
+    host: MAILHOST,
+    port: MAILPORT,
+    secure: false,
+    auth: {
+        user: MAILSENDER, 
+        pass: MAILSENDERPASS
+    },
+    tls: {
+      ciphers: 'SSLv3'
+    }
+  });
+  const mailOptions = {
+    from: '"POTIRON PARIS PRO" <noreply@potiron.com>',
+    replyTo: 'bonjour@potiron.com', 
+    to: MAILRECIPIENT,
+    cc: MAILSENDER,
+    subject: 'Nouvelle demande de cotation pour Commande Provisoire', 
+    html:`
+    <p>Bonjour, </p>
+    <p>Une nouvelle commande provisoire a été créée pour un client PRO.</p>
+    <p>Il s'agit d'une commande de ${firstnameCustomer} ${nameCustomer}</p>
+    <p>TODO TAGS Numéro ? </p>
+    <img src='cid:signature'/>
+    `,     
+    attachments: [
+        {
+          filename: 'signature.png',
+          path: 'assets/signature.png',
+          cid: 'signature'
+        }
+    ]
+  };
+  return transporter.sendMail(mailOptions);
+}
 
 //webhook on customer update : https://potironapppro.onrender.com/updatekBis
 app.post('/updateKbis', (req, res) => {
