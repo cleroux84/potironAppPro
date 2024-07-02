@@ -356,7 +356,7 @@ app.post('/proOrder', async (req, res) => {
 app.post('/create-pro-draft-order', async (req, res) => {
   try {
     const orderData = req.body; 
-    console.log("order received", orderData);
+    // console.log("order received", orderData);
     const items = orderData.items;
     const lineItems = items.map(item => ({
       title: item.title,
@@ -364,7 +364,7 @@ app.post('/create-pro-draft-order', async (req, res) => {
       quantity: item.quantity,
       variant_id: item.variant_id,
     }));
-    console.log("lineItems", lineItems);
+    // console.log("lineItems", lineItems);
     const draftOrder = {
       draft_order: {
         line_items: lineItems,
@@ -389,15 +389,14 @@ app.post('/create-pro-draft-order', async (req, res) => {
  
     const response = await fetch(draftOrderUrl, draftOrderOptions);
     const data = await response.json();
-    // console.log('ordercreate', data);
-    const firstnameCustomer = data.customer.first_name;
-    const nameCustomer = data.customer.last_name;
-    const draftOrderId = data.name;
-    const customerMail = data.customer.email;
-    const customerPhone = data.customer.phone;
+    console.log('ordercreate', data);
+    // const firstnameCustomer = data.customer.first_name;
+    // const nameCustomer = data.customer.last_name;
+    // const draftOrderId = data.name;
+    // const customerMail = data.customer.email;
+    // const customerPhone = data.customer.phone;
 
-    await sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone);
-    // console.log('Réponse de Shopify :', data);
+    await sendNewDraftOrderMail();
  
     res.status(200).json(data); 
   } catch (error) {
@@ -406,7 +405,7 @@ app.post('/create-pro-draft-order', async (req, res) => {
   }
 });
 
-async function sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone) {
+async function sendNewDraftOrderMail() {
   const transporter = nodemailer.createTransport({
     service: MAILSERVICE,
     host: MAILHOST,
@@ -425,11 +424,10 @@ async function sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrder
     replyTo: 'bonjour@potiron.com', 
     to: MAILRECIPIENT,
     cc: MAILSENDER,
-    subject: 'Nouvelle demande de cotation pour Commande Provisoire ' + draftOrderId, 
+    subject: 'Nouvelle demande de cotation pour Commande Provisoire ', 
     html:`
     <p>Bonjour, </p>
-    <p>Une nouvelle commande provisoire a été créée pour le client PRO. ${firstnameCustomer} ${nameCustomer}</p>
-    <p>Il est joignable pour valider la cotation à ${customerMail} et au ${customerPhone} </p>
+    <p>Une nouvelle commande provisoire a été créée pour le client PRO.
     <img src='cid:signature'/>
     `,     
     attachments: [
