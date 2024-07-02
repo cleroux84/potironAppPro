@@ -358,12 +358,12 @@ app.post('/create-pro-draft-order', async (req, res) => {
     const orderData = req.body; 
     console.log("order received", orderData);
     const items = orderData.items;
-    console.log("testouille", items[0].id);
     const lineItems = items.map(item => ({
       title: item.title,
       price: (item.price / 100).toFixed(2),
       quantity: item.quantity,
-      variant_id: item.variant_id 
+      variant_id: item.variant_id,
+      tags: "Commande PRO" 
     }));
     console.log("lineItems", lineItems);
     const draftOrder = {
@@ -376,23 +376,22 @@ app.post('/create-pro-draft-order', async (req, res) => {
     };
  
     console.log("Draft Order à créer :", draftOrder);
-    console.log('first item', draftOrder.line_items[0]);
-    // const draftOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-04/draft_orders.json`;
-    // const draftOrderOptions = {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
-    //   },
-    //   body: JSON.stringify(draftOrder) 
-    // };
+    const draftOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-04/draft_orders.json`;
+    const draftOrderOptions = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
+      },
+      body: JSON.stringify(draftOrder) 
+    };
  
-    // const response = await fetch(draftOrderUrl, draftOrderOptions);
-    // const data = await response.json();
+    const response = await fetch(draftOrderUrl, draftOrderOptions);
+    const data = await response.json();
  
-    // console.log('Réponse de Shopify :', data);
+    console.log('Réponse de Shopify :', data);
  
-    // res.status(200).json(data); 
+    res.status(200).json(data); 
   } catch (error) {
     console.error('Erreur lors de la création du brouillon de commande :', error);
     res.status(500).json({ error: 'Erreur lors de la création du brouillon de commande.' });
