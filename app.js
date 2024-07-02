@@ -389,15 +389,17 @@ app.post('/create-pro-draft-order', async (req, res) => {
  
     const response = await fetch(draftOrderUrl, draftOrderOptions);
     const data = await response.json();
-    console.log('ordercreate', data);
-    // const firstnameCustomer = data.customer.first_name;
-    // const nameCustomer = data.customer.last_name;
-    // const draftOrderId = data.name;
-    // const customerMail = data.customer.email;
-    // const customerPhone = data.customer.phone;
+   if(data && data.draft_order && data.draft_order.customer){
+    const firstnameCustomer = data.draft_order.customer.first_name;
+    const nameCustomer = data.draft_order.customer.last_name;
+    const draftOrderId = data.draft_order.name;
+    const customerMail = data.draft_order.customer.email;
+    const customerPhone = data.draft_order.customer.phone;
 
-    await sendNewDraftOrderMail();
- 
+    await sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone);
+ } else {
+  throw new Error('Invalid response structure from Shopify to create draft order for PRO')
+ }
     res.status(200).json(data); 
   } catch (error) {
     console.error('Erreur lors de la création du brouillon de commande :', error);
@@ -405,7 +407,7 @@ app.post('/create-pro-draft-order', async (req, res) => {
   }
 });
 
-async function sendNewDraftOrderMail() {
+async function sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone) {
   const transporter = nodemailer.createTransport({
     service: MAILSERVICE,
     host: MAILHOST,
@@ -424,10 +426,11 @@ async function sendNewDraftOrderMail() {
     replyTo: 'bonjour@potiron.com', 
     to: MAILRECIPIENT,
     cc: MAILSENDER,
-    subject: 'Nouvelle demande de cotation pour Commande Provisoire ', 
+    subject: 'Nouvelle demande de cotation pour Commande Provisoire ' + draftOrderId, 
     html:`
     <p>Bonjour, </p>
-    <p>Une nouvelle commande provisoire a été créée pour le client PRO.
+    <p>Une nouvelle commande provisoire a été créée pour le client PRO. ${firstnameCustomer} ${nameCustomer}</p>
+    <p>Il est joignable pour valider la cotation à ${customerMail} et au ${customerPhone} </p>
     <img src='cid:signature'/>
     `,     
     attachments: [
