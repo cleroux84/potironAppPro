@@ -432,7 +432,7 @@ app.post('/create-pro-draft-order', async (req, res) => {
     };
     try {
         const responseShippingbo = await fetch(createOrderUrl, createOrderOptions);
-        const data = await response.json();
+        const data = await responseShippingbo.json();
         console.log('data creation shippingbo', data);
     } catch (error) {
       console.error('error in creation order from draft shopify', error);
