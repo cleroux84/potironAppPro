@@ -409,7 +409,7 @@ app.post('/create-pro-draft-order', async (req, res) => {
         title: item.title,
         source: 'POTIRONPRO'
       })),
-      origin: 'Potiron PRO',
+      origin: 'POTIRONPRO',
       origin_created_at: new Date(data.draft_order.created_at).toISOString(),
       origin_ref: draftOrderId + 'provisoire',
       shipping_address_id: data.draft_order.shipping_address.id,
