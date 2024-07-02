@@ -407,7 +407,7 @@ app.post('/create-pro-draft-order', async (req, res) => {
         product_ref: item.variant_id,
         quantity: item.quantity,
         title: item.title,
-        source: 'Potiron PRO'
+        source: 'POTIRONPRO'
       })),
       origin: 'Potiron PRO',
       origin_created_at: new Date(data.draft_order.created_at).toISOString(),
