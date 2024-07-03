@@ -396,35 +396,36 @@ app.post('/create-pro-draft-order', async (req, res) => {
     draftOrderLineItems.forEach(item => {
       console.log(`Title: ${item.title}, SKU: ${item.sku}`)
     })
-    // const firstnameCustomer = data.draft_order.customer.first_name;
-    // const nameCustomer = data.draft_order.customer.last_name;
-    // const draftOrderId = data.draft_order.name;
-    // const customerMail = data.draft_order.customer.email;
-    // const customerPhone = data.draft_order.customer.phone;
+    const firstnameCustomer = data.draft_order.customer.first_name;
+    const nameCustomer = data.draft_order.customer.last_name;
+    const draftOrderId = data.draft_order.name;
+    const customerMail = data.draft_order.customer.email;
+    const customerPhone = data.draft_order.customer.phone;
 
     // await sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone);
-    // const shippingBoOrder = {
-    //   order_items_attributes: lineItems.map(item => ({
-    //     price_tax_included_cents: item.price * 100,
-    //     price_tax_included_currency: 'EUR',
-    //     product_ref: item.sku,
-    //     product_source: "Shopify-8543",
-    //     product_source_ref: item.variant_id,
-    //     quantity: item.quantity,
-    //     title: item.title,
-    //     source: 'Potironpro'
-    //   })),
-    //   origin: 'Potironpro',
-    //   origin_created_at: new Date(data.draft_order.created_at).toISOString(),
-    //   origin_ref: draftOrderId + 'provisoire',
-    //   shipping_address_id: data.draft_order.shipping_address.id,
-    //   source: 'Potironpro',
-    //   source_ref: draftOrderId,
-    //   state: 'waiting_for_payment',
-    //   total_price_cents: data.draft_order.subtotal_price * 100,
-    //   total_price_currency: 'EUR',
-    //   tags_to_add: ["Commande PRO", "Commande Test"]
-    // };
+    const shippingBoOrder = {
+      order_items_attributes: lineItems.map(item => ({
+        price_tax_included_cents: item.price * 100,
+        price_tax_included_currency: 'EUR',
+        product_ref: item.sku,
+        product_source: "Shopify-8543",
+        product_source_ref: item.variant_id,
+        quantity: item.quantity,
+        title: item.title,
+        source: 'Potironpro'
+      })),
+      origin: 'Potironpro',
+      origin_created_at: new Date(data.draft_order.created_at).toISOString(),
+      origin_ref: draftOrderId + 'provisoire',
+      shipping_address_id: data.draft_order.shipping_address.id,
+      source: 'Potironpro',
+      source_ref: draftOrderId,
+      state: 'waiting_for_payment',
+      total_price_cents: data.draft_order.subtotal_price * 100,
+      total_price_currency: 'EUR',
+      tags_to_add: ["Commande PRO", "Commande Test"]
+    };
+    console.log('shippingbo object', shippingBoOrder);
     // const createOrderUrl = `https://app.shippingbo.com/orders`;
     // const createOrderOptions = {
     //   method: 'POST',
