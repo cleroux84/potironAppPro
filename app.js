@@ -178,7 +178,10 @@ const getShippingboId = async (shopifyOrderId) => {
     const shippingboOrderId = data.orders[0].id;
     let originRef = data.orders[0].origin_ref;
     if(shippingboOrderId){
-      await updateShippingboOrder(shippingboOrderId, originRef);
+      // await updateShippingboOrder(shippingboOrderId, originRef);
+      console.log('origin ref', originRef);
+      console.log('id', shippingboOrderId);
+      await cancelShippingboOrder(shippingboOrderId, originRef);
     }
   } catch (err) {
     console.log('nop', err);
@@ -495,28 +498,14 @@ app.post('/updatedDraftOrder', async (req, res) => {
   const updatedDraftData= req.body;
   const draftTag = updatedDraftData.tags;
   const isCompleted = updatedDraftData.status;
-  const draftId = updatedDraftData.name;
+  // const draftId = updatedDraftData.name;
+  const draftId = '#D66';
 
     // if (isCompleted === true && draftTag.includes("Commande PRO")) {
     if (draftTag.includes("Commande PRO")) {
 
-    // const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${draftId}`;
-    const getOrderUrl = `https://app.shippingbo.com/orders/95448503`;
-    
-    const getOrderOptions = {
-      method: 'GET',
-      headers: {
-        'Content-type': 'application/json',
-        Accept: 'application/json',
-        'X-API-VERSION' : '1',
-        'X-API-APP-ID': API_APP_ID,
-        Authorization: `Bearer ${accessToken}`
-      },
-    };
     try {
-      const response = await fetch(getOrderUrl, getOrderOptions);
-      const data = await response.json();
-      console.log('order to cancel in shppingbo', data);
+      await getShippingboId(draftId);
     } catch (error) {
       console.log('error to retrieve order to cancel', error);
     }
