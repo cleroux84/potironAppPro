@@ -495,14 +495,12 @@ app.post('/updatedDraftOrder', async (req, res) => {
   const updatedDraftData= req.body;
   const draftTag = updatedDraftData.tags;
   const isCompleted = updatedDraftData.status;
-  const draftId = updatedDraftData.name;
-
+  // const draftId = updatedDraftData.name;
+const dratfId = '#66'
     // if (isCompleted === true && draftTag.includes("Commande PRO")) {
     if (draftTag.includes("Commande PRO")) {
 
-    // const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${draftId}`;
-    const getOrderUrl = `https://app.shippingbo.com/orders/95448503`;
-    
+    const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${draftId}`;
     const getOrderOptions = {
       method: 'GET',
       headers: {
