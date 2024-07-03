@@ -514,7 +514,7 @@ const draftId = '#66'
     try {
       const response = await fetch(getOrderUrl, getOrderOptions);
       const data = await response.json();
-      console.log('order to cancel in shppingbo', data);
+      console.log('order to cancel in shppingbo', data[0]);
     } catch (error) {
       console.log('error to retrieve order to cancel', error);
     }
