@@ -186,7 +186,7 @@ const getShippingboId = async (shopifyOrderId) => {
 }
 
 //webhook on order update : https://potironapppro.onrender.com/updateOrder
-//à revoir avec solution finale pour livraison
+//sur création d'une commande ??
 
 app.post('/updateOrder', async (req, res) => {
   const orderUpdated = req.body;
@@ -387,9 +387,6 @@ app.post('/create-pro-draft-order', async (req, res) => {
  
     const response = await fetch(draftOrderUrl, draftOrderOptions);
     const data = await response.json();
-    console.log("order from shopify", data);
-    console.log('drafted data', data.draft_order);
-    console.log('shippind', data.draft_order.shipping_address);
 
    if(data && data.draft_order && data.draft_order.customer){
     const draftOrderLineItems = data.draft_order.line_items;
@@ -398,8 +395,10 @@ app.post('/create-pro-draft-order', async (req, res) => {
     const draftOrderId = data.draft_order.name;
     const customerMail = data.draft_order.customer.email;
     const customerPhone = data.draft_order.customer.phone;
+    const shippingAddress = data.draft_order.shipping_address.address1 + data.draft_order.shipping_address.zip + data.draft_order.shipping_address.city;
+    console.log('shippingAdress', shippingAddress);
 
-    // await sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone);
+    // await sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone, shippingAddress);
     // const shippingBoOrder = {
     //   order_items_attributes: draftOrderLineItems.map(item => ({
     //     price_tax_included_cents: item.price * 100,
@@ -417,11 +416,10 @@ app.post('/create-pro-draft-order', async (req, res) => {
     //   shipping_address_id: data.draft_order.shipping_address.id,
     //   source: 'Potironpro',
     //   source_ref: draftOrderId,
-    //   // state: 'waiting_for_stock',
-    //   state: 'waiting_for_payment',
+    //   state: 'waiting_for_stock',
     //   total_price_cents: data.draft_order.subtotal_price * 100,
     //   total_price_currency: 'EUR',
-    //   tags_to_add: ["Commande PRO", "Commande Test"]
+    //   tags_to_add: ["Commande PRO", shippingAddress]
     // };
     // // console.log('shippingbo object', shippingBoOrder);
     // const createOrderUrl = `https://app.shippingbo.com/orders`;
@@ -455,7 +453,7 @@ app.post('/create-pro-draft-order', async (req, res) => {
 });
 
 
-async function sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone) {
+async function sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone, shippingAddress) {
   const transporter = nodemailer.createTransport({
     service: MAILSERVICE,
     host: MAILHOST,
@@ -479,6 +477,7 @@ async function sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrder
     <p>Bonjour, </p>
     <p>Une nouvelle commande provisoire a été créée pour le client PRO : ${firstnameCustomer} ${nameCustomer}</p>
     <p>Il est joignable pour valider la cotation à ${customerMail} et au ${customerPhone} </p>
+    <p>L'adresse de livraison renseignée est : ${shippingAddress}</p>
     <img src='cid:signature'/>
     `,     
     attachments: [
@@ -492,10 +491,18 @@ async function sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrder
   return transporter.sendMail(mailOptions);
 }
 
+//events: paiement d'une commande
 app.post('/closeDraf', (req, res) => {
   var closedDraftOrder = req.body;
-  console.log('closed order ?', closedDraftOrder);
+  console.log('order payment', closedDraftOrder);
 })
+
+//events : mise à jour d'une commande provisoire
+app.post('/updatedDraftOrder', (req, res) => {
+  var updatedDraftOrder = req.body;
+  console.log('updated draft', updatedDraftOrder);
+})
+
 
 //webhook on customer update : https://potironapppro.onrender.com/updatekBis
 app.post('/updateKbis', (req, res) => {
