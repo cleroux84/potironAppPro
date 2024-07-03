@@ -176,24 +176,48 @@ const getShippingboId = async (shopifyOrderId) => {
     const response = await fetch(getOrderUrl, getOrderOptions);
     const data = await response.json();
     const shippingboOrderId = data.orders[0].id;
-    let originRef = data.orders[0].origin_ref;
     if(shippingboOrderId){
       // await updateShippingboOrder(shippingboOrderId, originRef);
-      console.log('origin ref', originRef);
       console.log('id', shippingboOrderId);
-      await cancelShippingboOrder(shippingboOrderId, originRef);
+      await cancelShippingboOrder(shippingboOrderId);
     }
   } catch (err) {
     console.log('nop', err);
   }
 }
-
+const cancelShippingboOrder = async (shippingboOrderId) => {
+  const updatedOrder= {
+    id: shippingboOrderId,
+    state: "canceled"
+}
+  const updateOrderUrl = `https://app.shippingbo.com/orders/${shippingboOrderId}`;
+  const updateOrderOptions = {
+    method: 'PATCH',
+    headers: {
+      'Content-type': 'application/json',
+      Accept: 'application/json',
+      'X-API-VERSION' : '1',
+      'X-API-APP-ID': API_APP_ID,
+      Authorization: `Bearer ${accessToken}`
+    },
+    body: JSON.stringify(updatedOrder)
+  };
+  try{
+        const response = await fetch(updateOrderUrl, updateOrderOptions);
+        const data = await response.json();
+        if(response.ok) {
+          console.log('pro order updated in shippingbo: ', shippingboOrderId);
+        }
+      } catch (error) {
+         console.error('Error updating shippingbo order', error);
+      }
+}
 //webhook on order update : https://potironapppro.onrender.com/updateOrder
 //sur création d'une commande ??
 
 app.post('/updateOrder', async (req, res) => {
   const orderUpdated = req.body;
-  // console.log("commande mise à jour", orderUpdated);
+  console.log("commande mise à jour", orderUpdated);
   const shopifyOrderId = orderUpdated.id;
   const tagsPRO = orderUpdated.tags;
 if(tagsPRO.includes('Commande PRO')) {
