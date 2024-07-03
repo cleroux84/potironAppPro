@@ -403,7 +403,7 @@ app.post('/create-pro-draft-order', async (req, res) => {
       order_items_attributes: lineItems.map(item => ({
         price_tax_included_cents: item.price * 100,
         price_tax_included_currency: 'EUR',
-        product_ref: item.variant_id,
+        product_ref: item.sku,
         quantity: item.quantity,
         title: item.title,
         source: 'Potironpro'
@@ -416,7 +416,8 @@ app.post('/create-pro-draft-order', async (req, res) => {
       source_ref: draftOrderId,
       state: 'waiting_for_payment',
       total_price_cents: data.draft_order.subtotal_price * 100,
-      total_price_currency: 'EUR'
+      total_price_currency: 'EUR',
+      tags_to_add: ["Commande PRO", "Commande Test"]
     };
     const createOrderUrl = `https://app.shippingbo.com/orders`;
     const createOrderOptions = {
