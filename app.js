@@ -395,8 +395,7 @@ app.post('/create-pro-draft-order', async (req, res) => {
     const draftOrderId = data.draft_order.name;
     const customerMail = data.draft_order.customer.email;
     const customerPhone = data.draft_order.customer.phone;
-    const shippingAddress = data.draft_order.shipping_address.address1 + data.draft_order.shipping_address.zip + data.draft_order.shipping_address.city;
-    console.log('shippingAdress', shippingAddress);
+    const shippingAddress = data.draft_order.shipping_address.address1 + ' ' + data.draft_order.shipping_address.zip + ' ' + data.draft_order.shipping_address.city;
 
     // await sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone, shippingAddress);
     // const shippingBoOrder = {
@@ -491,16 +490,32 @@ async function sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrder
   return transporter.sendMail(mailOptions);
 }
 
-//events: paiement d'une commande
-app.post('/closeDraf', (req, res) => {
-  var closedDraftOrder = req.body;
-  console.log('order payment', closedDraftOrder);
-})
-
 //events : mise à jour d'une commande provisoire
-app.post('/updatedDraftOrder', (req, res) => {
-  var updatedDraftOrder = req.body;
-  console.log('updated draft', updatedDraftOrder);
+app.post('/updatedDraftOrder', async (req, res) => {
+  const updatedDraftData= req.body;
+  const draftTag = updatedDraftData.tags;
+  const isCompleted = updatedDraftData.status;
+  const draftId = updatedDraftData.name + 'provisoire';
+    if (isCompleted === true && draftTag.includes("Commande PRO")) {
+    const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${draftId}`;
+    const getOrderOptions = {
+      method: 'GET',
+      headers: {
+        'Content-type': 'application/json',
+        Accept: 'application/json',
+        'X-API-VERSION' : '1',
+        'X-API-APP-ID': API_APP_ID,
+        Authorization: `Bearer ${accessToken}`
+      },
+    };
+    try {
+      const response = await fetch(getOrderUrl, getOrderOptions);
+      const data = await response.json();
+      console.log('order to cancel in shppingbo');
+    } catch (error) {
+      console.log('error to retrieve order to cancel', error);
+    }
+  }
 })
 
 
