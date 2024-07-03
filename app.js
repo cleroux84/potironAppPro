@@ -511,7 +511,7 @@ app.post('/updatedDraftOrder', async (req, res) => {
     try {
       const response = await fetch(getOrderUrl, getOrderOptions);
       const data = await response.json();
-      console.log('order to cancel in shppingbo');
+      console.log('order to cancel in shppingbo', data);
     } catch (error) {
       console.log('error to retrieve order to cancel', error);
     }
