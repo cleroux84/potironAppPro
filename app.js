@@ -495,7 +495,9 @@ app.post('/updatedDraftOrder', async (req, res) => {
   const updatedDraftData= req.body;
   const draftTag = updatedDraftData.tags;
   const isCompleted = updatedDraftData.status;
-  const draftId = updatedDraftData.name + 'provisoire';
+  // const draftId = updatedDraftData.name + 'provisoire';
+  const draftId = '#D66provisoire';
+
     // if (isCompleted === true && draftTag.includes("Commande PRO")) {
     if (draftTag.includes("Commande PRO")) {
 
