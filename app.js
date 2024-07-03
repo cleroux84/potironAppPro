@@ -397,11 +397,9 @@ app.post('/create-pro-draft-order', async (req, res) => {
     const draftOrderId = data.draft_order.name;
     const customerMail = data.draft_order.customer.email;
     const customerPhone = data.draft_order.customer.phone;
-    const billingAddressId = parseInt(data.draft_order.customer.default_address.id);
 
     await sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone);
     const shippingBoOrder = {
-      billing_address_id: billingAddressId,
       order_items_attributes: lineItems.map(item => ({
         price_tax_included_cents: item.price * 100,
         price_tax_included_currency: 'EUR',
