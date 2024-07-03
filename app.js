@@ -356,7 +356,6 @@ app.post('/proOrder', async (req, res) => {
 app.post('/create-pro-draft-order', async (req, res) => {
   try {
     const orderData = req.body; 
-    // console.log("order received", orderData);
     const items = orderData.items;
     const lineItems = items.map(item => ({
       title: item.title,
@@ -364,7 +363,7 @@ app.post('/create-pro-draft-order', async (req, res) => {
       quantity: item.quantity,
       variant_id: item.variant_id,
     }));
-    // console.log("lineItems", lineItems);
+
     const draftOrder = {
       draft_order: {
         line_items: lineItems,
@@ -376,7 +375,6 @@ app.post('/create-pro-draft-order', async (req, res) => {
       }
     };
  
-    // console.log("Draft Order à créer :", draftOrder);
     const draftOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-04/draft_orders.json`;
     const draftOrderOptions = {
       method: 'POST',
@@ -389,22 +387,22 @@ app.post('/create-pro-draft-order', async (req, res) => {
  
     const response = await fetch(draftOrderUrl, draftOrderOptions);
     const data = await response.json();
-    console.log("order from shopify", data.draft_order.line_items);
+    // console.log("order from shopify", data.draft_order.line_items);
 
    if(data && data.draft_order && data.draft_order.customer){
     const draftOrderLineItems = data.draft_order.line_items;
-    draftOrderLineItems.forEach(item => {
-      console.log(`Title: ${item.title}, SKU: ${item.sku}`)
-    })
+    // draftOrderLineItems.forEach(item => {
+    //   console.log(`Title: ${item.title}, SKU: ${item.sku}`)
+    // })
     const firstnameCustomer = data.draft_order.customer.first_name;
     const nameCustomer = data.draft_order.customer.last_name;
     const draftOrderId = data.draft_order.name;
     const customerMail = data.draft_order.customer.email;
     const customerPhone = data.draft_order.customer.phone;
 
-    // await sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone);
+    await sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone);
     const shippingBoOrder = {
-      order_items_attributes: lineItems.map(item => ({
+      order_items_attributes: draftOrderLineItems.map(item => ({
         price_tax_included_cents: item.price * 100,
         price_tax_included_currency: 'EUR',
         product_ref: item.sku,
@@ -425,26 +423,26 @@ app.post('/create-pro-draft-order', async (req, res) => {
       total_price_currency: 'EUR',
       tags_to_add: ["Commande PRO", "Commande Test"]
     };
-    console.log('shippingbo object', shippingBoOrder);
-    // const createOrderUrl = `https://app.shippingbo.com/orders`;
-    // const createOrderOptions = {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-type': 'application/json',
-    //     Accept: 'application/json',
-    //     'X-API-VERSION' : '1',
-    //     'X-API-APP-ID': API_APP_ID,
-    //     Authorization: `Bearer ${accessToken}`
-    //   },
-    //   body: JSON.stringify(shippingBoOrder)
-    // };
-    // try {
-    //     const responseShippingbo = await fetch(createOrderUrl, createOrderOptions);
-    //     const data = await responseShippingbo.json();
-    //     console.log('data creation shippingbo', data);
-    // } catch (error) {
-    //   console.error('error in creation order from draft shopify', error);
-    // }
+    // console.log('shippingbo object', shippingBoOrder);
+    const createOrderUrl = `https://app.shippingbo.com/orders`;
+    const createOrderOptions = {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json',
+        Accept: 'application/json',
+        'X-API-VERSION' : '1',
+        'X-API-APP-ID': API_APP_ID,
+        Authorization: `Bearer ${accessToken}`
+      },
+      body: JSON.stringify(shippingBoOrder)
+    };
+    try {
+        const responseShippingbo = await fetch(createOrderUrl, createOrderOptions);
+        const data = await responseShippingbo.json();
+        console.log('data creation shippingbo', data);
+    } catch (error) {
+      console.error('error in creation order from draft shopify', error);
+    }
 
  } else {
   throw new Error('Invalid response structure from Shopify to create draft order for PRO')
