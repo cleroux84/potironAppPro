@@ -404,6 +404,8 @@ app.post('/create-pro-draft-order', async (req, res) => {
         price_tax_included_cents: item.price * 100,
         price_tax_included_currency: 'EUR',
         product_ref: item.sku,
+        product_source: "Shopify-8543",
+        product_source_ref: item.variant_id,
         quantity: item.quantity,
         title: item.title,
         source: 'Potironpro'
