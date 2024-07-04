@@ -265,6 +265,8 @@ if(tagsPRO.includes('Commande PRO')) {
   } catch(err) {
     console.log('error shiipingboId', err);
   }
+} else {
+  console.log("Création de commande non PRO")
 }
 });
 
@@ -571,6 +573,8 @@ app.post('/updatedDraftOrder', async (req, res) => {
       } catch(err) {
         console.log('error shippingboId', err);
       }
+  } else  {
+    console.log("Commande provisoire modifiée non close et/ou non pro")
   }
 })
 
