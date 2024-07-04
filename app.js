@@ -243,13 +243,11 @@ const cancelShippingboDraft = async (shippingboOrderId) => {
 
 app.post('/updateOrder', async (req, res) => {
   const orderUpdated = req.body;
-  console.log("crééé", orderUpdated);
+  // console.log("crééé", orderUpdated);
   const shopifyOrderId = orderUpdated.id;
   const tagsPRO = orderUpdated.tags;
 if(tagsPRO.includes('Commande PRO')) {
-  const draftTag = tagsPRO.find(tag => tag.startsWith('draft'));
-  if(draftTag) { 
-    try {
+  try {
     // Si l'accessToken est expiré ou non défini, rafraîchir avec refreshToken
     if (!accessToken) {
       // Si refreshToken est disponible, rafraîchir l'accessToken
@@ -266,13 +264,10 @@ if(tagsPRO.includes('Commande PRO')) {
       }
     }
     // await getShippingboId(shopifyOrderId);
-    console.log('orderidshopify', shopifyOrderId);
-    console.log('orderIDdraft', draftTag);
     await getShippingboIdFromShopify(shopifyOrderId);
-    await getShippingboId(draftTag);
   } catch(err) {
     console.log('error shiipingboId', err);
-  }}
+  }
 } else {
   console.log("commande non pro")
 }
@@ -417,9 +412,8 @@ app.post('/upload', upload.single('uploadFile'), (req, res) => {
 app.post('/create-pro-draft-order', async (req, res) => {
   try {
     const orderData = req.body; 
+    console.log('draft created', orderData);
     const items = orderData.items;
-    const orderDataName = orderData.name;
-    const draftOrderId = 'draft' + orderDataName.replace('#','');
     const lineItems = items.map(item => ({
       title: item.title,
       price: (item.price / 100).toFixed(2),
@@ -434,10 +428,10 @@ app.post('/create-pro-draft-order', async (req, res) => {
           id: orderData.customer_id 
         },
         use_customer_default_address: true,
-        tags: `Commande PRO, ${draftOrderId}`
+        tags: `Commande PRO, ${orderData.name}`
       }
     };
- 
+    console.log('draftorder', draftOrder)
     const draftOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-04/draft_orders.json`;
     const draftOrderOptions = {
       method: 'POST',
@@ -447,7 +441,7 @@ app.post('/create-pro-draft-order', async (req, res) => {
       },
       body: JSON.stringify(draftOrder) 
     };
-    console.log('draftorder', draftOrder)
+ 
     const response = await fetch(draftOrderUrl, draftOrderOptions);
     const data = await response.json();
 
@@ -460,6 +454,7 @@ app.post('/create-pro-draft-order', async (req, res) => {
       const customerMail = data.draft_order.customer.email;
       const customerPhone = data.draft_order.customer.phone;
       const shippingAddress = data.draft_order.shipping_address.address1 + ' ' + data.draft_order.shipping_address.zip + ' ' + data.draft_order.shipping_address.city;
+   
    
       await sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone, shippingAddress);
       const shippingBoOrder = {
