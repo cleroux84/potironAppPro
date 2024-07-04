@@ -176,21 +176,47 @@ const getShippingboId = async (shopifyOrderId) => {
     const response = await fetch(getOrderUrl, getOrderOptions);
     const data = await response.json();
     const shippingboOrderId = data.orders[0].id;
-    let originRef = data.orders[0].origin_ref;
+    // let originRef = data.orders[0].origin_ref;
     if(shippingboOrderId){
-      await updateShippingboOrder(shippingboOrderId, originRef);
+      // await updateShippingboOrder(shippingboOrderId, originRef);
+      await cancelShippingboDraft(shippingboOrderId);
     }
   } catch (err) {
     console.log('nop', err);
   }
 }
-
+const cancelShippingboDraft = async (shippingboOrderId) => {
+  const orderToCancel= {
+    state: 'canceled'
+}
+  const cancelOrderUrl = `https://app.shippingbo.com/orders/${shippingboOrderId}`;
+  const cancelOrderOptions = {
+    method: 'PATCH',
+    headers: {
+      'Content-type': 'application/json',
+      Accept: 'application/json',
+      'X-API-VERSION' : '1',
+      'X-API-APP-ID': API_APP_ID,
+      Authorization: `Bearer ${accessToken}`
+    },
+    body: JSON.stringify(orderToCancel)
+  };
+  try{
+        const response = await fetch(cancelOrderUrl, cancelOrderOptions);
+        const data = await response.json();
+        if(response.ok) {
+          console.log('order cancel in shippingbo: ', shippingboOrderId);
+        }
+      } catch (error) {
+         console.error('Error updating shippingbo order', error);
+      }
+}
 //webhook on order update : https://potironapppro.onrender.com/updateOrder
 //sur création d'une commande ??
 
 app.post('/updateOrder', async (req, res) => {
   const orderUpdated = req.body;
-  // console.log("commande mise à jour", orderUpdated);
+  // console.log("crééé", orderUpdated);
   const shopifyOrderId = orderUpdated.id;
   const tagsPRO = orderUpdated.tags;
 if(tagsPRO.includes('Commande PRO')) {
@@ -210,7 +236,7 @@ if(tagsPRO.includes('Commande PRO')) {
         refreshToken = tokens.refreshToken;
       }
     }
-    await getShippingboId(shopifyOrderId);
+    // await getShippingboId(shopifyOrderId);
   } catch(err) {
     console.log('error shiipingboId', err);
   }
@@ -415,7 +441,7 @@ app.post('/create-pro-draft-order', async (req, res) => {
       shipping_address_id: data.draft_order.shipping_address.id,
       source: 'Potironpro',
       source_ref: draftOrderId,
-      state: 'waiting_for_stock',
+      state: 'waiting_for_payment',
       total_price_cents: data.draft_order.subtotal_price * 100,
       total_price_currency: 'EUR',
       tags_to_add: ["Commande PRO", shippingAddress]
@@ -491,9 +517,35 @@ async function sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrder
 }
 
 //events : mise à jour d'une commande provisoire
-app.post('/updatedDraftOrder', (req, res) => {
-  var updatedDraftData= req.body;
-  console.log('updated draft', updatedDraftOrder);
+app.post('/updatedDraftOrder', async (req, res) => {
+  const updatedDraftData= req.body;
+  const draftTag = updatedDraftData.tags;
+  const isCompleted = updatedDraftData.status;
+  const draftName = updatedDraftData.name;
+  const draftId = "draft" + draftName.replace('#','');
+    // if (isCompleted === true && draftTag.includes("Commande PRO")) {
+    if (draftTag.includes("Commande PRO")) {
+      try {
+        // Si l'accessToken est expiré ou non défini, rafraîchir avec refreshToken
+        if (!accessToken) {
+          // Si refreshToken est disponible, rafraîchir l'accessToken
+          if (refreshToken) {
+            accessToken = await refreshAccessToken();
+          } else {
+            // Sinon, obtenir un nouvel accessToken avec authorization_code
+            const tokens = await getToken(YOUR_AUTHORIZATION_CODE);
+            if (!tokens.accessToken || !tokens.refreshToken) {
+              throw new Error('Failed to obtain access tokens');
+            }
+            accessToken = tokens.accessToken;
+            refreshToken = tokens.refreshToken;
+          }
+        }
+        await getShippingboId(draftId);
+      } catch(err) {
+        console.log('error shiipingboId', err);
+      }
+  }
 })
 
 
