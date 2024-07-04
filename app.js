@@ -191,7 +191,7 @@ const getShippingboId = async (shopifyOrderId) => {
 app.post('/updateOrder', async (req, res) => {
   const orderUpdated = req.body;
   // console.log("commande mise à jour", orderUpdated);
-  const shopifyOrderId = orderUpdated.id;
+  const shopifyOrderId = "draft#D71";
   const tagsPRO = orderUpdated.tags;
 if(tagsPRO.includes('Commande PRO')) {
   try {
@@ -495,7 +495,7 @@ app.post('/updatedDraftOrder', async (req, res) => {
   const updatedDraftData= req.body;
   const draftTag = updatedDraftData.tags;
   const isCompleted = updatedDraftData.status;
-  // const draftId = updatedDraftData.name;
+  // const draftId = "draft" + updatedDraftData.name;
 const draftId = "draft#D71"
     // if (isCompleted === true && draftTag.includes("Commande PRO")) {
     if (draftTag.includes("Commande PRO")) {
