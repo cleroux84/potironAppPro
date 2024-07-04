@@ -243,7 +243,7 @@ const cancelShippingboDraft = async (shippingboOrderId) => {
 
 app.post('/updateOrder', async (req, res) => {
   const orderUpdated = req.body;
-  // console.log("crééé", orderUpdated);
+  console.log("crééé", orderUpdated);
   const shopifyOrderId = orderUpdated.id;
   const tagsPRO = orderUpdated.tags;
 if(tagsPRO.includes('Commande PRO')) {
@@ -266,6 +266,8 @@ if(tagsPRO.includes('Commande PRO')) {
       }
     }
     // await getShippingboId(shopifyOrderId);
+    console.log('orderidshopify', shopifyOrderId);
+    console.log('orderIDdraft', draftTag);
     await getShippingboIdFromShopify(shopifyOrderId);
     await getShippingboId(draftTag);
   } catch(err) {
@@ -445,7 +447,7 @@ app.post('/create-pro-draft-order', async (req, res) => {
       },
       body: JSON.stringify(draftOrder) 
     };
- 
+    console.log('draftorder', draftOrder)
     const response = await fetch(draftOrderUrl, draftOrderOptions);
     const data = await response.json();
 
