@@ -191,7 +191,7 @@ const getShippingboId = async (shopifyOrderId) => {
 app.post('/updateOrder', async (req, res) => {
   const orderUpdated = req.body;
   // console.log("commande mise à jour", orderUpdated);
-  const shopifyOrderId = orderUpdated.id;
+  const shopifyOrderId = 'draftD72';
   const tagsPRO = orderUpdated.tags;
 if(tagsPRO.includes('Commande PRO')) {
   try {
