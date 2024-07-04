@@ -126,34 +126,6 @@ const refreshAccessToken = async () => {
   }
 };
 
-
-const cancelShippingboDraft = async (shippingboOrderId) => {
-  const orderToCancel= {
-    state: 'canceled'
-}
-  const cancelOrderUrl = `https://app.shippingbo.com/orders/${shippingboOrderId}`;
-  const cancelOrderOptions = {
-    method: 'PATCH',
-    headers: {
-      'Content-type': 'application/json',
-      Accept: 'application/json',
-      'X-API-VERSION' : '1',
-      'X-API-APP-ID': API_APP_ID,
-      Authorization: `Bearer ${accessToken}`
-    },
-    body: JSON.stringify(orderToCancel)
-  };
-  try{
-        const response = await fetch(cancelOrderUrl, cancelOrderOptions);
-        const data = await response.json();
-        if(response.ok) {
-          console.log('order cancel in shippingbo: ', shippingboOrderId);
-        }
-      } catch (error) {
-         console.error('Error updating shippingbo order', error);
-      }
-}
-
 //update order in shippingbo : change origin Commande PRO
 const updateShippingboOrder = async (shippingboOrderId, originRef) => {
   if(originRef.includes('PRO-') === false)  {
@@ -204,9 +176,9 @@ const getShippingboId = async (shopifyOrderId) => {
     const response = await fetch(getOrderUrl, getOrderOptions);
     const data = await response.json();
     const shippingboOrderId = data.orders[0].id;
+    let originRef = data.orders[0].origin_ref;
     if(shippingboOrderId){
-      // await updateShippingboOrder(shippingboOrderId);
-      await cancelShippingboDraft(shippingboOrderId);
+      await updateShippingboOrder(shippingboOrderId, originRef);
     }
   } catch (err) {
     console.log('nop', err);
@@ -238,8 +210,7 @@ if(tagsPRO.includes('Commande PRO')) {
         refreshToken = tokens.refreshToken;
       }
     }
-    console.log('update to change for creation')
-    // await getShippingboId(shopifyOrderId);
+    await getShippingboId(shopifyOrderId);
   } catch(err) {
     console.log('error shiipingboId', err);
   }
@@ -421,14 +392,12 @@ app.post('/create-pro-draft-order', async (req, res) => {
     const draftOrderLineItems = data.draft_order.line_items;
     const firstnameCustomer = data.draft_order.customer.first_name;
     const nameCustomer = data.draft_order.customer.last_name;
-    const draftOrderName = data.draft_order.name;
-    const draftOrderId = 'draft' + draftOrderName.replace('#','');
+    const draftOrderId = data.draft_order.name;
     const customerMail = data.draft_order.customer.email;
     const customerPhone = data.draft_order.customer.phone;
     const shippingAddress = data.draft_order.shipping_address.address1 + ' ' + data.draft_order.shipping_address.zip + ' ' + data.draft_order.shipping_address.city;
-  
 
-    // await sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone, shippingAddress);
+    await sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone, shippingAddress);
     const shippingBoOrder = {
       order_items_attributes: draftOrderLineItems.map(item => ({
         price_tax_included_cents: item.price * 100,
@@ -442,7 +411,7 @@ app.post('/create-pro-draft-order', async (req, res) => {
       })),
       origin: 'Potironpro',
       origin_created_at: new Date(data.draft_order.created_at).toISOString(),
-      origin_ref: draftOrderName + 'provisoire',
+      origin_ref: draftOrderId + 'provisoire',
       shipping_address_id: data.draft_order.shipping_address.id,
       source: 'Potironpro',
       source_ref: draftOrderId,
@@ -522,35 +491,9 @@ async function sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrder
 }
 
 //events : mise à jour d'une commande provisoire
-app.post('/updatedDraftOrder', async (req, res) => {
-  const updatedDraftData= req.body;
-  const draftTag = updatedDraftData.tags;
-  const isCompleted = updatedDraftData.status;
-  const draftName = updatedDraftData.name;
-  const draftId = "draft" + draftName.replace('#','');
-    // if (isCompleted === true && draftTag.includes("Commande PRO")) {
-    if (draftTag.includes("Commande PRO")) {
-      try {
-        // Si l'accessToken est expiré ou non défini, rafraîchir avec refreshToken
-        if (!accessToken) {
-          // Si refreshToken est disponible, rafraîchir l'accessToken
-          if (refreshToken) {
-            accessToken = await refreshAccessToken();
-          } else {
-            // Sinon, obtenir un nouvel accessToken avec authorization_code
-            const tokens = await getToken(YOUR_AUTHORIZATION_CODE);
-            if (!tokens.accessToken || !tokens.refreshToken) {
-              throw new Error('Failed to obtain access tokens');
-            }
-            accessToken = tokens.accessToken;
-            refreshToken = tokens.refreshToken;
-          }
-        }
-        await getShippingboId(draftId);
-      } catch(err) {
-        console.log('error shiipingboId', err);
-      }
-  }
+app.post('/updatedDraftOrder', (req, res) => {
+  var updatedDraftData= req.body;
+  console.log('updated draft', updatedDraftOrder);
 })
 
 
