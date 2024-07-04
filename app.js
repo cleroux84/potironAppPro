@@ -176,6 +176,7 @@ const getShippingboId = async (shopifyOrderId) => {
     const response = await fetch(getOrderUrl, getOrderOptions);
     const data = await response.json();
     const shippingboOrderId = data.orders[0].id;
+    console.log('shiipingboID', shippingboOrderId);
     // let originRef = data.orders[0].origin_ref;
     if(shippingboOrderId){
       // await updateShippingboOrder(shippingboOrderId, originRef);
@@ -414,18 +415,20 @@ app.post('/create-pro-draft-order', async (req, res) => {
     const response = await fetch(draftOrderUrl, draftOrderOptions);
     const data = await response.json();
 
-   if(data && data.draft_order && data.draft_order.customer){
-    const draftOrderLineItems = data.draft_order.line_items;
-    const firstnameCustomer = data.draft_order.customer.first_name;
-    const nameCustomer = data.draft_order.customer.last_name;
-    const draftOrderId = data.draft_order.name;
-    const customerMail = data.draft_order.customer.email;
-    const customerPhone = data.draft_order.customer.phone;
-    const shippingAddress = data.draft_order.shipping_address.address1 + ' ' + data.draft_order.shipping_address.zip + ' ' + data.draft_order.shipping_address.city;
-
-    await sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone, shippingAddress);
-    const shippingBoOrder = {
-      order_items_attributes: draftOrderLineItems.map(item => ({
+    if(data && data.draft_order && data.draft_order.customer){
+      const draftOrderLineItems = data.draft_order.line_items;
+      const firstnameCustomer = data.draft_order.customer.first_name;
+      const nameCustomer = data.draft_order.customer.last_name;
+      const draftOrderName = data.draft_order.name;
+      const draftOrderId = 'draft' + draftOrderName.replace('#','');
+      const customerMail = data.draft_order.customer.email;
+      const customerPhone = data.draft_order.customer.phone;
+      const shippingAddress = data.draft_order.shipping_address.address1 + ' ' + data.draft_order.shipping_address.zip + ' ' + data.draft_order.shipping_address.city;
+   
+   
+      // await sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone, shippingAddress);
+      const shippingBoOrder = {
+        order_items_attributes: draftOrderLineItems.map(item => ({
         price_tax_included_cents: item.price * 100,
         price_tax_included_currency: 'EUR',
         product_ref: item.sku,
@@ -437,7 +440,7 @@ app.post('/create-pro-draft-order', async (req, res) => {
       })),
       origin: 'Potironpro',
       origin_created_at: new Date(data.draft_order.created_at).toISOString(),
-      origin_ref: draftOrderId + 'provisoire',
+      origin_ref: draftOrderName + 'provisoire',
       shipping_address_id: data.draft_order.shipping_address.id,
       source: 'Potironpro',
       source_ref: draftOrderId,
@@ -519,10 +522,12 @@ async function sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrder
 //events : mise à jour d'une commande provisoire
 app.post('/updatedDraftOrder', async (req, res) => {
   const updatedDraftData= req.body;
+  console.log('updatedDraft', updatedDraftData)
   const draftTag = updatedDraftData.tags;
   const isCompleted = updatedDraftData.status;
   const draftName = updatedDraftData.name;
   const draftId = "draft" + draftName.replace('#','');
+  console.log('draftId', draftId);
     // if (isCompleted === true && draftTag.includes("Commande PRO")) {
     if (draftTag.includes("Commande PRO")) {
       try {
