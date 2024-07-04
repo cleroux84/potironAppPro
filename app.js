@@ -595,7 +595,7 @@ app.post('/updatedDraftOrder', async (req, res) => {
           refreshToken = tokens.refreshToken;
         }
       }
-
+        const orderId = updatedDraftData.id;
         const updatedOrder = {
          order: {
            id: orderId,
