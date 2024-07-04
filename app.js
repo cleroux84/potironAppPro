@@ -126,7 +126,7 @@ const refreshAccessToken = async () => {
   }
 };
 
-//Cancel shippingbo "Commande provisoire" when draft shopify order is closed
+
 const cancelShippingboDraft = async (shippingboOrderId) => {
   const orderToCancel= {
     state: 'canceled'
@@ -187,33 +187,7 @@ const updateShippingboOrder = async (shippingboOrderId, originRef) => {
       }
 }
 
-
-//Retrieve shippingbo draft order ID to cancel
-const getShippingboIdDraft = async (shopifyOrderId) => {
-  const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
-  const getOrderOptions = {
-    method: 'GET',
-    headers: {
-      'Content-type': 'application/json',
-      Accept: 'application/json',
-      'X-API-VERSION' : '1',
-      'X-API-APP-ID': API_APP_ID,
-      Authorization: `Bearer ${accessToken}`
-    },
-  };
-  try {
-    const response = await fetch(getOrderUrl, getOrderOptions);
-    const data = await response.json();
-    const shippingboOrderId = data.orders[0].id;
-    if(shippingboOrderId){
-      await cancelShippingboDraft(shippingboOrderId);
-    }
-  } catch (err) {
-    console.log('nop', err);
-  }
-}
-
-//retrieve shippingbo order ID from shopify to update origin and origin ref
+//Retrieve shippingbo order ID from Shopify ID
 const getShippingboId = async (shopifyOrderId) => {
   const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
   const getOrderOptions = {
@@ -231,13 +205,17 @@ const getShippingboId = async (shopifyOrderId) => {
     const data = await response.json();
     const shippingboOrderId = data.orders[0].id;
     if(shippingboOrderId){
-      await updateShippingboOrder(shippingboOrderId);
+      // await updateShippingboOrder(shippingboOrderId);
+      await cancelShippingboDraft(shippingboOrderId);
     }
   } catch (err) {
     console.log('nop', err);
   }
 }
-//webhook on creation order if b2B : https://potironapppro.onrender.com/updateOrder
+
+//webhook on order update : https://potironapppro.onrender.com/updateOrder
+//sur création d'une commande ??
+
 app.post('/updateOrder', async (req, res) => {
   const orderUpdated = req.body;
   // console.log("commande mise à jour", orderUpdated);
@@ -261,12 +239,10 @@ if(tagsPRO.includes('Commande PRO')) {
       }
     }
     console.log('update to change for creation')
-    await getShippingboId(shopifyOrderId);
+    // await getShippingboId(shopifyOrderId);
   } catch(err) {
     console.log('error shiipingboId', err);
   }
-} else {
-  console.log("Création de commande non PRO")
 }
 });
 
@@ -322,8 +298,6 @@ async function sendEmailWithAttachment(filePath, companyName, fileExtension, fir
 
   return transporter.sendMail(mailOptions);
 }
-
-//send email to customer after kbis is validate
 async function sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer, companyName) {
   const transporter = nodemailer.createTransport({
     service: MAILSERVICE,
@@ -373,42 +347,41 @@ app.post('/upload', upload.single('uploadFile'), (req, res) => {
 });
 
 //webhook on order creation : https://potironapppro.onrender.com/proOrder
-// app.post('/proOrder', async (req, res) => {
-//   var orderData = req.body;
-//   var orderId = orderData.id;
-//   const tagsArr = orderData.customer.tags.split(', ');
-//   const isB2B = tagsArr.includes('PRO validé');
-//   if(isB2B) {
-//    const updatedOrder = {
-//     order: {
-//       id: orderId,
-//       tags: "Commande PRO"
-//     }
-//   };
-//     const updateOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-04/orders/${orderId}.json`;
-//     const updateOptions = {
-//       method: 'PUT',
-//       headers: {             
-//         'Content-Type': 'application/json',             
-//         'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
-//       },
-//       body: JSON.stringify(updatedOrder)
-//     };
-//     try {
-//       const response = await fetch(updateOrderUrl, updateOptions);
-//       const data = await response.json();       
-//       console.log('Commande pro maj sur Shopify:', data);  
-//       res.status(200).send('Order updated');  
-//     } catch (error) {
-//       console.error('Error updating order:', error);
-//       res.status(500).send('Error updating order');
-//     }
-//   } else {
-//     console.log('commande pour client non pro');
-//   }
-// });
+app.post('/proOrder', async (req, res) => {
+  var orderData = req.body;
+  var orderId = orderData.id;
+  const tagsArr = orderData.customer.tags.split(', ');
+  const isB2B = tagsArr.includes('PRO validé');
+  if(isB2B) {
+   const updatedOrder = {
+    order: {
+      id: orderId,
+      tags: "Commande PRO"
+    }
+  };
+    const updateOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-04/orders/${orderId}.json`;
+    const updateOptions = {
+      method: 'PUT',
+      headers: {             
+        'Content-Type': 'application/json',             
+        'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
+      },
+      body: JSON.stringify(updatedOrder)
+    };
+    try {
+      const response = await fetch(updateOrderUrl, updateOptions);
+      const data = await response.json();       
+      console.log('Commande pro maj sur Shopify:', data);  
+      res.status(200).send('Order updated');  
+    } catch (error) {
+      console.error('Error updating order:', error);
+      res.status(500).send('Error updating order');
+    }
+  } else {
+    console.log('commande pour client non pro');
+  }
+});
 
-//Trigger by button in false checkout for b2B to create draft order in Shopify
 app.post('/create-pro-draft-order', async (req, res) => {
   try {
     const orderData = req.body; 
@@ -454,7 +427,8 @@ app.post('/create-pro-draft-order', async (req, res) => {
     const customerPhone = data.draft_order.customer.phone;
     const shippingAddress = data.draft_order.shipping_address.address1 + ' ' + data.draft_order.shipping_address.zip + ' ' + data.draft_order.shipping_address.city;
   
-    await sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone, shippingAddress);
+
+    // await sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone, shippingAddress);
     const shippingBoOrder = {
       order_items_attributes: draftOrderLineItems.map(item => ({
         price_tax_included_cents: item.price * 100,
@@ -472,7 +446,7 @@ app.post('/create-pro-draft-order', async (req, res) => {
       shipping_address_id: data.draft_order.shipping_address.id,
       source: 'Potironpro',
       source_ref: draftOrderId,
-      state: 'waiting_for_payment',
+      state: 'waiting_for_stock',
       total_price_cents: data.draft_order.subtotal_price * 100,
       total_price_currency: 'EUR',
       tags_to_add: ["Commande PRO", shippingAddress]
@@ -493,7 +467,7 @@ app.post('/create-pro-draft-order', async (req, res) => {
     try {
         const responseShippingbo = await fetch(createOrderUrl, createOrderOptions);
         const data = await responseShippingbo.json();
-        // console.log('data creation shippingbo', data);
+        console.log('data creation shippingbo', data);
     } catch (error) {
       console.error('error in creation order from draft shopify', error);
     }
@@ -508,7 +482,7 @@ app.post('/create-pro-draft-order', async (req, res) => {
   }
 });
 
-//send email to ask cotation for draft order b2B and draft order in Shippingbo
+
 async function sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone, shippingAddress) {
   const transporter = nodemailer.createTransport({
     service: MAILSERVICE,
@@ -547,20 +521,23 @@ async function sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrder
   return transporter.sendMail(mailOptions);
 }
 
-//events : mise à jour d'une commande provisoire to close draft order in shippingbo
+//events : mise à jour d'une commande provisoire
 app.post('/updatedDraftOrder', async (req, res) => {
   const updatedDraftData= req.body;
   const draftTag = updatedDraftData.tags;
   const isCompleted = updatedDraftData.status;
   const draftName = updatedDraftData.name;
   const draftId = "draft" + draftName.replace('#','');
-    if (isCompleted === true && draftTag.includes("Commande PRO")) {
-    // if (draftTag.includes("Commande PRO")) {
+    // if (isCompleted === true && draftTag.includes("Commande PRO")) {
+    if (draftTag.includes("Commande PRO")) {
       try {
+        // Si l'accessToken est expiré ou non défini, rafraîchir avec refreshToken
         if (!accessToken) {
+          // Si refreshToken est disponible, rafraîchir l'accessToken
           if (refreshToken) {
             accessToken = await refreshAccessToken();
           } else {
+            // Sinon, obtenir un nouvel accessToken avec authorization_code
             const tokens = await getToken(YOUR_AUTHORIZATION_CODE);
             if (!tokens.accessToken || !tokens.refreshToken) {
               throw new Error('Failed to obtain access tokens');
@@ -569,14 +546,13 @@ app.post('/updatedDraftOrder', async (req, res) => {
             refreshToken = tokens.refreshToken;
           }
         }
-        await getShippingboIdDraft(draftId);
+        await getShippingboId(draftId);
       } catch(err) {
-        console.log('error shippingboId', err);
+        console.log('error shiipingboId', err);
       }
-  } else  {
-    console.log("Commande provisoire modifiée non close et/ou non pro")
   }
 })
+
 
 //webhook on customer update : https://potironapppro.onrender.com/updatekBis
 app.post('/updateKbis', (req, res) => {
