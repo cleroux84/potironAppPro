@@ -546,7 +546,7 @@ app.post('/updatedDraftOrder', async (req, res) => {
             refreshToken = tokens.refreshToken;
           }
         }
-        await getShippingboId(shopifyOrderId);
+        await getShippingboId(draftId);
       } catch(err) {
         console.log('error shiipingboId', err);
       }
