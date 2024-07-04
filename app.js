@@ -243,11 +243,13 @@ const cancelShippingboDraft = async (shippingboOrderId) => {
 
 app.post('/updateOrder', async (req, res) => {
   const orderUpdated = req.body;
-  console.log("crééé", orderUpdated);
+  // console.log("crééé", orderUpdated);
   const shopifyOrderId = orderUpdated.id;
   const tagsPRO = orderUpdated.tags;
 if(tagsPRO.includes('Commande PRO')) {
-  try {
+  const draftTag = tagsPRO.find(tag => tag.startsWith('draft'));
+  if(draftTag) { 
+    try {
     // Si l'accessToken est expiré ou non défini, rafraîchir avec refreshToken
     if (!accessToken) {
       // Si refreshToken est disponible, rafraîchir l'accessToken
@@ -265,9 +267,10 @@ if(tagsPRO.includes('Commande PRO')) {
     }
     // await getShippingboId(shopifyOrderId);
     await getShippingboIdFromShopify(shopifyOrderId);
+    await getShippingboId(draftTag);
   } catch(err) {
     console.log('error shiipingboId', err);
-  }
+  }}
 } else {
   console.log("commande non pro")
 }
@@ -374,45 +377,47 @@ app.post('/upload', upload.single('uploadFile'), (req, res) => {
 });
 
 //webhook on order creation : https://potironapppro.onrender.com/proOrder
-app.post('/proOrder', async (req, res) => {
-  var orderData = req.body;
-  var orderId = orderData.id;
-  const tagsArr = orderData.customer.tags.split(', ');
-  const isB2B = tagsArr.includes('PRO validé');
-  if(isB2B) {
-   const updatedOrder = {
-    order: {
-      id: orderId,
-      tags: "Commande PRO"
-    }
-  };
-    const updateOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-04/orders/${orderId}.json`;
-    const updateOptions = {
-      method: 'PUT',
-      headers: {             
-        'Content-Type': 'application/json',             
-        'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
-      },
-      body: JSON.stringify(updatedOrder)
-    };
-    try {
-      const response = await fetch(updateOrderUrl, updateOptions);
-      const data = await response.json();       
-      console.log('Commande pro maj sur Shopify:', data);  
-      res.status(200).send('Order updated');  
-    } catch (error) {
-      console.error('Error updating order:', error);
-      res.status(500).send('Error updating order');
-    }
-  } else {
-    console.log('commande pour client non pro');
-  }
-});
+// app.post('/proOrder', async (req, res) => {
+//   var orderData = req.body;
+//   var orderId = orderData.id;
+//   const tagsArr = orderData.customer.tags.split(', ');
+//   const isB2B = tagsArr.includes('PRO validé');
+//   if(isB2B) {
+//    const updatedOrder = {
+//     order: {
+//       id: orderId,
+//       tags: "Commande PRO"
+//     }
+//   };
+//     const updateOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-04/orders/${orderId}.json`;
+//     const updateOptions = {
+//       method: 'PUT',
+//       headers: {             
+//         'Content-Type': 'application/json',             
+//         'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
+//       },
+//       body: JSON.stringify(updatedOrder)
+//     };
+//     try {
+//       const response = await fetch(updateOrderUrl, updateOptions);
+//       const data = await response.json();       
+//       console.log('Commande pro maj sur Shopify:', data);  
+//       res.status(200).send('Order updated');  
+//     } catch (error) {
+//       console.error('Error updating order:', error);
+//       res.status(500).send('Error updating order');
+//     }
+//   } else {
+//     console.log('commande pour client non pro');
+//   }
+// });
 
 app.post('/create-pro-draft-order', async (req, res) => {
   try {
     const orderData = req.body; 
     const items = orderData.items;
+    const orderDataName = orderData.name;
+    const draftOrderId = 'draft' + orderDataName.replace('#','');
     const lineItems = items.map(item => ({
       title: item.title,
       price: (item.price / 100).toFixed(2),
@@ -427,7 +432,7 @@ app.post('/create-pro-draft-order', async (req, res) => {
           id: orderData.customer_id 
         },
         use_customer_default_address: true,
-        tags: "Commande PRO"
+        tags: `Commande PRO, ${draftOrderId}`
       }
     };
  
@@ -454,8 +459,7 @@ app.post('/create-pro-draft-order', async (req, res) => {
       const customerPhone = data.draft_order.customer.phone;
       const shippingAddress = data.draft_order.shipping_address.address1 + ' ' + data.draft_order.shipping_address.zip + ' ' + data.draft_order.shipping_address.city;
    
-   
-      // await sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone, shippingAddress);
+      await sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone, shippingAddress);
       const shippingBoOrder = {
         order_items_attributes: draftOrderLineItems.map(item => ({
         price_tax_included_cents: item.price * 100,
