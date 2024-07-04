@@ -191,7 +191,7 @@ const getShippingboId = async (shopifyOrderId) => {
 app.post('/updateOrder', async (req, res) => {
   const orderUpdated = req.body;
   // console.log("commande mise à jour", orderUpdated);
-  const shopifyOrderId = "draft#D71";
+  const shopifyOrderId = orderUpdated.id;
   const tagsPRO = orderUpdated.tags;
 if(tagsPRO.includes('Commande PRO')) {
   try {
@@ -392,10 +392,12 @@ app.post('/create-pro-draft-order', async (req, res) => {
     const draftOrderLineItems = data.draft_order.line_items;
     const firstnameCustomer = data.draft_order.customer.first_name;
     const nameCustomer = data.draft_order.customer.last_name;
-    const draftOrderId = data.draft_order.name;
+    const draftOrderName = data.draft_order.name;
+    const draftOrderId = 'draft' + draftOrderName.replace('#','');
     const customerMail = data.draft_order.customer.email;
     const customerPhone = data.draft_order.customer.phone;
     const shippingAddress = data.draft_order.shipping_address.address1 + ' ' + data.draft_order.shipping_address.zip + ' ' + data.draft_order.shipping_address.city;
+  
 
     // await sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone, shippingAddress);
     const shippingBoOrder = {
@@ -411,10 +413,10 @@ app.post('/create-pro-draft-order', async (req, res) => {
       })),
       origin: 'Potironpro',
       origin_created_at: new Date(data.draft_order.created_at).toISOString(),
-      origin_ref: draftOrderId + 'provisoire',
+      origin_ref: draftOrderName + 'provisoire',
       shipping_address_id: data.draft_order.shipping_address.id,
       source: 'Potironpro',
-      source_ref: "draft" + draftOrderId,
+      source_ref: draftOrderId,
       state: 'waiting_for_stock',
       total_price_cents: data.draft_order.subtotal_price * 100,
       total_price_currency: 'EUR',
@@ -496,7 +498,7 @@ app.post('/updatedDraftOrder', async (req, res) => {
   const draftTag = updatedDraftData.tags;
   const isCompleted = updatedDraftData.status;
   // const draftId = "draft" + updatedDraftData.name;
-const draftId = "draft#D71"
+  const draftId = "draftD72"
     // if (isCompleted === true && draftTag.includes("Commande PRO")) {
     if (draftTag.includes("Commande PRO")) {
 
