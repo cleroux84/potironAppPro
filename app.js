@@ -577,6 +577,52 @@ app.post('/updatedDraftOrder', async (req, res) => {
       } catch(err) {
         console.log('error shiipingboId', err);
       }
+  } else if(isCompleted === false && draftTag.includes('Commande PRO')) {
+    try {
+      // Si l'accessToken est expiré ou non défini, rafraîchir avec refreshToken
+      if (!accessToken) {
+        // Si refreshToken est disponible, rafraîchir l'accessToken
+        if (refreshToken) {
+          accessToken = await refreshAccessToken();
+        } else {
+          // Sinon, obtenir un nouvel accessToken avec authorization_code
+          const tokens = await getToken(YOUR_AUTHORIZATION_CODE);
+          if (!tokens.accessToken || !tokens.refreshToken) {
+            throw new Error('Failed to obtain access tokens');
+          }
+          accessToken = tokens.accessToken;
+          refreshToken = tokens.refreshToken;
+        }
+      }
+
+        const updatedOrder = {
+         order: {
+           id: orderId,
+           tags: `Commande PRO, ${draftId}`
+         }
+       };
+         const updateOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-04/orders/${orderId}.json`;
+         const updateOptions = {
+           method: 'PUT',
+           headers: {             
+             'Content-Type': 'application/json',             
+             'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
+           },
+           body: JSON.stringify(updatedOrder)
+         };
+         try {
+           const response = await fetch(updateOrderUrl, updateOptions);
+           const data = await response.json();       
+           console.log('Commande pro maj sur Shopify:', data);  
+           res.status(200).send('Order updated');  
+         } catch (error) {
+           console.error('Error updating order:', error);
+           res.status(500).send('Error updating order');
+         }
+     
+    } catch(err) {
+      console.log('error shiipingboId', err);
+    }
   }
 })
 
