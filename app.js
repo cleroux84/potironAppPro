@@ -398,48 +398,48 @@ app.post('/create-pro-draft-order', async (req, res) => {
     const shippingAddress = data.draft_order.shipping_address.address1 + ' ' + data.draft_order.shipping_address.zip + ' ' + data.draft_order.shipping_address.city;
 
     // await sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone, shippingAddress);
-    // const shippingBoOrder = {
-    //   order_items_attributes: draftOrderLineItems.map(item => ({
-    //     price_tax_included_cents: item.price * 100,
-    //     price_tax_included_currency: 'EUR',
-    //     product_ref: item.sku,
-    //     product_source: "Shopify-8543",
-    //     product_source_ref: item.variant_id,
-    //     quantity: item.quantity,
-    //     title: item.title,
-    //     source: 'Potironpro'
-    //   })),
-    //   origin: 'Potironpro',
-    //   origin_created_at: new Date(data.draft_order.created_at).toISOString(),
-    //   origin_ref: draftOrderId + 'provisoire',
-    //   shipping_address_id: data.draft_order.shipping_address.id,
-    //   source: 'Potironpro',
-    //   source_ref: draftOrderId,
-    //   state: 'waiting_for_stock',
-    //   total_price_cents: data.draft_order.subtotal_price * 100,
-    //   total_price_currency: 'EUR',
-    //   tags_to_add: ["Commande PRO", shippingAddress]
-    // };
-    // // console.log('shippingbo object', shippingBoOrder);
-    // const createOrderUrl = `https://app.shippingbo.com/orders`;
-    // const createOrderOptions = {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-type': 'application/json',
-    //     Accept: 'application/json',
-    //     'X-API-VERSION' : '1',
-    //     'X-API-APP-ID': API_APP_ID,
-    //     Authorization: `Bearer ${accessToken}`
-    //   },
-    //   body: JSON.stringify(shippingBoOrder)
-    // };
-    // try {
-    //     const responseShippingbo = await fetch(createOrderUrl, createOrderOptions);
-    //     const data = await responseShippingbo.json();
-    //     console.log('data creation shippingbo', data);
-    // } catch (error) {
-    //   console.error('error in creation order from draft shopify', error);
-    // }
+    const shippingBoOrder = {
+      order_items_attributes: draftOrderLineItems.map(item => ({
+        price_tax_included_cents: item.price * 100,
+        price_tax_included_currency: 'EUR',
+        product_ref: item.sku,
+        product_source: "Shopify-8543",
+        product_source_ref: item.variant_id,
+        quantity: item.quantity,
+        title: item.title,
+        source: 'Potironpro'
+      })),
+      origin: 'Potironpro',
+      origin_created_at: new Date(data.draft_order.created_at).toISOString(),
+      origin_ref: draftOrderId + 'provisoire',
+      shipping_address_id: data.draft_order.shipping_address.id,
+      source: 'Potironpro',
+      source_ref: "draft" + draftOrderId,
+      state: 'waiting_for_stock',
+      total_price_cents: data.draft_order.subtotal_price * 100,
+      total_price_currency: 'EUR',
+      tags_to_add: ["Commande PRO", shippingAddress]
+    };
+    // console.log('shippingbo object', shippingBoOrder);
+    const createOrderUrl = `https://app.shippingbo.com/orders`;
+    const createOrderOptions = {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json',
+        Accept: 'application/json',
+        'X-API-VERSION' : '1',
+        'X-API-APP-ID': API_APP_ID,
+        Authorization: `Bearer ${accessToken}`
+      },
+      body: JSON.stringify(shippingBoOrder)
+    };
+    try {
+        const responseShippingbo = await fetch(createOrderUrl, createOrderOptions);
+        const data = await responseShippingbo.json();
+        console.log('data creation shippingbo', data);
+    } catch (error) {
+      console.error('error in creation order from draft shopify', error);
+    }
 
  } else {
   throw new Error('Invalid response structure from Shopify to create draft order for PRO')
@@ -496,7 +496,7 @@ app.post('/updatedDraftOrder', async (req, res) => {
   const draftTag = updatedDraftData.tags;
   const isCompleted = updatedDraftData.status;
   // const draftId = updatedDraftData.name;
-const draftId = '#66'
+const draftId = "draft#71"
     // if (isCompleted === true && draftTag.includes("Commande PRO")) {
     if (draftTag.includes("Commande PRO")) {
 
