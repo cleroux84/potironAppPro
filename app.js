@@ -555,8 +555,8 @@ app.post('/updatedDraftOrder', async (req, res) => {
   const isCompleted = updatedDraftData.status;
   const draftName = updatedDraftData.name;
   const draftId = "draft" + draftName.replace('#','');
-    // if (isCompleted === true && draftTag.includes("Commande PRO")) {
-    if (draftTag.includes("Commande PRO")) {
+    if (isCompleted === true && draftTag.includes("Commande PRO")) {
+    // if (draftTag.includes("Commande PRO")) {
       try {
         // Si l'accessToken est expiré ou non défini, rafraîchir avec refreshToken
         if (!accessToken) {
