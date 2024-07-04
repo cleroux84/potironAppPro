@@ -555,6 +555,7 @@ app.post('/updatedDraftOrder', async (req, res) => {
   const isCompleted = updatedDraftData.status;
   const draftName = updatedDraftData.name;
   const draftId = "draft" + draftName.replace('#','');
+  console.log('updatedOrderDraft: ', updatedDraftData)
     if (isCompleted === true && draftTag.includes("Commande PRO")) {
     // if (draftTag.includes("Commande PRO")) {
       try {
@@ -577,7 +578,7 @@ app.post('/updatedDraftOrder', async (req, res) => {
       } catch(err) {
         console.log('error shiipingboId', err);
       }
-  } else if(isCompleted === false && draftTag.includes('Commande PRO')) {
+  } else if(draftTag.includes('Commande PRO')) {
     try {
       // Si l'accessToken est expiré ou non défini, rafraîchir avec refreshToken
       if (!accessToken) {
