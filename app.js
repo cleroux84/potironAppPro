@@ -247,7 +247,9 @@ app.post('/updateOrder', async (req, res) => {
   const shopifyOrderId = orderUpdated.id;
   const tagsPRO = orderUpdated.tags;
 if(tagsPRO.includes('Commande PRO')) {
-  try {
+  const draftTag = tagsPRO.find(tag => tag.startsWith('draft'));
+  if(draftTag) {
+    try {
     // Si l'accessToken est expiré ou non défini, rafraîchir avec refreshToken
     if (!accessToken) {
       // Si refreshToken est disponible, rafraîchir l'accessToken
@@ -263,11 +265,11 @@ if(tagsPRO.includes('Commande PRO')) {
         refreshToken = tokens.refreshToken;
       }
     }
-    // await getShippingboId(shopifyOrderId);
+    await getShippingboId(draftTag);
     await getShippingboIdFromShopify(shopifyOrderId);
   } catch(err) {
     console.log('error shiipingboId', err);
-  }
+  }}
 } else {
   console.log("commande non pro")
 }
@@ -412,7 +414,6 @@ app.post('/upload', upload.single('uploadFile'), (req, res) => {
 app.post('/create-pro-draft-order', async (req, res) => {
   try {
     const orderData = req.body; 
-    console.log('draft created', orderData);
     const items = orderData.items;
     const lineItems = items.map(item => ({
       title: item.title,
@@ -428,10 +429,10 @@ app.post('/create-pro-draft-order', async (req, res) => {
           id: orderData.customer_id 
         },
         use_customer_default_address: true,
-        tags: `Commande PRO, ${orderData.name}`
+        tags: "Commande PRO"
       }
     };
-    console.log('draftorder', draftOrder)
+ 
     const draftOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-04/draft_orders.json`;
     const draftOrderOptions = {
       method: 'POST',
@@ -578,6 +579,25 @@ app.post('/updatedDraftOrder', async (req, res) => {
       } catch(err) {
         console.log('error shiipingboId', err);
       }
+  } else if(isCompleted === false && draftTag.includes('Commande PRO')) {
+    const isTaggedDraft = draftTag.find(tag => tag.startsWith('draft'));
+    if(!isTaggedDraft) {
+      const updatedOrder = {
+            order: {
+              id: orderId,
+              tags: `Commande PRO, ${draftId}`
+            }
+          };
+            const updateOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-04/orders/${orderId}.json`;
+            const updateOptions = {
+              method: 'PUT',
+              headers: {             
+                'Content-Type': 'application/json',             
+                'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
+              },
+              body: JSON.stringify(updatedOrder)
+            };
+    }
   }
 })
 
