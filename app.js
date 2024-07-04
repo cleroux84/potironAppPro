@@ -126,6 +126,34 @@ const refreshAccessToken = async () => {
   }
 };
 
+
+const cancelShippingboDraft = async (shippingboOrderId) => {
+  const orderToCancel= {
+    state: 'canceled'
+}
+  const cancelOrderUrl = `https://app.shippingbo.com/orders/${shippingboOrderId}`;
+  const cancelOrderOptions = {
+    method: 'PATCH',
+    headers: {
+      'Content-type': 'application/json',
+      Accept: 'application/json',
+      'X-API-VERSION' : '1',
+      'X-API-APP-ID': API_APP_ID,
+      Authorization: `Bearer ${accessToken}`
+    },
+    body: JSON.stringify(orderToCancel)
+  };
+  try{
+        const response = await fetch(cancelOrderUrl, cancelOrderOptions);
+        const data = await response.json();
+        if(response.ok) {
+          console.log('order cancel in shippingbo: ', shippingboOrderId);
+        }
+      } catch (error) {
+         console.error('Error updating shippingbo order', error);
+      }
+}
+
 //update order in shippingbo : change origin Commande PRO
 const updateShippingboOrder = async (shippingboOrderId, originRef) => {
   if(originRef.includes('PRO-') === false)  {
@@ -176,9 +204,9 @@ const getShippingboId = async (shopifyOrderId) => {
     const response = await fetch(getOrderUrl, getOrderOptions);
     const data = await response.json();
     const shippingboOrderId = data.orders[0].id;
-    let originRef = data.orders[0].origin_ref;
     if(shippingboOrderId){
-      await updateShippingboOrder(shippingboOrderId, originRef);
+      // await updateShippingboOrder(shippingboOrderId);
+      await cancelShippingboDraft(shippingboOrderId);
     }
   } catch (err) {
     console.log('nop', err);
@@ -191,7 +219,7 @@ const getShippingboId = async (shopifyOrderId) => {
 app.post('/updateOrder', async (req, res) => {
   const orderUpdated = req.body;
   // console.log("commande mise à jour", orderUpdated);
-  const shopifyOrderId = 'draftD72';
+  const shopifyOrderId = orderUpdated.id;
   const tagsPRO = orderUpdated.tags;
 if(tagsPRO.includes('Commande PRO')) {
   try {
@@ -210,7 +238,8 @@ if(tagsPRO.includes('Commande PRO')) {
         refreshToken = tokens.refreshToken;
       }
     }
-    await getShippingboId(shopifyOrderId);
+    console.log('update to change for creation')
+    // await getShippingboId(shopifyOrderId);
   } catch(err) {
     console.log('error shiipingboId', err);
   }
@@ -497,29 +526,30 @@ app.post('/updatedDraftOrder', async (req, res) => {
   const updatedDraftData= req.body;
   const draftTag = updatedDraftData.tags;
   const isCompleted = updatedDraftData.status;
-  // const draftId = "draft" + updatedDraftData.name;
-  const draftId = "draftD72"
+  const draftName = updatedDraftData.name;
+  const draftId = "draft" + draftName.replace('#','');
     // if (isCompleted === true && draftTag.includes("Commande PRO")) {
     if (draftTag.includes("Commande PRO")) {
-
-    const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${draftId}`;
-    const getOrderOptions = {
-      method: 'GET',
-      headers: {
-        'Content-type': 'application/json',
-        Accept: 'application/json',
-        'X-API-VERSION' : '1',
-        'X-API-APP-ID': API_APP_ID,
-        Authorization: `Bearer ${accessToken}`
-      },
-    };
-    try {
-      const response = await fetch(getOrderUrl, getOrderOptions);
-      const data = await response.json();
-      console.log('order to cancel in shppingbo', data[0]);
-    } catch (error) {
-      console.log('error to retrieve order to cancel', error);
-    }
+      try {
+        // Si l'accessToken est expiré ou non défini, rafraîchir avec refreshToken
+        if (!accessToken) {
+          // Si refreshToken est disponible, rafraîchir l'accessToken
+          if (refreshToken) {
+            accessToken = await refreshAccessToken();
+          } else {
+            // Sinon, obtenir un nouvel accessToken avec authorization_code
+            const tokens = await getToken(YOUR_AUTHORIZATION_CODE);
+            if (!tokens.accessToken || !tokens.refreshToken) {
+              throw new Error('Failed to obtain access tokens');
+            }
+            accessToken = tokens.accessToken;
+            refreshToken = tokens.refreshToken;
+          }
+        }
+        await getShippingboId(shopifyOrderId);
+      } catch(err) {
+        console.log('error shiipingboId', err);
+      }
   }
 })
 
