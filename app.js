@@ -176,7 +176,6 @@ const getShippingboId = async (shopifyOrderId) => {
     const response = await fetch(getOrderUrl, getOrderOptions);
     const data = await response.json();
     const shippingboOrderId = data.orders[0].id;
-    console.log('shiipingboID', shippingboOrderId);
     // let originRef = data.orders[0].origin_ref;
     if(shippingboOrderId){
       // await updateShippingboOrder(shippingboOrderId, originRef);
@@ -186,6 +185,33 @@ const getShippingboId = async (shopifyOrderId) => {
     console.log('nop', err);
   }
 }
+
+const getShippingboIdFromShopify = async (shopifyOrderId) => {
+  const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
+  const getOrderOptions = {
+    method: 'GET',
+    headers: {
+      'Content-type': 'application/json',
+      Accept: 'application/json',
+      'X-API-VERSION' : '1',
+      'X-API-APP-ID': API_APP_ID,
+      Authorization: `Bearer ${accessToken}`
+    },
+  };
+  try {
+    const response = await fetch(getOrderUrl, getOrderOptions);
+    const data = await response.json();
+    const shippingboOrderId = data.orders[0].id;
+    let originRef = data.orders[0].origin_ref;
+    if(shippingboOrderId){
+      await updateShippingboOrder(shippingboOrderId, originRef);
+      // await cancelShippingboDraft(shippingboOrderId);
+    }
+  } catch (err) {
+    console.log('nop', err);
+  }
+}
+
 const cancelShippingboDraft = async (shippingboOrderId) => {
   const orderToCancel= {
     state: 'canceled'
@@ -217,7 +243,7 @@ const cancelShippingboDraft = async (shippingboOrderId) => {
 
 app.post('/updateOrder', async (req, res) => {
   const orderUpdated = req.body;
-  // console.log("crééé", orderUpdated);
+  console.log("crééé", orderUpdated);
   const shopifyOrderId = orderUpdated.id;
   const tagsPRO = orderUpdated.tags;
 if(tagsPRO.includes('Commande PRO')) {
@@ -238,9 +264,12 @@ if(tagsPRO.includes('Commande PRO')) {
       }
     }
     // await getShippingboId(shopifyOrderId);
+    await getShippingboIdFromShopify(shopifyOrderId);
   } catch(err) {
     console.log('error shiipingboId', err);
   }
+} else {
+  console.log("commande non pro")
 }
 });
 
@@ -522,12 +551,10 @@ async function sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrder
 //events : mise à jour d'une commande provisoire
 app.post('/updatedDraftOrder', async (req, res) => {
   const updatedDraftData= req.body;
-  console.log('updatedDraft', updatedDraftData)
   const draftTag = updatedDraftData.tags;
   const isCompleted = updatedDraftData.status;
   const draftName = updatedDraftData.name;
   const draftId = "draft" + draftName.replace('#','');
-  console.log('draftId', draftId);
     // if (isCompleted === true && draftTag.includes("Commande PRO")) {
     if (draftTag.includes("Commande PRO")) {
       try {
