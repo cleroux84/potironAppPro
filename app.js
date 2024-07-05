@@ -375,13 +375,13 @@ app.post('/upload', upload.single('uploadFile'), (req, res) => {
   res.status(200).send('Fichier téléchargé avec succès.');
 });
 
-//webhook on order creation : https://potironapppro.onrender.com/proOrder
+//webhook on order creation send update : https://potironapppro.onrender.com/proOrder
 app.post('/proOrder', async (req, res) => {
   var orderData = req.body;
   var orderId = orderData.id;
   var orderTags = orderData.tags;
   const tagsArr = orderData.customer.tags.split(', ');
-  const tagsArray = orderTags.map(tag => tag.trim());
+  const tagsArray = orderTags.split(', ').map(tag => tag.trim());
   const draftTagExists = tagsArray.some(tag => tag.startsWith('draft'));
   console.log('tagsarray when created', tagsArray);
   console.log('drafttagsexist', draftTagExists);
