@@ -243,7 +243,7 @@ const cancelShippingboDraft = async (shippingboOrderId) => {
 
 app.post('/updateOrder', async (req, res) => {
   const orderUpdated = req.body;
-  console.log("crééé", orderUpdated);
+  console.log("commande crééé", orderUpdated.id);
   const shopifyOrderId = orderUpdated.id;
   const tagsPRO = orderUpdated.tags;
 if(tagsPRO.includes('Commande PRO')) {
@@ -264,7 +264,7 @@ if(tagsPRO.includes('Commande PRO')) {
       }
     }
     // await getShippingboId(shopifyOrderId);
-    await getShippingboIdFromShopify(shopifyOrderId);
+    // await getShippingboIdFromShopify(shopifyOrderId);
   } catch(err) {
     console.log('error shiipingboId', err);
   }
@@ -380,14 +380,15 @@ app.post('/proOrder', async (req, res) => {
   const tagsArr = orderData.customer.tags.split(', ');
   const tagsArray = tagsArr.map(tag => tag.trim());
   const draftTagExists = tagsArray.some(tag => tag.startsWith('draft'));
+  let draftId = '';
   if(draftTagExists) {
-    const draftId = tagsArray.find(tag => tag.startsWith('draft'));
+    draftId = tagsArray.find(tag => tag.startsWith('draft'));
   }
   const isCommandePro = tagsArray.includes('Commande PRO');
   const isB2B = tagsArr.includes('PRO validé');
   console.log("isb2B", isB2B);
   console.log("isCommandePro", isCommandePro);
-  if(isB2B) {
+  if(isB2B && draftId) {
     await getShippingboId(draftId);
   //  const updatedOrder = {
   //   order: {
@@ -623,7 +624,7 @@ app.post('/updatedDraftOrder', async (req, res) => {
          try {
            const response = await fetch(updateOrderUrl, updateOptions);
            const data = await response.json();       
-           console.log('Commande pro maj avec dradtId', data.id);  
+           console.log('Commande pro maj avec draftId', draftId);  
            res.status(200).send('Order updated');  
          } catch (error) {
            console.error('Error updating order:', error);
