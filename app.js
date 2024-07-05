@@ -201,7 +201,9 @@ const getShippingboIdFromShopify = async (shopifyOrderId) => {
   try {
     const response = await fetch(getOrderUrl, getOrderOptions);
     const data = await response.json();
+    console.log("PPL", shopifyOrderId);
     const shippingboOrderId = data.orders[0].id;
+    console.log("shippingbo", shippingboOrderId);
     let originRef = data.orders[0].origin_ref;
     if(shippingboOrderId){
       await updateShippingboOrder(shippingboOrderId, originRef);
@@ -243,7 +245,7 @@ const cancelShippingboDraft = async (shippingboOrderId) => {
 
 app.post('/updateOrder', async (req, res) => {
   const orderUpdated = req.body;
-  console.log("commande crééé", orderUpdated.id);
+  console.log("tags commande mise à jour", orderUpdated.tags);
   const shopifyOrderId = orderUpdated.id;
   const tagsPRO = orderUpdated.tags;
 if(tagsPRO.includes('Commande PRO')) {
@@ -380,6 +382,8 @@ app.post('/proOrder', async (req, res) => {
   const tagsArr = orderData.customer.tags.split(', ');
   const tagsArray = tagsArr.map(tag => tag.trim());
   const draftTagExists = tagsArray.some(tag => tag.startsWith('draft'));
+  console.log('tagsarray when created', tagsArray);
+  console.log('drafttagsexist', draftTagExists);
   let draftId = '';
   if(draftTagExists) {
     draftId = tagsArray.find(tag => tag.startsWith('draft'));
@@ -508,7 +512,7 @@ app.post('/create-pro-draft-order', async (req, res) => {
     try {
         const responseShippingbo = await fetch(createOrderUrl, createOrderOptions);
         const data = await responseShippingbo.json();
-        console.log('data creation shippingbo', data);
+        console.log('data creation shippingbo', data.order.id);
     } catch (error) {
       console.error('error in creation order from draft shopify', error);
     }
