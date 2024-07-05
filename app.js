@@ -161,6 +161,7 @@ const updateShippingboOrder = async (shippingboOrderId, originRef) => {
 
 //Retrieve shippingbo order ID from Shopify ID
 const getShippingboId = async (shopifyOrderId) => {
+  console.log('there', shopifyOrderId);
   const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
   const getOrderOptions = {
     method: 'GET',
@@ -175,11 +176,15 @@ const getShippingboId = async (shopifyOrderId) => {
   try {
     const response = await fetch(getOrderUrl, getOrderOptions);
     const data = await response.json();
+    if(data.orders){
+      console.log('dataorders', data.orders)
     const shippingboOrderId = data.orders[0].id;
     // let originRef = data.orders[0].origin_ref;
     if(shippingboOrderId){
       // await updateShippingboOrder(shippingboOrderId, originRef);
       await cancelShippingboDraft(shippingboOrderId);
+    }} else {
+      console.log('no data orders')
     }
   } catch (err) {
     console.log('nop', err);
@@ -187,6 +192,7 @@ const getShippingboId = async (shopifyOrderId) => {
 }
 
 const getShippingboIdFromShopify = async (shopifyOrderId) => {
+  console.log('here', shopifyOrderId);
   const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
   const getOrderOptions = {
     method: 'GET',
