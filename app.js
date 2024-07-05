@@ -555,6 +555,8 @@ app.post('/updatedDraftOrder', async (req, res) => {
   const isCompleted = updatedDraftData.status;
   const draftName = updatedDraftData.name;
   const draftId = "draft" + draftName.replace('#','');
+  const orderId = updatedDraftData.id;
+
   console.log('updatedOrderDraft: ', updatedDraftData)
     if (isCompleted === true && draftTag.includes("Commande PRO")) {
     // if (draftTag.includes("Commande PRO")) {
@@ -595,14 +597,18 @@ app.post('/updatedDraftOrder', async (req, res) => {
           refreshToken = tokens.refreshToken;
         }
       }
-        const orderId = updatedDraftData.id;
+        console.log("orderId to update", orderId);
+        if(orderId) {
+        const existingDraftTag = draftTag.find(tag => tag.startsWith('draft'));
+        console.log("existing draft tag", existingDraftTag);
+        if(!existingDraftTag) {
         const updatedOrder = {
          order: {
            id: orderId,
            tags: `Commande PRO, ${draftId}`
          }
        };
-         const updateOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-04/orders/${orderId}.json`;
+         const updateOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-04/draft_orders/${orderId}.json`;
          const updateOptions = {
            method: 'PUT',
            headers: {             
@@ -620,7 +626,8 @@ app.post('/updatedDraftOrder', async (req, res) => {
            console.error('Error updating order:', error);
            res.status(500).send('Error updating order');
          }
-     
+      }
+    }
     } catch(err) {
       console.log('error shiipingboId', err);
     }
