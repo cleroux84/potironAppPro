@@ -379,8 +379,9 @@ app.post('/upload', upload.single('uploadFile'), (req, res) => {
 app.post('/proOrder', async (req, res) => {
   var orderData = req.body;
   var orderId = orderData.id;
+  var orderTags = orderData.tags;
   const tagsArr = orderData.customer.tags.split(', ');
-  const tagsArray = tagsArr.map(tag => tag.trim());
+  const tagsArray = orderTags.map(tag => tag.trim());
   const draftTagExists = tagsArray.some(tag => tag.startsWith('draft'));
   console.log('tagsarray when created', tagsArray);
   console.log('drafttagsexist', draftTagExists);
