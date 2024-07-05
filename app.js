@@ -378,32 +378,42 @@ app.post('/proOrder', async (req, res) => {
   var orderData = req.body;
   var orderId = orderData.id;
   const tagsArr = orderData.customer.tags.split(', ');
+  const tagsArray = tagsArr.map(tag => tag.trim());
+  const draftTagExists = tagsArray.some(tag => tag.startsWith('draft'));
+  if(draftTagExists) {
+    const draftId = tagsArray.find(tag => tag.startsWith('draft'));
+  }
+  const isCommandePro = tagsArray.includes('Commande PRO');
   const isB2B = tagsArr.includes('PRO validé');
+  console.log("isb2B", isB2B);
+  console.log("isCommandePro", isCommandePro);
   if(isB2B) {
-   const updatedOrder = {
-    order: {
-      id: orderId,
-      tags: "Commande PRO"
-    }
-  };
-    const updateOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-04/orders/${orderId}.json`;
-    const updateOptions = {
-      method: 'PUT',
-      headers: {             
-        'Content-Type': 'application/json',             
-        'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
-      },
-      body: JSON.stringify(updatedOrder)
-    };
-    try {
-      const response = await fetch(updateOrderUrl, updateOptions);
-      const data = await response.json();       
-      console.log('Commande pro maj sur Shopify:', data);  
-      res.status(200).send('Order updated');  
-    } catch (error) {
-      console.error('Error updating order:', error);
-      res.status(500).send('Error updating order');
-    }
+    await getShippingboId(draftId);
+  //  const updatedOrder = {
+  //   order: {
+  //     id: orderId,
+  //     tags: "Commande PRO"
+  //   }
+  // };
+  //   const updateOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-04/orders/${orderId}.json`;
+  //   const updateOptions = {
+  //     method: 'PUT',
+  //     headers: {             
+  //       'Content-Type': 'application/json',             
+  //       'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
+  //     },
+  //     body: JSON.stringify(updatedOrder)
+  //   };
+  //   try {
+  //     const response = await fetch(updateOrderUrl, updateOptions);
+  //     const data = await response.json();       
+  //     console.log('Commande pro maj sur Shopify:', data);  
+  //     res.status(200).send('Order updated');  
+  //   } catch (error) {
+  //     console.error('Error updating order:', error);
+  //     res.status(500).send('Error updating order');
+  //   }
+  
   } else {
     console.log('commande pour client non pro');
   }
@@ -551,31 +561,21 @@ async function sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrder
 //events : mise à jour d'une commande provisoire
 app.post('/updatedDraftOrder', async (req, res) => {
   const updatedDraftData= req.body;
-  const draftTag = updatedDraftData.tags;
   const draftTagString = updatedDraftData.tags || '';
   const draftTagArray = draftTagString.split(',').map(tag => tag.trim());
   const draftTagExists = draftTagArray.some(tag => tag.startsWith("draft"));
-  const isCommandePro = draftTagArray.includes('Commande PRO')
-  console.log('draftTag', draftTag);
-  console.log('tostring', draftTagString);
-  console.log("draftTagArray", draftTagArray);
-
+  const isCommandePro = draftTagArray.includes('Commande PRO');
   const isCompleted = updatedDraftData.status;
   const draftName = updatedDraftData.name;
   const draftId = "draft" + draftName.replace('#','');
   const orderId = updatedDraftData.id;
 
-  // console.log('updatedOrderDraft: ', updatedDraftData)
     if (isCompleted === true && isCommandePro) {
-    // if (draftTag.includes("Commande PRO")) {
       try {
-        // Si l'accessToken est expiré ou non défini, rafraîchir avec refreshToken
         if (!accessToken) {
-          // Si refreshToken est disponible, rafraîchir l'accessToken
           if (refreshToken) {
             accessToken = await refreshAccessToken();
           } else {
-            // Sinon, obtenir un nouvel accessToken avec authorization_code
             const tokens = await getToken(YOUR_AUTHORIZATION_CODE);
             if (!tokens.accessToken || !tokens.refreshToken) {
               throw new Error('Failed to obtain access tokens');
@@ -589,14 +589,12 @@ app.post('/updatedDraftOrder', async (req, res) => {
         console.log('error shiipingboId', err);
       }
   } else if(isCommandePro && !draftTagExists) {
+    //Ajoute draftId en tag des commandes 
     try {
-      // Si l'accessToken est expiré ou non défini, rafraîchir avec refreshToken
       if (!accessToken) {
-        // Si refreshToken est disponible, rafraîchir l'accessToken
         if (refreshToken) {
           accessToken = await refreshAccessToken();
         } else {
-          // Sinon, obtenir un nouvel accessToken avec authorization_code
           const tokens = await getToken(YOUR_AUTHORIZATION_CODE);
           if (!tokens.accessToken || !tokens.refreshToken) {
             throw new Error('Failed to obtain access tokens');
@@ -605,7 +603,6 @@ app.post('/updatedDraftOrder', async (req, res) => {
           refreshToken = tokens.refreshToken;
         }
       }
-        console.log("orderId to update", orderId);
         draftTagArray.push(draftId);
 
         const updatedOrder = {
@@ -626,7 +623,7 @@ app.post('/updatedDraftOrder', async (req, res) => {
          try {
            const response = await fetch(updateOrderUrl, updateOptions);
            const data = await response.json();       
-           console.log('Commande pro maj avec dradtId', data);  
+           console.log('Commande pro maj avec dradtId', data.id);  
            res.status(200).send('Order updated');  
          } catch (error) {
            console.error('Error updating order:', error);
