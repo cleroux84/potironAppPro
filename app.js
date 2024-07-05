@@ -552,13 +552,21 @@ async function sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrder
 app.post('/updatedDraftOrder', async (req, res) => {
   const updatedDraftData= req.body;
   const draftTag = updatedDraftData.tags;
+  const draftTagString = updatedDraftData.tags || '';
+  const draftTagArray = draftTagString.split(',').map(tag => tag.trim());
+  const draftTagExists = draftTagArray.some(tag => tag.startsWith("draft"));
+  const isCommandePro = draftTagArray.includes('Commande PRO')
+  console.log('draftTag', draftTag);
+  console.log('tostring', draftTagString);
+  console.log("draftTagArray", draftTagArray);
+
   const isCompleted = updatedDraftData.status;
   const draftName = updatedDraftData.name;
   const draftId = "draft" + draftName.replace('#','');
   const orderId = updatedDraftData.id;
 
-  console.log('updatedOrderDraft: ', updatedDraftData)
-    if (isCompleted === true && draftTag.includes("Commande PRO")) {
+  // console.log('updatedOrderDraft: ', updatedDraftData)
+    if (isCompleted === true && isCommandePro) {
     // if (draftTag.includes("Commande PRO")) {
       try {
         // Si l'accessToken est expiré ou non défini, rafraîchir avec refreshToken
@@ -580,7 +588,7 @@ app.post('/updatedDraftOrder', async (req, res) => {
       } catch(err) {
         console.log('error shiipingboId', err);
       }
-  } else if(draftTag.includes('Commande PRO')) {
+  } else if(isCommandePro && !draftTagExists) {
     try {
       // Si l'accessToken est expiré ou non défini, rafraîchir avec refreshToken
       if (!accessToken) {
@@ -598,14 +606,12 @@ app.post('/updatedDraftOrder', async (req, res) => {
         }
       }
         console.log("orderId to update", orderId);
-        if(orderId) {
-        const existingDraftTag = draftTag.find(tag => tag.startsWith('draft'));
-        console.log("existing draft tag", existingDraftTag);
-        if(!existingDraftTag) {
+        draftTagArray.push(draftId);
+
         const updatedOrder = {
          order: {
            id: orderId,
-           tags: `Commande PRO, ${draftId}`
+           tags: draftTagArray.join(', ')
          }
        };
          const updateOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-04/draft_orders/${orderId}.json`;
@@ -620,14 +626,14 @@ app.post('/updatedDraftOrder', async (req, res) => {
          try {
            const response = await fetch(updateOrderUrl, updateOptions);
            const data = await response.json();       
-           console.log('Commande pro maj sur Shopify:', data);  
+           console.log('Commande pro maj avec dradtId', data);  
            res.status(200).send('Order updated');  
          } catch (error) {
            console.error('Error updating order:', error);
            res.status(500).send('Error updating order');
          }
-      }
-    }
+      
+    
     } catch(err) {
       console.log('error shiipingboId', err);
     }
