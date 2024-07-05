@@ -388,8 +388,11 @@ app.post('/proOrder', async (req, res) => {
   const isB2B = tagsArr.includes('PRO validé');
   console.log("isb2B", isB2B);
   console.log("isCommandePro", isCommandePro);
-  if(isB2B && draftId) {
+  if(isB2B) {
+    console.log('draftId send in getshippingboId', draftId);
+    console.log('orderId send in getShiipingbo', orderId);
     await getShippingboId(draftId);
+    await getShippingboIdFromShopify(orderId);
   //  const updatedOrder = {
   //   order: {
   //     id: orderId,
