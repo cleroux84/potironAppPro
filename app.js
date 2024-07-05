@@ -609,7 +609,7 @@ app.post('/updatedDraftOrder', async (req, res) => {
         draftTagArray.push(draftId);
 
         const updatedOrder = {
-         order: {
+         draft_order: {
            id: orderId,
            tags: draftTagArray.join(', ')
          }
