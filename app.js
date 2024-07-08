@@ -181,7 +181,7 @@ const refreshAccessTokenWarehouse = async () => {
       grant_type: 'refresh_token',
       client_id: CLIENT_ID_WAREHOUSE,
       client_secret: CLIENT_SECRET_WAREHOUSE,
-      refresh_token: refreshToken
+      refresh_token: refreshTokenWarehouse
     })
   };
  
