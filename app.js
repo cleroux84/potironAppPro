@@ -486,6 +486,20 @@ app.post('/create-pro-draft-order', async (req, res) => {
       total_price_currency: 'EUR',
       tags_to_add: ["Commande PRO", shippingAddress]
     };
+    if (!accessToken) {
+      // Si refreshToken est disponible, rafraîchir l'accessToken
+      if (refreshToken) {
+        accessToken = await refreshAccessToken();
+      } else {
+        // Sinon, obtenir un nouvel accessToken avec authorization_code
+        const tokens = await getToken(YOUR_AUTHORIZATION_CODE);
+        if (!tokens.accessToken || !tokens.refreshToken) {
+          throw new Error('Failed to obtain access tokens');
+        }
+        accessToken = tokens.accessToken;
+        refreshToken = tokens.refreshToken;
+      }
+    }
     const createOrderUrl = `https://app.shippingbo.com/orders`;
     const createOrderOptions = {
       method: 'POST',
@@ -499,20 +513,6 @@ app.post('/create-pro-draft-order', async (req, res) => {
       body: JSON.stringify(shippingBoOrder)
     };
     try {
-      if (!accessToken) {
-        // Si refreshToken est disponible, rafraîchir l'accessToken
-        if (refreshToken) {
-          accessToken = await refreshAccessToken();
-        } else {
-          // Sinon, obtenir un nouvel accessToken avec authorization_code
-          const tokens = await getToken(YOUR_AUTHORIZATION_CODE);
-          if (!tokens.accessToken || !tokens.refreshToken) {
-            throw new Error('Failed to obtain access tokens');
-          }
-          accessToken = tokens.accessToken;
-          refreshToken = tokens.refreshToken;
-        }
-      }
         const responseShippingbo = await fetch(createOrderUrl, createOrderOptions);
         const data = await responseShippingbo.json();
         console.log('data creation shippingbo', data.order.id);
