@@ -25,8 +25,16 @@ const CLIENT_ID = process.env.CLIENT_ID_SHIPPINGBO;
 const CLIENT_SECRET = process.env.CLIENT_SECRET_SHIPPINGBO;
 const API_APP_ID = process.env.API_APP_ID;
 const YOUR_AUTHORIZATION_CODE = process.env.YOUR_AUTHORIZATION_CODE;
+
+const CLIENT_ID_WAREHOUSE = process.env.CLIENT_ID_WAREHOUSE;
+const CLIENT_SECRET_WAREHOUSE = process.env.CLIENT_SECRET_WAREHOUSE;
+const API_APP_WAREHOUSE_ID = process.env.API_APP_WAREHOUSE_ID;
+const WAREHOUSE_AUTHORIZATION_CODE = process.env.WAREHOUSE_AUTHORIZATION_CODE;
+
 let accessToken = null;
 let refreshToken = null;
+let accessTokenWarehouse = null;
+let refreshTokenWarehouse = null;
 app.set('appName', 'potironAppPro');
 
 const upload = multer({ 
@@ -98,7 +106,37 @@ const getToken = async (authorizationCode) => {
     throw error;
   }
 };
-
+const getTokenWarehouse = async (authorizationCode) => {
+  const tokenUrl = 'https://oauth.shippingbo.com/oauth/token';
+  const tokenOptions = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json'
+    },
+    body: JSON.stringify({
+      grant_type: 'authorization_code',
+      client_id: CLIENT_ID_WAREHOUSE,
+      client_secret: CLIENT_SECRET_WAREHOUSE,
+      code: authorizationCode,
+      redirect_uri: 'urn:ietf:wg:oauth:2.0:oob'
+    })
+  };
+ 
+  try {
+    const response = await fetch(tokenUrl, tokenOptions);
+    const data = await response.json();
+    accessTokenWarehouse = data.access_token;
+    refreshTokenWarehouse = data.refresh_token;
+    return {
+      accessTokenWarehouse,
+      refreshTokenWarehouse
+    };
+  } catch (error) {
+    console.error('Error obtaining access token:', error);
+    throw error;
+  }
+};
 //refresh token for Shippingbo API
 const refreshAccessToken = async () => {
   const refreshUrl = 'https://oauth.shippingbo.com/oauth/token';
@@ -127,6 +165,33 @@ const refreshAccessToken = async () => {
     throw error;
   }
 };
+const refreshAccessTokenWarehouse = async () => {
+  const refreshUrl = 'https://oauth.shippingbo.com/oauth/token';
+  const refreshOptions = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json'
+    },
+    body: JSON.stringify({
+      grant_type: 'refresh_token',
+      client_id: CLIENT_ID_WAREHOUSE,
+      client_secret: CLIENT_SECRET_WAREHOUSE,
+      refresh_token: refreshTokenWarehouse
+    })
+  };
+ 
+  try {
+    const response = await fetch(refreshUrl, refreshOptions);
+    const data = await response.json();
+    accessTokenWarehouse = data.access_token;
+    refreshTokenWarehouse = data.refresh_token;
+    return accessTokenWarehouse;
+  } catch (error) {
+    console.error('Error refreshing access token:', error);
+    throw error;
+  }
+};
 // Fonction utilitaire pour obtenir ou rafraîchir l'accessToken
 const ensureAccessToken = async () => {
   if (!accessToken) {
@@ -143,9 +208,25 @@ const ensureAccessToken = async () => {
   }
   return accessToken;
 };
- 
+const ensureAccessTokenWarehouse = async () => {
+  if (!accessTokenWarehouse) {
+    if (refreshTokenWarehouse) {
+      accessTokenWarehouse = await refreshAccessToken();
+    } else {
+      const tokens = await getToken(WAREHOUSE_AUTHORIZATION_CODE);
+      if (!tokens.accessTokenWarehouse || !tokens.refreshTokenWarehouse) {
+        throw new Error('Failed to obtain access tokens');
+      }
+      accessTokenWarehouse = tokens.accessToken;
+      refreshTokenWarehouse = tokens.refreshToken;
+    }
+  }
+  return accessTokenWarehouse;
+};
 //update orders origin and origin ref in shippingbo to add "Commande PRO" and "PRO-"
 const updateShippingboOrder = async (shippingboOrderId, originRef) => {
+  await ensureAccessToken();
+  await ensureAccessTokenWarehouse();
   if(originRef.includes('PRO-') === false)  {
     originRef = "PRO-" + originRef;
   }
@@ -163,6 +244,18 @@ const updateShippingboOrder = async (shippingboOrderId, originRef) => {
       'X-API-VERSION' : '1',
       'X-API-APP-ID': API_APP_ID,
       Authorization: `Bearer ${accessToken}`
+    },
+    body: JSON.stringify(updatedOrder)
+  };
+  const updateWarehouseUrl = `https://app.shippingbo.com/orders/${shippingboOrderId}`;
+  const updateWarehouseOptions = {
+    method: 'PATCH',
+    headers: {
+      'Content-type': 'application/json',
+      Accept: 'application/json',
+      'X-API-VERSION' : '1',
+      'X-API-APP-ID': API_APP_WAREHOUSE_ID,
+      Authorization: `Bearer ${accessTokenWarehouse}`
     },
     body: JSON.stringify(updatedOrder)
   };
@@ -538,11 +631,9 @@ app.post('/updatedDraftOrder', async (req, res) => {
         console.log('error shiipingboId', err);
       }
   } else if(isCommandePro && !draftTagExists) {
-    //Ajoute draftId en tag des commandes 
     try {
       await ensureAccessToken();
       draftTagArray.push(draftId);
-
       const updatedOrder = {
         draft_order: {
           id: orderId,
