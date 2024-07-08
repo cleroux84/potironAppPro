@@ -229,6 +229,7 @@ const ensureAccessTokenWarehouse = async () => {
 };
 //update orders origin and origin ref in shippingbo to add "Commande PRO" and "PRO-"
 const updateShippingboOrder = async (shippingboOrderId, originRef) => {
+  ensureAccessToken();
   if(originRef.includes('PRO-') === false)  {
     originRef = "PRO-" + originRef;
   }
@@ -261,6 +262,7 @@ const updateShippingboOrder = async (shippingboOrderId, originRef) => {
 }
 
 const updateWarehouseOrder = async (shippingboOrderId, originRef) => {
+  ensureAccessTokenWarehouse();
   if(originRef.includes('PRO-') === false)  {
     originRef = "PRO-" + originRef;
   }
@@ -294,6 +296,8 @@ const updateWarehouseOrder = async (shippingboOrderId, originRef) => {
 
 //Retrieve shippingbo order ID from Shopify ID and send to cancel function
 const getShippingboOrderDetails = async (shopifyOrderId) => {
+  ensureAccessTokenWarehouse();
+  ensureAccessToken();
   const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
   const getOrderOptions = {
     method: 'GET',
@@ -323,6 +327,8 @@ const getShippingboOrderDetails = async (shopifyOrderId) => {
 };
 
 const getWarehouseOrderDetails = async (shopifyOrderId) => {
+  console.log("TU ES LA", )
+
   // const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
   const getOrderUrl = `https://app.shippingbo.com/orders/95984771`
   const getOrderOptions = {
@@ -335,7 +341,8 @@ const getWarehouseOrderDetails = async (shopifyOrderId) => {
       Authorization: `Bearer ${accessTokenWarehouse}`
     },
   };
- 
+  console.log('id warehouse from shopify', shopifyOrderId)
+  console.log('token warehouse', accessTokenWarehouse);
   try {
     const response = await fetch(getOrderUrl, getOrderOptions);
     const data = await response.json();
