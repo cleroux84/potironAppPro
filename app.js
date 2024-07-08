@@ -517,10 +517,10 @@ app.post('/proOrder', async (req, res) => {
     const {id: shippingboId, origin_ref: shippingboOriginRef} = orderDetails
     await updateShippingboOrder(shippingboId, shippingboOriginRef);
     }
-    if(warehouseDetails) {
-      const {id: shippingboId, origin_ref: shippingboOriginRef} = warehouseDetails
-      await updateWarehouseOrder(shippingboId, shippingboOriginRef);
-    }
+    // if(warehouseDetails) {
+    //   const {id: shippingboId, origin_ref: shippingboOriginRef} = warehouseDetails
+    //   await updateWarehouseOrder(shippingboId, shippingboOriginRef);
+    // }
   } else {
     console.log('commande pour client non pro');
   }
