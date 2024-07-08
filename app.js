@@ -440,14 +440,13 @@ app.post('/proOrder', async (req, res) => {
     console.log('draftId send in getshippingboId', draftId);
     console.log('orderId send in getShiipingbo', orderId);
     const draftDetails = await getShippingboOrderDetails(draftId);
-    const details = await getShippingboOrderDetails(orderId);
+    const orderDetails = await getShippingboOrderDetails(orderId);
     if(draftDetails) {
-      const shippingboDraftId = draftDetails.id;
+      const {id: shippingboDraftId} = draftDetails;
       await cancelShippingboDraft(shippingboDraftId);
     }
-    if(details) {
-    const shippingboId = details.id;
-    const shippingboOriginRef = details.origin_ref;
+    if(orderDetails) {
+    const {id: shippingboId, origin_ref: shippingboOriginRef} = orderDetails
     await updateShippingboOrder(shippingboId, shippingboOriginRef);
   }
   } else {
@@ -633,7 +632,11 @@ app.post('/updatedDraftOrder', async (req, res) => {
             refreshToken = tokens.refreshToken;
           }
         }
-        // await getShippingboId(draftId);
+        const draftDetails = await getShippingboOrderDetails(draftId);
+        if(draftDetails) {
+          const {id: shippingboDraftId} = draftDetails;
+          await cancelShippingboDraft(shippingboDraftId);
+        }
       } catch(err) {
         console.log('error shiipingboId', err);
       }
