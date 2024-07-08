@@ -162,66 +162,95 @@ const updateShippingboOrder = async (shippingboOrderId, originRef) => {
 }
 
 //Retrieve shippingbo order ID from Shopify ID and send to cancel function
-const getShippingboId = async (shopifyOrderId) => {
-  console.log('there', shopifyOrderId);
-  const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
-  const getOrderOptions = {
-    method: 'GET',
-    headers: {
-      'Content-type': 'application/json',
-      Accept: 'application/json',
-      'X-API-VERSION' : '1',
-      'X-API-APP-ID': API_APP_ID,
-      Authorization: `Bearer ${accessToken}`
-    },
-  };
-  try {
-    const response = await fetch(getOrderUrl, getOrderOptions);
-    const data = await response.json();
-    if(data.orders){
-      console.log('dataorders', data.orders)
-    const shippingboOrderId = data.orders[0].id;
-    // let originRef = data.orders[0].origin_ref;
-    if(shippingboOrderId){
-      // await updateShippingboOrder(shippingboOrderId, originRef);
-      await cancelShippingboDraft(shippingboOrderId);
-    }} else {
-      console.log('no data orders')
-    }
-  } catch (err) {
-    console.log('nop', err);
-  }
-}
+// const getShippingboId = async (shopifyOrderId) => {
+//   console.log('there', shopifyOrderId);
+//   const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
+//   const getOrderOptions = {
+//     method: 'GET',
+//     headers: {
+//       'Content-type': 'application/json',
+//       Accept: 'application/json',
+//       'X-API-VERSION' : '1',
+//       'X-API-APP-ID': API_APP_ID,
+//       Authorization: `Bearer ${accessToken}`
+//     },
+//   };
+//   try {
+//     const response = await fetch(getOrderUrl, getOrderOptions);
+//     const data = await response.json();
+//     if(data.orders){
+//       console.log('dataorders', data.orders)
+//     const shippingboOrderId = data.orders[0].id;
+//     // let originRef = data.orders[0].origin_ref;
+//     if(shippingboOrderId){
+//       // await updateShippingboOrder(shippingboOrderId, originRef);
+//       await cancelShippingboDraft(shippingboOrderId);
+//     }} else {
+//       console.log('no data orders')
+//     }
+//   } catch (err) {
+//     console.log('nop', err);
+//   }
+// }
 
-//Retrieve shippingbo order ID from Shopify ID and send to update function
-const getShippingboIdFromShopify = async (shopifyOrderId) => {
-  console.log('here', shopifyOrderId);
+// //Retrieve shippingbo order ID from Shopify ID and send to update function
+// const getShippingboIdFromShopify = async (shopifyOrderId) => {
+//   console.log('here', shopifyOrderId);
+//   const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
+//   const getOrderOptions = {
+//     method: 'GET',
+//     headers: {
+//       'Content-type': 'application/json',
+//       Accept: 'application/json',
+//       'X-API-VERSION' : '1',
+//       'X-API-APP-ID': API_APP_ID,
+//       Authorization: `Bearer ${accessToken}`
+//     },
+//   };
+//   try {
+//     const response = await fetch(getOrderUrl, getOrderOptions);
+//     const data = await response.json();
+//     console.log("PPL", shopifyOrderId);
+//     const shippingboOrderId = data.orders[0].id;
+//     console.log("shippingbo", shippingboOrderId);
+//     let originRef = data.orders[0].origin_ref;
+//     if(shippingboOrderId){
+//       await updateShippingboOrder(shippingboOrderId, originRef);
+//       // await cancelShippingboDraft(shippingboOrderId);
+//     }
+//   } catch (err) {
+//     console.log('nop', err);
+//   }
+// }
+
+const getShippingboOrderDetails = async (shopifyOrderId) => {
   const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
   const getOrderOptions = {
     method: 'GET',
     headers: {
       'Content-type': 'application/json',
       Accept: 'application/json',
-      'X-API-VERSION' : '1',
+      'X-API-VERSION': '1',
       'X-API-APP-ID': API_APP_ID,
       Authorization: `Bearer ${accessToken}`
     },
   };
+ 
   try {
     const response = await fetch(getOrderUrl, getOrderOptions);
     const data = await response.json();
-    console.log("PPL", shopifyOrderId);
-    const shippingboOrderId = data.orders[0].id;
-    console.log("shippingbo", shippingboOrderId);
-    let originRef = data.orders[0].origin_ref;
-    if(shippingboOrderId){
-      await updateShippingboOrder(shippingboOrderId, originRef);
-      // await cancelShippingboDraft(shippingboOrderId);
+    if (data.orders && data.orders.length > 0) {
+      const {id, origin_ref} = data.orders[0];
+      return {id, origin_ref};
+    } else {
+      console.log('No data orders found');
+      return null;
     }
   } catch (err) {
-    console.log('nop', err);
+    console.error('Error fetching Shippingbo order ID', err);
+    return null;
   }
-}
+};
 
 //function ton cancel draft order when closed in Shopify
 const cancelShippingboDraft = async (shippingboOrderId) => {
@@ -410,8 +439,17 @@ app.post('/proOrder', async (req, res) => {
   if(isB2B) {
     console.log('draftId send in getshippingboId', draftId);
     console.log('orderId send in getShiipingbo', orderId);
-    await getShippingboId(draftId);
-    await getShippingboIdFromShopify(orderId);
+    const draftDetails = await getShippingboOrderDetails(draftId);
+    const details = await getShippingboOrderDetails(orderId);
+    if(draftDetails) {
+      const shippingboDraftId = draftDetails.id;
+      await cancelShippingboDraft(shippingboDraftId);
+    }
+    if(details) {
+    const shippingboId = details.id;
+    const shippingboOriginRef = details.origin_ref;
+    await updateShippingboOrder(shippingboId, shippingboOriginRef);
+  }
   } else {
     console.log('commande pour client non pro');
   }
@@ -595,7 +633,7 @@ app.post('/updatedDraftOrder', async (req, res) => {
             refreshToken = tokens.refreshToken;
           }
         }
-        await getShippingboId(draftId);
+        // await getShippingboId(draftId);
       } catch(err) {
         console.log('error shiipingboId', err);
       }
