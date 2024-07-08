@@ -218,7 +218,7 @@ const ensureAccessTokenWarehouse = async () => {
       accessTokenWarehouse = await refreshAccessTokenWarehouse();
     } else {
       const tokens = await getToken(WAREHOUSE_AUTHORIZATION_CODE);
-      if (!tokens.accessTokenWarehouse || !tokens.refreshTokenWarehouse) {
+      if (!tokens.accessToken|| !tokens.refreshToken) {
         throw new Error('Failed to obtain access tokens');
       }
       accessTokenWarehouse = tokens.accessToken;
@@ -296,7 +296,6 @@ const updateWarehouseOrder = async (shippingboOrderId, originRef) => {
 
 //Retrieve shippingbo order ID from Shopify ID and send to cancel function
 const getShippingboOrderDetails = async (shopifyOrderId) => {
-  ensureAccessTokenWarehouse();
   ensureAccessToken();
   const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
   const getOrderOptions = {
