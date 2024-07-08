@@ -323,7 +323,8 @@ const getShippingboOrderDetails = async (shopifyOrderId) => {
 };
 
 const getWarehouseOrderDetails = async (shopifyOrderId) => {
-  const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
+  // const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
+  const getOrderUrl = `https://app.shippingbo.com/orders/95984771`
   const getOrderOptions = {
     method: 'GET',
     headers: {
@@ -338,13 +339,14 @@ const getWarehouseOrderDetails = async (shopifyOrderId) => {
   try {
     const response = await fetch(getOrderUrl, getOrderOptions);
     const data = await response.json();
-    if (data.orders && data.orders.length > 0) {
-      const {id, origin_ref} = data.orders[0];
-      return {id, origin_ref};
-    } else {
-      console.log('No data orders found');
-      return null;
-    }
+    console.log("data from warehouse", data);
+    // if (data.orders && data.orders.length > 0) {
+    //   const {id, origin_ref} = data.orders[0];
+    //   return {id, origin_ref};
+    // } else {
+    //   console.log('No data orders found in warehouse');
+    //   return null;
+    // }
   } catch (err) {
     console.error('Error fetching Shippingbo order ID', err);
     return null;
@@ -505,8 +507,8 @@ app.post('/proOrder', async (req, res) => {
     console.log('orderId send in getShiipingbo', orderId);
     const draftDetails = await getShippingboOrderDetails(draftId);
     const orderDetails = await getShippingboOrderDetails(orderId);
-    const warehouseDetails = await getWarehouseOrderDetails(orderId);
-
+    // const warehouseDetails = await getWarehouseOrderDetails(orderId);
+    getWarehouseOrderDetails(orderId);
     if(draftDetails) {
       const {id: shippingboDraftId} = draftDetails;
       await cancelShippingboDraft(shippingboDraftId);
