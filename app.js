@@ -27,6 +27,7 @@ const API_APP_ID = process.env.API_APP_ID;
 const YOUR_AUTHORIZATION_CODE = process.env.YOUR_AUTHORIZATION_CODE;
 let accessToken = null;
 let refreshToken = null;
+
 app.set('appName', 'potironAppPro');
 
 const upload = multer({ 
@@ -127,7 +128,33 @@ const refreshAccessToken = async () => {
     throw error;
   }
 };
-
+// Fonction utilitaire pour obtenir ou rafraîchir l'accessToken
+const ensureAccessToken = async () => {
+  if (!accessToken) {
+    if (refreshToken) {
+      accessToken = await refreshAccessToken();
+    } else {
+      const tokens = await getToken(YOUR_AUTHORIZATION_CODE);
+      if (!tokens.accessToken || !tokens.refreshToken) {
+        throw new Error('Failed to obtain access tokens');
+      }
+      accessToken = tokens.accessToken;
+      refreshToken = tokens.refreshToken;
+    }
+  }
+  return accessToken;
+};
+const shopifyHeaders = {
+  'Content-Type': 'application/json',
+  'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
+};
+const shippingboHeaders = {
+  'Content-type': 'application/json',
+  Accept: 'application/json',
+  'X-API-VERSION' : '1',
+  'X-API-APP-ID': API_APP_ID,
+  Authorization: `Bearer ${accessToken}`
+};
 //update orders origin and origin ref in shippingbo to add "Commande PRO" and "PRO-"
 const updateShippingboOrder = async (shippingboOrderId, originRef) => {
   if(originRef.includes('PRO-') === false)  {
@@ -141,13 +168,7 @@ const updateShippingboOrder = async (shippingboOrderId, originRef) => {
   const updateOrderUrl = `https://app.shippingbo.com/orders/${shippingboOrderId}`;
   const updateOrderOptions = {
     method: 'PATCH',
-    headers: {
-      'Content-type': 'application/json',
-      Accept: 'application/json',
-      'X-API-VERSION' : '1',
-      'X-API-APP-ID': API_APP_ID,
-      Authorization: `Bearer ${accessToken}`
-    },
+    headers: shippingboHeaders,
     body: JSON.stringify(updatedOrder)
   };
   try{
@@ -162,78 +183,11 @@ const updateShippingboOrder = async (shippingboOrderId, originRef) => {
 }
 
 //Retrieve shippingbo order ID from Shopify ID and send to cancel function
-// const getShippingboId = async (shopifyOrderId) => {
-//   console.log('there', shopifyOrderId);
-//   const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
-//   const getOrderOptions = {
-//     method: 'GET',
-//     headers: {
-//       'Content-type': 'application/json',
-//       Accept: 'application/json',
-//       'X-API-VERSION' : '1',
-//       'X-API-APP-ID': API_APP_ID,
-//       Authorization: `Bearer ${accessToken}`
-//     },
-//   };
-//   try {
-//     const response = await fetch(getOrderUrl, getOrderOptions);
-//     const data = await response.json();
-//     if(data.orders){
-//       console.log('dataorders', data.orders)
-//     const shippingboOrderId = data.orders[0].id;
-//     // let originRef = data.orders[0].origin_ref;
-//     if(shippingboOrderId){
-//       // await updateShippingboOrder(shippingboOrderId, originRef);
-//       await cancelShippingboDraft(shippingboOrderId);
-//     }} else {
-//       console.log('no data orders')
-//     }
-//   } catch (err) {
-//     console.log('nop', err);
-//   }
-// }
-
-// //Retrieve shippingbo order ID from Shopify ID and send to update function
-// const getShippingboIdFromShopify = async (shopifyOrderId) => {
-//   console.log('here', shopifyOrderId);
-//   const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
-//   const getOrderOptions = {
-//     method: 'GET',
-//     headers: {
-//       'Content-type': 'application/json',
-//       Accept: 'application/json',
-//       'X-API-VERSION' : '1',
-//       'X-API-APP-ID': API_APP_ID,
-//       Authorization: `Bearer ${accessToken}`
-//     },
-//   };
-//   try {
-//     const response = await fetch(getOrderUrl, getOrderOptions);
-//     const data = await response.json();
-//     console.log("PPL", shopifyOrderId);
-//     const shippingboOrderId = data.orders[0].id;
-//     console.log("shippingbo", shippingboOrderId);
-//     let originRef = data.orders[0].origin_ref;
-//     if(shippingboOrderId){
-//       await updateShippingboOrder(shippingboOrderId, originRef);
-//       // await cancelShippingboDraft(shippingboOrderId);
-//     }
-//   } catch (err) {
-//     console.log('nop', err);
-//   }
-// }
-
 const getShippingboOrderDetails = async (shopifyOrderId) => {
   const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
   const getOrderOptions = {
     method: 'GET',
-    headers: {
-      'Content-type': 'application/json',
-      Accept: 'application/json',
-      'X-API-VERSION': '1',
-      'X-API-APP-ID': API_APP_ID,
-      Authorization: `Bearer ${accessToken}`
-    },
+    headers: shippingboHeaders,
   };
  
   try {
@@ -260,13 +214,7 @@ const cancelShippingboDraft = async (shippingboOrderId) => {
   const cancelOrderUrl = `https://app.shippingbo.com/orders/${shippingboOrderId}`;
   const cancelOrderOptions = {
     method: 'PATCH',
-    headers: {
-      'Content-type': 'application/json',
-      Accept: 'application/json',
-      'X-API-VERSION' : '1',
-      'X-API-APP-ID': API_APP_ID,
-      Authorization: `Bearer ${accessToken}`
-    },
+    headers: shippingboHeaders,
     body: JSON.stringify(orderToCancel)
   };
   try{
@@ -279,40 +227,6 @@ const cancelShippingboDraft = async (shippingboOrderId) => {
          console.error('Error updating shippingbo order', error);
       }
 }
-//webhook on order update : https://potironapppro.onrender.com/updateOrder
-//sur création d'une commande ??
-
-// app.post('/updateOrder', async (req, res) => {
-//   const orderUpdated = req.body;
-//   console.log("tags commande mise à jour", orderUpdated.tags);
-//   const shopifyOrderId = orderUpdated.id;
-//   const tagsPRO = orderUpdated.tags;
-// if(tagsPRO.includes('Commande PRO')) {
-//   try {
-//     // Si l'accessToken est expiré ou non défini, rafraîchir avec refreshToken
-//     if (!accessToken) {
-//       // Si refreshToken est disponible, rafraîchir l'accessToken
-//       if (refreshToken) {
-//         accessToken = await refreshAccessToken();
-//       } else {
-//         // Sinon, obtenir un nouvel accessToken avec authorization_code
-//         const tokens = await getToken(YOUR_AUTHORIZATION_CODE);
-//         if (!tokens.accessToken || !tokens.refreshToken) {
-//           throw new Error('Failed to obtain access tokens');
-//         }
-//         accessToken = tokens.accessToken;
-//         refreshToken = tokens.refreshToken;
-//       }
-//     }
-//     // await getShippingboId(shopifyOrderId);
-//     // await getShippingboIdFromShopify(shopifyOrderId);
-//   } catch(err) {
-//     console.log('error shiipingboId', err);
-//   }
-// } else {
-//   console.log("commande non pro")
-// }
-// });
 
 let uploadedFile = null;
 let originalFileName = null;
@@ -480,10 +394,7 @@ app.post('/create-pro-draft-order', async (req, res) => {
     const draftOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/draft_orders.json`;
     const draftOrderOptions = {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
-      },
+      headers: shopifyHeaders,
       body: JSON.stringify(draftOrder) 
     };
  
@@ -523,30 +434,11 @@ app.post('/create-pro-draft-order', async (req, res) => {
       total_price_currency: 'EUR',
       tags_to_add: ["Commande PRO", shippingAddress]
     };
-    if (!accessToken) {
-      // Si refreshToken est disponible, rafraîchir l'accessToken
-      if (refreshToken) {
-        accessToken = await refreshAccessToken();
-      } else {
-        // Sinon, obtenir un nouvel accessToken avec authorization_code
-        const tokens = await getToken(YOUR_AUTHORIZATION_CODE);
-        if (!tokens.accessToken || !tokens.refreshToken) {
-          throw new Error('Failed to obtain access tokens');
-        }
-        accessToken = tokens.accessToken;
-        refreshToken = tokens.refreshToken;
-      }
-    }
+    await ensureAccessToken();
     const createOrderUrl = `https://app.shippingbo.com/orders`;
     const createOrderOptions = {
       method: 'POST',
-      headers: {
-        'Content-type': 'application/json',
-        Accept: 'application/json',
-        'X-API-VERSION' : '1',
-        'X-API-APP-ID': API_APP_ID,
-        Authorization: `Bearer ${accessToken}`
-      },
+      headers: shippingboHeaders,
       body: JSON.stringify(shippingBoOrder)
     };
     try {
@@ -620,18 +512,7 @@ app.post('/updatedDraftOrder', async (req, res) => {
 
     if (isCompleted === true && isCommandePro) {
       try {
-        if (!accessToken) {
-          if (refreshToken) {
-            accessToken = await refreshAccessToken();
-          } else {
-            const tokens = await getToken(YOUR_AUTHORIZATION_CODE);
-            if (!tokens.accessToken || !tokens.refreshToken) {
-              throw new Error('Failed to obtain access tokens');
-            }
-            accessToken = tokens.accessToken;
-            refreshToken = tokens.refreshToken;
-          }
-        }
+        await ensureAccessToken();
         const draftDetails = await getShippingboOrderDetails(draftId);
         if(draftDetails) {
           const {id: shippingboDraftId} = draftDetails;
@@ -643,33 +524,19 @@ app.post('/updatedDraftOrder', async (req, res) => {
   } else if(isCommandePro && !draftTagExists) {
     //Ajoute draftId en tag des commandes 
     try {
-      if (!accessToken) {
-        if (refreshToken) {
-          accessToken = await refreshAccessToken();
-        } else {
-          const tokens = await getToken(YOUR_AUTHORIZATION_CODE);
-          if (!tokens.accessToken || !tokens.refreshToken) {
-            throw new Error('Failed to obtain access tokens');
-          }
-          accessToken = tokens.accessToken;
-          refreshToken = tokens.refreshToken;
-        }
-      }
-        draftTagArray.push(draftId);
+      await ensureAccessToken();
+      draftTagArray.push(draftId);
 
-        const updatedOrder = {
-         draft_order: {
-           id: orderId,
-           tags: draftTagArray.join(', ')
-         }
+      const updatedOrder = {
+        draft_order: {
+          id: orderId,
+          tags: draftTagArray.join(', ')
+        }
        };
          const updateOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/draft_orders/${orderId}.json`;
          const updateOptions = {
            method: 'PUT',
-           headers: {             
-             'Content-Type': 'application/json',             
-             'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
-           },
+           headers: shopifyHeaders,
            body: JSON.stringify(updatedOrder)
          };
          try {
@@ -699,10 +566,7 @@ app.post('/updateKbis', (req, res) => {
   const metafieldsUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/customers/${clientUpdated}/metafields.json`
   const fetchOptions = {         
     method: 'GET',         
-    headers: {             
-      'Content-Type': 'application/json',             
-      'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
-    } 
+    headers: shopifyHeaders
   };
   fetch(metafieldsUrl, fetchOptions)
     .then(response => response.json())
@@ -754,10 +618,7 @@ app.post('/updateKbis', (req, res) => {
             const updateCustomerUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/customers/${clientUpdated}.json`
             const updateOptions = {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Shopify-Access-Token': SHOPIFYAPPTOKEN
-                  },
+                headers: shopifyHeaders,
                   body: JSON.stringify(updatedCustomerKbis)
             };      
              fetch(updateCustomerUrl, updateOptions)
@@ -871,10 +732,7 @@ app.post('/createProCustomer', (req, res) => {
     const updateCustomerUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/customers/${clientToUpdate}.json`
     const updateOptions = {
         method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-Shopify-Access-Token': SHOPIFYAPPTOKEN
-          },
+        headers: shopifyHeaders,
           body: JSON.stringify(updatedCustomerData)
     };
     fetch(updateCustomerUrl, updateOptions)
