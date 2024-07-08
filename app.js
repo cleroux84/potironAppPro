@@ -262,7 +262,7 @@ const updateShippingboOrder = async (shippingboOrderId, originRef) => {
 }
 
 const updateWarehouseOrder = async (shippingboOrderId, originRef) => {
-  ensureAccessTokenWarehouse();
+  await ensureAccessTokenWarehouse();
   if(originRef.includes('PRO-') === false)  {
     originRef = "PRO-" + originRef;
   }
@@ -327,7 +327,7 @@ const getShippingboOrderDetails = async (shopifyOrderId) => {
 
 const getWarehouseOrderDetails = async (shopifyOrderId) => {
   console.log("TU ES LA", )
-ensureAccessTokenWarehouse();
+await ensureAccessTokenWarehouse();
   // const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
   const getOrderUrl = `https://app.shippingbo.com/orders/95984771`
   const getOrderOptions = {
@@ -514,7 +514,7 @@ app.post('/proOrder', async (req, res) => {
     const draftDetails = await getShippingboOrderDetails(draftId);
     const orderDetails = await getShippingboOrderDetails(orderId);
     // const warehouseDetails = await getWarehouseOrderDetails(orderId);
-    getWarehouseOrderDetails(orderId);
+    await getWarehouseOrderDetails(orderId);
     if(draftDetails) {
       const {id: shippingboDraftId} = draftDetails;
       await cancelShippingboDraft(shippingboDraftId);
