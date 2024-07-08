@@ -27,7 +27,6 @@ const API_APP_ID = process.env.API_APP_ID;
 const YOUR_AUTHORIZATION_CODE = process.env.YOUR_AUTHORIZATION_CODE;
 let accessToken = null;
 let refreshToken = null;
-
 app.set('appName', 'potironAppPro');
 
 const upload = multer({ 
@@ -144,17 +143,7 @@ const ensureAccessToken = async () => {
   }
   return accessToken;
 };
-const shopifyHeaders = {
-  'Content-Type': 'application/json',
-  'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
-};
-const shippingboHeaders = {
-  'Content-type': 'application/json',
-  Accept: 'application/json',
-  'X-API-VERSION' : '1',
-  'X-API-APP-ID': API_APP_ID,
-  Authorization: `Bearer ${accessToken}`
-};
+ 
 //update orders origin and origin ref in shippingbo to add "Commande PRO" and "PRO-"
 const updateShippingboOrder = async (shippingboOrderId, originRef) => {
   if(originRef.includes('PRO-') === false)  {
@@ -168,7 +157,13 @@ const updateShippingboOrder = async (shippingboOrderId, originRef) => {
   const updateOrderUrl = `https://app.shippingbo.com/orders/${shippingboOrderId}`;
   const updateOrderOptions = {
     method: 'PATCH',
-    headers: shippingboHeaders,
+    headers: {
+      'Content-type': 'application/json',
+      Accept: 'application/json',
+      'X-API-VERSION' : '1',
+      'X-API-APP-ID': API_APP_ID,
+      Authorization: `Bearer ${accessToken}`
+    },
     body: JSON.stringify(updatedOrder)
   };
   try{
@@ -187,7 +182,13 @@ const getShippingboOrderDetails = async (shopifyOrderId) => {
   const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
   const getOrderOptions = {
     method: 'GET',
-    headers: shippingboHeaders,
+    headers: {
+      'Content-type': 'application/json',
+      Accept: 'application/json',
+      'X-API-VERSION': '1',
+      'X-API-APP-ID': API_APP_ID,
+      Authorization: `Bearer ${accessToken}`
+    },
   };
  
   try {
@@ -214,7 +215,13 @@ const cancelShippingboDraft = async (shippingboOrderId) => {
   const cancelOrderUrl = `https://app.shippingbo.com/orders/${shippingboOrderId}`;
   const cancelOrderOptions = {
     method: 'PATCH',
-    headers: shippingboHeaders,
+    headers: {
+      'Content-type': 'application/json',
+      Accept: 'application/json',
+      'X-API-VERSION' : '1',
+      'X-API-APP-ID': API_APP_ID,
+      Authorization: `Bearer ${accessToken}`
+    },
     body: JSON.stringify(orderToCancel)
   };
   try{
@@ -394,7 +401,10 @@ app.post('/create-pro-draft-order', async (req, res) => {
     const draftOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/draft_orders.json`;
     const draftOrderOptions = {
       method: 'POST',
-      headers: shopifyHeaders,
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
+      },
       body: JSON.stringify(draftOrder) 
     };
  
@@ -438,7 +448,13 @@ app.post('/create-pro-draft-order', async (req, res) => {
     const createOrderUrl = `https://app.shippingbo.com/orders`;
     const createOrderOptions = {
       method: 'POST',
-      headers: shippingboHeaders,
+      headers: {
+        'Content-type': 'application/json',
+        Accept: 'application/json',
+        'X-API-VERSION' : '1',
+        'X-API-APP-ID': API_APP_ID,
+        Authorization: `Bearer ${accessToken}`
+      },
       body: JSON.stringify(shippingBoOrder)
     };
     try {
@@ -536,7 +552,10 @@ app.post('/updatedDraftOrder', async (req, res) => {
          const updateOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/draft_orders/${orderId}.json`;
          const updateOptions = {
            method: 'PUT',
-           headers: shopifyHeaders,
+           headers: {             
+             'Content-Type': 'application/json',             
+             'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
+           },
            body: JSON.stringify(updatedOrder)
          };
          try {
@@ -566,7 +585,10 @@ app.post('/updateKbis', (req, res) => {
   const metafieldsUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/customers/${clientUpdated}/metafields.json`
   const fetchOptions = {         
     method: 'GET',         
-    headers: shopifyHeaders
+    headers: {             
+      'Content-Type': 'application/json',             
+      'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
+    } 
   };
   fetch(metafieldsUrl, fetchOptions)
     .then(response => response.json())
@@ -618,7 +640,10 @@ app.post('/updateKbis', (req, res) => {
             const updateCustomerUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/customers/${clientUpdated}.json`
             const updateOptions = {
                 method: 'PUT',
-                headers: shopifyHeaders,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Shopify-Access-Token': SHOPIFYAPPTOKEN
+                  },
                   body: JSON.stringify(updatedCustomerKbis)
             };      
              fetch(updateCustomerUrl, updateOptions)
@@ -732,7 +757,10 @@ app.post('/createProCustomer', (req, res) => {
     const updateCustomerUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/customers/${clientToUpdate}.json`
     const updateOptions = {
         method: 'PUT',
-        headers: shopifyHeaders,
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Shopify-Access-Token': SHOPIFYAPPTOKEN
+          },
           body: JSON.stringify(updatedCustomerData)
     };
     fetch(updateCustomerUrl, updateOptions)
