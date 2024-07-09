@@ -528,8 +528,8 @@ app.post('/proOrder', async (req, res) => {
     const {id: shippingboId, origin_ref: shippingboOriginRef} = orderDetails
     await updateShippingboOrder(shippingboId, shippingboOriginRef);
     console.log('shipingboId for warehouse', shippingboId);
-    const warehouse = await getWarehouseOrderDetails(shippingboId);
-    if(warehouse) {
+    const warehouseDetails = await getWarehouseOrderDetails(shippingboId);
+    if(warehouseDetails) {
       const {id: shippingboIdwarehouse, origin_ref: shippingboOriginRef} = warehouseDetails
       console.log("find id", shippingboIdwarehouse);
     }
