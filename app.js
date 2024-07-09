@@ -96,7 +96,6 @@ const getToken = async (authorizationCode) => {
   try {
     const response = await fetch(tokenUrl, tokenOptions);
     const data = await response.json();
-    console.log("dataAPI", data);
     accessToken = data.access_token;
     refreshToken = data.refresh_token;
     return {
@@ -129,7 +128,7 @@ const getTokenWarehouse = async (authorizationCode) => {
   try {
     const response = await fetch(tokenUrl, tokenOptions);
     const data = await response.json();
-    console.log('datawarehouse', data);
+    console.log("gettokenwarehouse", data);
     accessTokenWarehouse = data.access_token;
     refreshTokenWarehouse = data.refresh_token;
     return {
@@ -162,7 +161,6 @@ const refreshAccessToken = async () => {
   try {
     const response = await fetch(refreshUrl, refreshOptions);
     const data = await response.json();
-    console.log("in getToken", data)
     accessToken = data.access_token;
     refreshToken = data.refresh_token;
     return accessToken;
@@ -191,7 +189,7 @@ const refreshAccessTokenWarehouse = async () => {
   try {
     const response = await fetch(refreshUrl, refreshOptions);
     const data = await response.json();
-    console.log('in getTokenWarehouse', data)
+    console.log('refrech warehouse', data);
     accessTokenWarehouse = data.access_token;
     refreshTokenWarehouse = data.refresh_token;
     return accessTokenWarehouse;
@@ -205,6 +203,7 @@ const ensureAccessToken = async () => {
   if (!accessToken) {
     if (refreshToken) {
       accessToken = await refreshAccessToken();
+      console.log("accesstoken", accessToken)
     } else {
       const tokens = await getToken(YOUR_AUTHORIZATION_CODE);
       if (!tokens.accessToken || !tokens.refreshToken) {
@@ -212,6 +211,7 @@ const ensureAccessToken = async () => {
       }
       accessToken = tokens.accessToken;
       refreshToken = tokens.refreshToken;
+      console.log('accesstoken refresh', tokens);
     }
   }
   return accessToken;
@@ -220,20 +220,16 @@ const ensureAccessTokenWarehouse = async () => {
   if (!accessTokenWarehouse) {
     if (refreshTokenWarehouse) {
       accessTokenWarehouse = await refreshAccessTokenWarehouse();
-      console.log(accessTokenWarehouse);
+      console.log('warehouse access', accessTokenWarehouse);
     } else {
       const tokens = await getTokenWarehouse(WAREHOUSE_AUTHORIZATION_CODE);
-      console.log("tokenwarehouse", tokens);
       if (!tokens.accessToken || !tokens.refreshToken) {
         throw new Error('Failed to obtain access tokens');
       }
       accessTokenWarehouse = tokens.accessToken;
       refreshTokenWarehouse = tokens.refreshToken;
+      console.log("refresh warehouse", tokens);
     }
-    console.log("accessTokenwarehouse", accessTokenWarehouse);
-    console.log("refreshTokenWarehouse", refreshTokenWarehouse);
-
-
   }
   return accessTokenWarehouse;
 };
@@ -272,7 +268,7 @@ const updateShippingboOrder = async (shippingboOrderId, originRef) => {
 }
 
 const updateWarehouseOrder = async (shippingboOrderId, originRef) => {
-  await ensureAccessTokenWarehouse();
+  ensureAccessTokenWarehouse();
   if(originRef.includes('PRO-') === false)  {
     originRef = "PRO-" + originRef;
   }
@@ -306,7 +302,7 @@ const updateWarehouseOrder = async (shippingboOrderId, originRef) => {
 
 //Retrieve shippingbo order ID from Shopify ID and send to cancel function
 const getShippingboOrderDetails = async (shopifyOrderId) => {
-  ensureAccessToken();
+  ensureAccessTokenWarehouse();
   const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
   const getOrderOptions = {
     method: 'GET',
@@ -337,7 +333,7 @@ const getShippingboOrderDetails = async (shopifyOrderId) => {
 
 const getWarehouseOrderDetails = async (shopifyOrderId) => {
   console.log("TU ES LA", )
-await ensureAccessTokenWarehouse();
+
   // const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
   const getOrderUrl = `https://app.shippingbo.com/orders/95984771`
   const getOrderOptions = {
@@ -502,8 +498,6 @@ app.post('/upload', upload.single('uploadFile'), (req, res) => {
 //webhook on order creation send update : https://potironapppro.onrender.com/proOrder
 //Function to check if a tag starts with "draft" exist to update shippingbo order and cancel shippingbo draft order 
 app.post('/proOrder', async (req, res) => {
-  await ensureAccessToken();
-  await ensureAccessTokenWarehouse();
   var orderData = req.body;
   var orderId = orderData.id;
   var orderTags = orderData.tags;
@@ -520,12 +514,14 @@ app.post('/proOrder', async (req, res) => {
   const isB2B = tagsArr.includes('PRO validé');
   console.log("isb2B", isB2B);
   console.log("isCommandePro", isCommandePro);
+  await ensureAccessToken();
+  await ensureAccessTokenWarehouse();
   // if(isB2B) {
   //   console.log('draftId send in getshippingboId', draftId);
   //   console.log('orderId send in getShiipingbo', orderId);
   //   const draftDetails = await getShippingboOrderDetails(draftId);
   //   const orderDetails = await getShippingboOrderDetails(orderId);
-  //   // const warehouseDetails = await getWarehouseOrderDetails(orderId);
+    // const warehouseDetails = await getWarehouseOrderDetails(orderId);
   //   await getWarehouseOrderDetails(orderId);
   //   if(draftDetails) {
   //     const {id: shippingboDraftId} = draftDetails;
