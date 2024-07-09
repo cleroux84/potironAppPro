@@ -332,7 +332,7 @@ const getShippingboOrderDetails = async (shopifyOrderId) => {
 
 const getWarehouseOrderDetails = async (shopifyOrderId) => {
   console.log("TU ES LA", )
-ensureAccessTokenWarehouse();
+await ensureAccessTokenWarehouse();
   // const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
   const getOrderUrl = `https://app.shippingbo.com/orders/95984771`
   const getOrderOptions = {
@@ -341,7 +341,7 @@ ensureAccessTokenWarehouse();
       'Content-type': 'application/json',
       Accept: 'application/json',
       'X-API-VERSION': '1',
-      'X-API-APP-ID': WAREHOUSE_AUTHORIZATION_CODE,
+      'X-API-APP-ID': API_APP_WAREHOUSE_ID,
       Authorization: `Bearer ${accessTokenWarehouse}`
     },
   };
