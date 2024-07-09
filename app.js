@@ -224,7 +224,7 @@ const ensureAccessTokenWarehouse = async () => {
     } else {
       const tokens = await getTokenWarehouse(WAREHOUSE_AUTHORIZATION_CODE);
       console.log("tokenwarehouse", tokens);
-      if (!tokens.accessToken || !tokens.refreshToken {
+      if (!tokens.accessToken || !tokens.refreshToken) {
         throw new Error('Failed to obtain access tokens');
       }
       accessTokenWarehouse = tokens.accessToken;
