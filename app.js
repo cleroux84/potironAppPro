@@ -128,7 +128,6 @@ const getTokenWarehouse = async (authorizationCode) => {
   try {
     const response = await fetch(tokenUrl, tokenOptions);
     const data = await response.json();
-    console.log("gettokenwarehouse", data);
     accessTokenWarehouse = data.access_token;
     refreshTokenWarehouse = data.refresh_token;
     return {
@@ -302,7 +301,7 @@ const updateWarehouseOrder = async (shippingboOrderId, originRef) => {
 
 //Retrieve shippingbo order ID from Shopify ID and send to cancel function
 const getShippingboOrderDetails = async (shopifyOrderId) => {
-  ensureAccessTokenWarehouse();
+  ensureAccessToken();
   const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
   const getOrderOptions = {
     method: 'GET',
@@ -333,7 +332,7 @@ const getShippingboOrderDetails = async (shopifyOrderId) => {
 
 const getWarehouseOrderDetails = async (shopifyOrderId) => {
   console.log("TU ES LA", )
-
+ensureAccessTokenWarehouse();
   // const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
   const getOrderUrl = `https://app.shippingbo.com/orders/95984771`
   const getOrderOptions = {
@@ -516,12 +515,12 @@ app.post('/proOrder', async (req, res) => {
   console.log("isCommandePro", isCommandePro);
   await ensureAccessToken();
   await ensureAccessTokenWarehouse();
-  // if(isB2B) {
-  //   console.log('draftId send in getshippingboId', draftId);
-  //   console.log('orderId send in getShiipingbo', orderId);
-  //   const draftDetails = await getShippingboOrderDetails(draftId);
-  //   const orderDetails = await getShippingboOrderDetails(orderId);
-    // const warehouseDetails = await getWarehouseOrderDetails(orderId);
+  if(isB2B) {
+    console.log('draftId send in getshippingboId', draftId);
+    console.log('orderId send in getShiipingbo', orderId);
+    const draftDetails = await getShippingboOrderDetails(draftId);
+    const orderDetails = await getShippingboOrderDetails(orderId);
+    const warehouseDetails = await getWarehouseOrderDetails(orderId);
   //   await getWarehouseOrderDetails(orderId);
   //   if(draftDetails) {
   //     const {id: shippingboDraftId} = draftDetails;
@@ -535,9 +534,9 @@ app.post('/proOrder', async (req, res) => {
   //   //   const {id: shippingboId, origin_ref: shippingboOriginRef} = warehouseDetails
   //   //   await updateWarehouseOrder(shippingboId, shippingboOriginRef);
   //   // }
-  // } else {
-  //   console.log('commande pour client non pro');
-  // }
+  } else {
+    console.log('commande pour client non pro');
+  }
 });
 
 //create draft order from cart page if b2B is connected
