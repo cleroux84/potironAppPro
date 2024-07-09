@@ -267,6 +267,7 @@ const updateShippingboOrder = async (shippingboOrderId, originRef) => {
 }
 
 const updateWarehouseOrder = async (shippingboOrderId, originRef) => {
+  console.log('ON EST LA', shippingboOrderId);
   await ensureAccessTokenWarehouse();
   if(originRef.includes('PRO-') === false)  {
     originRef = "PRO-" + originRef;
@@ -520,6 +521,7 @@ app.post('/proOrder', async (req, res) => {
       const warehouseDetails = await getWarehouseOrderDetails(shippingboId);
       console.log('warehousedetails', warehouseDetails)
       if(warehouseDetails) {
+        console.log('inside', warehouseDetails);
         const {id: shippingboIdwarehouse, origin_ref: shippingboWarehouseOriginRef} = warehouseDetails
         await updateWarehouseOrder(shippingboIdwarehouse, shippingboWarehouseOriginRef);
         } else {
