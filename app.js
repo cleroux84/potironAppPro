@@ -56,7 +56,7 @@ const corsOptions = {
   optionSuccessStatus: 204
 }
 
-//function to extract data from notes and redistribute in metafields when a b2b customer is creted
+//function to extract data from notes and redistribute in metafields when a b2b customer is created
 function extractInfoFromNote(note, infoLabel) {
   if(note) {
     const lines = note.split('\n');
@@ -75,7 +75,8 @@ app.get('/', (req, res) => {
     res.send('Bienvenue sur votre application !');
 });
 
-//auth for shippingbo API
+//Auth for shippingbo API
+//Auth for Potiron Paris Shippingbo 
 const getToken = async (authorizationCode) => {
   const tokenUrl = 'https://oauth.shippingbo.com/oauth/token';
   const tokenOptions = {
@@ -108,6 +109,7 @@ const getToken = async (authorizationCode) => {
   }
 };
 
+//Auth for GMA shippingbo => Entrepôt
 const getTokenWarehouse = async (authorizationCode) => {
   const tokenUrl = 'https://oauth.shippingbo.com/oauth/token';
   const tokenOptions = {
@@ -141,6 +143,7 @@ const getTokenWarehouse = async (authorizationCode) => {
 };
 
 //refresh token for Shippingbo API
+//refresh for Potiron Paris Shippingbo
 const refreshAccessToken = async () => {
   const refreshUrl = 'https://oauth.shippingbo.com/oauth/token';
   const refreshOptions = {
@@ -168,7 +171,7 @@ const refreshAccessToken = async () => {
     throw error;
   }
 };
-
+//refresh for GMA Shippingbo => Entrepôt
 const refreshAccessTokenWarehouse = async () => {
   const refreshUrl = 'https://oauth.shippingbo.com/oauth/token';
   const refreshOptions = {
@@ -188,7 +191,6 @@ const refreshAccessTokenWarehouse = async () => {
   try {
     const response = await fetch(refreshUrl, refreshOptions);
     const data = await response.json();
-    console.log('refrech warehouse', data);
     accessTokenWarehouse = data.access_token;
     refreshTokenWarehouse = data.refresh_token;
     return accessTokenWarehouse;
@@ -198,11 +200,11 @@ const refreshAccessTokenWarehouse = async () => {
   }
 };
 // Fonction utilitaire pour obtenir ou rafraîchir l'accessToken
+//For Potiron Paris Shippingbo
 const ensureAccessToken = async () => {
   if (!accessToken) {
     if (refreshToken) {
       accessToken = await refreshAccessToken();
-      console.log("accesstoken", accessToken)
     } else {
       const tokens = await getToken(YOUR_AUTHORIZATION_CODE);
       if (!tokens.accessToken || !tokens.refreshToken) {
@@ -210,16 +212,15 @@ const ensureAccessToken = async () => {
       }
       accessToken = tokens.accessToken;
       refreshToken = tokens.refreshToken;
-      console.log('accesstoken refresh', tokens);
     }
   }
   return accessToken;
 };
+//For GMA Shippingbo => Entrepôt
 const ensureAccessTokenWarehouse = async () => {
   if (!accessTokenWarehouse) {
     if (refreshTokenWarehouse) {
       accessTokenWarehouse = await refreshAccessTokenWarehouse();
-      console.log('warehouse access', accessTokenWarehouse);
     } else {
       const tokens = await getTokenWarehouse(WAREHOUSE_AUTHORIZATION_CODE);
       if (!tokens.accessTokenWarehouse || !tokens.refreshTokenWarehouse) {
@@ -227,12 +228,11 @@ const ensureAccessTokenWarehouse = async () => {
       }
       accessTokenWarehouse = tokens.accessTokenWarehouse;
       refreshTokenWarehouse = tokens.refreshTokenWarehouse;
-      console.log("refresh warehouse", tokens);
     }
   }
   return accessTokenWarehouse;
 };
-//update orders origin and origin ref in shippingbo to add "Commande PRO" and "PRO-"
+//update orders origin and origin ref in shippingbo Potiron Paris to add "Commande PRO" and "PRO-"
 const updateShippingboOrder = async (shippingboOrderId, originRef) => {
   await ensureAccessToken();
   if(originRef.includes('PRO-') === false)  {
@@ -265,9 +265,8 @@ const updateShippingboOrder = async (shippingboOrderId, originRef) => {
          console.error('Error updating shippingbo order', error);
       }
 }
-
+//update orders origin and origin ref in shippingbo GMA => Entrepôt to add "Commande PRO" and "PRO-"
 const updateWarehouseOrder = async (shippingboOrderId, originRef) => {
-  console.log('ON EST LA', shippingboOrderId);
   await ensureAccessTokenWarehouse();
   if(originRef.includes('PRO-') === false)  {
     originRef = "PRO-" + originRef;
@@ -292,7 +291,6 @@ const updateWarehouseOrder = async (shippingboOrderId, originRef) => {
   try{
         const response = await fetch(updateOrderUrl, updateOrderOptions);
         const data = await response.json();
-        console.log("api response", response.status, response.statusText, data);
         if(response.ok) {
           console.log('pro order updated in shippingbo warehouse: ', shippingboOrderId);
         }
@@ -301,7 +299,7 @@ const updateWarehouseOrder = async (shippingboOrderId, originRef) => {
       }
 }
 
-//Retrieve shippingbo order ID from Shopify ID and send to cancel function
+//Retrieve shippingbo order ID from ShopifyID or DraftID and send Shippingbo ID in Potiron Paris Shippingbo
 const getShippingboOrderDetails = async (shopifyOrderId) => {
   await ensureAccessToken();
   const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
@@ -323,7 +321,7 @@ const getShippingboOrderDetails = async (shopifyOrderId) => {
       const {id, origin_ref} = data.orders[0];
       return {id, origin_ref};
     } else {
-      console.log('No data orders found');
+      console.log('No data orders found in Shippingbo Potiron Paris');
       return null;
     }
   } catch (err) {
@@ -331,7 +329,7 @@ const getShippingboOrderDetails = async (shopifyOrderId) => {
     return null;
   }
 };
-
+//Retrieve shippingbo order ID from ShopifyID or DraftID and send Shippingbo ID in GMA Shippingbo => Entrepôt
 const getWarehouseOrderDetails = async (shopifyOrderId) => {
 await ensureAccessTokenWarehouse();
   const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
@@ -345,11 +343,9 @@ await ensureAccessTokenWarehouse();
       Authorization: `Bearer ${accessTokenWarehouse}`
     },
   };
-  // console.log('token warehouse', accessTokenWarehouse);
   try {
     const response = await fetch(getOrderUrl, getOrderOptions);
     const data = await response.json();
-    // console.log("data from warehouse", data);
     if (data.orders && data.orders.length > 0) {
       const {id, origin_ref} = data.orders[0];
       return {id, origin_ref};
@@ -358,11 +354,11 @@ await ensureAccessTokenWarehouse();
       return null;
     }
   } catch (err) {
-    console.error('Error fetching Shippingbo order ID', err);
+    console.error('Error fetching Shippingbo order ID Warehouse', err);
     return null;
   }
 };
-//function ton cancel draft order when closed in Shopify
+//function ton cancel draft order in Potiron Paris Shippingbo when closed in Shopify
 const cancelShippingboDraft = async (shippingboOrderId) => {
   const orderToCancel= {
     state: 'canceled'
@@ -383,7 +379,7 @@ const cancelShippingboDraft = async (shippingboOrderId) => {
         const response = await fetch(cancelOrderUrl, cancelOrderOptions);
         const data = await response.json();
         if(response.ok) {
-          console.log('order cancel in shippingbo: ', shippingboOrderId);
+          console.log('order cancel in shippingbo Potiron Paris: ', shippingboOrderId);
         }
       } catch (error) {
          console.error('Error updating shippingbo order', error);
@@ -484,7 +480,7 @@ async function sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer,
   };
   return transporter.sendMail(mailOptions);
 }
-//record kBis before send and remove it
+//record kBis in code before send and remove it
 app.post('/upload', upload.single('uploadFile'), (req, res) => {
   uploadedFile = req.file;
   originalFileName = req.file.originalname;
@@ -493,8 +489,8 @@ app.post('/upload', upload.single('uploadFile'), (req, res) => {
   res.status(200).send('Fichier téléchargé avec succès.');
 });
 
-//webhook on order creation send update : https://potironapppro.onrender.com/proOrder
-//Function to check if a tag starts with "draft" exist to update shippingbo order and cancel shippingbo draft order 
+//webhook on order update : https://potironapppro.onrender.com/proOrder
+//Check if a tag starts with "draft" to update shippingbo Potiron Paris AND GMA Entrepôt order and cancel shippingbo draft order 
 app.post('/proOrder', async (req, res) => {
   var orderData = req.body;
   var orderId = orderData.id;
@@ -518,11 +514,8 @@ app.post('/proOrder', async (req, res) => {
     if(orderDetails) {
       const {id: shippingboId, origin_ref: shippingboOriginRef} = orderDetails
       await updateShippingboOrder(shippingboId, shippingboOriginRef);
-      console.log('shipingboId for warehouse', shippingboId);
       const warehouseDetails = await getWarehouseOrderDetails(shippingboId);
-      console.log('warehousedetails', warehouseDetails)
       if(warehouseDetails) {
-        console.log('inside', warehouseDetails);
         const {id: shippingboIdwarehouse, origin_ref: shippingboWarehouseOriginRef} = warehouseDetails
         await updateWarehouseOrder(shippingboIdwarehouse, shippingboWarehouseOriginRef);
         } else {
@@ -530,7 +523,7 @@ app.post('/proOrder', async (req, res) => {
         }
     }
   } else {
-    console.log('commande pour client non pro');
+    console.log('update order pour client non pro');
   }
 });
 
