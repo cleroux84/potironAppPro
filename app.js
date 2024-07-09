@@ -96,6 +96,7 @@ const getToken = async (authorizationCode) => {
   try {
     const response = await fetch(tokenUrl, tokenOptions);
     const data = await response.json();
+    console.log("dataAPI", data);
     accessToken = data.access_token;
     refreshToken = data.refresh_token;
     return {
@@ -128,6 +129,7 @@ const getTokenWarehouse = async (authorizationCode) => {
   try {
     const response = await fetch(tokenUrl, tokenOptions);
     const data = await response.json();
+    console.log('datawarehouse', data);
     accessTokenWarehouse = data.access_token;
     refreshTokenWarehouse = data.refresh_token;
     return {
@@ -203,6 +205,7 @@ const ensureAccessToken = async () => {
   if (!accessToken) {
     if (refreshToken) {
       accessToken = await refreshAccessToken();
+      console.log('accessToken', accessToken);
     } else {
       const tokens = await getToken(YOUR_AUTHORIZATION_CODE);
       if (!tokens.accessToken || !tokens.refreshToken) {
@@ -210,8 +213,9 @@ const ensureAccessToken = async () => {
       }
       accessToken = tokens.accessToken;
       refreshToken = tokens.refreshToken;
-    }
     console.log("tokens ensure", tokens);
+
+    }
   }
   return accessToken;
 };
@@ -219,6 +223,7 @@ const ensureAccessTokenWarehouse = async () => {
   if (!accessTokenWarehouse) {
     if (refreshTokenWarehouse) {
       accessTokenWarehouse = await refreshAccessTokenWarehouse();
+      console.log(accessTokenWarehouse);
     } else {
       const tokens = await getTokenWarehouse(WAREHOUSE_AUTHORIZATION_CODE);
       console.log("tokenwarehouse", tokens);
