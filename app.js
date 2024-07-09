@@ -160,6 +160,7 @@ const refreshAccessToken = async () => {
   try {
     const response = await fetch(refreshUrl, refreshOptions);
     const data = await response.json();
+    console.log("in getToken", data)
     accessToken = data.access_token;
     refreshToken = data.refresh_token;
     return accessToken;
@@ -188,6 +189,7 @@ const refreshAccessTokenWarehouse = async () => {
   try {
     const response = await fetch(refreshUrl, refreshOptions);
     const data = await response.json();
+    console.log('in getTokenWarehouse', data)
     accessTokenWarehouse = data.access_token;
     refreshTokenWarehouse = data.refresh_token;
     return accessTokenWarehouse;
@@ -209,6 +211,9 @@ const ensureAccessToken = async () => {
       accessToken = tokens.accessToken;
       refreshToken = tokens.refreshToken;
     }
+    console.log("accessToken", accessToken);
+    console.log("refreshToken", refreshToken);
+
   }
   return accessToken;
 };
@@ -224,6 +229,10 @@ const ensureAccessTokenWarehouse = async () => {
       accessTokenWarehouse = tokens.accessToken;
       refreshTokenWarehouse = tokens.refreshToken;
     }
+    console.log("accessTokenwarehouse", accessTokenWarehouse);
+    console.log("refreshTokenWarehouse", refreshTokenWarehouse);
+
+
   }
   return accessTokenWarehouse;
 };
@@ -492,6 +501,8 @@ app.post('/upload', upload.single('uploadFile'), (req, res) => {
 //webhook on order creation send update : https://potironapppro.onrender.com/proOrder
 //Function to check if a tag starts with "draft" exist to update shippingbo order and cancel shippingbo draft order 
 app.post('/proOrder', async (req, res) => {
+  await ensureAccessToken();
+  await ensureAccessTokenWarehouse();
   var orderData = req.body;
   var orderId = orderData.id;
   var orderTags = orderData.tags;
@@ -508,28 +519,28 @@ app.post('/proOrder', async (req, res) => {
   const isB2B = tagsArr.includes('PRO validé');
   console.log("isb2B", isB2B);
   console.log("isCommandePro", isCommandePro);
-  if(isB2B) {
-    console.log('draftId send in getshippingboId', draftId);
-    console.log('orderId send in getShiipingbo', orderId);
-    const draftDetails = await getShippingboOrderDetails(draftId);
-    const orderDetails = await getShippingboOrderDetails(orderId);
-    // const warehouseDetails = await getWarehouseOrderDetails(orderId);
-    await getWarehouseOrderDetails(orderId);
-    if(draftDetails) {
-      const {id: shippingboDraftId} = draftDetails;
-      await cancelShippingboDraft(shippingboDraftId);
-    }
-    if(orderDetails) {
-    const {id: shippingboId, origin_ref: shippingboOriginRef} = orderDetails
-    await updateShippingboOrder(shippingboId, shippingboOriginRef);
-    }
-    // if(warehouseDetails) {
-    //   const {id: shippingboId, origin_ref: shippingboOriginRef} = warehouseDetails
-    //   await updateWarehouseOrder(shippingboId, shippingboOriginRef);
-    // }
-  } else {
-    console.log('commande pour client non pro');
-  }
+  // if(isB2B) {
+  //   console.log('draftId send in getshippingboId', draftId);
+  //   console.log('orderId send in getShiipingbo', orderId);
+  //   const draftDetails = await getShippingboOrderDetails(draftId);
+  //   const orderDetails = await getShippingboOrderDetails(orderId);
+  //   // const warehouseDetails = await getWarehouseOrderDetails(orderId);
+  //   await getWarehouseOrderDetails(orderId);
+  //   if(draftDetails) {
+  //     const {id: shippingboDraftId} = draftDetails;
+  //     await cancelShippingboDraft(shippingboDraftId);
+  //   }
+  //   if(orderDetails) {
+  //   const {id: shippingboId, origin_ref: shippingboOriginRef} = orderDetails
+  //   await updateShippingboOrder(shippingboId, shippingboOriginRef);
+  //   }
+  //   // if(warehouseDetails) {
+  //   //   const {id: shippingboId, origin_ref: shippingboOriginRef} = warehouseDetails
+  //   //   await updateWarehouseOrder(shippingboId, shippingboOriginRef);
+  //   // }
+  // } else {
+  //   console.log('commande pour client non pro');
+  // }
 });
 
 //create draft order from cart page if b2B is connected
