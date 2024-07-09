@@ -234,7 +234,7 @@ const ensureAccessTokenWarehouse = async () => {
 };
 //update orders origin and origin ref in shippingbo to add "Commande PRO" and "PRO-"
 const updateShippingboOrder = async (shippingboOrderId, originRef) => {
-  ensureAccessToken();
+  await ensureAccessToken();
   if(originRef.includes('PRO-') === false)  {
     originRef = "PRO-" + originRef;
   }
@@ -267,7 +267,7 @@ const updateShippingboOrder = async (shippingboOrderId, originRef) => {
 }
 
 const updateWarehouseOrder = async (shippingboOrderId, originRef) => {
-  ensureAccessTokenWarehouse();
+  await ensureAccessTokenWarehouse();
   if(originRef.includes('PRO-') === false)  {
     originRef = "PRO-" + originRef;
   }
@@ -292,7 +292,7 @@ const updateWarehouseOrder = async (shippingboOrderId, originRef) => {
         const response = await fetch(updateOrderUrl, updateOrderOptions);
         const data = await response.json();
         if(response.ok) {
-          console.log('pro order updated in shippingbo: ', shippingboOrderId);
+          console.log('pro order updated in shippingbo warehouse: ', shippingboOrderId);
         }
       } catch (error) {
          console.error('Error updating shippingbo order', error);
@@ -301,7 +301,7 @@ const updateWarehouseOrder = async (shippingboOrderId, originRef) => {
 
 //Retrieve shippingbo order ID from Shopify ID and send to cancel function
 const getShippingboOrderDetails = async (shopifyOrderId) => {
-  ensureAccessToken();
+  await ensureAccessToken();
   const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
   const getOrderOptions = {
     method: 'GET',
@@ -501,43 +501,28 @@ app.post('/proOrder', async (req, res) => {
   const tagsArr = orderData.customer.tags.split(', ');
   const tagsArray = orderTags.split(', ').map(tag => tag.trim());
   const draftTagExists = tagsArray.some(tag => tag.startsWith('draft'));
-  console.log('tagsarray when created', tagsArray);
-  console.log('drafttagsexist', draftTagExists);
   let draftId = '';
   if(draftTagExists) {
     draftId = tagsArray.find(tag => tag.startsWith('draft'));
   }
   const isCommandePro = tagsArray.includes('Commande PRO');
   const isB2B = tagsArr.includes('PRO validé');
-  console.log("isb2B", isB2B);
-  console.log("isCommandePro", isCommandePro);
-  await ensureAccessToken();
-  await ensureAccessTokenWarehouse();
-  if(isB2B) {
-    console.log('draftId send in getshippingboId', draftId);
-    console.log('orderId send in getShiipingbo', orderId);
-    // const draftDetails = await getShippingboOrderDetails(draftId);
+  if(isB2B && isCommandePro) {
     const orderDetails = await getShippingboOrderDetails(orderId);
-    // const warehouseDetails = await getWarehouseOrderDetails(orderId);
-  //   await getWarehouseOrderDetails(orderId);
-  //   if(draftDetails) {
-  //     const {id: shippingboDraftId} = draftDetails;
-  //     await cancelShippingboDraft(shippingboDraftId);
-  //   }
+    if(draftDetails) {
+      const {id: shippingboDraftId} = draftDetails;
+      await cancelShippingboDraft(shippingboDraftId);
+    }
     if(orderDetails) {
-    const {id: shippingboId, origin_ref: shippingboOriginRef} = orderDetails
-    await updateShippingboOrder(shippingboId, shippingboOriginRef);
-    console.log('shipingboId for warehouse', shippingboId);
-    const warehouseDetails = await getWarehouseOrderDetails(shippingboId);
-    if(warehouseDetails) {
-      const {id: shippingboIdwarehouse, origin_ref: shippingboOriginRef} = warehouseDetails
-      console.log("find id", shippingboIdwarehouse);
+      const {id: shippingboId, origin_ref: shippingboOriginRef} = orderDetails
+      await updateShippingboOrder(shippingboId, shippingboOriginRef);
+      console.log('shipingboId for warehouse', shippingboId);
+      const warehouseDetails = await getWarehouseOrderDetails(shippingboId);
+      if(warehouseDetails) {
+        const {id: shippingboIdwarehouse, origin_ref: shippingboWarehouseOriginRef} = warehouseDetails
+        await updateWarehouseOrder(shippingboIdwarehouse, shippingboWarehouseOriginRef);
+        }  
     }
-    }
-  //   // if(warehouseDetails) {
-  //   //   const {id: shippingboId, origin_ref: shippingboOriginRef} = warehouseDetails
-  //   //   await updateWarehouseOrder(shippingboId, shippingboOriginRef);
-  //   // }
   } else {
     console.log('commande pour client non pro');
   }
