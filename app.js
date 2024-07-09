@@ -508,6 +508,7 @@ app.post('/proOrder', async (req, res) => {
   const isCommandePro = tagsArray.includes('Commande PRO');
   const isB2B = tagsArr.includes('PRO validé');
   if(isB2B && isCommandePro) {
+    const draftDetails = await getShippingboOrderDetails(draftId);
     const orderDetails = await getShippingboOrderDetails(orderId);
     if(draftDetails) {
       const {id: shippingboDraftId} = draftDetails;
