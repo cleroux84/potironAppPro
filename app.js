@@ -343,12 +343,11 @@ await ensureAccessTokenWarehouse();
       Authorization: `Bearer ${accessTokenWarehouse}`
     },
   };
-  console.log('id warehouse from shopify', shopifyOrderId)
   // console.log('token warehouse', accessTokenWarehouse);
   try {
     const response = await fetch(getOrderUrl, getOrderOptions);
     const data = await response.json();
-    console.log("data from warehouse", data);
+    // console.log("data from warehouse", data);
     if (data.orders && data.orders.length > 0) {
       const {id, origin_ref} = data.orders[0];
       return {id, origin_ref};
@@ -519,10 +518,13 @@ app.post('/proOrder', async (req, res) => {
       await updateShippingboOrder(shippingboId, shippingboOriginRef);
       console.log('shipingboId for warehouse', shippingboId);
       const warehouseDetails = await getWarehouseOrderDetails(shippingboId);
+      console.log('warehousedetails', warehouseDetails)
       if(warehouseDetails) {
         const {id: shippingboIdwarehouse, origin_ref: shippingboWarehouseOriginRef} = warehouseDetails
         await updateWarehouseOrder(shippingboIdwarehouse, shippingboWarehouseOriginRef);
-        }  
+        } else {
+          console.log("empty warehouse details")
+        }
     }
   } else {
     console.log('commande pour client non pro');
