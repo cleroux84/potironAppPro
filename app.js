@@ -211,9 +211,7 @@ const ensureAccessToken = async () => {
       accessToken = tokens.accessToken;
       refreshToken = tokens.refreshToken;
     }
-    console.log("accessToken", accessToken);
-    console.log("refreshToken", refreshToken);
-
+    console.log("tokens ensure", tokens);
   }
   return accessToken;
 };
@@ -223,7 +221,8 @@ const ensureAccessTokenWarehouse = async () => {
       accessTokenWarehouse = await refreshAccessTokenWarehouse();
     } else {
       const tokens = await getTokenWarehouse(WAREHOUSE_AUTHORIZATION_CODE);
-      if (!tokens.accessToken|| !tokens.refreshToken) {
+      console.log("tokenwarehouse", tokens);
+      if (!tokens.accessTokenWarehouse|| !tokens.refreshTokenWarehouse) {
         throw new Error('Failed to obtain access tokens');
       }
       accessTokenWarehouse = tokens.accessToken;
