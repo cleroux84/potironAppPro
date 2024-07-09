@@ -223,11 +223,11 @@ const ensureAccessTokenWarehouse = async () => {
       console.log('warehouse access', accessTokenWarehouse);
     } else {
       const tokens = await getTokenWarehouse(WAREHOUSE_AUTHORIZATION_CODE);
-      if (!tokens.accessToken || !tokens.refreshToken) {
+      if (!tokens.accessTokenWarehouse || !tokens.refreshTokenWarehouse) {
         throw new Error('Failed to obtain access tokens');
       }
-      accessTokenWarehouse = tokens.accessToken;
-      refreshTokenWarehouse = tokens.refreshToken;
+      accessTokenWarehouse = tokens.accessTokenWarehouse;
+      refreshTokenWarehouse = tokens.refreshTokenWarehouse;
       console.log("refresh warehouse", tokens);
     }
   }
