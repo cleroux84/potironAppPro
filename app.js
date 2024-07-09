@@ -334,7 +334,7 @@ const getWarehouseOrderDetails = async (shopifyOrderId) => {
   console.log("TU ES LA", )
 await ensureAccessTokenWarehouse();
   // const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
-  const getOrderUrl = `https://app.shippingbo.com/orders/95984771`
+  const getOrderUrl = `https://app.shippingbo.com/orders/95984766`
   const getOrderOptions = {
     method: 'GET',
     headers: {
