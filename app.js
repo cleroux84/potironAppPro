@@ -284,7 +284,7 @@ const updateWarehouseOrder = async (shippingboOrderId, originRef) => {
       'Content-type': 'application/json',
       Accept: 'application/json',
       'X-API-VERSION' : '1',
-      'X-API-APP-ID': WAREHOUSE_AUTHORIZATION_CODE,
+      'X-API-APP-ID': API_APP_WAREHOUSE_ID,
       Authorization: `Bearer ${accessTokenWarehouse}`
     },
     body: JSON.stringify(updatedOrder)
@@ -292,6 +292,7 @@ const updateWarehouseOrder = async (shippingboOrderId, originRef) => {
   try{
         const response = await fetch(updateOrderUrl, updateOrderOptions);
         const data = await response.json();
+        console.log("api response", response.status, response.statusText, data);
         if(response.ok) {
           console.log('pro order updated in shippingbo warehouse: ', shippingboOrderId);
         }
