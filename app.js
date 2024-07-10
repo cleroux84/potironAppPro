@@ -97,6 +97,7 @@ const getToken = async (authorizationCode) => {
   try {
     const response = await fetch(tokenUrl, tokenOptions);
     const data = await response.json();
+    console.log('getToken', data);
     accessToken = data.access_token;
     refreshToken = data.refresh_token;
     return {
@@ -104,8 +105,7 @@ const getToken = async (authorizationCode) => {
       refreshToken
     };
   } catch (error) {
-    console.error('Error obtaining access token:', error);
-    throw error;
+    console.error('Error obtaining access token getToken:', error);
   }
 };
 
@@ -138,7 +138,6 @@ const getTokenWarehouse = async (authorizationCode) => {
     };
   } catch (error) {
     console.error('Error obtaining access token Warehouse:', error);
-    throw error;
   }
 };
 
@@ -165,10 +164,10 @@ const refreshAccessToken = async () => {
     const data = await response.json();
     accessToken = data.access_token;
     refreshToken = data.refresh_token;
+    console.log('refreshtoken', data);
     return accessToken;
   } catch (error) {
     console.error('Error refreshing access token:', error);
-    throw error;
   }
 };
 //refresh for GMA Shippingbo => Entrepôt
@@ -196,7 +195,6 @@ const refreshAccessTokenWarehouse = async () => {
     return accessTokenWarehouse;
   } catch (error) {
     console.error('Error refreshing access token WAREHOUSE:', error);
-    throw error;
   }
 };
 // Fonction utilitaire pour obtenir ou rafraîchir l'accessToken
@@ -205,10 +203,12 @@ const ensureAccessToken = async () => {
   if (!accessToken) {
     if (refreshToken) {
       accessToken = await refreshAccessToken();
+      console.log('ensure token', accessToken);
     } else {
+      console.log("ppl une seule fois ?")
       const tokens = await getToken(YOUR_AUTHORIZATION_CODE);
       if (!tokens.accessToken || !tokens.refreshToken) {
-        throw new Error('Failed to obtain access tokens');
+        console.error('Failed to obtain access tokens here', tokens);
       }
       accessToken = tokens.accessToken;
       refreshToken = tokens.refreshToken;
@@ -224,7 +224,7 @@ const ensureAccessTokenWarehouse = async () => {
     } else {
       const tokens = await getTokenWarehouse(WAREHOUSE_AUTHORIZATION_CODE);
       if (!tokens.accessTokenWarehouse || !tokens.refreshTokenWarehouse) {
-        throw new Error('Failed to obtain access tokens');
+        console.error('Failed to obtain access tokens ensureWarehouse');
       }
       accessTokenWarehouse = tokens.accessTokenWarehouse;
       refreshTokenWarehouse = tokens.refreshTokenWarehouse;
@@ -618,7 +618,7 @@ app.post('/create-pro-draft-order', async (req, res) => {
     }
 
  } else {
-  throw new Error('Invalid response structure from Shopify to create draft order for PRO')
+  console.error('Invalid response structure from Shopify to create draft order for PRO')
  }
     res.status(200).json(data); 
   } catch (error) {
