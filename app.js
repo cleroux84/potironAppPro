@@ -266,7 +266,7 @@ const ensureAccessToken = async () => {
       console.log('ensure token refreshed', accessToken);
     } else {
       const newAuthorizationCode = await renewAuthorizationCode();
-      const tokens = await getToken(authorizationCode);
+      const tokens = await getToken(newAuthorizationCode);
       if (!tokens.accessToken || !tokens.refreshToken) {
         console.error('Failed to obtain access tokens here', tokens);
       }
