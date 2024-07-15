@@ -249,7 +249,7 @@ const renewAuthorizationCode = async () => {
       })
     });
     const data = await response.json();
-    return data.authorization_code;
+    return authorizationCode;
   } catch (error) {
     console.error('Error fetching new authorization code:', error);
     throw error;
