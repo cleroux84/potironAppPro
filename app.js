@@ -33,6 +33,7 @@ const WAREHOUSE_AUTHORIZATION_CODE = process.env.WAREHOUSE_AUTHORIZATION_CODE;
 
 let accessToken = null;
 let refreshToken = null;
+let accessTokenExpirationTimestamp;
 let accessTokenWarehouse = null;
 let refreshTokenWarehouse = null;
 
@@ -100,6 +101,8 @@ const getToken = async (authorizationCode) => {
     console.log('getToken', data);
     accessToken = data.access_token;
     refreshToken = data.refresh_token;
+    accessTokenExpirationTimestamp = Date.now() + (data.expires_in * 1000);
+    startTokenRefreshLoop();
     return {
       accessToken,
       refreshToken
@@ -162,9 +165,10 @@ const refreshAccessToken = async () => {
   try {
     const response = await fetch(refreshUrl, refreshOptions);
     const data = await response.json();
+    console.log('refreshAccessToken', data)
     accessToken = data.access_token;
     refreshToken = data.refresh_token;
-    console.log('refreshtoken', data);
+    accessTokenExpirationTimestamp = Date.now() + (data.expires_in * 1000);
     return accessToken;
   } catch (error) {
     console.error('Error refreshing access token:', error);
@@ -197,21 +201,40 @@ const refreshAccessTokenWarehouse = async () => {
     console.error('Error refreshing access token WAREHOUSE:', error);
   }
 };
+
+
+//check every minute TODO every quart d'heure ??
+const startTokenRefreshLoop = () => {
+  const checkInterval = 60 * 1000;
+  setInterval(() => {
+    if(accessToken && Date.now() >= accessTokenExpirationTimestamp) {
+      refreshAccessToken()
+      .then(newAccessToken => {
+        console.log('access token refreshed automatically', newAccessToken);
+      })
+      .catch(error => {
+        console.error('Error refreshing access token', error);
+      });
+    }
+  }, checkInterval);
+}
+
 // Fonction utilitaire pour obtenir ou rafraîchir l'accessToken
 //For Potiron Paris Shippingbo
 const ensureAccessToken = async () => {
-  if (!accessToken) {
+  if (!accessToken || Date.now() >= accessTokenExpirationTimestamp) {
     if (refreshToken) {
       accessToken = await refreshAccessToken();
-      console.log('ensure token', accessToken);
+      console.log('ensure token refreshed', accessToken);
     } else {
-      console.log("ppl une seule fois ?")
       const tokens = await getToken(YOUR_AUTHORIZATION_CODE);
       if (!tokens.accessToken || !tokens.refreshToken) {
         console.error('Failed to obtain access tokens here', tokens);
       }
       accessToken = tokens.accessToken;
       refreshToken = tokens.refreshToken;
+      accessTokenExpirationTimestamp = Date.now() + (3600 * 1000);
+      console.log('ensureAccessToken initial', accessToken);
     }
   }
   return accessToken;
@@ -514,13 +537,13 @@ app.post('/proOrder', async (req, res) => {
     if(orderDetails) {
       const {id: shippingboId, origin_ref: shippingboOriginRef} = orderDetails
       await updateShippingboOrder(shippingboId, shippingboOriginRef);
-      const warehouseDetails = await getWarehouseOrderDetails(shippingboId);
-      if(warehouseDetails) {
-        const {id: shippingboIdwarehouse, origin_ref: shippingboWarehouseOriginRef} = warehouseDetails
-        await updateWarehouseOrder(shippingboIdwarehouse, shippingboWarehouseOriginRef);
-        } else {
-          console.log("empty warehouse details")
-        }
+      // const warehouseDetails = await getWarehouseOrderDetails(shippingboId);
+      // if(warehouseDetails) {
+      //   const {id: shippingboIdwarehouse, origin_ref: shippingboWarehouseOriginRef} = warehouseDetails
+      //   await updateWarehouseOrder(shippingboIdwarehouse, shippingboWarehouseOriginRef);
+      //   } else {
+      //     console.log("empty warehouse details")
+      //   }
     }
   } else {
     console.log('update order pour client non pro');
