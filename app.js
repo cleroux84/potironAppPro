@@ -36,6 +36,7 @@ let refreshToken = null;
 let accessTokenExpirationTimestamp;
 let accessTokenWarehouse = null;
 let refreshTokenWarehouse = null;
+let authorizationCode = YOUR_AUTHORIZATION_CODE;
 
 app.set('appName', 'potironAppPro');
 
@@ -218,6 +219,43 @@ const startTokenRefreshLoop = () => {
     }
   }, checkInterval);
 }
+//to refresh 10 minutes before expiration
+// const startTokenRefreshLoop = () => {
+//   const refreshTime = accessTokenExpirationTimestamp - Date.now() - (10*60*1000);
+//   setTimeout(() => {
+//       refreshAccessToken()
+//       .then(newAccessToken => {
+//         console.log('access token refreshed automatically', newAccessToken);
+//       })
+//       .catch(error => {
+//         console.error('Error refreshing access token', error);
+//       });
+    
+//   }, refreshTime);
+// }
+const renewAuthorizationCode = async () => {
+  try {
+    // Appel à l'API ou méthode pour obtenir un nouveau code d'autorisation
+    const response = await fetch('https://oauth.shippingbo.com/new_authorization_code', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json'
+      },
+      body: JSON.stringify({
+        client_id: CLIENT_ID,
+        client_secret: CLIENT_SECRET,
+        // d'autres paramètres nécessaires pour obtenir un nouveau code
+      })
+    });
+    const data = await response.json();
+    return data.authorization_code;
+  } catch (error) {
+    console.error('Error fetching new authorization code:', error);
+    throw error;
+  }
+};
+ 
 
 // Fonction utilitaire pour obtenir ou rafraîchir l'accessToken
 //For Potiron Paris Shippingbo
@@ -227,7 +265,8 @@ const ensureAccessToken = async () => {
       accessToken = await refreshAccessToken();
       console.log('ensure token refreshed', accessToken);
     } else {
-      const tokens = await getToken(YOUR_AUTHORIZATION_CODE);
+      const newAuthorizationCode = await renewAuthorizationCode();
+      const tokens = await getToken(authorizationCode);
       if (!tokens.accessToken || !tokens.refreshToken) {
         console.error('Failed to obtain access tokens here', tokens);
       }
