@@ -76,9 +76,9 @@ app.get('/', (req, res) => {
     res.send('Bienvenue sur votre application !');
 });
 const logMessageEveryFiveMinutes = () => {
-  console.log('every 5 minutes');
+  console.log('every 5 minutes accesstoken', accessToken);
+  console.log('every 5 minutes accesstoken', refreshToken);
 }
-setInterval(logMessageEveryFiveMinutes, 300000);
 
 //Auth for shippingbo API
 //Auth for Potiron Paris Shippingbo 
@@ -106,7 +106,7 @@ const getToken = async (authorizationCode) => {
     accessToken = data.access_token;
     refreshToken = data.refresh_token;
     tokenExpiryTime = Date.now() + (data.expires_in * 1000);
-    console.log('time gettoken', tokenExpiryTime);
+    // console.log('time gettoken', tokenExpiryTime);
     return {
       accessToken,
       refreshToken
@@ -211,7 +211,9 @@ const refreshAccessTokenWarehouse = async () => {
 // Fonction utilitaire pour obtenir ou rafraîchir l'accessToken
 //For Potiron Paris Shippingbo
 const ensureAccessToken = async () => {
-  if (!accessToken ) { // Rafraîchir 1 minute avant l'expiratio
+setInterval(logMessageEveryFiveMinutes, 300000);
+
+  if (!accessToken ) { 
     try {
       const tokens = await refreshAccessToken(refreshToken);
       console.log("tokens apres refresh", tokens);
