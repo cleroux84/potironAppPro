@@ -207,9 +207,10 @@ const refreshAccessTokenWarehouse = async () => {
 // Fonction utilitaire pour obtenir ou rafraîchir l'accessToken
 //For Potiron Paris Shippingbo
 const ensureAccessToken = async () => {
-  if (!accessToken || (tokenExpiryTime && Date.now() > tokenExpiryTime - 600000)) { // Rafraîchir 1 minute avant l'expiration
+  if (!accessToken ) { // Rafraîchir 1 minute avant l'expiratio
     try {
       const tokens = await refreshAccessToken(refreshToken);
+      console.log("tokens apres refresh", tokens);
       if (!tokens.accessToken || !tokens.refreshToken) {
         console.error('Failed to refresh access tokens', tokens);
         return null;
@@ -219,7 +220,7 @@ const ensureAccessToken = async () => {
       console.log('ensureAccessToken', accessToken);
     } catch (error) {
       console.error('Failed to refresh access tokens:', error);
-      return null; // Gérer l'erreur ici selon vos besoins
+      return null; 
     }
   }
   return accessToken;
@@ -240,7 +241,7 @@ const initializeTokens = async () => {
     // Mettre en place un intervalle pour vérifier et rafraîchir le token d'accès avant l'expiration
     setInterval(async () => {
       await ensureAccessToken(); //1h50 
-    }, 6600000); 
+    }, 120000); 
  
     console.log('Tokens initialized successfully.');
   } catch (error) {
