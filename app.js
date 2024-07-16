@@ -243,8 +243,11 @@ const initializeTokens = async () => {
  
     // Mettre en place un intervalle pour vérifier et rafraîchir le token d'accès avant l'expiration
     setInterval(async () => {
-      await ensureAccessToken(); //1h50 
-    }, 6600000); 
+      console.log("ppl");
+      await refreshAccessToken(); //1h50 
+    }, 120000); //2 minutes
+  // }, 6600000); //1h50
+
  
     console.log('Tokens initialized successfully.');
   } catch (error) {
