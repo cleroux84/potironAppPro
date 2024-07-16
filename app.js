@@ -33,10 +33,9 @@ const WAREHOUSE_AUTHORIZATION_CODE = process.env.WAREHOUSE_AUTHORIZATION_CODE;
 
 let accessToken = null;
 let refreshToken = null;
-let accessTokenExpirationTimestamp;
+let authorizationCode = YOUR_AUTHORIZATION_CODE;
 let accessTokenWarehouse = null;
 let refreshTokenWarehouse = null;
-let authorizationCode = YOUR_AUTHORIZATION_CODE;
 
 app.set('appName', 'potironAppPro');
 
@@ -102,8 +101,6 @@ const getToken = async (authorizationCode) => {
     console.log('getToken', data);
     accessToken = data.access_token;
     refreshToken = data.refresh_token;
-    accessTokenExpirationTimestamp = Date.now() + (data.expires_in * 1000);
-    startTokenRefreshLoop();
     return {
       accessToken,
       refreshToken
@@ -166,10 +163,9 @@ const refreshAccessToken = async () => {
   try {
     const response = await fetch(refreshUrl, refreshOptions);
     const data = await response.json();
-    console.log('refreshAccessToken', data)
     accessToken = data.access_token;
     refreshToken = data.refresh_token;
-    accessTokenExpirationTimestamp = Date.now() + (data.expires_in * 1000);
+    console.log('refreshtoken', data);
     return accessToken;
   } catch (error) {
     console.error('Error refreshing access token:', error);
@@ -202,78 +198,21 @@ const refreshAccessTokenWarehouse = async () => {
     console.error('Error refreshing access token WAREHOUSE:', error);
   }
 };
-
-
-//check every minute TODO every quart d'heure ??
-const startTokenRefreshLoop = () => {
-  const checkInterval = 60 * 1000;
-  setInterval(() => {
-    if(accessToken && Date.now() >= accessTokenExpirationTimestamp) {
-      refreshAccessToken()
-      .then(newAccessToken => {
-        console.log('access token refreshed automatically', newAccessToken);
-      })
-      .catch(error => {
-        console.error('Error refreshing access token', error);
-      });
-    }
-  }, checkInterval);
-}
-//to refresh 10 minutes before expiration
-// const startTokenRefreshLoop = () => {
-//   const refreshTime = accessTokenExpirationTimestamp - Date.now() - (10*60*1000);
-//   setTimeout(() => {
-//       refreshAccessToken()
-//       .then(newAccessToken => {
-//         console.log('access token refreshed automatically', newAccessToken);
-//       })
-//       .catch(error => {
-//         console.error('Error refreshing access token', error);
-//       });
-    
-//   }, refreshTime);
-// }
-const renewAuthorizationCode = async () => {
-  try {
-    // Appel à l'API ou méthode pour obtenir un nouveau code d'autorisation
-    const response = await fetch('https://oauth.shippingbo.com/new_authorization_code', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json'
-      },
-      body: JSON.stringify({
-        client_id: CLIENT_ID,
-        client_secret: CLIENT_SECRET,
-        // d'autres paramètres nécessaires pour obtenir un nouveau code
-      })
-    });
-    const data = await response.json();
-    return authorizationCode;
-  } catch (error) {
-    console.error('Error fetching new authorization code:', error);
-    throw error;
-  }
-};
- 
-
 // Fonction utilitaire pour obtenir ou rafraîchir l'accessToken
 //For Potiron Paris Shippingbo
 const ensureAccessToken = async () => {
-  if (!accessToken || Date.now() >= accessTokenExpirationTimestamp) {
+  if (!accessToken) {
     if (refreshToken) {
       accessToken = await refreshAccessToken();
-      console.log('ensure token refreshed', accessToken);
+      console.log('ensure token', accessToken);
     } else {
-      const newAuthorizationCode = await renewAuthorizationCode();
-      const tokens = await getToken(newAuthorizationCode);
+      console.log("ppl une seule fois ?")
+      const tokens = await getToken(YOUR_AUTHORIZATION_CODE);
       if (!tokens.accessToken || !tokens.refreshToken) {
         console.error('Failed to obtain access tokens here', tokens);
       }
       accessToken = tokens.accessToken;
       refreshToken = tokens.refreshToken;
-      accessTokenExpirationTimestamp = Date.now() + (3600 * 1000);
-      console.log('ensureAccessToken initial', accessToken);
     }
   }
   return accessToken;
