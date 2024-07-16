@@ -205,11 +205,11 @@ const refreshAccessTokenWarehouse = async () => {
 };
 // Fonction utilitaire pour obtenir ou rafraîchir l'accessToken
 //For Potiron Paris Shippingbo
-const ensureAccessToken = async () => {
+// const ensureAccessToken = async () => {
   // if(Date.now() > tokenExpiryTime - 600000) {
-    await refreshAccessToken();
-    console.log('after refresh accesstoken', accessToken);
-    console.log('after refresh refreshtoken', refreshToken);
+    // await refreshAccessToken();
+    // console.log('after refresh accesstoken', accessToken);
+    // console.log('after refresh refreshtoken', refreshToken);
   // }
   // if (!accessToken || (tokenExpiryTime && Date.now() > tokenExpiryTime - 600000)) { // Rafraîchir 1 minute avant l'expiration
   //   try {
@@ -227,7 +227,7 @@ const ensureAccessToken = async () => {
   //   }
   // }
   // return accessToken;
-};
+// };
  
 // Initialisation des tokens avec YOUR_AUTHORIZATION_CODE
 const initializeTokens = async () => {
@@ -239,14 +239,14 @@ const initializeTokens = async () => {
     }
     accessToken = tokens.accessToken;
     refreshToken = tokens.refreshToken;
-    tokenExpiryTime = Date.now() + (tokens.expires_in * 1000); // expires_in est en secondes
+    tokenExpiryTime = Date.now() + (tokens.expires_in * 1000);
  
-    // Mettre en place un intervalle pour vérifier et rafraîchir le token d'accès avant l'expiration
+//refreshToken avery 1h50
     setInterval(async () => {
       console.log("ppl");
       await refreshAccessToken(); //1h50 
-    }, 120000); //2 minutes
-  // }, 6600000); //1h50
+    // }, 120000); //2 minutes
+  }, 6600000); //1h50
 
  
     console.log('Tokens initialized successfully.');
@@ -274,7 +274,7 @@ const ensureAccessTokenWarehouse = async () => {
 };
 //update orders origin and origin ref in shippingbo Potiron Paris to add "Commande PRO" and "PRO-"
 const updateShippingboOrder = async (shippingboOrderId, originRef) => {
-  await ensureAccessToken();
+  // await ensureAccessToken();
   if(originRef.includes('PRO-') === false)  {
     originRef = "PRO-" + originRef;
   }
@@ -341,7 +341,7 @@ const updateWarehouseOrder = async (shippingboOrderId, originRef) => {
 
 //Retrieve shippingbo order ID from ShopifyID or DraftID and send Shippingbo ID in Potiron Paris Shippingbo
 const getShippingboOrderDetails = async (shopifyOrderId) => {
-  await ensureAccessToken();
+  // await ensureAccessToken();
   const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
   const getOrderOptions = {
     method: 'GET',
@@ -636,7 +636,7 @@ app.post('/create-pro-draft-order', async (req, res) => {
       total_price_currency: 'EUR',
       tags_to_add: ["Commande PRO", shippingAddress]
     };
-    await ensureAccessToken();
+    // await ensureAccessToken();
     const createOrderUrl = `https://app.shippingbo.com/orders`;
     const createOrderOptions = {
       method: 'POST',
@@ -720,7 +720,7 @@ app.post('/updatedDraftOrder', async (req, res) => {
 
     if (isCompleted === true && isCommandePro) {
       try {
-        await ensureAccessToken();
+        // await ensureAccessToken();
         const draftDetails = await getShippingboOrderDetails(draftId);
         if(draftDetails) {
           const {id: shippingboDraftId} = draftDetails;
@@ -731,7 +731,7 @@ app.post('/updatedDraftOrder', async (req, res) => {
       }
   } else if(isCommandePro && !draftTagExists) {
     try {
-      await ensureAccessToken();
+      // await ensureAccessToken();
       draftTagArray.push(draftId);
       const updatedOrder = {
         draft_order: {
