@@ -36,6 +36,8 @@ let refreshToken = null;
 let tokenExpiryTime = null;
 let accessTokenWarehouse = null;
 let refreshTokenWarehouse = null;
+let tokenWarehouseExpiryTime = null;
+
 
 app.set('appName', 'potironAppPro');
 
@@ -134,6 +136,8 @@ const getTokenWarehouse = async (authorizationCode) => {
     const data = await response.json();
     accessTokenWarehouse = data.access_token;
     refreshTokenWarehouse = data.refresh_token;
+    tokenWarehouseExpiryTime = Date.now() + (data.expires_in * 1000);
+    console.log("gettokenwarehouse", data);
     return {
       accessTokenWarehouse,
       refreshTokenWarehouse
@@ -198,7 +202,12 @@ const refreshAccessTokenWarehouse = async () => {
     const data = await response.json();
     accessTokenWarehouse = data.access_token;
     refreshTokenWarehouse = data.refresh_token;
-    return accessTokenWarehouse;
+    tokenWarehouseExpiryTime = Date.now() + (data.expires_in * 1000);
+    console.log('refreshWarehouseToken', data);
+    return {
+      accessTokenWarehouse,
+      refreshTokenWarehouse
+    };
   } catch (error) {
     console.error('Error refreshing access token WAREHOUSE:', error);
   }
@@ -240,11 +249,19 @@ const initializeTokens = async () => {
     accessToken = tokens.accessToken;
     refreshToken = tokens.refreshToken;
     tokenExpiryTime = Date.now() + (tokens.expires_in * 1000);
- 
+    const tokensWarehouse = await getTokenWarehouse(WAREHOUSE_AUTHORIZATION_CODE);
+    if (!tokensWarehouse.accessToken || !tokensWarehouse.refreshToken) {
+      console.error('Failed to obtain initial access tokens', tokensWarehouse);
+      return;
+    }
+    accessTokenWarehouse = tokensWarehouse.accessToken;
+    refreshAccessTokenWarehouse = tokensWarehouse.refreshToken;
+    tokenWarehouseExpiryTime = Date.now() + (tokensWarehouse.expires_in * 1000);
 //refreshToken avery 1h50
     setInterval(async () => {
       console.log("ppl");
       await refreshAccessToken(); //1h50 
+      await refreshAccessTokenWarehouse();
     // }, 120000); //2 minutes
   }, 6600000); //1h50
 
@@ -257,21 +274,21 @@ const initializeTokens = async () => {
  
 initializeTokens();
 //For GMA Shippingbo => Entrepôt
-const ensureAccessTokenWarehouse = async () => {
-  if (!accessTokenWarehouse) {
-    if (refreshTokenWarehouse) {
-      accessTokenWarehouse = await refreshAccessTokenWarehouse();
-    } else {
-      const tokens = await getTokenWarehouse(WAREHOUSE_AUTHORIZATION_CODE);
-      if (!tokens.accessTokenWarehouse || !tokens.refreshTokenWarehouse) {
-        console.error('Failed to obtain access tokens ensureWarehouse');
-      }
-      accessTokenWarehouse = tokens.accessTokenWarehouse;
-      refreshTokenWarehouse = tokens.refreshTokenWarehouse;
-    }
-  }
-  return accessTokenWarehouse;
-};
+// const ensureAccessTokenWarehouse = async () => {
+//   if (!accessTokenWarehouse) {
+//     if (refreshTokenWarehouse) {
+//       accessTokenWarehouse = await refreshAccessTokenWarehouse();
+//     } else {
+//       const tokens = await getTokenWarehouse(WAREHOUSE_AUTHORIZATION_CODE);
+//       if (!tokens.accessTokenWarehouse || !tokens.refreshTokenWarehouse) {
+//         console.error('Failed to obtain access tokens ensureWarehouse');
+//       }
+//       accessTokenWarehouse = tokens.accessTokenWarehouse;
+//       refreshTokenWarehouse = tokens.refreshTokenWarehouse;
+//     }
+//   }
+//   return accessTokenWarehouse;
+// };
 //update orders origin and origin ref in shippingbo Potiron Paris to add "Commande PRO" and "PRO-"
 const updateShippingboOrder = async (shippingboOrderId, originRef) => {
   // await ensureAccessToken();
@@ -307,7 +324,7 @@ const updateShippingboOrder = async (shippingboOrderId, originRef) => {
 }
 //update orders origin and origin ref in shippingbo GMA => Entrepôt to add "Commande PRO" and "PRO-"
 const updateWarehouseOrder = async (shippingboOrderId, originRef) => {
-  await ensureAccessTokenWarehouse();
+  // await ensureAccessTokenWarehouse();
   if(originRef.includes('PRO-') === false)  {
     originRef = "PRO-" + originRef;
   }
@@ -371,7 +388,7 @@ const getShippingboOrderDetails = async (shopifyOrderId) => {
 };
 //Retrieve shippingbo order ID from ShopifyID or DraftID and send Shippingbo ID in GMA Shippingbo => Entrepôt
 const getWarehouseOrderDetails = async (shopifyOrderId) => {
-await ensureAccessTokenWarehouse();
+// await ensureAccessTokenWarehouse();
   const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
   const getOrderOptions = {
     method: 'GET',
@@ -554,13 +571,13 @@ app.post('/proOrder', async (req, res) => {
     if(orderDetails) {
       const {id: shippingboId, origin_ref: shippingboOriginRef} = orderDetails
       await updateShippingboOrder(shippingboId, shippingboOriginRef);
-      // const warehouseDetails = await getWarehouseOrderDetails(shippingboId);
-      // if(warehouseDetails) {
-      //   const {id: shippingboIdwarehouse, origin_ref: shippingboWarehouseOriginRef} = warehouseDetails
-      //   await updateWarehouseOrder(shippingboIdwarehouse, shippingboWarehouseOriginRef);
-      //   } else {
-      //     console.log("empty warehouse details")
-      //   }
+      const warehouseDetails = await getWarehouseOrderDetails(shippingboId);
+      if(warehouseDetails) {
+        const {id: shippingboIdwarehouse, origin_ref: shippingboWarehouseOriginRef} = warehouseDetails
+        await updateWarehouseOrder(shippingboIdwarehouse, shippingboWarehouseOriginRef);
+        } else {
+          console.log("empty warehouse details")
+        }
     }
   } else {
     console.log('update order pour client non pro');
