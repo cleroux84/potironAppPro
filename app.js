@@ -210,7 +210,7 @@ const ensureAccessToken = async () => {
   setInterval('logevery2minutes', logMessageEveryFiveMinutes());
   // Rafraîchir 1 minute avant l'expiration
     try {
-      const tokens = await refreshAccessToken(refreshToken);
+      const tokens = await refreshAccessToken();
       if (!tokens.accessToken || !tokens.refreshToken) {
         console.error('Failed to refresh access tokens', tokens);
         return null;
