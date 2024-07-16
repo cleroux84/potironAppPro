@@ -33,7 +33,7 @@ const WAREHOUSE_AUTHORIZATION_CODE = process.env.WAREHOUSE_AUTHORIZATION_CODE;
 
 let accessToken = null;
 let refreshToken = null;
-let authorizationCode = YOUR_AUTHORIZATION_CODE;
+let tokenExpiryTime = null;
 let accessTokenWarehouse = null;
 let refreshTokenWarehouse = null;
 
@@ -101,6 +101,8 @@ const getToken = async (authorizationCode) => {
     console.log('getToken', data);
     accessToken = data.access_token;
     refreshToken = data.refresh_token;
+    tokenExpiryTime = Date.now() + (data.expires_in * 1000);
+    console.log('time gettoken', tokenExpiryTime);
     return {
       accessToken,
       refreshToken
@@ -165,8 +167,13 @@ const refreshAccessToken = async () => {
     const data = await response.json();
     accessToken = data.access_token;
     refreshToken = data.refresh_token;
+    tokenExpiryTime = Date.now() + (data.expires_in * 1000);
     console.log('refreshtoken', data);
-    return accessToken;
+    console.log('refresh', tokenExpiryTime);
+    return {
+      accessToken,
+      refreshToken
+    };
   } catch (error) {
     console.error('Error refreshing access token:', error);
   }
@@ -201,22 +208,48 @@ const refreshAccessTokenWarehouse = async () => {
 // Fonction utilitaire pour obtenir ou rafraîchir l'accessToken
 //For Potiron Paris Shippingbo
 const ensureAccessToken = async () => {
-  if (!accessToken) {
-    if (refreshToken) {
-      accessToken = await refreshAccessToken();
-      console.log('ensure token', accessToken);
-    } else {
-      console.log("ppl une seule fois ?")
-      const tokens = await getToken(YOUR_AUTHORIZATION_CODE);
+  if (!accessToken || (tokenExpiryTime && Date.now() > tokenExpiryTime - 60000)) { // Rafraîchir 1 minute avant l'expiration
+    try {
+      const tokens = await refreshAccessToken(refreshToken);
       if (!tokens.accessToken || !tokens.refreshToken) {
-        console.error('Failed to obtain access tokens here', tokens);
+        console.error('Failed to refresh access tokens', tokens);
+        return null;
       }
       accessToken = tokens.accessToken;
       refreshToken = tokens.refreshToken;
+      console.log('ensureAccessToken', accessToken);
+    } catch (error) {
+      console.error('Failed to refresh access tokens:', error);
+      return null; // Gérer l'erreur ici selon vos besoins
     }
   }
   return accessToken;
 };
+ 
+// Initialisation des tokens avec YOUR_AUTHORIZATION_CODE
+const initializeTokens = async () => {
+  try {
+    const tokens = await getToken(YOUR_AUTHORIZATION_CODE);
+    if (!tokens.accessToken || !tokens.refreshToken) {
+      console.error('Failed to obtain initial access tokens', tokens);
+      return;
+    }
+    accessToken = tokens.accessToken;
+    refreshToken = tokens.refreshToken;
+    tokenExpiryTime = Date.now() + (tokens.expires_in * 1000); // expires_in est en secondes
+ 
+    // Mettre en place un intervalle pour vérifier et rafraîchir le token d'accès avant l'expiration
+    setInterval(async () => {
+      await ensureAccessToken();
+    }, 120000); // 2 minutes en millisecondes
+ 
+    console.log('Tokens initialized successfully.');
+  } catch (error) {
+    console.error('Failed to initialize tokens:', error);
+  }
+};
+ 
+initializeTokens();
 //For GMA Shippingbo => Entrepôt
 const ensureAccessTokenWarehouse = async () => {
   if (!accessTokenWarehouse) {
