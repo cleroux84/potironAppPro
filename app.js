@@ -75,10 +75,6 @@ app.use(bodyParser.json());
 app.get('/', (req, res) => {
     res.send('Bienvenue sur votre application !');
 });
-const logMessageEveryFiveMinutes = () => {
-  console.log('every 5 minutes accesstoken', accessToken);
-  console.log('every 5 minutes accesstoken', refreshToken);
-}
 
 //Auth for shippingbo API
 //Auth for Potiron Paris Shippingbo 
@@ -106,7 +102,7 @@ const getToken = async (authorizationCode) => {
     accessToken = data.access_token;
     refreshToken = data.refresh_token;
     tokenExpiryTime = Date.now() + (data.expires_in * 1000);
-    // console.log('time gettoken', tokenExpiryTime);
+    console.log('time gettoken', tokenExpiryTime);
     return {
       accessToken,
       refreshToken
@@ -211,12 +207,10 @@ const refreshAccessTokenWarehouse = async () => {
 // Fonction utilitaire pour obtenir ou rafraîchir l'accessToken
 //For Potiron Paris Shippingbo
 const ensureAccessToken = async () => {
-setInterval(logMessageEveryFiveMinutes, 300000);
-
-  if (!accessToken ) { 
+  setInterval('logevery2minutes', logMessageEveryFiveMinutes());
+  // Rafraîchir 1 minute avant l'expiration
     try {
       const tokens = await refreshAccessToken(refreshToken);
-      console.log("tokens apres refresh", tokens);
       if (!tokens.accessToken || !tokens.refreshToken) {
         console.error('Failed to refresh access tokens', tokens);
         return null;
@@ -228,10 +222,13 @@ setInterval(logMessageEveryFiveMinutes, 300000);
       console.error('Failed to refresh access tokens:', error);
       return null; 
     }
-  }
+  
   return accessToken;
 };
- 
+const logMessageEveryFiveMinutes = () => {
+  console.log('every 5 minutes accesstoken', accessToken);
+  console.log('every 5 minutes accesstoken', refreshToken);
+}
 // Initialisation des tokens avec YOUR_AUTHORIZATION_CODE
 const initializeTokens = async () => {
   try {
@@ -247,7 +244,7 @@ const initializeTokens = async () => {
     // Mettre en place un intervalle pour vérifier et rafraîchir le token d'accès avant l'expiration
     setInterval(async () => {
       await ensureAccessToken(); //1h50 
-    }, 120000); 
+    }, 6600000); 
  
     console.log('Tokens initialized successfully.');
   } catch (error) {
