@@ -102,7 +102,6 @@ const getToken = async (authorizationCode) => {
     accessToken = data.access_token;
     refreshToken = data.refresh_token;
     tokenExpiryTime = Date.now() + (data.expires_in * 1000);
-    console.log('time gettoken', tokenExpiryTime);
     return {
       accessToken,
       refreshToken
@@ -207,28 +206,29 @@ const refreshAccessTokenWarehouse = async () => {
 // Fonction utilitaire pour obtenir ou rafraîchir l'accessToken
 //For Potiron Paris Shippingbo
 const ensureAccessToken = async () => {
-  setInterval('logevery2minutes', logMessageEveryFiveMinutes());
-  // Rafraîchir 1 minute avant l'expiration
-    try {
-      const tokens = await refreshAccessToken();
-      if (!tokens.accessToken || !tokens.refreshToken) {
-        console.error('Failed to refresh access tokens', tokens);
-        return null;
-      }
-      accessToken = tokens.accessToken;
-      refreshToken = tokens.refreshToken;
-      console.log('ensureAccessToken', accessToken);
-    } catch (error) {
-      console.error('Failed to refresh access tokens:', error);
-      return null; 
-    }
-  
-  return accessToken;
+  // if(Date.now() > tokenExpiryTime - 600000) {
+    await refreshAccessToken();
+    console.log('after refresh accesstoken', accessToken);
+    console.log('after refresh refreshtoken', refreshToken);
+  // }
+  // if (!accessToken || (tokenExpiryTime && Date.now() > tokenExpiryTime - 600000)) { // Rafraîchir 1 minute avant l'expiration
+  //   try {
+  //     const tokens = await refreshAccessToken();
+  //     if (!tokens.accessToken || !tokens.refreshToken) {
+  //       console.error('Failed to refresh access tokens', tokens);
+  //       return null;
+  //     }
+  //     accessToken = tokens.accessToken;
+  //     refreshToken = tokens.refreshToken;
+  //     console.log('ensureAccessToken', accessToken);
+  //   } catch (error) {
+  //     console.error('Failed to refresh access tokens:', error);
+  //     return null; 
+  //   }
+  // }
+  // return accessToken;
 };
-const logMessageEveryFiveMinutes = () => {
-  console.log('every 5 minutes accesstoken', accessToken);
-  console.log('every 5 minutes accesstoken', refreshToken);
-}
+ 
 // Initialisation des tokens avec YOUR_AUTHORIZATION_CODE
 const initializeTokens = async () => {
   try {
