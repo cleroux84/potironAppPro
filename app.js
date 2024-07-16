@@ -75,6 +75,10 @@ app.use(bodyParser.json());
 app.get('/', (req, res) => {
     res.send('Bienvenue sur votre application !');
 });
+const logMessageEveryFiveMinutes = () => {
+  console.log('every 5 minutes');
+}
+setInterval(logMessageEveryFiveMinutes, 300000);
 
 //Auth for shippingbo API
 //Auth for Potiron Paris Shippingbo 
