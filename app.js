@@ -169,7 +169,6 @@ const refreshAccessToken = async () => {
     refreshToken = data.refresh_token;
     tokenExpiryTime = Date.now() + (data.expires_in * 1000);
     console.log('refreshtoken', data);
-    console.log('refresh', tokenExpiryTime);
     return {
       accessToken,
       refreshToken
@@ -240,8 +239,8 @@ const initializeTokens = async () => {
  
     // Mettre en place un intervalle pour vérifier et rafraîchir le token d'accès avant l'expiration
     setInterval(async () => {
-      await ensureAccessToken();
-    }, 120000); // 2 minutes en millisecondes
+      await refreshAccessToken();
+    }, 120000); 
  
     console.log('Tokens initialized successfully.');
   } catch (error) {
