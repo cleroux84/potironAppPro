@@ -154,6 +154,7 @@ const getTokenWarehouse = async (authorizationCode) => {
 //refresh token for Shippingbo API
 //refresh for Potiron Paris Shippingbo
 const refreshAccessToken = async (refreshToken) => {
+  console.log('refreshToken in function', refreshToken);
   const refreshUrl = 'https://oauth.shippingbo.com/oauth/token';
   const refreshOptions = {
     method: 'POST',
