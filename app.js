@@ -249,17 +249,18 @@ const refreshAccessTokenWarehouse = async () => {
 // Initialisation des tokens avec YOUR_AUTHORIZATION_CODE
 const initializeTokens = async () => {
   try {
-    const tokens = await getToken(YOUR_AUTHORIZATION_CODE);
-    console.log('tokens initial', tokens);
-    if (!tokens.accessToken || !tokens.refreshToken) {
-      // console.error('Failed to obtain initial access tokens', tokens);
-      // return;
-    }
-    console.log('initialise accesstoken', accessToken);
-    console.log('initialise refreshtoken', refreshToken);
+    if(YOUR_AUTHORIZATION_CODE){
+      const tokens = await getToken(YOUR_AUTHORIZATION_CODE);
+      console.log('tokens initial', tokens);
+      console.log('initialise accesstoken', accessToken);
+      console.log('initialise refreshtoken', refreshToken);
+      accessToken = tokens.accessToken;
+      refreshToken = tokens.refreshToken;
+  } else {
+      await refreshAccessToken();
+    console.log('no authorization code use refresh', refreshToken);
 
-    accessToken = tokens.accessToken;
-    refreshToken = tokens.refreshToken;
+  }   
     console.log('initialise accesstoken then', accessToken);
     console.log('initialise refreshtoken then', refreshToken);
     tokenExpiryTime = Date.now() + (tokens.expires_in * 1000);
@@ -276,8 +277,8 @@ const initializeTokens = async () => {
       console.log("auto refresh");
       await refreshAccessToken(); //1h50 
       // await refreshAccessTokenWarehouse();
-    }, 120000); //2 minutes
-  // }, 6600000); //1h50
+    // }, 120000); //2 minutes
+  }, 6600000); //1h50
 
  
     console.log('Tokens initialized successfully.');
