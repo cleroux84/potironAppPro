@@ -101,9 +101,13 @@ const getToken = async (authorizationCode) => {
     const response = await fetch(tokenUrl, tokenOptions);
     const data = await response.json();
     console.log('getToken', data);
-    accessToken = data.access_token;
-    refreshToken = data.refresh_token;
-    tokenExpiryTime = Date.now() + (data.expires_in * 1000);
+    if(data.access_token !== undefined){
+      accessToken = data.access_token;
+      refreshToken = data.refresh_token;
+      tokenExpiryTime = Date.now() + (data.expires_in * 1000);
+    } else {
+      console.log('gettoken no access but refreshtoken still:', refreshToken);
+    }
     return {
       accessToken,
       refreshToken
@@ -244,8 +248,8 @@ const initializeTokens = async () => {
     const tokens = await getToken(YOUR_AUTHORIZATION_CODE);
     console.log('tokens initial', tokens);
     if (!tokens.accessToken || !tokens.refreshToken) {
-      console.error('Failed to obtain initial access tokens', tokens);
-      return;
+      // console.error('Failed to obtain initial access tokens', tokens);
+      // return;
     }
     console.log('initialise accesstoken', accessToken);
     console.log('initialise refreshtoken', refreshToken);
@@ -255,19 +259,19 @@ const initializeTokens = async () => {
     console.log('initialise accesstoken then', accessToken);
     console.log('initialise refreshtoken then', refreshToken);
     tokenExpiryTime = Date.now() + (tokens.expires_in * 1000);
-    const tokensWarehouse = await getTokenWarehouse(WAREHOUSE_AUTHORIZATION_CODE);
-    if (!tokensWarehouse.accessToken || !tokensWarehouse.refreshToken) {
-      console.error('Failed to obtain initial access tokens warehouse', tokensWarehouse);
-      return;
-    }
-    accessTokenWarehouse = tokensWarehouse.accessToken;
-    refreshAccessTokenWarehouse = tokensWarehouse.refreshToken;
-    tokenWarehouseExpiryTime = Date.now() + (tokensWarehouse.expires_in * 1000);
+    // const tokensWarehouse = await getTokenWarehouse(WAREHOUSE_AUTHORIZATION_CODE);
+    // if (!tokensWarehouse.accessToken || !tokensWarehouse.refreshToken) {
+    //   console.error('Failed to obtain initial access tokens warehouse', tokensWarehouse);
+    //   return;
+    // }
+    // accessTokenWarehouse = tokensWarehouse.accessToken;
+    // refreshAccessTokenWarehouse = tokensWarehouse.refreshToken;
+    // tokenWarehouseExpiryTime = Date.now() + (tokensWarehouse.expires_in * 1000);
 //refreshToken avery 1h50
     setInterval(async () => {
       console.log("auto refresh");
       await refreshAccessToken(); //1h50 
-      await refreshAccessTokenWarehouse();
+      // await refreshAccessTokenWarehouse();
     }, 120000); //2 minutes
   // }, 6600000); //1h50
 
@@ -589,13 +593,13 @@ app.post('/proOrder', async (req, res) => {
     if(orderDetails) {
       const {id: shippingboId, origin_ref: shippingboOriginRef} = orderDetails
       await updateShippingboOrder(shippingboId, shippingboOriginRef);
-      const warehouseDetails = await getWarehouseOrderDetails(shippingboId);
-      if(warehouseDetails) {
-        const {id: shippingboIdwarehouse, origin_ref: shippingboWarehouseOriginRef} = warehouseDetails
-        await updateWarehouseOrder(shippingboIdwarehouse, shippingboWarehouseOriginRef);
-        } else {
-          console.log("empty warehouse details")
-        }
+      // const warehouseDetails = await getWarehouseOrderDetails(shippingboId);
+      // if(warehouseDetails) {
+      //   const {id: shippingboIdwarehouse, origin_ref: shippingboWarehouseOriginRef} = warehouseDetails
+      //   await updateWarehouseOrder(shippingboIdwarehouse, shippingboWarehouseOriginRef);
+      //   } else {
+      //     console.log("empty warehouse details")
+      //   }
     }
   } else {
     console.log('update order pour client non pro');
