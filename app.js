@@ -242,16 +242,22 @@ const refreshAccessTokenWarehouse = async () => {
 const initializeTokens = async () => {
   try {
     const tokens = await getToken(YOUR_AUTHORIZATION_CODE);
+    console.log('tokens initial', tokens);
     if (!tokens.accessToken || !tokens.refreshToken) {
       console.error('Failed to obtain initial access tokens', tokens);
       return;
     }
+    console.log('initialise accesstoken', accessToken);
+    console.log('initialise refreshtoken', refreshToken);
+
     accessToken = tokens.accessToken;
     refreshToken = tokens.refreshToken;
+    console.log('initialise accesstoken then', accessToken);
+    console.log('initialise refreshtoken then', refreshToken);
     tokenExpiryTime = Date.now() + (tokens.expires_in * 1000);
     const tokensWarehouse = await getTokenWarehouse(WAREHOUSE_AUTHORIZATION_CODE);
     if (!tokensWarehouse.accessToken || !tokensWarehouse.refreshToken) {
-      console.error('Failed to obtain initial access tokens', tokensWarehouse);
+      console.error('Failed to obtain initial access tokens warehouse', tokensWarehouse);
       return;
     }
     accessTokenWarehouse = tokensWarehouse.accessToken;
@@ -259,11 +265,11 @@ const initializeTokens = async () => {
     tokenWarehouseExpiryTime = Date.now() + (tokensWarehouse.expires_in * 1000);
 //refreshToken avery 1h50
     setInterval(async () => {
-      console.log("ppl");
+      console.log("auto refresh");
       await refreshAccessToken(); //1h50 
       await refreshAccessTokenWarehouse();
-    // }, 120000); //2 minutes
-  }, 6600000); //1h50
+    }, 120000); //2 minutes
+  // }, 6600000); //1h50
 
  
     console.log('Tokens initialized successfully.');
@@ -291,6 +297,9 @@ initializeTokens();
 // };
 //update orders origin and origin ref in shippingbo Potiron Paris to add "Commande PRO" and "PRO-"
 const updateShippingboOrder = async (shippingboOrderId, originRef) => {
+  console.log('update accesstoken', accessToken);
+  console.log('update refreshtoken', refreshToken);
+
   // await ensureAccessToken();
   if(originRef.includes('PRO-') === false)  {
     originRef = "PRO-" + originRef;
@@ -325,6 +334,9 @@ const updateShippingboOrder = async (shippingboOrderId, originRef) => {
 //update orders origin and origin ref in shippingbo GMA => Entrepôt to add "Commande PRO" and "PRO-"
 const updateWarehouseOrder = async (shippingboOrderId, originRef) => {
   // await ensureAccessTokenWarehouse();
+  console.log('update warehouse accesstoken', accessTokenWarehouse);
+  console.log('update warehouse refreshtoken', refreshTokenWarehouse);
+
   if(originRef.includes('PRO-') === false)  {
     originRef = "PRO-" + originRef;
   }
@@ -359,6 +371,9 @@ const updateWarehouseOrder = async (shippingboOrderId, originRef) => {
 //Retrieve shippingbo order ID from ShopifyID or DraftID and send Shippingbo ID in Potiron Paris Shippingbo
 const getShippingboOrderDetails = async (shopifyOrderId) => {
   // await ensureAccessToken();
+  console.log('accesstoken getdetails', accessToken);
+  console.log('refreshtoken getdetails', refreshToken);
+
   const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
   const getOrderOptions = {
     method: 'GET',
@@ -388,6 +403,9 @@ const getShippingboOrderDetails = async (shopifyOrderId) => {
 };
 //Retrieve shippingbo order ID from ShopifyID or DraftID and send Shippingbo ID in GMA Shippingbo => Entrepôt
 const getWarehouseOrderDetails = async (shopifyOrderId) => {
+  console.log('getwarehousdetails accesstoken', accessTokenWarehouse);
+  console.log('getwarehousdetails refreshtoken', refreshTokenWarehouse);
+
 // await ensureAccessTokenWarehouse();
   const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
   const getOrderOptions = {
