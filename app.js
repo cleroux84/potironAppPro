@@ -153,7 +153,7 @@ const getTokenWarehouse = async (authorizationCode) => {
 
 //refresh token for Shippingbo API
 //refresh for Potiron Paris Shippingbo
-const refreshAccessToken = async () => {
+const refreshAccessToken = async (refreshToken) => {
   const refreshUrl = 'https://oauth.shippingbo.com/oauth/token';
   const refreshOptions = {
     method: 'POST',
@@ -270,7 +270,7 @@ const initializeTokens = async () => {
 //refreshToken avery 1h50
     setInterval(async () => {
       console.log("auto refresh");
-      await refreshAccessToken(); //1h50 
+      await refreshAccessToken(refreshToken); //1h50 
       // await refreshAccessTokenWarehouse();
     }, 120000); //2 minutes
   // }, 6600000); //1h50
