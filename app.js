@@ -25,7 +25,7 @@ const CLIENT_ID = process.env.CLIENT_ID_SHIPPINGBO;
 const CLIENT_SECRET = process.env.CLIENT_SECRET_SHIPPINGBO;
 const API_APP_ID = process.env.API_APP_ID;
 const YOUR_AUTHORIZATION_CODE = process.env.YOUR_AUTHORIZATION_CODE;
-const DB_URL = process.env.URL;
+const DB_URL = process.env.DB_URL;
 
 const CLIENT_ID_WAREHOUSE = process.env.CLIENT_ID_WAREHOUSE;
 const CLIENT_SECRET_WAREHOUSE = process.env.CLIENT_SECRET_WAREHOUSE;
