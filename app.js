@@ -50,7 +50,10 @@ const client = new Client({
   host: DB_HOST,
   database: DB_DATABSE,
   password: DB_PASSWORD,
-  port: DB_PORT
+  port: DB_PORT,
+  ssl: {
+    rejectUnauthorized: false
+  }
 })
 
 client.connect();
