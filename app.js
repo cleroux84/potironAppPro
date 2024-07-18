@@ -25,11 +25,18 @@ const CLIENT_ID = process.env.CLIENT_ID_SHIPPINGBO;
 const CLIENT_SECRET = process.env.CLIENT_SECRET_SHIPPINGBO;
 const API_APP_ID = process.env.API_APP_ID;
 const YOUR_AUTHORIZATION_CODE = process.env.YOUR_AUTHORIZATION_CODE;
+const DB_USERNAME = process.env.DB_USERNAME;
+const DB_HOST = process.env.DB_HOST;
+const DB_DATABSE = process.env.DB_DATABSE;
+const DB_PASSWORD = process.env.DB_PASSWORD;
+const DB_PORT = process.env.DB_PORT;
 
 const CLIENT_ID_WAREHOUSE = process.env.CLIENT_ID_WAREHOUSE;
 const CLIENT_SECRET_WAREHOUSE = process.env.CLIENT_SECRET_WAREHOUSE;
 const API_APP_WAREHOUSE_ID = process.env.API_APP_WAREHOUSE_ID;
 const WAREHOUSE_AUTHORIZATION_CODE = process.env.WAREHOUSE_AUTHORIZATION_CODE;
+
+const { Client } = require('pg');
 
 let accessToken = null;
 let refreshToken = null;
@@ -38,8 +45,35 @@ let accessTokenWarehouse = null;
 let refreshTokenWarehouse = null;
 let tokenWarehouseExpiryTime = null;
 
+const client = new Client({
+  user: DB_USERNAME,
+  host: DB_HOST,
+  database: DB_DATABSE,
+  password: DB_PASSWORD,
+  port: DB_PORT
+})
 
+client.connect();
 app.set('appName', 'potironAppPro');
+
+const saveRefreshTokenDb = async (token) => {
+  try {
+    await client.query('UPDATE tokens SET refresh_token = $1 WHERE id = 1', [token]);
+    console.log('RefreshToken saved in db', token);
+  } catch (error) {
+    console.error('Error saving refreshToken in db', error);
+  }
+}
+
+const getRefreshTokenFromDb = async () => {
+  try {
+    const res = await client.query('SELECT refresh_token FROM tokens WHERE id = 1');
+    return res.rows[0].refreshToken;
+  } catch (error) {
+    console.log('Error retrieving refresh token', error);
+    return null;
+  }
+}
 
 const upload = multer({ 
   storage: multer.diskStorage({
@@ -105,6 +139,7 @@ const getToken = async (authorizationCode) => {
       accessToken = data.access_token;
       refreshToken = data.refresh_token;
       tokenExpiryTime = Date.now() + (data.expires_in * 1000);
+      await saveRefreshTokenDb(refreshToken);
     } else {
       console.log('gettoken no access but refreshtoken still:', refreshToken);
     }
@@ -154,6 +189,7 @@ const getTokenWarehouse = async (authorizationCode) => {
 //refresh token for Shippingbo API
 //refresh for Potiron Paris Shippingbo
 const refreshAccessToken = async () => {
+  refreshToken = await getRefreshTokenFromDb();
   console.log('refreshToken in function', refreshToken);
   const refreshUrl = 'https://oauth.shippingbo.com/oauth/token';
   const refreshOptions = {
@@ -179,7 +215,7 @@ const refreshAccessToken = async () => {
     console.log('refreshtoken', data);
     console.log('accesstoken after', accessToken);
     console.log('refreshtoken after', refreshToken);
-
+    await saveRefreshTokenDb(refreshToken);
     return {
       accessToken,
       refreshToken
@@ -258,7 +294,7 @@ const initializeTokens = async () => {
       refreshToken = tokens.refreshToken;
   } else {
       await refreshAccessToken();
-    console.log('no authorization code use refresh', refreshToken);
+      console.log('no authorization code use refresh', refreshToken);
 
   }   
     console.log('initialise accesstoken then', accessToken);
