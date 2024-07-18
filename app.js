@@ -25,11 +25,7 @@ const CLIENT_ID = process.env.CLIENT_ID_SHIPPINGBO;
 const CLIENT_SECRET = process.env.CLIENT_SECRET_SHIPPINGBO;
 const API_APP_ID = process.env.API_APP_ID;
 const YOUR_AUTHORIZATION_CODE = process.env.YOUR_AUTHORIZATION_CODE;
-const DB_USERNAME = process.env.DB_USERNAME;
-const DB_HOST = process.env.DB_HOST;
-const DB_DATABSE = process.env.DB_DATABSE;
-const DB_PASSWORD = process.env.DB_PASSWORD;
-const DB_PORT = process.env.DB_PORT;
+const DB_URL = process.env.URL;
 
 const CLIENT_ID_WAREHOUSE = process.env.CLIENT_ID_WAREHOUSE;
 const CLIENT_SECRET_WAREHOUSE = process.env.CLIENT_SECRET_WAREHOUSE;
@@ -46,11 +42,7 @@ let refreshTokenWarehouse = null;
 let tokenWarehouseExpiryTime = null;
 
 const client = new Client({
-  user: DB_USERNAME,
-  host: DB_HOST,
-  database: DB_DATABSE,
-  password: DB_PASSWORD,
-  port: DB_PORT,
+  connectionString: DB_URL,
   ssl: {
     rejectUnauthorized: false
   }
