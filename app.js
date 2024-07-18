@@ -42,7 +42,7 @@ let refreshTokenWarehouse = null;
 let tokenWarehouseExpiryTime = null;
 
 const client = new Client({
-  connectionString: DB_URL,
+  url: DB_URL,
   ssl: {
     rejectUnauthorized: false
   }
