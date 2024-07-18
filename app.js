@@ -138,14 +138,15 @@ const getToken = async (authorizationCode) => {
     const response = await fetch(tokenUrl, tokenOptions);
     const data = await response.json();
     console.log('getToken', data);
-    if(data.access_token === undefined){
+    if(data.error){
+      console.log("data error send refresh");
       await refreshAccessToken();
       console.log('gettoken no access but refreshtoken still:', refreshToken);
     } else {
       accessToken = data.access_token;
       refreshToken = data.refresh_token;
       tokenExpiryTime = Date.now() + (data.expires_in * 1000);
-      console.log("accessToken in getToken()", accessToken);
+      console.log("data pas erreur sae refresh");
       await saveRefreshTokenDb(refreshToken);
     }
     return {
