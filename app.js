@@ -27,7 +27,7 @@ const API_APP_ID = process.env.API_APP_ID;
 const YOUR_AUTHORIZATION_CODE = process.env.YOUR_AUTHORIZATION_CODE;
 const DB_USERNAME = process.env.DB_USERNAME;
 const DB_HOST = process.env.DB_HOST;
-const DB_DATABSE = process.env.DB_DATABSE;
+const DB_DATABASE = process.env.DB_DATABASE;
 const DB_PASSWORD = process.env.DB_PASSWORD;
 const DB_PORT = process.env.DB_PORT;
 
@@ -50,7 +50,7 @@ const client = new Client({
   password: DB_PASSWORD,
   host: DB_HOST,
   port: DB_PORT,
-  database: DB_DATABSE,
+  database: DB_DATABASE,
   ssl: {
     rejectUnauthorized: false
   }
