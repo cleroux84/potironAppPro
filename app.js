@@ -142,8 +142,8 @@ const getToken = async (authorizationCode) => {
       accessToken = data.access_token;
       refreshToken = data.refresh_token;
       tokenExpiryTime = Date.now() + (data.expires_in * 1000);
-      await saveRefreshTokenDb(refreshToken);
     } else {
+      await saveRefreshTokenDb(refreshToken);
       console.log('gettoken no access but refreshtoken still:', refreshToken);
     }
     return {
