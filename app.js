@@ -419,6 +419,7 @@ const getShippingboOrderDetails = async (shopifyOrderId) => {
 };
 //Retrieve shippingbo order ID from ShopifyID or DraftID and send Shippingbo ID in GMA Shippingbo => Entrepôt
 const getWarehouseOrderDetails = async (shopifyOrderId) => {
+  console.log('shippingbo refin getWarehouseOrderDetails', shippingboId);
   const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
   const getOrderOptions = {
     method: 'GET',
@@ -433,6 +434,9 @@ const getWarehouseOrderDetails = async (shopifyOrderId) => {
   try {
     const response = await fetch(getOrderUrl, getOrderOptions);
     const data = await response.json();
+    console.log('data warehoue search', data);
+    console.log('data warehouse detail', data.orders[0]);
+
     if (data.orders && data.orders.length > 0) {
       const {id, origin_ref} = data.orders[0];
       return {id, origin_ref};
@@ -601,6 +605,7 @@ app.post('/proOrder', async (req, res) => {
     if(orderDetails) {
       const {id: shippingboId, origin_ref: shippingboOriginRef} = orderDetails
       await updateShippingboOrder(shippingboId, shippingboOriginRef);
+      console.log('shippingboId to retrieve warehouse ref', shippingboId);
       const warehouseDetails = await getWarehouseOrderDetails(shippingboId);
       if(warehouseDetails) {
         const {id: shippingboIdwarehouse, origin_ref: shippingboWarehouseOriginRef} = warehouseDetails
