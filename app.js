@@ -83,6 +83,25 @@ const getRefreshTokenFromDb = async () => {
   }
 }
 
+const saveRefreshTokenWarehouseDb = async (token) => {
+  try {
+    await client.query('UPDATE tokens SET refresh_token_warehouse = $1 WHERE id = 1', [token]);
+    console.log('RefreshTokenWarehouse saved in db', token);
+  } catch (error) {
+    console.error('Error saving refreshTokenWarehouse in db', error);
+  }
+}
+
+const getRefreshTokenWarehouseFromDb = async () => {
+  try {
+    const res = await client.query('SELECT refresh_token_warehouse FROM tokens LIMIT 1');
+    return res.rows[0].refresh_token_warehouse;
+  } catch (error) {
+    console.log('Error retrieving refresh_token_warehouse', error);
+    return null;
+  }
+}
+
 const upload = multer({ 
   storage: multer.diskStorage({
     destination: function (req, file, cb) {
@@ -178,6 +197,8 @@ const getTokenWarehouse = async (authorizationCode) => {
     accessTokenWarehouse = data.access_token;
     refreshTokenWarehouse = data.refresh_token;
     console.log("gettokenwarehouse", data);
+    await saveRefreshTokenWarehouseDb(refreshTokenWarehouse);
+    console.log("gettokenwarehouse with autorhizationCode");
     return {
       accessTokenWarehouse,
       refreshTokenWarehouse
@@ -223,6 +244,8 @@ const refreshAccessToken = async () => {
 };
 //refresh for GMA Shippingbo => Entrepôt
 const refreshAccessTokenWarehouse = async () => {
+  refreshTokenWarehouse = await getRefreshTokenWarehouseFromDb();
+  console.log("actual refreshWarehouse for loop: ", refreshTokenWarehouse);
   const refreshUrl = 'https://oauth.shippingbo.com/oauth/token';
   const refreshOptions = {
     method: 'POST',
@@ -244,6 +267,7 @@ const refreshAccessTokenWarehouse = async () => {
     accessTokenWarehouse = data.access_token;
     refreshTokenWarehouse = data.refresh_token;
     console.log('refreshWarehouseToken', data);
+    await saveRefreshTokenWarehouseDb(refreshTokenWarehouse);
     return {
       accessTokenWarehouse,
       refreshTokenWarehouse
@@ -263,11 +287,20 @@ const initializeTokens = async () => {
   } else {
       await refreshAccessToken();
   }   
+  try {
+    if(WAREHOUSE_AUTHORIZATION_CODE){
+      const tokensWarehouse = await getTokenWarehouse(WAREHOUSE_AUTHORIZATION_CODE);
+      accessTokenWarehouse = tokensWarehouse.accessTokenWarehouse;
+      refreshTokenWarehouse = tokensWarehouse.refreshTokenWarehouse;
+      console.log("initialize yes", refreshTokenWarehouse);
+  } else {
+      await refreshAccessTokenWarehouse();
+  }   
 //refreshToken avery 1h50
     setInterval(async () => {
       console.log("auto refresh");
       await refreshAccessToken(); //1h50 
-      // await refreshAccessTokenWarehouse();
+      await refreshAccessTokenWarehouse();
   }, 6600000); //1h50
 
  
@@ -386,12 +419,13 @@ const getShippingboOrderDetails = async (shopifyOrderId) => {
   }
 };
 //Retrieve shippingbo order ID from ShopifyID or DraftID and send Shippingbo ID in GMA Shippingbo => Entrepôt
-const getWarehouseOrderDetails = async (shopifyOrderId) => {
+const getWarehouseOrderDetails = async (shippingboId) => {
+  console.log('getwarehouse', shippingboId);
   console.log('getwarehousdetails accesstoken', accessTokenWarehouse);
   console.log('getwarehousdetails refreshtoken', refreshTokenWarehouse);
 
 // await ensureAccessTokenWarehouse();
-  const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
+  const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shippingboId}`;
   const getOrderOptions = {
     method: 'GET',
     headers: {
@@ -405,6 +439,8 @@ const getWarehouseOrderDetails = async (shopifyOrderId) => {
   try {
     const response = await fetch(getOrderUrl, getOrderOptions);
     const data = await response.json();
+    console.log('data getwarehouse', data);
+    console.log('data order', data.orders[0]);
     if (data.orders && data.orders.length > 0) {
       const {id, origin_ref} = data.orders[0];
       return {id, origin_ref};
@@ -573,13 +609,13 @@ app.post('/proOrder', async (req, res) => {
     if(orderDetails) {
       const {id: shippingboId, origin_ref: shippingboOriginRef} = orderDetails
       await updateShippingboOrder(shippingboId, shippingboOriginRef);
-      // const warehouseDetails = await getWarehouseOrderDetails(shippingboId);
-      // if(warehouseDetails) {
-      //   const {id: shippingboIdwarehouse, origin_ref: shippingboWarehouseOriginRef} = warehouseDetails
-      //   await updateWarehouseOrder(shippingboIdwarehouse, shippingboWarehouseOriginRef);
-      //   } else {
-      //     console.log("empty warehouse details")
-      //   }
+      const warehouseDetails = await getWarehouseOrderDetails(shippingboId);
+      if(warehouseDetails) {
+        const {id: shippingboIdwarehouse, origin_ref: shippingboWarehouseOriginRef} = warehouseDetails
+        await updateWarehouseOrder(shippingboIdwarehouse, shippingboWarehouseOriginRef);
+        } else {
+          console.log("empty warehouse details")
+        }
     }
   } else {
     console.log('update order pour client non pro');
