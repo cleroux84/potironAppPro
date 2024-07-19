@@ -40,7 +40,6 @@ const { Client } = require('pg');
 
 let accessToken = null;
 let refreshToken = null;
-let tokenExpiryTime = null;
 let accessTokenWarehouse = null;
 let refreshTokenWarehouse = null;
 let tokenWarehouseExpiryTime = null;
@@ -137,15 +136,14 @@ const getToken = async (authorizationCode) => {
   try {
     const response = await fetch(tokenUrl, tokenOptions);
     const data = await response.json();
-    console.log('getToken', data);
+    // console.log('getToken', data);
     if(data.error){
-      console.log("data error send refresh");
+      console.log("planter refresh function");
       await refreshAccessToken();
       console.log('gettoken no access but refreshtoken still:', refreshToken);
     } else {
       accessToken = data.access_token;
       refreshToken = data.refresh_token;
-      tokenExpiryTime = Date.now() + (data.expires_in * 1000);
       console.log("data pas erreur sae refresh");
       await saveRefreshTokenDb(refreshToken);
     }
@@ -217,7 +215,6 @@ const refreshAccessToken = async () => {
     const data = await response.json();
     accessToken = data.access_token;
     refreshToken = data.refresh_token;
-    tokenExpiryTime = Date.now() + (data.expires_in * 1000);
     console.log('refreshtoken', data);
     console.log('accesstoken after', accessToken);
     console.log('refreshtoken after', refreshToken);
@@ -262,31 +259,6 @@ const refreshAccessTokenWarehouse = async () => {
     console.error('Error refreshing access token WAREHOUSE:', error);
   }
 };
-// Fonction utilitaire pour obtenir ou rafraîchir l'accessToken
-//For Potiron Paris Shippingbo
-// const ensureAccessToken = async () => {
-  // if(Date.now() > tokenExpiryTime - 600000) {
-    // await refreshAccessToken();
-    // console.log('after refresh accesstoken', accessToken);
-    // console.log('after refresh refreshtoken', refreshToken);
-  // }
-  // if (!accessToken || (tokenExpiryTime && Date.now() > tokenExpiryTime - 600000)) { // Rafraîchir 1 minute avant l'expiration
-  //   try {
-  //     const tokens = await refreshAccessToken();
-  //     if (!tokens.accessToken || !tokens.refreshToken) {
-  //       console.error('Failed to refresh access tokens', tokens);
-  //       return null;
-  //     }
-  //     accessToken = tokens.accessToken;
-  //     refreshToken = tokens.refreshToken;
-  //     console.log('ensureAccessToken', accessToken);
-  //   } catch (error) {
-  //     console.error('Failed to refresh access tokens:', error);
-  //     return null; 
-  //   }
-  // }
-  // return accessToken;
-// };
  
 // Initialisation des tokens avec YOUR_AUTHORIZATION_CODE
 const initializeTokens = async () => {
@@ -305,21 +277,11 @@ const initializeTokens = async () => {
   }   
     console.log('initialise accesstoken then', accessToken);
     console.log('initialise refreshtoken then', refreshToken);
-    // tokenExpiryTime = Date.now() + (tokens.expires_in * 1000);
-    // const tokensWarehouse = await getTokenWarehouse(WAREHOUSE_AUTHORIZATION_CODE);
-    // if (!tokensWarehouse.accessToken || !tokensWarehouse.refreshToken) {
-    //   console.error('Failed to obtain initial access tokens warehouse', tokensWarehouse);
-    //   return;
-    // }
-    // accessTokenWarehouse = tokensWarehouse.accessToken;
-    // refreshAccessTokenWarehouse = tokensWarehouse.refreshToken;
-    // tokenWarehouseExpiryTime = Date.now() + (tokensWarehouse.expires_in * 1000);
 //refreshToken avery 1h50
     setInterval(async () => {
       console.log("auto refresh");
       await refreshAccessToken(); //1h50 
       // await refreshAccessTokenWarehouse();
-    // }, 120000); //2 minutes
   }, 6600000); //1h50
 
  
