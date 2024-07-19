@@ -194,10 +194,15 @@ const getTokenWarehouse = async (authorizationCode) => {
   try {
     const response = await fetch(tokenUrl, tokenOptions);
     const data = await response.json();
-    accessTokenWarehouse = data.access_token;
-    refreshTokenWarehouse = data.refresh_token;
-    await saveRefreshTokenWarehouseDb(refreshTokenWarehouse);
-    console.log("gettokenwarehouse with autorhizationCode");
+    if(data.error) {
+      console.log('crash server warehouse');
+      await refreshAccessTokenWarehouse();
+    } else {
+      accessTokenWarehouse = data.access_token;
+      refreshTokenWarehouse = data.refresh_token;
+      await saveRefreshTokenWarehouseDb(refreshTokenWarehouse);
+      console.log("gettokenwarehouse with autorhizationCode");
+    }
     return {
       accessTokenWarehouse,
       refreshTokenWarehouse
