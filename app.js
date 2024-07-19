@@ -196,7 +196,6 @@ const getTokenWarehouse = async (authorizationCode) => {
     const data = await response.json();
     accessTokenWarehouse = data.access_token;
     refreshTokenWarehouse = data.refresh_token;
-    console.log("gettokenwarehouse", data);
     await saveRefreshTokenWarehouseDb(refreshTokenWarehouse);
     console.log("gettokenwarehouse with autorhizationCode");
     return {
@@ -266,7 +265,7 @@ const refreshAccessTokenWarehouse = async () => {
     const data = await response.json();
     accessTokenWarehouse = data.access_token;
     refreshTokenWarehouse = data.refresh_token;
-    console.log('refreshWarehouseToken', data);
+
     await saveRefreshTokenWarehouseDb(refreshTokenWarehouse);
     return {
       accessTokenWarehouse,
@@ -295,7 +294,6 @@ const initializeTokens = async () => {
       const tokensWarehouse = await getTokenWarehouse(WAREHOUSE_AUTHORIZATION_CODE);
       accessTokenWarehouse = tokensWarehouse.accessTokenWarehouse;
       refreshTokenWarehouse = tokensWarehouse.refreshTokenWarehouse;
-      console.log("initialize yes", refreshTokenWarehouse);
   } else {
       await refreshAccessTokenWarehouse();
   }   
@@ -315,10 +313,6 @@ initializeTokens();
 
 //update orders origin and origin ref in shippingbo Potiron Paris to add "Commande PRO" and "PRO-"
 const updateShippingboOrder = async (shippingboOrderId, originRef) => {
-  console.log('update accesstoken', accessToken);
-  console.log('update refreshtoken', refreshToken);
-
-  // await ensureAccessToken();
   if(originRef.includes('PRO-') === false)  {
     originRef = "PRO-" + originRef;
   }
@@ -351,10 +345,6 @@ const updateShippingboOrder = async (shippingboOrderId, originRef) => {
 }
 //update orders origin and origin ref in shippingbo GMA => Entrepôt to add "Commande PRO" and "PRO-"
 const updateWarehouseOrder = async (shippingboOrderId, originRef) => {
-  // await ensureAccessTokenWarehouse();
-  console.log('update warehouse accesstoken', accessTokenWarehouse);
-  console.log('update warehouse refreshtoken', refreshTokenWarehouse);
-
   if(originRef.includes('PRO-') === false)  {
     originRef = "PRO-" + originRef;
   }
@@ -388,10 +378,6 @@ const updateWarehouseOrder = async (shippingboOrderId, originRef) => {
 
 //Retrieve shippingbo order ID from ShopifyID or DraftID and send Shippingbo ID in Potiron Paris Shippingbo
 const getShippingboOrderDetails = async (shopifyOrderId) => {
-  // await ensureAccessToken();
-  console.log('accesstoken getdetails', accessToken);
-  console.log('refreshtoken getdetails', refreshToken);
-
   const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
   const getOrderOptions = {
     method: 'GET',
@@ -421,11 +407,6 @@ const getShippingboOrderDetails = async (shopifyOrderId) => {
 };
 //Retrieve shippingbo order ID from ShopifyID or DraftID and send Shippingbo ID in GMA Shippingbo => Entrepôt
 const getWarehouseOrderDetails = async (shippingboId) => {
-  console.log('getwarehouse', shippingboId);
-  console.log('getwarehousdetails accesstoken', accessTokenWarehouse);
-  console.log('getwarehousdetails refreshtoken', refreshTokenWarehouse);
-
-// await ensureAccessTokenWarehouse();
   const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shippingboId}`;
   const getOrderOptions = {
     method: 'GET',
@@ -440,8 +421,6 @@ const getWarehouseOrderDetails = async (shippingboId) => {
   try {
     const response = await fetch(getOrderUrl, getOrderOptions);
     const data = await response.json();
-    console.log('data getwarehouse', data);
-    console.log('data order', data.orders[0]);
     if (data.orders && data.orders.length > 0) {
       const {id, origin_ref} = data.orders[0];
       return {id, origin_ref};
