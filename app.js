@@ -203,6 +203,8 @@ const getTokenWarehouse = async (authorizationCode) => {
       console.log("getTokenWarehouse with auhorizationCode");
       await saveRefreshTokenWarehouseDb(refreshTokenWarehouse);
     }
+    console.log("warehouseAccesstoken", accessTokenWarehouse);
+    console.log('warehouse resfresh', refreshTokenWarehouse);
       return {
       accessTokenWarehouse,
       refreshTokenWarehouse
@@ -271,6 +273,8 @@ const refreshAccessTokenWarehouse = async () => {
     accessTokenWarehouse = data.access_token;
     refreshTokenWarehouse = data.refresh_token;
     await saveRefreshTokenWarehouseDb(refreshTokenWarehouse);
+    console.log('ppl accesstokenwarehouse', accessTokenWarehouse);
+    console.log('PPL refreshtoken warehouse', refreshTokenWarehouse);
     return {
       accessTokenWarehouse,
       refreshTokenWarehouse
@@ -282,6 +286,15 @@ const refreshAccessTokenWarehouse = async () => {
  
 // Initialisation des tokens avec YOUR_AUTHORIZATION_CODE
 const initializeTokens = async () => {
+  if(WAREHOUSE_AUTHORIZATION_CODE) {
+    const tokensWarehouse = await getTokenWarehouse(WAREHOUSE_AUTHORIZATION_CODE);
+    accessTokenWarehouse = tokensWarehouse.accessToken;
+    refreshTokenWarehouse = tokensWarehouse.refreshToken;
+  } else {
+    await refreshAccessTokenWarehouse();
+  }
+  console.log("first warehouse access", accessTokenWarehouse);
+  console.log("first warehouse refresh", refreshTokenWarehouse)
   try {
     if(YOUR_AUTHORIZATION_CODE){
       const tokens = await getToken(YOUR_AUTHORIZATION_CODE);
@@ -291,13 +304,7 @@ const initializeTokens = async () => {
       await refreshAccessToken();
   }   
 
-  if(WAREHOUSE_AUTHORIZATION_CODE) {
-    const tokensWarehouse = await getTokenWarehouse(WAREHOUSE_AUTHORIZATION_CODE);
-    accessTokenWarehouse = tokensWarehouse.accessToken;
-    refreshTokenWarehouse = tokensWarehouse.refreshToken;
-  } else {
-    await refreshAccessTokenWarehouse();
-  }
+
 //refreshToken every 1h50
     setInterval(async () => {
       console.log("auto refresh tokens");
@@ -419,6 +426,8 @@ const getShippingboOrderDetails = async (shopifyOrderId) => {
 };
 //Retrieve shippingbo order ID from ShopifyID or DraftID and send Shippingbo ID in GMA Shippingbo => Entrepôt
 const getWarehouseOrderDetails = async (shippingboId) => {
+  console.log('accesstokenwarehouse getdetails', accessTokenWarehouse);
+  console.log('refreshtokenwarehouse getdetails', refreshAccessTokenWarehouse);
   console.log('shippingbo refin getWarehouseOrderDetails', shippingboId);
   const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shippingboId}`;
   const getOrderOptions = {
