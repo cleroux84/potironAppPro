@@ -287,6 +287,9 @@ const initializeTokens = async () => {
   } else {
       await refreshAccessToken();
   }   
+} catch (error) {
+  console.error('Failed to initialize token', error);
+}
   try {
     if(WAREHOUSE_AUTHORIZATION_CODE){
       const tokensWarehouse = await getTokenWarehouse(WAREHOUSE_AUTHORIZATION_CODE);
@@ -296,6 +299,9 @@ const initializeTokens = async () => {
   } else {
       await refreshAccessTokenWarehouse();
   }   
+} catch (error) {
+  console.error('Failed to initialize warehouse tokens', error);
+}
 //refreshToken avery 1h50
     setInterval(async () => {
       console.log("auto refresh");
@@ -303,11 +309,6 @@ const initializeTokens = async () => {
       await refreshAccessTokenWarehouse();
   }, 6600000); //1h50
 
- 
-    console.log('Tokens initialized successfully.');
-  } catch (error) {
-    console.error('Failed to initialize tokens:', error);
-  }
 };
  
 initializeTokens();
