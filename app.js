@@ -42,8 +42,8 @@ let accessToken = null;
 let refreshToken = null;
 let accessTokenWarehouse = null;
 let refreshTokenWarehouse = null;
-let tokenWarehouseExpiryTime = null;
 
+//connection DB Render postgresql
 const client = new Client({
   user: DB_USERNAME,
   password: DB_PASSWORD,
@@ -136,15 +136,13 @@ const getToken = async (authorizationCode) => {
   try {
     const response = await fetch(tokenUrl, tokenOptions);
     const data = await response.json();
-    // console.log('getToken', data);
     if(data.error){
-      console.log("planter refresh function");
+      console.log("crash server call refresh function");
       await refreshAccessToken();
-      console.log('gettoken no access but refreshtoken still:', refreshToken);
     } else {
       accessToken = data.access_token;
       refreshToken = data.refresh_token;
-      console.log("data pas erreur sae refresh");
+      console.log("getToken with auhorizationCode");
       await saveRefreshTokenDb(refreshToken);
     }
     return {
@@ -179,7 +177,6 @@ const getTokenWarehouse = async (authorizationCode) => {
     const data = await response.json();
     accessTokenWarehouse = data.access_token;
     refreshTokenWarehouse = data.refresh_token;
-    tokenWarehouseExpiryTime = Date.now() + (data.expires_in * 1000);
     console.log("gettokenwarehouse", data);
     return {
       accessTokenWarehouse,
@@ -194,7 +191,7 @@ const getTokenWarehouse = async (authorizationCode) => {
 //refresh for Potiron Paris Shippingbo
 const refreshAccessToken = async () => {
   refreshToken = await getRefreshTokenFromDb();
-  console.log('refreshToken in function', refreshToken);
+  console.log('actual refreshToken for loop : ', refreshToken);
   const refreshUrl = 'https://oauth.shippingbo.com/oauth/token';
   const refreshOptions = {
     method: 'POST',
@@ -215,9 +212,6 @@ const refreshAccessToken = async () => {
     const data = await response.json();
     accessToken = data.access_token;
     refreshToken = data.refresh_token;
-    console.log('refreshtoken', data);
-    console.log('accesstoken after', accessToken);
-    console.log('refreshtoken after', refreshToken);
     await saveRefreshTokenDb(refreshToken);
     return {
       accessToken,
@@ -249,7 +243,6 @@ const refreshAccessTokenWarehouse = async () => {
     const data = await response.json();
     accessTokenWarehouse = data.access_token;
     refreshTokenWarehouse = data.refresh_token;
-    tokenWarehouseExpiryTime = Date.now() + (data.expires_in * 1000);
     console.log('refreshWarehouseToken', data);
     return {
       accessTokenWarehouse,
@@ -265,18 +258,11 @@ const initializeTokens = async () => {
   try {
     if(YOUR_AUTHORIZATION_CODE){
       const tokens = await getToken(YOUR_AUTHORIZATION_CODE);
-      console.log('tokens initial', tokens);
-      console.log('initialise accesstoken', accessToken);
-      console.log('initialise refreshtoken', refreshToken);
       accessToken = tokens.accessToken;
       refreshToken = tokens.refreshToken;
   } else {
       await refreshAccessToken();
-      console.log('no authorization code use refresh', refreshToken);
-
   }   
-    console.log('initialise accesstoken then', accessToken);
-    console.log('initialise refreshtoken then', refreshToken);
 //refreshToken avery 1h50
     setInterval(async () => {
       console.log("auto refresh");
@@ -292,22 +278,7 @@ const initializeTokens = async () => {
 };
  
 initializeTokens();
-//For GMA Shippingbo => Entrepôt
-// const ensureAccessTokenWarehouse = async () => {
-//   if (!accessTokenWarehouse) {
-//     if (refreshTokenWarehouse) {
-//       accessTokenWarehouse = await refreshAccessTokenWarehouse();
-//     } else {
-//       const tokens = await getTokenWarehouse(WAREHOUSE_AUTHORIZATION_CODE);
-//       if (!tokens.accessTokenWarehouse || !tokens.refreshTokenWarehouse) {
-//         console.error('Failed to obtain access tokens ensureWarehouse');
-//       }
-//       accessTokenWarehouse = tokens.accessTokenWarehouse;
-//       refreshTokenWarehouse = tokens.refreshTokenWarehouse;
-//     }
-//   }
-//   return accessTokenWarehouse;
-// };
+
 //update orders origin and origin ref in shippingbo Potiron Paris to add "Commande PRO" and "PRO-"
 const updateShippingboOrder = async (shippingboOrderId, originRef) => {
   console.log('update accesstoken', accessToken);
