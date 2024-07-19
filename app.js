@@ -418,9 +418,9 @@ const getShippingboOrderDetails = async (shopifyOrderId) => {
   }
 };
 //Retrieve shippingbo order ID from ShopifyID or DraftID and send Shippingbo ID in GMA Shippingbo => Entrepôt
-const getWarehouseOrderDetails = async (shopifyOrderId) => {
+const getWarehouseOrderDetails = async (shippingboId) => {
   console.log('shippingbo refin getWarehouseOrderDetails', shippingboId);
-  const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
+  const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shippingboId}`;
   const getOrderOptions = {
     method: 'GET',
     headers: {
