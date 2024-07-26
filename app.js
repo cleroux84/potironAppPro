@@ -943,15 +943,16 @@ app.post('/createProCustomer', (req, res) => {
           id: clientToUpdate,
           phone: phone,
           note: '', 
-          addresses: [
+          default_address: [
             {
               customer_id: clientToUpdate,
               address1: '777 rue du test',
               address2: 'Lieu dit du test',
               city: 'Monts',
               zip: '37260',
-              first_name: firstnameCustomer,
-              last_name: nameCustomer
+              first_name: null,
+              last_name: null,
+              default: true
             }
           ],
           
