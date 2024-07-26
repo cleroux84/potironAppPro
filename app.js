@@ -22,6 +22,7 @@ const MAILPORT = process.env.MAILPORT;
 const MAILSENDER = process.env.MAILSENDER;
 const MAILSENDERPASS = process.env.MAILSENDERPASS;
 const MAILRECIPIENT = process.env.MAILRECIPIENT;
+const MAILCOTATION = process.env.MAILCOTATION;
 const CLIENT_ID = process.env.CLIENT_ID_SHIPPINGBO;
 const CLIENT_SECRET = process.env.CLIENT_SECRET_SHIPPINGBO;
 const API_APP_ID = process.env.API_APP_ID;
@@ -725,7 +726,7 @@ async function sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrder
   const mailOptions = {
     from: '"POTIRON PARIS PRO" <noreply@potiron.com>',
     replyTo: 'bonjour@potiron.com', 
-    to: MAILRECIPIENT,
+    to: MAILCOTATION,
     cc: MAILSENDER,
     subject: 'Nouvelle demande de cotation pour Commande Provisoire ' + draftOrderId, 
     html:`
@@ -942,6 +943,17 @@ app.post('/createProCustomer', (req, res) => {
           id: clientToUpdate,
           phone: phone,
           note: '', 
+          addresses: [
+            {
+              customer_id: clientToUpdate,
+              address1: '777 rue du test',
+              address2: 'Lieu dit du test',
+              city: 'Monts',
+              zip: '37260',
+              first_name: firstnameCustomer,
+              last_name: nameCustomer
+            }
+          ],
           
           metafields: [
             {
