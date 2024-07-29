@@ -902,7 +902,6 @@ app.post('/createProCustomer', (req, res) => {
     var b2BState = myData.tags;
     if (b2BState && b2BState.includes("VIP")) {
         const clientToUpdate = myData.id;
-        //idCustomer = myData.id;
         const siret = extractInfoFromNote(myData.note, 'siret');
         const companyName = extractInfoFromNote(myData.note, 'company_name');
         const tva = extractInfoFromNote(myData.note, 'tva');
@@ -911,6 +910,10 @@ app.post('/createProCustomer', (req, res) => {
         const mailCustomer = myData.email;
         const nameCustomer = myData.last_name;
         const firstnameCustomer = myData.first_name;
+        const address1 = extractInfoFromNote(myData.note, 'address1');
+        const address2 = extractInfoFromNote(myData.note, 'address2');
+        const zip = extractInfoFromNote(myData.note, 'zip');
+        const city = extractInfoFromNote(myData.note, 'city');
 
         // Vérifier si un fichier a été téléchargé
         if (!uploadedFile) {
@@ -946,10 +949,11 @@ app.post('/createProCustomer', (req, res) => {
           addresses: [
             {
               customer_id: clientToUpdate,
-              address1: '777 rue du test',
-              address2: 'Lieu dit du test',
-              city: 'Monts',
-              zip: '37260',
+              address1: address1,
+              address2: address2,
+              city: city,
+              zip: zip,
+              country: 'France',
               first_name: firstnameCustomer,
               last_name: nameCustomer,
               default: true
