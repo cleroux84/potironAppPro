@@ -23,7 +23,7 @@ const MAILSENDERPASS = process.env.MAILSENDERPASS;
 const MAILRECIPIENT = process.env.MAILRECIPIENT;
 const MAILCOTATION = process.env.MAILCOTATION;
 
-// const API_APP_ID = process.env.API_APP_ID;
+const API_APP_ID = process.env.API_APP_ID;
 const YOUR_AUTHORIZATION_CODE = process.env.YOUR_AUTHORIZATION_CODE;
 
 const { getToken, refreshAccessToken } = require('./services/shippingbo/potironParisAuth.js');
