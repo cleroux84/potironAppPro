@@ -28,7 +28,8 @@ const API_APP_ID = process.env.API_APP_ID;
 const YOUR_AUTHORIZATION_CODE = process.env.YOUR_AUTHORIZATION_CODE;
 
 const client = require('./services/db.js')
-const { saveRefreshTokenDb, getRefreshTokenFromDb } = require('./services/shippingbo/potironParisAuth.js')
+const { saveRefreshTokenDb, getRefreshTokenFromDb } = require('./services/shippingbo/potironParisAuth.js');
+const { saveRefreshTokenWarehouseDb, getRefreshTokenWarehouseFromDb } = require('./services/shippingbo/gmaWarehouseAuth.js');
 
 const CLIENT_ID_WAREHOUSE = process.env.CLIENT_ID_WAREHOUSE;
 const CLIENT_SECRET_WAREHOUSE = process.env.CLIENT_SECRET_WAREHOUSE;
@@ -48,44 +49,6 @@ const corsOptions = {
 }
 
 app.set('appName', 'potironAppPro');
-
-// const saveRefreshTokenDb = async (token) => {
-//   try {
-//     await client.query('UPDATE tokens SET refresh_token = $1 WHERE id = 1', [token]);
-//     console.log('RefreshToken saved in db', token);
-//   } catch (error) {
-//     console.error('Error saving refreshToken in db', error);
-//   }
-// }
-
-// const getRefreshTokenFromDb = async () => {
-//   try {
-//     const res = await client.query('SELECT refresh_token FROM tokens LIMIT 1');
-//     return res.rows[0].refresh_token;
-//   } catch (error) {
-//     console.log('Error retrieving refresh token', error);
-//     return null;
-//   }
-// }
-
-const saveRefreshTokenWarehouseDb = async (token) => {
-  try {
-    await client.query('UPDATE tokens SET refresh_token_warehouse = $1 WHERE id = 1', [token]);
-    console.log('RefreshTokenWarehouse saved in db', token);
-  } catch (error) {
-    console.error('Error saving refreshTokenWarehouse in db', error);
-  }
-}
-
-const getRefreshTokenWarehouseFromDb = async () => {
-  try {
-    const res = await client.query('SELECT refresh_token_warehouse FROM tokens LIMIT 1');
-    return res.rows[0].refresh_token_warehouse;
-  } catch (error) {
-    console.log('Error retrieving refresh_token_warehouse', error);
-    return null;
-  }
-}
 
 const upload = multer({ 
   storage: multer.diskStorage({
