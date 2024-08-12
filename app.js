@@ -28,7 +28,7 @@ const YOUR_AUTHORIZATION_CODE = process.env.YOUR_AUTHORIZATION_CODE;
 
 const { getToken, refreshAccessToken } = require('./services/shippingbo/potironParisAuth.js');
 const { getTokenWarehouse, refreshAccessTokenWarehouse } = require('./services/shippingbo/gmaWarehouseAuth.js');
-const { getShippingboOrderDetails } = require('./services/shippingbo/potironParisCRUD.js');
+const { getShippingboOrderDetails, updateShippingboOrder } = require('./services/shippingbo/potironParisCRUD.js');
 
 const API_APP_WAREHOUSE_ID = process.env.API_APP_WAREHOUSE_ID;
 const WAREHOUSE_AUTHORIZATION_CODE = process.env.WAREHOUSE_AUTHORIZATION_CODE;
