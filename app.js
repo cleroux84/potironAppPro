@@ -22,24 +22,22 @@ const MAILSENDER = process.env.MAILSENDER;
 const MAILSENDERPASS = process.env.MAILSENDERPASS;
 const MAILRECIPIENT = process.env.MAILRECIPIENT;
 const MAILCOTATION = process.env.MAILCOTATION;
-// const CLIENT_ID = process.env.CLIENT_ID_SHIPPINGBO;
-// const CLIENT_SECRET = process.env.CLIENT_SECRET_SHIPPINGBO;
+
 const API_APP_ID = process.env.API_APP_ID;
 const YOUR_AUTHORIZATION_CODE = process.env.YOUR_AUTHORIZATION_CODE;
 
 const client = require('./services/db.js')
 const { getToken, refreshAccessToken } = require('./services/shippingbo/potironParisAuth.js');
-const { saveRefreshTokenWarehouseDb, getRefreshTokenWarehouseFromDb } = require('./services/shippingbo/gmaWarehouseAuth.js');
+const { getTokenWarehouse, refreshAccessTokenWarehouse } = require('./services/shippingbo/gmaWarehouseAuth.js');
 
-const CLIENT_ID_WAREHOUSE = process.env.CLIENT_ID_WAREHOUSE;
-const CLIENT_SECRET_WAREHOUSE = process.env.CLIENT_SECRET_WAREHOUSE;
+
 const API_APP_WAREHOUSE_ID = process.env.API_APP_WAREHOUSE_ID;
 const WAREHOUSE_AUTHORIZATION_CODE = process.env.WAREHOUSE_AUTHORIZATION_CODE;
 
 let accessToken = null;
-let refreshToken = null;
+// let refreshToken = null;
 let accessTokenWarehouse = null;
-let refreshTokenWarehouse = null;
+// let refreshTokenWarehouse = null;
 
 const corsOptions = {
   origin: "https://potiron.com",
@@ -81,9 +79,8 @@ app.get('/', (req, res) => {
     res.send('Bienvenue sur votre application !');
 });
 
-//Auth for shippingbo API
-//Auth for Potiron Paris Shippingbo 
-// const getToken = async (authorizationCode) => {
+//Auth for GMA shippingbo => Entrepôt
+// const getTokenWarehouse = async (authorizationCode) => {
 //   const tokenUrl = 'https://oauth.shippingbo.com/oauth/token';
 //   const tokenOptions = {
 //     method: 'POST',
@@ -93,8 +90,8 @@ app.get('/', (req, res) => {
 //     },
 //     body: JSON.stringify({
 //       grant_type: 'authorization_code',
-//       client_id: CLIENT_ID,
-//       client_secret: CLIENT_SECRET,
+//       client_id: CLIENT_ID_WAREHOUSE,
+//       client_secret: CLIENT_SECRET_WAREHOUSE,
 //       code: authorizationCode,
 //       redirect_uri: 'urn:ietf:wg:oauth:2.0:oob'
 //     })
@@ -103,68 +100,27 @@ app.get('/', (req, res) => {
 //   try {
 //     const response = await fetch(tokenUrl, tokenOptions);
 //     const data = await response.json();
-//     if(data.error){
-//       console.log("crash server call refresh function");
-//       await refreshAccessToken();
+//     if(data.error) {
+//       console.log('crash server warehouse');
+//       await refreshAccessTokenWarehouse();
 //     } else {
-//       accessToken = data.access_token;
-//       refreshToken = data.refresh_token;
-//       console.log("getToken with auhorizationCode");
-//       await saveRefreshTokenDb(refreshToken);
+//       accessTokenWarehouse = data.access_token;
+//       refreshTokenWarehouse = data.refresh_token;
+//       await saveRefreshTokenWarehouseDb(refreshTokenWarehouse);
+//       console.log("gettokenwarehouse with autorhizationCode");
 //     }
 //     return {
-//       accessToken,
-//       refreshToken
+//       accessTokenWarehouse,
+//       refreshTokenWarehouse
 //     };
 //   } catch (error) {
-//     console.error('Error obtaining access token getToken:', error);
+//     console.error('Error obtaining access token Warehouse:', error);
 //   }
 // };
 
-//Auth for GMA shippingbo => Entrepôt
-const getTokenWarehouse = async (authorizationCode) => {
-  const tokenUrl = 'https://oauth.shippingbo.com/oauth/token';
-  const tokenOptions = {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json'
-    },
-    body: JSON.stringify({
-      grant_type: 'authorization_code',
-      client_id: CLIENT_ID_WAREHOUSE,
-      client_secret: CLIENT_SECRET_WAREHOUSE,
-      code: authorizationCode,
-      redirect_uri: 'urn:ietf:wg:oauth:2.0:oob'
-    })
-  };
- 
-  try {
-    const response = await fetch(tokenUrl, tokenOptions);
-    const data = await response.json();
-    if(data.error) {
-      console.log('crash server warehouse');
-      await refreshAccessTokenWarehouse();
-    } else {
-      accessTokenWarehouse = data.access_token;
-      refreshTokenWarehouse = data.refresh_token;
-      await saveRefreshTokenWarehouseDb(refreshTokenWarehouse);
-      console.log("gettokenwarehouse with autorhizationCode");
-    }
-    return {
-      accessTokenWarehouse,
-      refreshTokenWarehouse
-    };
-  } catch (error) {
-    console.error('Error obtaining access token Warehouse:', error);
-  }
-};
-
-//refresh token for Shippingbo API
-//refresh for Potiron Paris Shippingbo
-// const refreshAccessToken = async () => {
-//   refreshToken = await getRefreshTokenFromDb();
-//   console.log('actual refreshToken for loop : ', refreshToken);
+// const refreshAccessTokenWarehouse = async () => {
+//   refreshTokenWarehouse = await getRefreshTokenWarehouseFromDb();
+//   console.log("actual refreshWarehouse for loop: ", refreshTokenWarehouse);
 //   const refreshUrl = 'https://oauth.shippingbo.com/oauth/token';
 //   const refreshOptions = {
 //     method: 'POST',
@@ -174,60 +130,27 @@ const getTokenWarehouse = async (authorizationCode) => {
 //     },
 //     body: JSON.stringify({
 //       grant_type: 'refresh_token',
-//       client_id: CLIENT_ID,
-//       client_secret: CLIENT_SECRET,
-//       refresh_token: refreshToken
+//       client_id: CLIENT_ID_WAREHOUSE,
+//       client_secret: CLIENT_SECRET_WAREHOUSE,
+//       refresh_token: refreshTokenWarehouse
 //     })
 //   };
  
 //   try {
 //     const response = await fetch(refreshUrl, refreshOptions);
 //     const data = await response.json();
-//     accessToken = data.access_token;
-//     refreshToken = data.refresh_token;
-//     await saveRefreshTokenDb(refreshToken);
+//     accessTokenWarehouse = data.access_token;
+//     refreshTokenWarehouse = data.refresh_token;
+
+//     await saveRefreshTokenWarehouseDb(refreshTokenWarehouse);
 //     return {
-//       accessToken,
-//       refreshToken
+//       accessTokenWarehouse,
+//       refreshTokenWarehouse
 //     };
 //   } catch (error) {
-//     console.error('Error refreshing access token:', error);
+//     console.error('Error refreshing access token WAREHOUSE:', error);
 //   }
 // };
-//refresh for GMA Shippingbo => Entrepôt
-const refreshAccessTokenWarehouse = async () => {
-  refreshTokenWarehouse = await getRefreshTokenWarehouseFromDb();
-  console.log("actual refreshWarehouse for loop: ", refreshTokenWarehouse);
-  const refreshUrl = 'https://oauth.shippingbo.com/oauth/token';
-  const refreshOptions = {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json'
-    },
-    body: JSON.stringify({
-      grant_type: 'refresh_token',
-      client_id: CLIENT_ID_WAREHOUSE,
-      client_secret: CLIENT_SECRET_WAREHOUSE,
-      refresh_token: refreshTokenWarehouse
-    })
-  };
- 
-  try {
-    const response = await fetch(refreshUrl, refreshOptions);
-    const data = await response.json();
-    accessTokenWarehouse = data.access_token;
-    refreshTokenWarehouse = data.refresh_token;
-
-    await saveRefreshTokenWarehouseDb(refreshTokenWarehouse);
-    return {
-      accessTokenWarehouse,
-      refreshTokenWarehouse
-    };
-  } catch (error) {
-    console.error('Error refreshing access token WAREHOUSE:', error);
-  }
-};
  
 // Initialisation des tokens avec YOUR_AUTHORIZATION_CODE
 const initializeTokens = async () => {

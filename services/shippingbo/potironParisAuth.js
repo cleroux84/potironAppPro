@@ -22,6 +22,7 @@ const saveRefreshTokenDb = async (token) => {
       return null;
     }
   }
+  
   const getToken = async (authorizationCode) => {
     const tokenUrl = 'https://oauth.shippingbo.com/oauth/token';
     const tokenOptions = {
@@ -59,9 +60,9 @@ const saveRefreshTokenDb = async (token) => {
       console.error('Error obtaining access token getToken:', error);
     }
   };
+
   const refreshAccessToken = async () => {
     refreshToken = await getRefreshTokenFromDb();
-    console.log('actual refreshToken for loop : ', refreshToken);
     const refreshUrl = 'https://oauth.shippingbo.com/oauth/token';
     const refreshOptions = {
       method: 'POST',
