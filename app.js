@@ -28,7 +28,7 @@ const YOUR_AUTHORIZATION_CODE = process.env.YOUR_AUTHORIZATION_CODE;
 
 const { getToken, refreshAccessToken } = require('./services/shippingbo/potironParisAuth.js');
 const { getTokenWarehouse, refreshAccessTokenWarehouse } = require('./services/shippingbo/gmaWarehouseAuth.js');
-const { getShippingboOrderDetails } = require('./services/shippingbo/potironParisCRUD.js');
+
 const API_APP_WAREHOUSE_ID = process.env.API_APP_WAREHOUSE_ID;
 const WAREHOUSE_AUTHORIZATION_CODE = process.env.WAREHOUSE_AUTHORIZATION_CODE;
 
@@ -180,34 +180,34 @@ const updateWarehouseOrder = async (shippingboOrderId, originRef) => {
 }
 
 //Retrieve shippingbo order ID from ShopifyID or DraftID and send Shippingbo ID in Potiron Paris Shippingbo
-// const getShippingboOrderDetails = async (shopifyOrderId) => {
-//   const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
-//   const getOrderOptions = {
-//     method: 'GET',
-//     headers: {
-//       'Content-type': 'application/json',
-//       Accept: 'application/json',
-//       'X-API-VERSION': '1',
-//       'X-API-APP-ID': API_APP_ID,
-//       Authorization: `Bearer ${accessToken}`
-//     },
-//   };
+const getShippingboOrderDetails = async (shopifyOrderId) => {
+  const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
+  const getOrderOptions = {
+    method: 'GET',
+    headers: {
+      'Content-type': 'application/json',
+      Accept: 'application/json',
+      'X-API-VERSION': '1',
+      'X-API-APP-ID': API_APP_ID,
+      Authorization: `Bearer ${accessToken}`
+    },
+  };
  
-//   try {
-//     const response = await fetch(getOrderUrl, getOrderOptions);
-//     const data = await response.json();
-//     if (data.orders && data.orders.length > 0) {
-//       const {id, origin_ref} = data.orders[0];
-//       return {id, origin_ref};
-//     } else {
-//       console.log('No data orders found in Shippingbo Potiron Paris');
-//       return null;
-//     }
-//   } catch (err) {
-//     console.error('Error fetching Shippingbo order ID', err);
-//     return null;
-//   }
-// };
+  try {
+    const response = await fetch(getOrderUrl, getOrderOptions);
+    const data = await response.json();
+    if (data.orders && data.orders.length > 0) {
+      const {id, origin_ref} = data.orders[0];
+      return {id, origin_ref};
+    } else {
+      console.log('No data orders found in Shippingbo Potiron Paris');
+      return null;
+    }
+  } catch (err) {
+    console.error('Error fetching Shippingbo order ID', err);
+    return null;
+  }
+};
 //Retrieve shippingbo order ID from ShopifyID or DraftID and send Shippingbo ID in GMA Shippingbo => Entrepôt
 const getWarehouseOrderDetails = async (shippingboId) => {
   const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shippingboId}`;
