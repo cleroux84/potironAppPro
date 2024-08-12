@@ -32,6 +32,39 @@ const getShippingboOrderDetails = async (accessToken, shopifyOrderId) => {
     }
   };
   
+  const updateShippingboOrder = async (accessToken, shippingboOrderId, originRef) => {
+    if(originRef.includes('PRO-') === false)  {
+      originRef = "PRO-" + originRef;
+    }
+    const updatedOrder= {
+      id: shippingboOrderId,
+      origin: "Commande PRO",
+      origin_ref: originRef
+  }
+    const updateOrderUrl = `https://app.shippingbo.com/orders/${shippingboOrderId}`;
+    const updateOrderOptions = {
+      method: 'PATCH',
+      headers: {
+        'Content-type': 'application/json',
+        Accept: 'application/json',
+        'X-API-VERSION' : '1',
+        'X-API-APP-ID': API_APP_ID,
+        Authorization: `Bearer ${accessToken}`
+      },
+      body: JSON.stringify(updatedOrder)
+    };
+    try{
+          const response = await fetch(updateOrderUrl, updateOrderOptions);
+          const data = await response.json();
+          if(response.ok) {
+            console.log('pro order updated in shippingbo: ', shippingboOrderId);
+          }
+        } catch (error) {
+           console.error('Error updating shippingbo order', error);
+        }
+  }
+
   module.exports = {
-    getShippingboOrderDetails
+    getShippingboOrderDetails,
+    updateShippingboOrder
   }

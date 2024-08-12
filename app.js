@@ -116,37 +116,37 @@ const initializeTokens = async () => {
 initializeTokens();
 
 //update orders origin and origin ref in shippingbo Potiron Paris to add "Commande PRO" and "PRO-"
-const updateShippingboOrder = async (shippingboOrderId, originRef) => {
-  if(originRef.includes('PRO-') === false)  {
-    originRef = "PRO-" + originRef;
-  }
-  const updatedOrder= {
-    id: shippingboOrderId,
-    origin: "Commande PRO",
-    origin_ref: originRef
-}
-  const updateOrderUrl = `https://app.shippingbo.com/orders/${shippingboOrderId}`;
-  const updateOrderOptions = {
-    method: 'PATCH',
-    headers: {
-      'Content-type': 'application/json',
-      Accept: 'application/json',
-      'X-API-VERSION' : '1',
-      'X-API-APP-ID': API_APP_ID,
-      Authorization: `Bearer ${accessToken}`
-    },
-    body: JSON.stringify(updatedOrder)
-  };
-  try{
-        const response = await fetch(updateOrderUrl, updateOrderOptions);
-        const data = await response.json();
-        if(response.ok) {
-          console.log('pro order updated in shippingbo: ', shippingboOrderId);
-        }
-      } catch (error) {
-         console.error('Error updating shippingbo order', error);
-      }
-}
+// const updateShippingboOrder = async (shippingboOrderId, originRef) => {
+//   if(originRef.includes('PRO-') === false)  {
+//     originRef = "PRO-" + originRef;
+//   }
+//   const updatedOrder= {
+//     id: shippingboOrderId,
+//     origin: "Commande PRO",
+//     origin_ref: originRef
+// }
+//   const updateOrderUrl = `https://app.shippingbo.com/orders/${shippingboOrderId}`;
+//   const updateOrderOptions = {
+//     method: 'PATCH',
+//     headers: {
+//       'Content-type': 'application/json',
+//       Accept: 'application/json',
+//       'X-API-VERSION' : '1',
+//       'X-API-APP-ID': API_APP_ID,
+//       Authorization: `Bearer ${accessToken}`
+//     },
+//     body: JSON.stringify(updatedOrder)
+//   };
+//   try{
+//         const response = await fetch(updateOrderUrl, updateOrderOptions);
+//         const data = await response.json();
+//         if(response.ok) {
+//           console.log('pro order updated in shippingbo: ', shippingboOrderId);
+//         }
+//       } catch (error) {
+//          console.error('Error updating shippingbo order', error);
+//       }
+// }
 //update orders origin and origin ref in shippingbo GMA => Entrepôt to add "Commande PRO" and "PRO-"
 const updateWarehouseOrder = async (shippingboOrderId, originRef) => {
   if(originRef.includes('PRO-') === false)  {
@@ -392,7 +392,7 @@ app.post('/proOrder', async (req, res) => {
     }
     if(orderDetails) {
       const {id: shippingboId, origin_ref: shippingboOriginRef} = orderDetails
-      await updateShippingboOrder(shippingboId, shippingboOriginRef);
+      await updateShippingboOrder(accessToken, shippingboId, shippingboOriginRef);
       const warehouseDetails = await getWarehouseOrderDetails(shippingboId);
       if(warehouseDetails) {
         const {id: shippingboIdwarehouse, origin_ref: shippingboWarehouseOriginRef} = warehouseDetails
