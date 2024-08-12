@@ -1,7 +1,7 @@
 const fetch = require('node-fetch');
 const API_APP_ID = process.env.API_APP_ID;
 
-
+//Retrieve shippingbo order ID from ShopifyID or DraftID and send Shippingbo ID in Potiron Paris Shippingbo
 const getShippingboOrderDetails = async (accessToken, shopifyOrderId) => {
     const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
     const getOrderOptions = {
@@ -20,7 +20,6 @@ const getShippingboOrderDetails = async (accessToken, shopifyOrderId) => {
       const data = await response.json();
       if (data.orders && data.orders.length > 0) {
         const {id, origin_ref} = data.orders[0];
-        console.log('found smthg');
         return {id, origin_ref};
       } else {
         console.log('No data orders found in Shippingbo Potiron Paris');
@@ -32,6 +31,7 @@ const getShippingboOrderDetails = async (accessToken, shopifyOrderId) => {
     }
   };
   
+//update orders origin and origin ref in shippingbo Potiron Paris to add "Commande PRO" and "PRO-"
   const updateShippingboOrder = async (accessToken, shippingboOrderId, originRef) => {
     if(originRef.includes('PRO-') === false)  {
       originRef = "PRO-" + originRef;
@@ -64,7 +64,36 @@ const getShippingboOrderDetails = async (accessToken, shopifyOrderId) => {
         }
   }
 
+//cancel draft order in Shippingbo Potiron if completed if closed in Shopify
+  const cancelShippingboDraft = async (accessToken, shippingboOrderId) => {
+    const orderToCancel= {
+      state: 'canceled'
+  }
+    const cancelOrderUrl = `https://app.shippingbo.com/orders/${shippingboOrderId}`;
+    const cancelOrderOptions = {
+      method: 'PATCH',
+      headers: {
+        'Content-type': 'application/json',
+        Accept: 'application/json',
+        'X-API-VERSION' : '1',
+        'X-API-APP-ID': API_APP_ID,
+        Authorization: `Bearer ${accessToken}`
+      },
+      body: JSON.stringify(orderToCancel)
+    };
+    try{
+          const response = await fetch(cancelOrderUrl, cancelOrderOptions);
+          const data = await response.json();
+          if(response.ok) {
+            console.log('order cancel in shippingbo Potiron Paris: ', shippingboOrderId);
+          }
+        } catch (error) {
+           console.error('Error updating shippingbo order', error);
+        }
+  }
+
   module.exports = {
     getShippingboOrderDetails,
-    updateShippingboOrder
+    updateShippingboOrder,
+    cancelShippingboDraft
   }
