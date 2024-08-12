@@ -11,7 +11,7 @@ const { error } = require('console');
 const Shopify = require('shopify-api-node');
 const cors = require('cors');
 require('dotenv').config();
-const { Client } = require('pg');
+// const { Client } = require('pg');
 
 const app = express();
 const PORT = process.env.PORT || 300;
@@ -27,12 +27,12 @@ const CLIENT_ID = process.env.CLIENT_ID_SHIPPINGBO;
 const CLIENT_SECRET = process.env.CLIENT_SECRET_SHIPPINGBO;
 const API_APP_ID = process.env.API_APP_ID;
 const YOUR_AUTHORIZATION_CODE = process.env.YOUR_AUTHORIZATION_CODE;
-const DB_USERNAME = process.env.DB_USERNAME;
-const DB_HOST = process.env.DB_HOST;
-const DB_DATABASE = process.env.DB_DATABASE;
-const DB_PASSWORD = process.env.DB_PASSWORD;
-const DB_PORT = process.env.DB_PORT;
-
+// const DB_USERNAME = process.env.DB_USERNAME;
+// const DB_HOST = process.env.DB_HOST;
+// const DB_DATABASE = process.env.DB_DATABASE;
+// const DB_PASSWORD = process.env.DB_PASSWORD;
+// const DB_PORT = process.env.DB_PORT;
+const client = require('./services/db.js')
 const CLIENT_ID_WAREHOUSE = process.env.CLIENT_ID_WAREHOUSE;
 const CLIENT_SECRET_WAREHOUSE = process.env.CLIENT_SECRET_WAREHOUSE;
 const API_APP_WAREHOUSE_ID = process.env.API_APP_WAREHOUSE_ID;
@@ -51,18 +51,18 @@ const corsOptions = {
 }
 
 //connection DB Render postgresql
-const client = new Client({
-  user: DB_USERNAME,
-  password: DB_PASSWORD,
-  host: DB_HOST,
-  port: DB_PORT,
-  database: DB_DATABASE,
-  ssl: {
-    rejectUnauthorized: false
-  }
-})
+// const client = new Client({
+//   user: DB_USERNAME,
+//   password: DB_PASSWORD,
+//   host: DB_HOST,
+//   port: DB_PORT,
+//   database: DB_DATABASE,
+//   ssl: {
+//     rejectUnauthorized: false
+//   }
+// })
 
-client.connect();
+// client.connect();
 app.set('appName', 'potironAppPro');
 
 const saveRefreshTokenDb = async (token) => {
