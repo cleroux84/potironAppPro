@@ -81,7 +81,7 @@ const getShippingboOrderDetails = async (accessToken, shopifyOrderId) => {
       },
       body: JSON.stringify(orderToCancel)
     };
-    try{
+    try {
           const response = await fetch(cancelOrderUrl, cancelOrderOptions);
           const data = await response.json();
           if(response.ok) {
@@ -92,8 +92,32 @@ const getShippingboOrderDetails = async (accessToken, shopifyOrderId) => {
         }
   }
 
+  //create draft order in shippingbo when pro draft is created in Shopify
+  const createProDraftOrderShippingbo = async (accessToken, shippingBoOrder) => {
+    const createOrderUrl = `https://app.shippingbo.com/orders`;
+    const createOrderOptions = {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json',
+        Accept: 'application/json',
+        'X-API-VERSION' : '1',
+        'X-API-APP-ID': API_APP_ID,
+        Authorization: `Bearer ${accessToken}`
+      },
+      body: JSON.stringify(shippingBoOrder)
+    };
+    try {
+        const responseShippingbo = await fetch(createOrderUrl, createOrderOptions);
+        const data = await responseShippingbo.json();
+        console.log('data creation shippingbo', data.order.id);
+    } catch (error) {
+      console.error('error in creation order from draft shopify', error);
+    }
+  }
+
   module.exports = {
     getShippingboOrderDetails,
     updateShippingboOrder,
-    cancelShippingboDraft
+    cancelShippingboDraft,
+    createProDraftOrderShippingbo
   }

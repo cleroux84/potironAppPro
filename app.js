@@ -23,12 +23,12 @@ const MAILSENDERPASS = process.env.MAILSENDERPASS;
 const MAILRECIPIENT = process.env.MAILRECIPIENT;
 const MAILCOTATION = process.env.MAILCOTATION;
 
-const API_APP_ID = process.env.API_APP_ID;
+// const API_APP_ID = process.env.API_APP_ID;
 const YOUR_AUTHORIZATION_CODE = process.env.YOUR_AUTHORIZATION_CODE;
 
 const { getToken, refreshAccessToken } = require('./services/shippingbo/potironParisAuth.js');
 const { getTokenWarehouse, refreshAccessTokenWarehouse } = require('./services/shippingbo/gmaWarehouseAuth.js');
-const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft } = require('./services/shippingbo/potironParisCRUD.js');
+const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft, createProDraftOrderShippingbo } = require('./services/shippingbo/potironParisCRUD.js');
 
 const API_APP_WAREHOUSE_ID = process.env.API_APP_WAREHOUSE_ID;
 const WAREHOUSE_AUTHORIZATION_CODE = process.env.WAREHOUSE_AUTHORIZATION_CODE;
@@ -388,26 +388,26 @@ app.post('/create-pro-draft-order', async (req, res) => {
       total_price_currency: 'EUR',
       tags_to_add: ["Commande PRO", shippingAddress]
     };
-    // await ensureAccessToken();
-    const createOrderUrl = `https://app.shippingbo.com/orders`;
-    const createOrderOptions = {
-      method: 'POST',
-      headers: {
-        'Content-type': 'application/json',
-        Accept: 'application/json',
-        'X-API-VERSION' : '1',
-        'X-API-APP-ID': API_APP_ID,
-        Authorization: `Bearer ${accessToken}`
-      },
-      body: JSON.stringify(shippingBoOrder)
-    };
-    try {
-        const responseShippingbo = await fetch(createOrderUrl, createOrderOptions);
-        const data = await responseShippingbo.json();
-        console.log('data creation shippingbo', data.order.id);
-    } catch (error) {
-      console.error('error in creation order from draft shopify', error);
-    }
+    await createProDraftOrderShippingbo(accessToken, shippingBoOrder);
+    // const createOrderUrl = `https://app.shippingbo.com/orders`;
+    // const createOrderOptions = {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-type': 'application/json',
+    //     Accept: 'application/json',
+    //     'X-API-VERSION' : '1',
+    //     'X-API-APP-ID': API_APP_ID,
+    //     Authorization: `Bearer ${accessToken}`
+    //   },
+    //   body: JSON.stringify(shippingBoOrder)
+    // };
+    // try {
+    //     const responseShippingbo = await fetch(createOrderUrl, createOrderOptions);
+    //     const data = await responseShippingbo.json();
+    //     console.log('data creation shippingbo', data.order.id);
+    // } catch (error) {
+    //   console.error('error in creation order from draft shopify', error);
+    // }
 
  } else {
   console.error('Invalid response structure from Shopify to create draft order for PRO')
