@@ -4,6 +4,9 @@ const fetch = require('node-fetch');
 const CLIENT_ID = process.env.CLIENT_ID_SHIPPINGBO;
 const CLIENT_SECRET = process.env.CLIENT_SECRET_SHIPPINGBO;
 
+let accessToken = null;
+let refreshToken = null;
+
 const saveRefreshTokenDb = async (token) => {
     try {
       await client.query('UPDATE tokens SET refresh_token = $1 WHERE id = 1', [token]);
@@ -22,7 +25,7 @@ const saveRefreshTokenDb = async (token) => {
       return null;
     }
   }
-  
+
   const getToken = async (authorizationCode) => {
     const tokenUrl = 'https://oauth.shippingbo.com/oauth/token';
     const tokenOptions = {

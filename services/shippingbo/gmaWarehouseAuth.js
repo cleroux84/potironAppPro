@@ -4,6 +4,9 @@ const fetch = require('node-fetch');
 const CLIENT_ID_WAREHOUSE = process.env.CLIENT_ID_WAREHOUSE;
 const CLIENT_SECRET_WAREHOUSE = process.env.CLIENT_SECRET_WAREHOUSE;
 
+let accessTokenWarehouse = null;
+let refreshTokenWarehouse = null;
+
 const saveRefreshTokenWarehouseDb = async (token) => {
     try {
       await client.query('UPDATE tokens SET refresh_token_warehouse = $1 WHERE id = 1', [token]);
@@ -62,7 +65,6 @@ const saveRefreshTokenWarehouseDb = async (token) => {
 
   const refreshAccessTokenWarehouse = async () => {
     refreshTokenWarehouse = await getRefreshTokenWarehouseFromDb();
-    console.log("actual refreshWarehouse for loop: ", refreshTokenWarehouse);
     const refreshUrl = 'https://oauth.shippingbo.com/oauth/token';
     const refreshOptions = {
       method: 'POST',
