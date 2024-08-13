@@ -23,16 +23,14 @@ const MAILSENDERPASS = process.env.MAILSENDERPASS;
 const MAILRECIPIENT = process.env.MAILRECIPIENT;
 const MAILCOTATION = process.env.MAILCOTATION;
 
-// const API_APP_ID = process.env.API_APP_ID;
 const YOUR_AUTHORIZATION_CODE = process.env.YOUR_AUTHORIZATION_CODE;
 
 const { getToken, refreshAccessToken } = require('./services/shippingbo/potironParisAuth.js');
 const { getTokenWarehouse, refreshAccessTokenWarehouse } = require('./services/shippingbo/gmaWarehouseAuth.js');
 const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft, createProDraftOrderShippingbo } = require('./services/shippingbo/potironParisCRUD.js');
 const { getWarehouseOrderDetails, updateWarehouseOrder } = require('./services/shippingbo/GMAWarehouseCRUD.js');
-const { sendEmailWithKbis } = require('./services/sendMail.js');
+const { sendEmailWithKbis, sendWelcomeMailPro } = require('./services/sendMail.js');
 
-// const API_APP_WAREHOUSE_ID = process.env.API_APP_WAREHOUSE_ID;
 const WAREHOUSE_AUTHORIZATION_CODE = process.env.WAREHOUSE_AUTHORIZATION_CODE;
 
 let accessToken = null;
@@ -122,95 +120,6 @@ let originalFileName = null;
 let fileExtension = null;
 let filePath = null;
 
-// //Send email with kbis to Potiron Team to check and validate company
-// async function sendEmailWithAttachment(filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone) {
-//   const transporter = nodemailer.createTransport({
-//       service: MAILSERVICE,
-//       host: MAILHOST,
-//       port: MAILPORT,
-//       secure: false,
-//       auth: {
-//           user: MAILSENDER, 
-//           pass: MAILSENDERPASS
-//       },
-//       tls: {
-//         ciphers: 'SSLv3'
-//     }
-//   });
-
-//   const mailOptions = {
-//       from: '"POTIRON PARIS - Nouveau kBis" <noreply@potiron.com>',
-//       replyTo: 'bonjour@potiron.com', 
-//       to: MAILRECIPIENT,
-//       cc: MAILSENDER,
-//       subject: 'Nouveau Kbis (' + companyName + ') à vérifier et valider !', 
-//       html:`
-//       <p>Bonjour, </p>
-//       <p>Une nouvelle demande d'inscription pro est arrivée pour <strong>${firstnameCustomer} ${nameCustomer}</strong>.</p>
-//       <p>Vous trouverez le KBIS de <strong>${companyName}</strong> ci-joint.</p>
-//       <p>Ce nouveau client est joignable à ${mailCustomer} et au ${phone}.</p>
-//       <p>Pensez à le valider pour que le client ait accès aux prix destinés aux professionnels.</p>
-//       <p>Bonne journée,</p>
-//       <p>Céline Leroux</p>
-//       <img src='cid:signature'/>
-//       `,     
-//       attachments: [
-//           {
-//               filename: 'kbis_' + companyName + fileExtension,
-//               content: fs.createReadStream(filePath)
-//           },
-//           {
-//             filename: 'signature.png',
-//             path: 'assets/signature.png',
-//             cid: 'signature'
-//           }
-//       ]
-//   };
-
-//   return transporter.sendMail(mailOptions);
-// }
-
-//Send email to b2b customer when kBis validate
-async function sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer, companyName) {
-  const transporter = nodemailer.createTransport({
-    service: MAILSERVICE,
-    host: MAILHOST,
-    port: MAILPORT,
-    secure: false,
-    auth: {
-        user: MAILSENDER, 
-        pass: MAILSENDERPASS
-    },
-    tls: {
-      ciphers: 'SSLv3'
-    }
-  });
-  const mailOptions = {
-    from: '"POTIRON PARIS PRO" <noreply@potiron.com>',
-    replyTo: 'bonjour@potiron.com', 
-    to: mailCustomer,
-    cc: MAILSENDER,
-    subject: 'Accès Pro Potiron Paris', 
-    html:`
-    <p>Bonjour ${firstnameCustomer} ${nameCustomer},</p>
-    <p>Nos équipes ont validé votre KBIS concernant ${companyName}, nous vous souhaitons la bienvenue !</p>
-    <p>Vous avez désormais accès, une fois connecté avec votre login et mot de passe, à l'ensemble du site avec les prix dédiés aux professionnels.</p>
-    <p><a href="https://potiron.com">Visitez notre boutique</a></p>
-    <p>Nous restons à votre entière disposition.</p>
-    <p>Très belle journée,</p>
-    <p>L'équipe de Potiron</p>
-    <img src='cid:signature'/>
-    `,     
-    attachments: [
-        {
-          filename: 'signature.png',
-          path: 'assets/signature.png',
-          cid: 'signature'
-        }
-    ]
-  };
-  return transporter.sendMail(mailOptions);
-}
 //record kBis in code before send and remove it
 app.post('/upload', upload.single('uploadFile'), (req, res) => {
   uploadedFile = req.file;
@@ -475,7 +384,7 @@ app.post('/updateKbis', (req, res) => {
         if(kbisState === true && mailProState === false) {
           sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer, companyName)
             .then(() => {
-              console.log('mail envoyé au client pro');  
+              console.log('Mail de bienvenue après validation du kbis envoyé au client pro', clientUpdated);  
             })
             
             .catch(error => {
@@ -553,7 +462,7 @@ app.post('/createProCustomer', (req, res) => {
         // Envoi du fichier par e-mail
         sendEmailWithKbis(filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone)
           .then(() => {
-            console.log('mail envoyé');
+            console.log('Mail envoyé pour validation du kbis');
             fs.unlink(uploadedFile.path, (err) => {
               if (err) {
                   console.error('Erreur lors de la suppression du fichier :', err);
@@ -643,7 +552,7 @@ app.post('/createProCustomer', (req, res) => {
     fetch(updateCustomerUrl, updateOptions)
       .then(response => response.json())
       .then(updatedCustomer => {
-        console.log('nouveau client pro')
+        console.log('création nouveau client pro : ', clientToUpdate);
         //res.status(200).json(updatedCustomer);
       })
       .catch(error => {

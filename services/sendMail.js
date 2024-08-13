@@ -57,6 +57,50 @@ async function sendEmailWithKbis(filePath, companyName, fileExtension, firstname
     return transporter.sendMail(mailOptions);
   }
 
+//Send email to b2b customer when kBis validate
+async function sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer, companyName) {
+    const transporter = nodemailer.createTransport({
+      service: MAILSERVICE,
+      host: MAILHOST,
+      port: MAILPORT,
+      secure: false,
+      auth: {
+          user: MAILSENDER, 
+          pass: MAILSENDERPASS
+      },
+      tls: {
+        ciphers: 'SSLv3'
+      }
+    });
+    const mailOptions = {
+      from: '"POTIRON PARIS PRO" <noreply@potiron.com>',
+      replyTo: 'bonjour@potiron.com', 
+      to: mailCustomer,
+      cc: MAILSENDER,
+      subject: 'Accès Pro Potiron Paris', 
+      html:`
+      <p>Bonjour ${firstnameCustomer} ${nameCustomer},</p>
+      <p>Nos équipes ont validé votre KBIS concernant ${companyName}, nous vous souhaitons la bienvenue !</p>
+      <p>Vous avez désormais accès, une fois connecté avec votre login et mot de passe, à l'ensemble du site avec les prix dédiés aux professionnels.</p>
+      <p><a href="https://potiron.com">Visitez notre boutique</a></p>
+      <p>Nous restons à votre entière disposition.</p>
+      <p>Très belle journée,</p>
+      <p>L'équipe de Potiron</p>
+      <img src='cid:signature'/>
+      `,     
+      attachments: [
+          {
+            filename: 'signature.png',
+            path: 'assets/signature.png',
+            cid: 'signature'
+          }
+      ]
+    };
+    return transporter.sendMail(mailOptions);
+  }
+
+
   module.exports = {
-    sendEmailWithKbis
+    sendEmailWithKbis,
+    sendWelcomeMailPro
   }
