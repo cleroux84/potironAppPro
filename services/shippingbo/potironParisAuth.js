@@ -1,9 +1,7 @@
 const client = require('../db.js');
 const fetch = require('node-fetch');
-
 const CLIENT_ID = process.env.CLIENT_ID_SHIPPINGBO;
 const CLIENT_SECRET = process.env.CLIENT_SECRET_SHIPPINGBO;
-
 let accessToken = null;
 let refreshToken = null;
 
@@ -95,6 +93,7 @@ const saveRefreshTokenDb = async (token) => {
       console.error('Error refreshing access token:', error);
     }
   };
+  
   module.exports = {
     getToken,
     refreshAccessToken

@@ -1,9 +1,7 @@
 const client = require('../db.js');
 const fetch = require('node-fetch');
-
 const CLIENT_ID_WAREHOUSE = process.env.CLIENT_ID_WAREHOUSE;
 const CLIENT_SECRET_WAREHOUSE = process.env.CLIENT_SECRET_WAREHOUSE;
-
 let accessTokenWarehouse = null;
 let refreshTokenWarehouse = null;
 

@@ -139,8 +139,6 @@ async function sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer,
     return transporter.sendMail(mailOptions);
   }
   
-
-
   module.exports = {
     sendEmailWithKbis,
     sendWelcomeMailPro,

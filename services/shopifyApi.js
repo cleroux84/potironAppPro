@@ -138,16 +138,13 @@ const getCustomerMetafields = async (clientId) => {
           },
           body: JSON.stringify(updatedCustomerData)
     };
-    fetch(updateCustomerUrl, updateOptions)
-      .then(response => response.json())
-      .then(updatedCustomer => {
-        console.log('création nouveau client pro : ', clientToUpdate);
-        //res.status(200).json(updatedCustomer);
-      })
-      .catch(error => {
-        console.error('Erreur lors de la mise à jour du client :', error);
-        res.status(500).send('Erreur lors de la mise à jour du client.');
-      });
+    try {
+        const response = await fetch(updateCustomerUrl, updateOptions);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Erreur lors de la mise à jour du client pro', error);
+    }
   }
 
 module.exports = {

@@ -40,39 +40,12 @@ const corsOptions = {
 }
 
 app.set('appName', 'potironAppPro');
-
-const upload = multer({ 
-  storage: multer.diskStorage({
-    destination: function (req, file, cb) {
-      cb(null, 'uploads/')
-    },
-    filename: function (req, file, cb) {
-      cb(null, file.originalname)
-    }
-  })
-});
-
-
-//function to extract data from notes and redistribute in metafields when a b2b customer is created
-
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
-    res.send('Bienvenue sur votre application !');
+    res.send('Bienvenue sur potironAppPro !');
 });
-
-function extractInfoFromNote(note, infoLabel) {
-  if(note) {
-    const lines = note.split('\n');
-    for (const line of lines) {
-        if (line.startsWith(`${infoLabel}: `)) {
-            return line.substring(infoLabel.length + 2);
-        }
-    }
-    return null;
-  }
-}
 
 // Initialisation des tokens avec YOUR_AUTHORIZATION_CODE
 const initializeTokens = async () => {
@@ -113,6 +86,17 @@ let uploadedFile = null;
 let originalFileName = null;
 let fileExtension = null;
 let filePath = null;
+
+const upload = multer({ 
+  storage: multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, 'uploads/')
+    },
+    filename: function (req, file, cb) {
+      cb(null, file.originalname)
+    }
+  })
+});
 
 //record kBis in code before send and remove it
 app.post('/upload', upload.single('uploadFile'), (req, res) => {
@@ -230,7 +214,6 @@ app.post('/updatedDraftOrder', async (req, res) => {
   }
 })
 
-
 //webhook on customer update : https://potironapppro.onrender.com/updatekBis
 //send mail to b2B client to confirm his activation and update his account with tags
 app.post('/updateKbis', async (req, res) => {
@@ -285,6 +268,18 @@ app.post('/updateKbis', async (req, res) => {
     console.error('erreur lors de la récuperation des metafields ou de la maj du client')
   }
 });
+
+function extractInfoFromNote(note, infoLabel) {
+  if(note) {
+    const lines = note.split('\n');
+    for (const line of lines) {
+        if (line.startsWith(`${infoLabel}: `)) {
+            return line.substring(infoLabel.length + 2);
+        }
+    }
+    return null;
+  }
+}
 
 //webhook on customer creation : https://potironapppro.onrender.com/createProCustomer
 //Send email to potiron team with kbis and create metafields in customer account
@@ -396,8 +391,6 @@ app.post('/createProCustomer', async (req, res) => {
       console.log("nouveau client créé non pro");
   }
 });
-
-
 
 app.listen(PORT, () => {
   console.log(`Serveur en cours d'écoute sur le port ${PORT}`);
