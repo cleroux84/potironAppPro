@@ -11,21 +11,16 @@ const { error } = require('console');
 const Shopify = require('shopify-api-node');
 const cors = require('cors');
 require('dotenv').config();
-
 const app = express();
 const PORT = process.env.PORT || 300;
-const SHOPIFYAPPTOKEN = process.env.SHOPIFYAPPTOKEN;
-
 const YOUR_AUTHORIZATION_CODE = process.env.YOUR_AUTHORIZATION_CODE;
-
+const WAREHOUSE_AUTHORIZATION_CODE = process.env.WAREHOUSE_AUTHORIZATION_CODE;
 const { getToken, refreshAccessToken } = require('./services/shippingbo/potironParisAuth.js');
 const { getTokenWarehouse, refreshAccessTokenWarehouse } = require('./services/shippingbo/gmaWarehouseAuth.js');
 const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft } = require('./services/shippingbo/potironParisCRUD.js');
 const { getWarehouseOrderDetails, updateWarehouseOrder } = require('./services/shippingbo/GMAWarehouseCRUD.js');
 const { sendEmailWithKbis, sendWelcomeMailPro } = require('./services/sendMail.js');
 const { createDraftOrder, updateDraftOrderWithDraftId, getCustomerMetafields, updateCustomerToValidateKbis, createProCustomer } = require('./services/shopifyApi.js');
-
-const WAREHOUSE_AUTHORIZATION_CODE = process.env.WAREHOUSE_AUTHORIZATION_CODE;
 
 let accessToken = null;
 let refreshToken = null;
