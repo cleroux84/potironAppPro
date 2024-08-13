@@ -132,5 +132,5 @@ module.exports = {
     createDraftOrder,
     updateDraftOrderWithDraftId,
     getCustomerMetafields,
-    updateCustomerToValidateKbis
+    updateCustomerToValidateKbis 
 }
