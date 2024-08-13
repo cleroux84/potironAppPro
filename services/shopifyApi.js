@@ -128,9 +128,32 @@ const getCustomerMetafields = async (clientId) => {
     }
   };
 
+  const createProCustomer = async (clientToUpdate, updatedCustomerData) => {
+    const updateCustomerUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/customers/${clientToUpdate}.json`
+    const updateOptions = {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Shopify-Access-Token': SHOPIFYAPPTOKEN
+          },
+          body: JSON.stringify(updatedCustomerData)
+    };
+    fetch(updateCustomerUrl, updateOptions)
+      .then(response => response.json())
+      .then(updatedCustomer => {
+        console.log('création nouveau client pro : ', clientToUpdate);
+        //res.status(200).json(updatedCustomer);
+      })
+      .catch(error => {
+        console.error('Erreur lors de la mise à jour du client :', error);
+        res.status(500).send('Erreur lors de la mise à jour du client.');
+      });
+  }
+
 module.exports = {
     createDraftOrder,
     updateDraftOrderWithDraftId,
     getCustomerMetafields,
-    updateCustomerToValidateKbis 
+    updateCustomerToValidateKbis,
+    createProCustomer
 }

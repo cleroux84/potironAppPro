@@ -23,7 +23,7 @@ const { getTokenWarehouse, refreshAccessTokenWarehouse } = require('./services/s
 const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft } = require('./services/shippingbo/potironParisCRUD.js');
 const { getWarehouseOrderDetails, updateWarehouseOrder } = require('./services/shippingbo/GMAWarehouseCRUD.js');
 const { sendEmailWithKbis, sendWelcomeMailPro } = require('./services/sendMail.js');
-const { createDraftOrder, updateDraftOrderWithDraftId, getCustomerMetafields, updateCustomerToValidateKbis } = require('./services/shopifyApi.js');
+const { createDraftOrder, updateDraftOrderWithDraftId, getCustomerMetafields, updateCustomerToValidateKbis, createProCustomer } = require('./services/shopifyApi.js');
 
 const WAREHOUSE_AUTHORIZATION_CODE = process.env.WAREHOUSE_AUTHORIZATION_CODE;
 
@@ -288,7 +288,7 @@ app.post('/updateKbis', async (req, res) => {
 
 //webhook on customer creation : https://potironapppro.onrender.com/createProCustomer
 //Send email to potiron team with kbis and create metafields in customer account
-app.post('/createProCustomer', (req, res) => {
+app.post('/createProCustomer', async (req, res) => {
     var myData = req.body;
     var b2BState = myData.tags;
     if (b2BState && b2BState.includes("VIP")) {
@@ -318,8 +318,6 @@ app.post('/createProCustomer', (req, res) => {
             fs.unlink(uploadedFile.path, (err) => {
               if (err) {
                   console.error('Erreur lors de la suppression du fichier :', err);
-              } else {
-                  //console.log('Fichier supprimé avec succès.');
               }
           });
             uploadedFile = null; 
@@ -391,26 +389,9 @@ app.post('/createProCustomer', (req, res) => {
           ]
         }
       };
-
-    const updateCustomerUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/customers/${clientToUpdate}.json`
-    const updateOptions = {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-Shopify-Access-Token': SHOPIFYAPPTOKEN
-          },
-          body: JSON.stringify(updatedCustomerData)
-    };
-    fetch(updateCustomerUrl, updateOptions)
-      .then(response => response.json())
-      .then(updatedCustomer => {
-        console.log('création nouveau client pro : ', clientToUpdate);
-        //res.status(200).json(updatedCustomer);
-      })
-      .catch(error => {
-        console.error('Erreur lors de la mise à jour du client :', error);
-        res.status(500).send('Erreur lors de la mise à jour du client.');
-      });
+    const updatedCustomer = await createProCustomer(clientToUpdate, updatedCustomerData);
+    console.log("Création d'un client pro");
+    res.status(200).json(updatedCustomer);
   } else {
       console.log("nouveau client créé non pro");
   }
