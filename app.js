@@ -15,13 +15,13 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 300;
 const SHOPIFYAPPTOKEN = process.env.SHOPIFYAPPTOKEN;
-const MAILSERVICE = process.env.MAILSERVICE;
-const MAILHOST = process.env.MAILHOST;
-const MAILPORT = process.env.MAILPORT;
-const MAILSENDER = process.env.MAILSENDER;
-const MAILSENDERPASS = process.env.MAILSENDERPASS;
-const MAILRECIPIENT = process.env.MAILRECIPIENT;
-const MAILCOTATION = process.env.MAILCOTATION;
+// const MAILSERVICE = process.env.MAILSERVICE;
+// const MAILHOST = process.env.MAILHOST;
+// const MAILPORT = process.env.MAILPORT;
+// const MAILSENDER = process.env.MAILSENDER;
+// const MAILSENDERPASS = process.env.MAILSENDERPASS;
+// const MAILRECIPIENT = process.env.MAILRECIPIENT;
+// const MAILCOTATION = process.env.MAILCOTATION;
 
 const YOUR_AUTHORIZATION_CODE = process.env.YOUR_AUTHORIZATION_CODE;
 
@@ -29,7 +29,7 @@ const { getToken, refreshAccessToken } = require('./services/shippingbo/potironP
 const { getTokenWarehouse, refreshAccessTokenWarehouse } = require('./services/shippingbo/gmaWarehouseAuth.js');
 const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft, createProDraftOrderShippingbo } = require('./services/shippingbo/potironParisCRUD.js');
 const { getWarehouseOrderDetails, updateWarehouseOrder } = require('./services/shippingbo/GMAWarehouseCRUD.js');
-const { sendEmailWithKbis, sendWelcomeMailPro } = require('./services/sendMail.js');
+const { sendEmailWithKbis, sendWelcomeMailPro, sendNewDraftOrderMail } = require('./services/sendMail.js');
 
 const WAREHOUSE_AUTHORIZATION_CODE = process.env.WAREHOUSE_AUTHORIZATION_CODE;
 
@@ -246,45 +246,6 @@ app.post('/create-pro-draft-order', async (req, res) => {
     res.status(500).json({ error: 'Erreur lors de la création du brouillon de commande.' });
   }
 });
-
-//Send mail to Potiron Team to ask delivery quote
-async function sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone, shippingAddress) {
-  const transporter = nodemailer.createTransport({
-    service: MAILSERVICE,
-    host: MAILHOST,
-    port: MAILPORT,
-    secure: false,
-    auth: {
-        user: MAILSENDER, 
-        pass: MAILSENDERPASS
-    },
-    tls: {
-      ciphers: 'SSLv3'
-    }
-  });
-  const mailOptions = {
-    from: '"POTIRON PARIS PRO" <noreply@potiron.com>',
-    replyTo: 'bonjour@potiron.com', 
-    to: MAILCOTATION,
-    cc: MAILSENDER,
-    subject: 'Nouvelle demande de cotation pour Commande Provisoire ' + draftOrderId, 
-    html:`
-    <p>Bonjour, </p>
-    <p>Une nouvelle commande provisoire a été créée pour le client PRO : ${firstnameCustomer} ${nameCustomer}</p>
-    <p>Il est joignable pour valider la cotation à ${customerMail} et au ${customerPhone} </p>
-    <p>L'adresse de livraison renseignée est : ${shippingAddress}</p>
-    <img src='cid:signature'/>
-    `,     
-    attachments: [
-        {
-          filename: 'signature.png',
-          path: 'assets/signature.png',
-          cid: 'signature'
-        }
-    ]
-  };
-  return transporter.sendMail(mailOptions);
-}
 
 //webhook on update draft order : https://potironapppro.onrender.com/updatedDraftOrder
 app.post('/updatedDraftOrder', async (req, res) => {

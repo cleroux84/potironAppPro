@@ -8,6 +8,7 @@ const MAILPORT = process.env.MAILPORT;
 const MAILSENDER = process.env.MAILSENDER;
 const MAILSENDERPASS = process.env.MAILSENDERPASS;
 const MAILRECIPIENT = process.env.MAILRECIPIENT;
+const MAILCOTATION = process.env.MAILCOTATION;
 
 //Send email with kbis to Potiron Team to check and validate company
 async function sendEmailWithKbis(filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone) {
@@ -99,8 +100,49 @@ async function sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer,
     return transporter.sendMail(mailOptions);
   }
 
+//Send mail to Potiron Team to ask delivery quote
+  async function sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone, shippingAddress) {
+    const transporter = nodemailer.createTransport({
+      service: MAILSERVICE,
+      host: MAILHOST,
+      port: MAILPORT,
+      secure: false,
+      auth: {
+          user: MAILSENDER, 
+          pass: MAILSENDERPASS
+      },
+      tls: {
+        ciphers: 'SSLv3'
+      }
+    });
+    const mailOptions = {
+      from: '"POTIRON PARIS PRO" <noreply@potiron.com>',
+      replyTo: 'bonjour@potiron.com', 
+      to: MAILCOTATION,
+      cc: MAILSENDER,
+      subject: 'Nouvelle demande de cotation pour Commande Provisoire ' + draftOrderId, 
+      html:`
+      <p>Bonjour, </p>
+      <p>Une nouvelle commande provisoire a été créée pour le client PRO : ${firstnameCustomer} ${nameCustomer}</p>
+      <p>Il est joignable pour valider la cotation à ${customerMail} et au ${customerPhone} </p>
+      <p>L'adresse de livraison renseignée est : ${shippingAddress}</p>
+      <img src='cid:signature'/>
+      `,     
+      attachments: [
+          {
+            filename: 'signature.png',
+            path: 'assets/signature.png',
+            cid: 'signature'
+          }
+      ]
+    };
+    return transporter.sendMail(mailOptions);
+  }
+  
+
 
   module.exports = {
     sendEmailWithKbis,
-    sendWelcomeMailPro
+    sendWelcomeMailPro,
+    sendNewDraftOrderMail
   }
