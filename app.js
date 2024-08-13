@@ -222,7 +222,7 @@ app.post('/updatedDraftOrder', async (req, res) => {
           tags: draftTagArray.join(', ')
         }
        };
-       await updateDraftOrderWithDraftId(updatedOrder);
+       await updateDraftOrderWithDraftId(updatedOrder, orderId);
         //  const updateOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/draft_orders/${orderId}.json`;
         //  const updateOptions = {
         //    method: 'PUT',

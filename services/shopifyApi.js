@@ -63,8 +63,7 @@ const createDraftOrder = async (draftOrder, accessToken) => {
 }
 
 
-const updateDraftOrderWithDraftId = async (updatedOrder) => {
-    let orderId = updatedOrder.id;
+const updateDraftOrderWithDraftId = async (updatedOrder, orderId) => {
     const updateOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/draft_orders/${orderId}.json`;
     const updateOptions = {
       method: 'PUT',
@@ -78,7 +77,7 @@ const updateDraftOrderWithDraftId = async (updatedOrder) => {
       const response = await fetch(updateOrderUrl, updateOptions);
       const data = await response.json();       
       console.log('Commande pro maj avec draftId en tag: ', updatedOrder.id);  
-      res.status(200).send('Order updated');  
+      response.status(200).send('Order updated');  
     } catch (error) {
       console.error('Error updating order:', error);
       res.status(500).send('Error updating order');
