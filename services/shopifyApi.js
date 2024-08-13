@@ -64,6 +64,7 @@ const createDraftOrder = async (draftOrder, accessToken) => {
 
 
 const updateDraftOrderWithDraftId = async (updatedOrder) => {
+    let orderId = updatedOrder.id;
     const updateOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/draft_orders/${orderId}.json`;
     const updateOptions = {
       method: 'PUT',
