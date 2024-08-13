@@ -242,117 +242,48 @@ app.post('/updateKbis', async (req, res) => {
     const mailProSentField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'mailProSent');
     const companyNameField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'company');
 
-    if(checkedKbisField && mailProSentField) {
-      var firstnameCustomer = updatedData.first_name;
-      var nameCustomer = updatedData.last_name;
-      var mailCustomer = updatedData.email;
-      var companyName = companyNameField.value;
-      var kbisState = checkedKbisField.value;
-      var mailProState = mailProSentField.value;
-      
-      if(kbisState === true && mailProState === false) {
-        try {
-          await sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer, companyName)
-          console.log('Mail de bienvenue après validation du kbis envoyé au client pro', clientUpdated);  
-          const updatedCustomerKbis = {
-                  customer: {
-                    id: clientUpdated,
-                    tags: "VIP, PRO validé",
-                    metafields: [
-                      {
-                        id: mailProSentField.id,
-                        key: 'mailProSent',
-                        value: true,
-                        type: 'boolean',
-                        namespace: 'custom'
-                      }
-                    ]
-                  }
-                };  
-                await updateCustomerToValidateKbis(clientUpdated, updatedCustomerKbis);
-                console.log('mise à jour fiche client suite envoie du mail acces PRO')
-              } catch (error) {
-                console.error('Erreur lors de la mise à jour du client kbis')
-              }
-      } else if(kbisState === false && mailProState === false) {
-          console.log("Kbis à valider");
-        } else {
-          console.log("mail déjà envoyé");
-        }
+      if(checkedKbisField && mailProSentField) {
+        var firstnameCustomer = updatedData.first_name;
+        var nameCustomer = updatedData.last_name;
+        var mailCustomer = updatedData.email;
+        var companyName = companyNameField.value;
+        var kbisState = checkedKbisField.value;
+        var mailProState = mailProSentField.value;
+        
+        if(kbisState === true && mailProState === false) {
+          try {
+            await sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer, companyName)
+            console.log('Mail de bienvenue après validation du kbis envoyé au client pro', clientUpdated);  
+            const updatedCustomerKbis = {
+                    customer: {
+                      id: clientUpdated,
+                      tags: "VIP, PRO validé",
+                      metafields: [
+                        {
+                          id: mailProSentField.id,
+                          key: 'mailProSent',
+                          value: true,
+                          type: 'boolean',
+                          namespace: 'custom'
+                        }
+                      ]
+                    }
+                  };  
+                  await updateCustomerToValidateKbis(clientUpdated, updatedCustomerKbis);
+                  console.log('mise à jour fiche client suite envoie du mail acces PRO')
+                } catch (error) {
+                  console.error('Erreur lors de la mise à jour du client kbis')
+                }
+        } else if(kbisState === false && mailProState === false) {
+            console.log("Kbis à valider");
+          } else {
+            console.log("mail déjà envoyé");
+          }
 
-  } else {
-    console.log('Metafields non trouvées pour le client')
+    }
+  } catch (error) {
+    console.error('erreur lors de la récuperation des metafields ou de la maj du client')
   }
-  // const metafieldsUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/customers/${clientUpdated}/metafields.json`
-  // const fetchOptions = {         
-  //   method: 'GET',         
-  //   headers: {             
-  //     'Content-Type': 'application/json',             
-  //     'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
-  //   } 
-  // };
-  // fetch(metafieldsUrl, fetchOptions)
-  //   .then(response => response.json())
-  //   .then(data => {
-  //     if(!data.metafields){
-  //       console.log('no meta');
-  //       return res.status(404).send('No mate found')
-  //     }
-  //     const metafields = data.metafields;
-
-     
-        // if(kbisState === true && mailProState === false) {
-        //   sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer, companyName)
-        //     .then(() => {
-        //       console.log('Mail de bienvenue après validation du kbis envoyé au client pro', clientUpdated);  
-        //     })
-            
-        //     .catch(error => {
-        //       console.error('Erreur lors de l\'envoi de l\'e-mail :', error);
-        //       res.status(500).send('Erreur lors de l\'envoi de l\'e-mail.');
-        //     });
-
-        //     const updatedCustomerKbis = {
-        //       customer: {
-        //         id: clientUpdated,
-        //         tags: "VIP, PRO validé",
-        //         metafields: [
-        //           {
-        //             id: mailProSentField.id,
-        //             key: 'mailProSent',
-        //             value: true,
-        //             type: 'boolean',
-        //             namespace: 'custom'
-        //           }
-        //         ]
-        //       }
-        //     };  
-        //     const updateCustomerUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/customers/${clientUpdated}.json`
-        //     const updateOptions = {
-        //         method: 'PUT',
-        //         headers: {
-        //             'Content-Type': 'application/json',
-        //             'X-Shopify-Access-Token': SHOPIFYAPPTOKEN
-        //           },
-        //           body: JSON.stringify(updatedCustomerKbis)
-        //     };      
-        //      fetch(updateCustomerUrl, updateOptions)
-        //      .then(response => response.json())
-        //      .then(updatedKebisState => {
-        //       console.log('mise à jour fiche client suite envoie du mail acces PRO')
-        //      })
-        //      .catch(error => {
-        //       console.error('Erreur lors de la mise à jour du client', error);
-        //       res.status(500).send('Erreur lors de la mise à jour des données clients')
-        //      });
-        // } else if(kbisState === false && mailProState === false) {
-        //   console.log("Kbis à valider");
-        // } else {
-        //   console.log("mail déjà envoyé");
-        // }
-      } catch (error) {
-        console.error('erreur lors de la récuperation des metafields ou de la maj du client')
-      }
 });
 
 //webhook on customer creation : https://potironapppro.onrender.com/createProCustomer
