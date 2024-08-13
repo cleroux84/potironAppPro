@@ -29,8 +29,10 @@ const YOUR_AUTHORIZATION_CODE = process.env.YOUR_AUTHORIZATION_CODE;
 const { getToken, refreshAccessToken } = require('./services/shippingbo/potironParisAuth.js');
 const { getTokenWarehouse, refreshAccessTokenWarehouse } = require('./services/shippingbo/gmaWarehouseAuth.js');
 const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft, createProDraftOrderShippingbo } = require('./services/shippingbo/potironParisCRUD.js');
+const { getWarehouseOrderDetails, updateWarehouseOrder } = require('./services/shippingbo/GMAWarehouseCRUD.js');
 
-const API_APP_WAREHOUSE_ID = process.env.API_APP_WAREHOUSE_ID;
+
+// const API_APP_WAREHOUSE_ID = process.env.API_APP_WAREHOUSE_ID;
 const WAREHOUSE_AUTHORIZATION_CODE = process.env.WAREHOUSE_AUTHORIZATION_CODE;
 
 let accessToken = null;
@@ -114,69 +116,6 @@ const initializeTokens = async () => {
 };
  
 initializeTokens();
-
-//update orders origin and origin ref in shippingbo GMA => Entrepôt to add "Commande PRO" and "PRO-"
-const updateWarehouseOrder = async (shippingboOrderId, originRef) => {
-  if(originRef.includes('PRO-') === false)  {
-    originRef = "PRO-" + originRef;
-  }
-  const updatedOrder= {
-    id: shippingboOrderId,
-    origin: "Commande PRO",
-    origin_ref: originRef
-}
-  const updateOrderUrl = `https://app.shippingbo.com/orders/${shippingboOrderId}`;
-  const updateOrderOptions = {
-    method: 'PATCH',
-    headers: {
-      'Content-type': 'application/json',
-      Accept: 'application/json',
-      'X-API-VERSION' : '1',
-      'X-API-APP-ID': API_APP_WAREHOUSE_ID,
-      Authorization: `Bearer ${accessTokenWarehouse}`
-    },
-    body: JSON.stringify(updatedOrder)
-  };
-  try{
-        const response = await fetch(updateOrderUrl, updateOrderOptions);
-        const data = await response.json();
-        if(response.ok) {
-          console.log('pro order updated in shippingbo warehouse: ', shippingboOrderId);
-        }
-      } catch (error) {
-         console.error('Error updating shippingbo order', error);
-      }
-}
-
-
-//Retrieve shippingbo order ID from ShopifyID or DraftID and send Shippingbo ID in GMA Shippingbo => Entrepôt
-const getWarehouseOrderDetails = async (shippingboId) => {
-  const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shippingboId}`;
-  const getOrderOptions = {
-    method: 'GET',
-    headers: {
-      'Content-type': 'application/json',
-      Accept: 'application/json',
-      'X-API-VERSION': '1',
-      'X-API-APP-ID': API_APP_WAREHOUSE_ID,
-      Authorization: `Bearer ${accessTokenWarehouse}`
-    },
-  };
-  try {
-    const response = await fetch(getOrderUrl, getOrderOptions);
-    const data = await response.json();
-    if (data.orders && data.orders.length > 0) {
-      const {id, origin_ref} = data.orders[0];
-      return {id, origin_ref};
-    } else {
-      console.log('No data orders found in warehouse');
-      return null;
-    }
-  } catch (err) {
-    console.error('Error fetching Shippingbo order ID Warehouse', err);
-    return null;
-  }
-};
 
 let uploadedFile = null;
 let originalFileName = null;
@@ -306,10 +245,10 @@ app.post('/proOrder', async (req, res) => {
     if(orderDetails) {
       const {id: shippingboId, origin_ref: shippingboOriginRef} = orderDetails
       await updateShippingboOrder(accessToken, shippingboId, shippingboOriginRef);
-      const warehouseDetails = await getWarehouseOrderDetails(shippingboId);
+      const warehouseDetails = await getWarehouseOrderDetails(accessTokenWarehouse, shippingboId);
       if(warehouseDetails) {
         const {id: shippingboIdwarehouse, origin_ref: shippingboWarehouseOriginRef} = warehouseDetails
-        await updateWarehouseOrder(shippingboIdwarehouse, shippingboWarehouseOriginRef);
+        await updateWarehouseOrder(accessTokenWarehouse, shippingboIdwarehouse, shippingboWarehouseOriginRef);
         } else {
           console.log("empty warehouse details")
         }
@@ -389,26 +328,6 @@ app.post('/create-pro-draft-order', async (req, res) => {
       tags_to_add: ["Commande PRO", shippingAddress]
     };
     await createProDraftOrderShippingbo(accessToken, shippingBoOrder);
-    // const createOrderUrl = `https://app.shippingbo.com/orders`;
-    // const createOrderOptions = {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-type': 'application/json',
-    //     Accept: 'application/json',
-    //     'X-API-VERSION' : '1',
-    //     'X-API-APP-ID': API_APP_ID,
-    //     Authorization: `Bearer ${accessToken}`
-    //   },
-    //   body: JSON.stringify(shippingBoOrder)
-    // };
-    // try {
-    //     const responseShippingbo = await fetch(createOrderUrl, createOrderOptions);
-    //     const data = await responseShippingbo.json();
-    //     console.log('data creation shippingbo', data.order.id);
-    // } catch (error) {
-    //   console.error('error in creation order from draft shopify', error);
-    // }
-
  } else {
   console.error('Invalid response structure from Shopify to create draft order for PRO')
  }

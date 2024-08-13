@@ -109,7 +109,7 @@ const getShippingboOrderDetails = async (accessToken, shopifyOrderId) => {
     try {
         const responseShippingbo = await fetch(createOrderUrl, createOrderOptions);
         const data = await responseShippingbo.json();
-        console.log('data creation shippingbo', data.order.id);
+        console.log('draft order created', data.order.id);
     } catch (error) {
       console.error('error in creation order from draft shopify', error);
     }
