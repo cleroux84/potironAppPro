@@ -30,7 +30,7 @@ const { getToken, refreshAccessToken } = require('./services/shippingbo/potironP
 const { getTokenWarehouse, refreshAccessTokenWarehouse } = require('./services/shippingbo/gmaWarehouseAuth.js');
 const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft, createProDraftOrderShippingbo } = require('./services/shippingbo/potironParisCRUD.js');
 const { getWarehouseOrderDetails, updateWarehouseOrder } = require('./services/shippingbo/GMAWarehouseCRUD.js');
-
+const { sendEmailWithKbis } = require('./services/sendMail.js');
 
 // const API_APP_WAREHOUSE_ID = process.env.API_APP_WAREHOUSE_ID;
 const WAREHOUSE_AUTHORIZATION_CODE = process.env.WAREHOUSE_AUTHORIZATION_CODE;
@@ -122,53 +122,53 @@ let originalFileName = null;
 let fileExtension = null;
 let filePath = null;
 
-//Send email with kbis to Potiron Team to check and validate company
-async function sendEmailWithAttachment(filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone) {
-  const transporter = nodemailer.createTransport({
-      service: MAILSERVICE,
-      host: MAILHOST,
-      port: MAILPORT,
-      secure: false,
-      auth: {
-          user: MAILSENDER, 
-          pass: MAILSENDERPASS
-      },
-      tls: {
-        ciphers: 'SSLv3'
-    }
-  });
+// //Send email with kbis to Potiron Team to check and validate company
+// async function sendEmailWithAttachment(filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone) {
+//   const transporter = nodemailer.createTransport({
+//       service: MAILSERVICE,
+//       host: MAILHOST,
+//       port: MAILPORT,
+//       secure: false,
+//       auth: {
+//           user: MAILSENDER, 
+//           pass: MAILSENDERPASS
+//       },
+//       tls: {
+//         ciphers: 'SSLv3'
+//     }
+//   });
 
-  const mailOptions = {
-      from: '"POTIRON PARIS - Nouveau kBis" <noreply@potiron.com>',
-      replyTo: 'bonjour@potiron.com', 
-      to: MAILRECIPIENT,
-      cc: MAILSENDER,
-      subject: 'Nouveau Kbis (' + companyName + ') à vérifier et valider !', 
-      html:`
-      <p>Bonjour, </p>
-      <p>Une nouvelle demande d'inscription pro est arrivée pour <strong>${firstnameCustomer} ${nameCustomer}</strong>.</p>
-      <p>Vous trouverez le KBIS de <strong>${companyName}</strong> ci-joint.</p>
-      <p>Ce nouveau client est joignable à ${mailCustomer} et au ${phone}.</p>
-      <p>Pensez à le valider pour que le client ait accès aux prix destinés aux professionnels.</p>
-      <p>Bonne journée,</p>
-      <p>Céline Leroux</p>
-      <img src='cid:signature'/>
-      `,     
-      attachments: [
-          {
-              filename: 'kbis_' + companyName + fileExtension,
-              content: fs.createReadStream(filePath)
-          },
-          {
-            filename: 'signature.png',
-            path: 'assets/signature.png',
-            cid: 'signature'
-          }
-      ]
-  };
+//   const mailOptions = {
+//       from: '"POTIRON PARIS - Nouveau kBis" <noreply@potiron.com>',
+//       replyTo: 'bonjour@potiron.com', 
+//       to: MAILRECIPIENT,
+//       cc: MAILSENDER,
+//       subject: 'Nouveau Kbis (' + companyName + ') à vérifier et valider !', 
+//       html:`
+//       <p>Bonjour, </p>
+//       <p>Une nouvelle demande d'inscription pro est arrivée pour <strong>${firstnameCustomer} ${nameCustomer}</strong>.</p>
+//       <p>Vous trouverez le KBIS de <strong>${companyName}</strong> ci-joint.</p>
+//       <p>Ce nouveau client est joignable à ${mailCustomer} et au ${phone}.</p>
+//       <p>Pensez à le valider pour que le client ait accès aux prix destinés aux professionnels.</p>
+//       <p>Bonne journée,</p>
+//       <p>Céline Leroux</p>
+//       <img src='cid:signature'/>
+//       `,     
+//       attachments: [
+//           {
+//               filename: 'kbis_' + companyName + fileExtension,
+//               content: fs.createReadStream(filePath)
+//           },
+//           {
+//             filename: 'signature.png',
+//             path: 'assets/signature.png',
+//             cid: 'signature'
+//           }
+//       ]
+//   };
 
-  return transporter.sendMail(mailOptions);
-}
+//   return transporter.sendMail(mailOptions);
+// }
 
 //Send email to b2b customer when kBis validate
 async function sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer, companyName) {
@@ -551,7 +551,7 @@ app.post('/createProCustomer', (req, res) => {
           return;
         }
         // Envoi du fichier par e-mail
-        sendEmailWithAttachment(filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone)
+        sendEmailWithKbis(filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone)
           .then(() => {
             console.log('mail envoyé');
             fs.unlink(uploadedFile.path, (err) => {
