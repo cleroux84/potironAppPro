@@ -84,8 +84,53 @@ const updateDraftOrderWithDraftId = async (updatedOrder, orderId) => {
     }
 }
 
+const getCustomerMetafields = async (clientId) => {
+    const metafieldsUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/customers/${clientId}/metafields.json`;
+    const fetchOptions = {         
+      method: 'GET',         
+      headers: {             
+        'Content-Type': 'application/json',             
+        'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
+      }
+    };
+  
+    try {
+      const response = await fetch(metafieldsUrl, fetchOptions);
+      const data = await response.json();
+      if (!data.metafields) {
+        throw new Error('No metafields found');
+      }
+      return data.metafields;
+    } catch (error) {
+      console.error('Error fetching metafields:', error);
+      throw error; // Propager l'erreur pour une gestion ultérieure
+    }
+  };
+  
+  const updateCustomerToValidateKbis = async (clientId, updatedData) => {
+    const updateCustomerUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/customers/${clientId}.json`;
+    const updateOptions = {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Shopify-Access-Token': SHOPIFYAPPTOKEN
+      },
+      body: JSON.stringify(updatedData)
+    };
+  
+    try {
+      const response = await fetch(updateCustomerUrl, updateOptions);
+      const updatedClient = await response.json();
+      return updatedClient;
+    } catch (error) {
+      console.error('Error updating client data:', error);
+      throw error; // Propager l'erreur pour une gestion ultérieure
+    }
+  };
 
 module.exports = {
     createDraftOrder,
-    updateDraftOrderWithDraftId
+    updateDraftOrderWithDraftId,
+    getCustomerMetafields,
+    updateCustomerToValidateKbis
 }
