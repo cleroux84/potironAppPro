@@ -7,7 +7,7 @@ const { createProDraftOrderShippingbo } = require('./shippingbo/potironParisCRUD
 
 //Create draft Order in Shopify
 
-const createDraftOrder = async (draftOrder) => {
+const createDraftOrder = async (draftOrder, accessToken) => {
     const draftOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/draft_orders.json`;
     const draftOrderOptions = {
     method: 'POST',
