@@ -56,6 +56,7 @@ const createDraftOrder = async (draftOrder, accessToken) => {
         tags_to_add: ["Commande PRO", shippingAddress]
         };
         await createProDraftOrderShippingbo(accessToken, shippingBoOrder);
+        return data;
     } else {
         console.error('Invalid response structure from Shopify to create draft order for PRO')
     }

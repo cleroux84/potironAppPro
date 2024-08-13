@@ -183,7 +183,7 @@ app.post('/create-pro-draft-order', async (req, res) => {
         tags: "Commande PRO"
       }
     };
-    await createDraftOrder(draftOrder, accessToken);
+    const data = await createDraftOrder(draftOrder, accessToken);
 //     const draftOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/draft_orders.json`;
 //     const draftOrderOptions = {
 //       method: 'POST',
