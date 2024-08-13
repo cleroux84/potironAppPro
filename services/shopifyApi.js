@@ -77,7 +77,7 @@ const updateDraftOrderWithDraftId = async (updatedOrder, orderId) => {
       const response = await fetch(updateOrderUrl, updateOptions);
       const data = await response.json();       
       console.log('Draft order updated with draft Id: ', orderId);  
-      res.status(200).send('Order updated');  
+      return data;
     } catch (error) {
       console.error('Error updating draft order:', error);
       res.status(500).send('Error updating order');
