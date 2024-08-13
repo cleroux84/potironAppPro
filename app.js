@@ -15,21 +15,15 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 300;
 const SHOPIFYAPPTOKEN = process.env.SHOPIFYAPPTOKEN;
-// const MAILSERVICE = process.env.MAILSERVICE;
-// const MAILHOST = process.env.MAILHOST;
-// const MAILPORT = process.env.MAILPORT;
-// const MAILSENDER = process.env.MAILSENDER;
-// const MAILSENDERPASS = process.env.MAILSENDERPASS;
-// const MAILRECIPIENT = process.env.MAILRECIPIENT;
-// const MAILCOTATION = process.env.MAILCOTATION;
 
 const YOUR_AUTHORIZATION_CODE = process.env.YOUR_AUTHORIZATION_CODE;
 
 const { getToken, refreshAccessToken } = require('./services/shippingbo/potironParisAuth.js');
 const { getTokenWarehouse, refreshAccessTokenWarehouse } = require('./services/shippingbo/gmaWarehouseAuth.js');
-const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft, createProDraftOrderShippingbo } = require('./services/shippingbo/potironParisCRUD.js');
+const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft } = require('./services/shippingbo/potironParisCRUD.js');
 const { getWarehouseOrderDetails, updateWarehouseOrder } = require('./services/shippingbo/GMAWarehouseCRUD.js');
-const { sendEmailWithKbis, sendWelcomeMailPro, sendNewDraftOrderMail } = require('./services/sendMail.js');
+const { sendEmailWithKbis, sendWelcomeMailPro } = require('./services/sendMail.js');
+const { createDraftOrder } = require('./services/shopifyApi.js');
 
 const WAREHOUSE_AUTHORIZATION_CODE = process.env.WAREHOUSE_AUTHORIZATION_CODE;
 
@@ -104,7 +98,7 @@ const initializeTokens = async () => {
 } catch (error) {
   console.error('Failed to initialize warehouse tokens', error);
 }
-//refreshToken avery 1h50
+//refreshToken every 1h50
     setInterval(async () => {
       console.log("auto refresh");
       await refreshAccessToken(); //1h50 
@@ -189,57 +183,57 @@ app.post('/create-pro-draft-order', async (req, res) => {
         tags: "Commande PRO"
       }
     };
+    await createDraftOrder(draftOrder);
+//     const draftOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/draft_orders.json`;
+//     const draftOrderOptions = {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//         'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
+//       },
+//       body: JSON.stringify(draftOrder) 
+//     };
  
-    const draftOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/draft_orders.json`;
-    const draftOrderOptions = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
-      },
-      body: JSON.stringify(draftOrder) 
-    };
- 
-    const response = await fetch(draftOrderUrl, draftOrderOptions);
-    const data = await response.json();
+//     const response = await fetch(draftOrderUrl, draftOrderOptions);
+//     const data = await response.json();
 
-    if(data && data.draft_order && data.draft_order.customer){
-      const draftOrderLineItems = data.draft_order.line_items;
-      const firstnameCustomer = data.draft_order.customer.first_name;
-      const nameCustomer = data.draft_order.customer.last_name;
-      const draftOrderName = data.draft_order.name;
-      const draftOrderId = 'draft' + draftOrderName.replace('#','');
-      const customerMail = data.draft_order.customer.email;
-      const customerPhone = data.draft_order.customer.phone;
-      const shippingAddress = data.draft_order.shipping_address.address1 + ' ' + data.draft_order.shipping_address.zip + ' ' + data.draft_order.shipping_address.city;
+//     if(data && data.draft_order && data.draft_order.customer){
+//       const draftOrderLineItems = data.draft_order.line_items;
+//       const firstnameCustomer = data.draft_order.customer.first_name;
+//       const nameCustomer = data.draft_order.customer.last_name;
+//       const draftOrderName = data.draft_order.name;
+//       const draftOrderId = 'draft' + draftOrderName.replace('#','');
+//       const customerMail = data.draft_order.customer.email;
+//       const customerPhone = data.draft_order.customer.phone;
+//       const shippingAddress = data.draft_order.shipping_address.address1 + ' ' + data.draft_order.shipping_address.zip + ' ' + data.draft_order.shipping_address.city;
    
-      await sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone, shippingAddress);
-      const shippingBoOrder = {
-        order_items_attributes: draftOrderLineItems.map(item => ({
-        price_tax_included_cents: item.price * 100,
-        price_tax_included_currency: 'EUR',
-        product_ref: item.sku,
-        product_source: "Shopify-8543",
-        product_source_ref: item.variant_id,
-        quantity: item.quantity,
-        title: item.title,
-        source: 'Potironpro'
-      })),
-      origin: 'Potironpro',
-      origin_created_at: new Date(data.draft_order.created_at).toISOString(),
-      origin_ref: draftOrderName + 'provisoire',
-      shipping_address_id: data.draft_order.shipping_address.id,
-      source: 'Potironpro',
-      source_ref: draftOrderId,
-      state: 'waiting_for_payment',
-      total_price_cents: data.draft_order.subtotal_price * 100,
-      total_price_currency: 'EUR',
-      tags_to_add: ["Commande PRO", shippingAddress]
-    };
-    await createProDraftOrderShippingbo(accessToken, shippingBoOrder);
- } else {
-  console.error('Invalid response structure from Shopify to create draft order for PRO')
- }
+//       await sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone, shippingAddress);
+//       const shippingBoOrder = {
+//         order_items_attributes: draftOrderLineItems.map(item => ({
+//         price_tax_included_cents: item.price * 100,
+//         price_tax_included_currency: 'EUR',
+//         product_ref: item.sku,
+//         product_source: "Shopify-8543",
+//         product_source_ref: item.variant_id,
+//         quantity: item.quantity,
+//         title: item.title,
+//         source: 'Potironpro'
+//       })),
+//       origin: 'Potironpro',
+//       origin_created_at: new Date(data.draft_order.created_at).toISOString(),
+//       origin_ref: draftOrderName + 'provisoire',
+//       shipping_address_id: data.draft_order.shipping_address.id,
+//       source: 'Potironpro',
+//       source_ref: draftOrderId,
+//       state: 'waiting_for_payment',
+//       total_price_cents: data.draft_order.subtotal_price * 100,
+//       total_price_currency: 'EUR',
+//       tags_to_add: ["Commande PRO", shippingAddress]
+//     };
+//     await createProDraftOrderShippingbo(accessToken, shippingBoOrder);
+//  } else {
+//   console.error('Invalid response structure from Shopify to create draft order for PRO')
+//  }
     res.status(200).json(data); 
   } catch (error) {
     console.error('Erreur lors de la création du brouillon de commande :', error);
