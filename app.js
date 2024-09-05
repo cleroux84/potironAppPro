@@ -300,20 +300,26 @@ app.post('/createProCustomer', async (req, res) => {
         let paletteEquipment = null;
         let paletteAppointment = null;
         let paletteNotes = '';
-        if(deliveryPalette) {
+        console.log("before colis", deliveryPackage);
+        console.log("before palette", deliveryPalette)
+
+        if(deliveryPalette === true) {
           paletteEquipment = extractInfoFromNote(myData.note, 'palette_equipment'); //bool
           paletteAppointment = extractInfoFromNote(myData.note, 'palette_appointment'); //bool
           paletteNotes = extractInfoFromNote(myData.note, 'palette_added_notes'); //textarea
+          console.log("if true palette equipment", paletteEquipment);
+          console.log("if true palette paletteAppointment", paletteAppointment);
+          console.log("if true palette paletteNotes", paletteNotes);
         }
         let deliveryPref = '';
         if(deliveryPackage && deliveryPalette) {
           deliveryPref = "Au colis et en palette";
         } else if(deliveryPackage && !deliveryPalette) {
           deliveryPref = "Au colis uniquement";
-        } else if(!deliveryPackage && !deliveryPalette) {
+        } else if(!deliveryPackage && deliveryPalette) {
           deliveryPref = "En palette uniquement"
         }
-
+        console.log("colis palette", deliveryPref);
         // Vérifier si un fichier a été téléchargé
         if (!uploadedFile) {
           res.status(400).send('Aucun fichier téléchargé.');
@@ -422,7 +428,7 @@ app.post('/createProCustomer', async (req, res) => {
         }
       };
     const updatedCustomer = await createProCustomer(clientToUpdate, updatedCustomerData);
-    console.log("Création d'un client pro");
+    console.log("Création d'un client pro", updatedCustomerData);
     res.status(200).json(updatedCustomer);
   } else {
       console.log("nouveau client créé non pro");
