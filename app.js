@@ -301,6 +301,8 @@ app.post('/createProCustomer', async (req, res) => {
         let paletteAppointment = null;
         let paletteNotes = '';
         console.log("before colis", deliveryPackage);
+        console.log("before colis checked", deliveryPackage.checked);
+
         console.log("before palette", deliveryPalette)
 
         if(deliveryPalette === true) {
