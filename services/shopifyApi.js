@@ -43,6 +43,7 @@ const createDraftOrder = async (draftOrder, accessToken) => {
         console.log("paletteNotes", paletteNotesValue);
         let dataForShippingboTag;
         if(deliveryPref.value.includes("palette")) {
+          console.log('ppl');
           let appointmentValue = "Non";
           if(paletteAppointment.value === true) {
             appointmentValue = "Oui";
