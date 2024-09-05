@@ -297,12 +297,15 @@ app.post('/createProCustomer', async (req, res) => {
         const city = extractInfoFromNote(myData.note, 'city');
         const deliveryPackage = extractInfoFromNote(myData.note, 'package'); //bool
         const deliveryPalette = extractInfoFromNote(myData.note, 'palette'); //bool
+        let paletteEquipment = null;
+        let paletteAppointment = null;
+        let paletteNotes = '';
         if(deliveryPalette) {
-          const paletteEquipment = extractInfoFromNote(myData.note, 'palette_equipment'); //bool
-          const paletteAppointment = extractInfoFromNote(myData.note, 'palette_appointment'); //bool
-          const paletteNotes = extractInfoFromNote(myData.note, 'palette_added_notes'); //textarea
+          paletteEquipment = extractInfoFromNote(myData.note, 'palette_equipment'); //bool
+          paletteAppointment = extractInfoFromNote(myData.note, 'palette_appointment'); //bool
+          paletteNotes = extractInfoFromNote(myData.note, 'palette_added_notes'); //textarea
         }
-        let deliveryPref;
+        let deliveryPref = '';
         if(deliveryPackage && deliveryPalette) {
           deliveryPref = "Au colis et en palette";
         } else if(deliveryPackage && !deliveryPalette) {
