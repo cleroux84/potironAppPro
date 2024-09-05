@@ -39,7 +39,7 @@ const createDraftOrder = async (draftOrder, accessToken) => {
         console.log("deliveryPref", deliveryPref.value);
         console.log("paletteEquipment", paletteEquipment.value);
         console.log("paletteAppointment", paletteAppointment.value);
-        console.log("paletteNotes", paletteNotes.value);
+        //console.log("paletteNotes", paletteNotes.value);
         await sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone, shippingAddress);
         
         const shippingBoOrder = {
