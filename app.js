@@ -283,20 +283,20 @@ app.post('/createProCustomer', async (req, res) => {
     var b2BState = myData.tags;
     if (b2BState && b2BState.includes("VIP")) {
         const clientToUpdate = myData.id;
-        const siret = extractInfoFromNote(myData.note, 'siret');
-        const companyName = extractInfoFromNote(myData.note, 'company_name');
-        const tva = extractInfoFromNote(myData.note, 'tva');
-        const phone = extractInfoFromNote(myData.note, 'phone');
-        const sector = extractInfoFromNote(myData.note, 'sector');
+        const siret = await extractInfoFromNote(myData.note, 'siret');
+        const companyName = await extractInfoFromNote(myData.note, 'company_name');
+        const tva = await extractInfoFromNote(myData.note, 'tva');
+        const phone = await extractInfoFromNote(myData.note, 'phone');
+        const sector = await extractInfoFromNote(myData.note, 'sector');
         const mailCustomer = myData.email;
         const nameCustomer = myData.last_name;
         const firstnameCustomer = myData.first_name;
-        const address1 = extractInfoFromNote(myData.note, 'address1');
-        const address2 = extractInfoFromNote(myData.note, 'address2');
-        const zip = extractInfoFromNote(myData.note, 'zip');
-        const city = extractInfoFromNote(myData.note, 'city');
-        const deliveryPackage = extractInfoFromNote(myData.note, 'package'); //bool
-        const deliveryPalette = extractInfoFromNote(myData.note, 'palette'); //bool
+        const address1 = await extractInfoFromNote(myData.note, 'address1');
+        const address2 = await extractInfoFromNote(myData.note, 'address2');
+        const zip = await extractInfoFromNote(myData.note, 'zip');
+        const city = await extractInfoFromNote(myData.note, 'city');
+        const deliveryPackage = await extractInfoFromNote(myData.note, 'package'); //bool
+        const deliveryPalette = await extractInfoFromNote(myData.note, 'palette'); //bool
         let paletteEquipment = null;
         let paletteAppointment = null;
         let paletteNotes = '';
@@ -304,9 +304,9 @@ app.post('/createProCustomer', async (req, res) => {
         console.log("before palette", deliveryPalette)
 
         if(deliveryPalette === true) {
-          paletteEquipment = extractInfoFromNote(myData.note, 'palette_equipment'); //bool
-          paletteAppointment = extractInfoFromNote(myData.note, 'palette_appointment'); //bool
-          paletteNotes = extractInfoFromNote(myData.note, 'palette_added_notes'); //textarea
+          paletteEquipment = await extractInfoFromNote(myData.note, 'palette_equipment'); //bool
+          paletteAppointment = await extractInfoFromNote(myData.note, 'palette_appointment'); //bool
+          paletteNotes = await extractInfoFromNote(myData.note, 'palette_added_notes'); //textarea
           console.log("if true palette equipment", paletteEquipment);
           console.log("if true palette paletteAppointment", paletteAppointment);
           console.log("if true palette paletteNotes", paletteNotes);
