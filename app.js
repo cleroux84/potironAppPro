@@ -295,6 +295,21 @@ app.post('/createProCustomer', async (req, res) => {
         const address2 = extractInfoFromNote(myData.note, 'address2');
         const zip = extractInfoFromNote(myData.note, 'zip');
         const city = extractInfoFromNote(myData.note, 'city');
+        const deliveryPackage = extractInfoFromNote(myData.note, 'package'); //bool
+        const deliveryPalette = extractInfoFromNote(myData.note, 'palette'); //bool
+        if(deliveryPalette) {
+          const paletteEquipment = extractInfoFromNote(myData.note, 'palette_equipment'); //bool
+          const paletteAppointment = extractInfoFromNote(myData.note, 'palette_appointment'); //bool
+          const paletteNotes = extractInfoFromNote(myData.note, 'palette_added_notes'); //textarea
+        }
+        let deliveryPref;
+        if(deliveryPackage && deliveryPalette) {
+          deliveryPref = "Au colis et en palette";
+        } else if(deliveryPackage && !deliveryPalette) {
+          deliveryPref = "Au colis uniquement";
+        } else if(!deliveryPackage && !deliveryPalette) {
+          deliveryPref = "En palette uniquement"
+        }
 
         // Vérifier si un fichier a été téléchargé
         if (!uploadedFile) {
@@ -374,6 +389,30 @@ app.post('/createProCustomer', async (req, res) => {
               key: 'mailProSent',
               value: false,
               type: 'boolean',
+              namespace: 'custom'
+            },
+            {
+              key: 'delivery_pref',
+              value: deliveryPref,
+              type: 'single_line_text_field',
+              namespace: 'custom'
+            },
+            {
+              key: 'palette_equipment',
+              value: paletteEquipment,
+              type: 'single_line_text_field',
+              namespace: 'custom'
+            },
+            {
+              key: 'palette_appointment',
+              value: paletteAppointment,
+              type: 'boolean',
+              namespace: 'custom'
+            },
+            {
+              key: 'palette_notes',
+              value: paletteNotes,
+              type: 'multi_line_text_field',
               namespace: 'custom'
             }
           ]
