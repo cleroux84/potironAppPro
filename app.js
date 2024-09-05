@@ -300,11 +300,9 @@ app.post('/createProCustomer', async (req, res) => {
         let paletteEquipment = null;
         let paletteAppointment = null;
         let paletteNotes = '';
-        console.log("before colis", deliveryPackage);
-        console.log("before palette", deliveryPalette)
 
-        if(deliveryPalette === true) {
-          paletteEquipment = extractInfoFromNote(myData.note, 'palette_equipment'); //bool
+        if(deliveryPalette === on) {
+          paletteEquipment = extractInfoFromNote(myData.note, 'palette_equipment');
           paletteAppointment = extractInfoFromNote(myData.note, 'palette_appointment'); //bool
           paletteNotes = extractInfoFromNote(myData.note, 'palette_added_notes'); //textarea
           console.log("if true palette equipment", paletteEquipment);
@@ -312,11 +310,11 @@ app.post('/createProCustomer', async (req, res) => {
           console.log("if true palette paletteNotes", paletteNotes);
         }
         let deliveryPref = '';
-        if(deliveryPackage && deliveryPalette) {
+        if(deliveryPackage === on && deliveryPalette === on) {
           deliveryPref = "Au colis et en palette";
-        } else if(deliveryPackage && !deliveryPalette) {
+        } else if(deliveryPackage === on && deliveryPalette === null) {
           deliveryPref = "Au colis uniquement";
-        } else if(!deliveryPackage && deliveryPalette) {
+        } else if(deliveryPackage === null && deliveryPalette === on) {
           deliveryPref = "En palette uniquement"
         }
         console.log("colis palette", deliveryPref);
