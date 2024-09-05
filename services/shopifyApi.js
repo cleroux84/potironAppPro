@@ -36,11 +36,26 @@ const createDraftOrder = async (draftOrder, accessToken) => {
         const paletteEquipment = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_equipment');
         const paletteAppointment = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_appointment');
         const paletteNotes = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_notes');
-        console.log("deliveryPref", deliveryPref);
-        console.log("paletteEquipment", paletteEquipment);
-        console.log("paletteAppointment", paletteAppointment);
-        console.log("paletteNotes", paletteNotes);
-
+        console.log("deliveryPref", deliveryPref.value);
+        console.log("paletteEquipment", paletteEquipment.value);
+        console.log("paletteAppointment", paletteAppointment.value);
+        console.log("paletteNotes", paletteNotes.value);
+        let dataForShippingboTag;
+        if(deliveryPref.value.includes("palette")) {
+          let appointmentValue = "Non";
+          if(paletteAppointment.value === true) {
+            appointmentValue = "Oui";
+          } 
+          dataForShippingboTag = ["Commande PRO", 
+            "Adresse : " + shippingAddress, 
+            "Preference de livraison: " + deliveryPref.value, 
+            "Equipement palette: " + paletteEquipment.value,
+            "Besoin d'un rendez-vous: " + appointmentValue,
+            "Notes complémentaires: " + paletteNotes.value
+          ]
+        } else {
+          dataForShippingboTag = ["Commande PRO", "Adresse : " + shippingAddress, "Preference de livraison: " + deliveryPref.value ]
+        }
         await sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone, shippingAddress);
         
         const shippingBoOrder = {
@@ -63,7 +78,7 @@ const createDraftOrder = async (draftOrder, accessToken) => {
         state: 'waiting_for_payment',
         total_price_cents: data.draft_order.subtotal_price * 100,
         total_price_currency: 'EUR',
-        tags_to_add: ["Commande PRO", shippingAddress, "preference de livraison: " + deliveryPref, "équipement palette" + paletteEquipment ]
+        tags_to_add: dataForShippingboTag
         };
         await createProDraftOrderShippingbo(accessToken, shippingBoOrder);
         return data;
