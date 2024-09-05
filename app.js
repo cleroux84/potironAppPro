@@ -295,8 +295,8 @@ app.post('/createProCustomer', async (req, res) => {
         const address2 = extractInfoFromNote(myData.note, 'address2');
         const zip = extractInfoFromNote(myData.note, 'zip');
         const city = extractInfoFromNote(myData.note, 'city');
-        const deliveryPackage = extractInfoFromNote(myData.note, 'package'); //bool
-        const deliveryPalette = extractInfoFromNote(myData.note, 'palette'); //bool
+        const deliveryPackage = extractInfoFromNote(myData.note, 'package');
+        const deliveryPalette = extractInfoFromNote(myData.note, 'palette');
         let paletteEquipment = null;
         let paletteAppointment = null;
         let paletteNotes = '';
@@ -305,9 +305,6 @@ app.post('/createProCustomer', async (req, res) => {
           paletteEquipment = extractInfoFromNote(myData.note, 'palette_equipment');
           paletteAppointment = extractInfoFromNote(myData.note, 'palette_appointment'); //bool
           paletteNotes = extractInfoFromNote(myData.note, 'palette_added_notes'); //textarea
-          console.log("if true palette equipment", paletteEquipment);
-          console.log("if true palette paletteAppointment", paletteAppointment);
-          console.log("if true palette paletteNotes", paletteNotes);
         }
         let deliveryPref = '';
         if(deliveryPackage === 'on' && deliveryPalette === 'on') {
@@ -317,7 +314,6 @@ app.post('/createProCustomer', async (req, res) => {
         } else if(deliveryPackage === null && deliveryPalette === 'on') {
           deliveryPref = "En palette uniquement"
         }
-        console.log("colis palette", deliveryPref);
         // Vérifier si un fichier a été téléchargé
         if (!uploadedFile) {
           res.status(400).send('Aucun fichier téléchargé.');
@@ -419,14 +415,14 @@ app.post('/createProCustomer', async (req, res) => {
             {
               key: 'palette_notes',
               value: paletteNotes,
-              type: 'multi_line_text_field',
+              type: 'single_line_text_field',
               namespace: 'custom'
             }
           ]
         }
       };
     const updatedCustomer = await createProCustomer(clientToUpdate, updatedCustomerData);
-    console.log("Création d'un client pro", updatedCustomerData);
+    console.log("Création d'un client pro");
     res.status(200).json(updatedCustomer);
   } else {
       console.log("nouveau client créé non pro");
