@@ -38,6 +38,8 @@ const createDraftOrder = async (draftOrder, accessToken) => {
         const paletteAppointment = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_appointment');
         const paletteNotes = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_notes');
         const paletteNotesValue = paletteNotes?.value || "Aucune note complémentaire";
+        const paletteEquipmentValue = paletteEquipment?.value || "";
+
         let appointmentValue = 'Non';
         
         if (deliveryPref.value.includes("palette")) {
@@ -59,7 +61,7 @@ const createDraftOrder = async (draftOrder, accessToken) => {
             "Préference(s) de livraison : " + deliveryPref.value
           ]
         }
-        await sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone, shippingAddress, deliveryPref.value, paletteEquipment.value, appointmentValue, paletteNotesValue);
+        await sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone, shippingAddress, deliveryPref.value, paletteEquipmentValue, appointmentValue, paletteNotesValue);
         
         const shippingBoOrder = {
             order_items_attributes: draftOrderLineItems.map(item => ({
