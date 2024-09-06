@@ -37,7 +37,8 @@ const createDraftOrder = async (draftOrder, accessToken) => {
         if (deliveryPref.value.includes("palette")) {
           const paletteEquipment = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_equipment');
           const paletteAppointment = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_appointment');
-          // const paletteNotes = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_notes');
+          const paletteNotes = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_notes');
+          const paletteNotesValue = paletteNotes.value ? paletteNotes.value : "Aucune note complémentaire";
           let appointmentValue = 'Non';
           if(paletteAppointment.value === true || paletteAppointment.value === "true") {
             appointmentValue = 'Oui'
@@ -47,7 +48,8 @@ const createDraftOrder = async (draftOrder, accessToken) => {
             "Adresse : " + shippingAddress, 
             "Préference(s) de livraison : " + deliveryPref.value, 
             "Equipement pour palette : " + paletteEquipment.value,
-            "Nécessite un RDV : " + appointmentValue
+            "Nécessite un RDV : " + appointmentValue,
+            "Notes complémentaires : " 
           ]
         } else {
           dataForShippingboTag = [
