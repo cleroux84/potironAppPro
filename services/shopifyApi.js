@@ -34,22 +34,22 @@ const createDraftOrder = async (draftOrder, accessToken) => {
         const metafields = await getCustomerMetafields(data.draft_order.customer.id);
         const deliveryPref = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'delivery_pref');
         let dataForShippingboTag;
+        const paletteEquipment = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_equipment');
+        const paletteAppointment = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_appointment');
+        const paletteNotes = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_notes');
+        const paletteNotesValue = paletteNotes.value ? paletteNotes.value : "Aucune note complémentaire";
+        let appointmentValue = 'Non';
+        if(paletteAppointment.value === true || paletteAppointment.value === "true") {
+          appointmentValue = 'Oui'
+        }
         if (deliveryPref.value.includes("palette")) {
-          const paletteEquipment = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_equipment');
-          const paletteAppointment = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_appointment');
-          const paletteNotes = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_notes');
-          const paletteNotesValue = paletteNotes.value ? paletteNotes.value : "Aucune note complémentaire";
-          let appointmentValue = 'Non';
-          if(paletteAppointment.value === true || paletteAppointment.value === "true") {
-            appointmentValue = 'Oui'
-          }
-          dataForShippingboTag = [
-            "Commande PRO", 
-            "Adresse : " + shippingAddress, 
-            "Préference(s) de livraison : " + deliveryPref.value, 
-            "Equipement pour palette : " + paletteEquipment.value,
-            "Nécessite un RDV : " + appointmentValue,
-            "Notes complémentaires : " 
+        dataForShippingboTag = [
+          "Commande PRO", 
+          "Adresse : " + shippingAddress, 
+          "Préference(s) de livraison : " + deliveryPref.value, 
+          "Equipement pour palette : " + paletteEquipment.value,
+          "Nécessite un RDV : " + appointmentValue,
+          "Notes complémentaires : " + paletteNotesValue
           ]
         } else {
           dataForShippingboTag = [
@@ -58,7 +58,7 @@ const createDraftOrder = async (draftOrder, accessToken) => {
             "Préference(s) de livraison : " + deliveryPref.value
           ]
         }
-        await sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone, shippingAddress);
+        await sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone, shippingAddress, deliveryPref.value, paletteEquipment.value, appointmentValue, paletteNotesValue);
         
         const shippingBoOrder = {
             order_items_attributes: draftOrderLineItems.map(item => ({

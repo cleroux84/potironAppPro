@@ -101,7 +101,14 @@ async function sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer,
   }
 
 //Send mail to Potiron Team to ask delivery quote
-  async function sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone, shippingAddress) {
+  async function sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone, shippingAddress, deliveryPrefValue, paletteEquipmentValue, appointmentValue, paletteNotes) {
+    let deliveryTextIfPalette = '';
+    if(deliveryPrefValue.includes("palette")) {
+      deliveryTextIfPalette = `<p> Equipement nécessaire : ${paletteEquipmentValue}</p>
+      <p>Nécessité de prendre RDV pour la livraison : ${appointmentValue}</p>
+      <p>Notes complémentaires concernant la livraison : ${paletteNotes}</p>
+      `
+    }
     const transporter = nodemailer.createTransport({
       service: MAILSERVICE,
       host: MAILHOST,
@@ -126,6 +133,8 @@ async function sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer,
       <p>Une nouvelle commande provisoire a été créée pour le client PRO : ${firstnameCustomer} ${nameCustomer}</p>
       <p>Il est joignable pour valider la cotation à ${customerMail} et au ${customerPhone} </p>
       <p>L'adresse de livraison renseignée est : ${shippingAddress}</p>
+      <p>Préférence(s) de livraison : ${deliveryPrefValue}</p>
+      ${deliveryTextIfPalette}
       <img src='cid:signature'/>
       `,     
       attachments: [
