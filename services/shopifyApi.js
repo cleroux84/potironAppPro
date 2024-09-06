@@ -37,7 +37,7 @@ const createDraftOrder = async (draftOrder, accessToken) => {
         const paletteEquipment = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_equipment');
         const paletteAppointment = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_appointment');
         const paletteNotes = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_notes');
-        const paletteNotesValue = paletteNotes.value ? paletteNotes.value : "Aucune note complémentaire";
+        const paletteNotesValue = paletteNotes?.value || "Aucune note complémentaire";
         let appointmentValue = 'Non';
         if(paletteAppointment.value === true || paletteAppointment.value === "true") {
           appointmentValue = 'Oui'
