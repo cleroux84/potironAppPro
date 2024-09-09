@@ -158,6 +158,28 @@ const getCustomerMetafields = async (clientId) => {
     }
   };
 
+  const deleteMetafield = async (customerId, metafieldId) => {
+    const deleteUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/customers/${customerId}/metafields/${metafieldId}.json`;
+    const deleteOptions = {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Shopify-Access-Token': SHOPIFYAPPTOKEN
+      }
+    };
+   
+    try {
+      const response = await fetch(deleteUrl, deleteOptions);
+      if (response.ok) {
+        console.log(`Metafield ${metafieldId} supprimé avec succès.`);
+      } else {
+        console.error(`Erreur lors de la suppression du metafield ${metafieldId}:`, response.statusText);
+      }
+    } catch (error) {
+      console.error('Erreur lors de la suppression du metafield:', error);
+    }
+  };
+
   const createProCustomer = async (clientToUpdate, updatedCustomerData) => {
     const updateCustomerUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/customers/${clientToUpdate}.json`
     const updateOptions = {
@@ -182,5 +204,6 @@ module.exports = {
     updateDraftOrderWithDraftId,
     getCustomerMetafields,
     updateProCustomer,
-    createProCustomer
+    createProCustomer,
+    deleteMetafield
 }

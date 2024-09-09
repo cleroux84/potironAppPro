@@ -20,7 +20,7 @@ const { getTokenWarehouse, refreshAccessTokenWarehouse } = require('./services/s
 const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft } = require('./services/shippingbo/potironParisCRUD.js');
 const { getWarehouseOrderDetails, updateWarehouseOrder } = require('./services/shippingbo/GMAWarehouseCRUD.js');
 const { sendEmailWithKbis, sendWelcomeMailPro } = require('./services/sendMail.js');
-const { createDraftOrder, updateDraftOrderWithDraftId, getCustomerMetafields, updateProCustomer, createProCustomer } = require('./services/shopifyApi.js');
+const { createDraftOrder, updateDraftOrderWithDraftId, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield } = require('./services/shopifyApi.js');
 
 let accessToken = null;
 let refreshToken = null;
@@ -201,7 +201,25 @@ app.post('/update-delivery-pref', async (req, res) => {
     const paletteNotesField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_notes');
     let updatedDeliveryData;
 
-    if(deliveryPref.includes('palette')) {
+    if (deliveryPalette !== 'on') {
+      if (paletteEquipmentField) await deleteMetafield(clientToUpdate, paletteEquipmentField.id);
+      if (paletteAppointmentField) await deleteMetafield(clientToUpdate, paletteAppointmentField.id);
+      if (paletteNotesField) await deleteMetafield(clientToUpdate, paletteNotesField.id);
+      updatedDeliveryData = {
+        customer: {
+          id: clientToUpdate,
+          metafields: [
+            {
+              id: deliveryPrefField.id,
+              key: 'delivery_pref',
+              value: deliveryPref,
+              type: 'single_line_text_field',
+              namespace: 'custom'
+            }
+          ]
+        }
+    } 
+  } else {
     updatedDeliveryData = {
       customer: {
         id: clientToUpdate,
@@ -237,43 +255,8 @@ app.post('/update-delivery-pref', async (req, res) => {
         ]
       }
     };  
-  } else {
-    updatedDeliveryData = {
-      customer: {
-        id: clientToUpdate,
-        metafields: [
-          {
-            id: deliveryPrefField.id,
-            key: 'delivery_pref',
-            value: deliveryPref,
-            type: 'single_line_text_field',
-            namespace: 'custom'
-          },
-          {
-            id: paletteEquipmentField.id,
-            key: 'palette_equipment',
-            value: "",
-            type: 'single_line_text_field',
-            namespace: 'custom'
-          },
-          {
-            id: paletteAppintmentField.id,
-            key: 'palette_appointment',
-            value: null,
-            type: 'boolean',
-            namespace: 'custom'
-          },
-          {
-            id: paletteNotesField.id,
-            key: 'palette_notes',
-            value: "",
-            type: 'single_line_text_field',
-            namespace: 'custom'
-          }
-        ]
-      }
-    };  
   }
+  
     await updateProCustomer(clientToUpdate, updatedDeliveryData);
     console.log('update delivery pref for customer', clientToUpdate);
   } catch (error) {
