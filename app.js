@@ -184,11 +184,11 @@ app.post('/update-delivery-pref', async (req, res) => {
     let paletteNotes = '';
     let deliveryPref = '';
 
-    // if(deliveryPalette === 'on') {
-    //   paletteEquipment = extractInfoFromNote(deliveryData.note, 'palette_equipment');
-    //   paletteAppointment = extractInfoFromNote(deliveryData.note, 'palette_appointment'); //bool
-    //   paletteNotes = extractInfoFromNote(deliveryData.note, 'palette_added_notes'); //textarea
-    // }
+    if(deliveryPalette === 'on') {
+      paletteEquipment = deliveryData.palette_equipment;
+      paletteAppointment = deliveryData.palette_appointment; //bool
+      paletteNotes = deliveryData.palette_notes; //textarea
+    }
     if(deliveryPackage === 'on' && deliveryPalette === 'on') {
       deliveryPref = "Au colis et en palette";
     } else if(deliveryPackage === 'on' && deliveryPalette === undefined) {
@@ -215,27 +215,27 @@ app.post('/update-delivery-pref', async (req, res) => {
             type: 'single_line_text_field',
             namespace: 'custom'
           }
-          // {
-          //   id: paletteEquipmentField.id,
-          //   key: 'palette_equipment',
-          //   value: paletteEquipment,
-          //   type: 'single_line_text_field',
-          //   namespace: 'custom'
-          // },
-          // {
-          //   id: paletteAppintmentField.id,
-          //   key: 'palette_appointment',
-          //   value: paletteAppointment,
-          //   type: 'boolean',
-          //   namespace: 'custom'
-          // },
-          // {
-          //   id: paletteNotesField.id,
-          //   key: 'palette_notes',
-          //   value: paletteNotes,
-          //   type: 'single_line_text_field',
-          //   namespace: 'custom'
-          // }
+          {
+            id: paletteEquipmentField.id,
+            key: 'palette_equipment',
+            value: paletteEquipment,
+            type: 'single_line_text_field',
+            namespace: 'custom'
+          },
+          {
+            id: paletteAppintmentField.id,
+            key: 'palette_appointment',
+            value: paletteAppointment,
+            type: 'boolean',
+            namespace: 'custom'
+          },
+          {
+            id: paletteNotesField.id,
+            key: 'palette_notes',
+            value: paletteNotes,
+            type: 'single_line_text_field',
+            namespace: 'custom'
+          }
         ]
       }
     };  
