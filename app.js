@@ -37,6 +37,7 @@ const corsOptions = {
 app.set('appName', 'potironAppPro');
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get('/', (req, res) => {
     res.send('Bienvenue sur potironAppPro !');
@@ -175,7 +176,8 @@ app.post('/update-delivery-pref', async (req, res) => {
   try {
     const deliveryData = req.body;
     console.log('new delivery pref', deliveryData);
-    
+    console.log('customer id: ', req.body.customer_id);
+
   } catch (error) {
     console.error("Erreur lors de la mise à jour des préférences de livraison", error);
     res.status(500).json({error: "Erreur lors de la mise à jour des préérences de livraison"})
