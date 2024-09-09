@@ -176,16 +176,18 @@ app.post('/update-delivery-pref', async (req, res) => {
     const deliveryData = req.body;
     const deliveryPackage = extractInfoFromNote(deliveryData.note, 'package');
     const deliveryPalette = extractInfoFromNote(deliveryData.note, 'palette');
+    console.log("colis: ", deliveryPackage);
+    console.log("palette: ", deliveryPalette);
     let paletteEquipment = null;
     let paletteAppointment = null;
     let paletteNotes = '';
     let deliveryPref = '';
 
-    if(deliveryPalette === 'on') {
-      paletteEquipment = extractInfoFromNote(deliveryData.note, 'palette_equipment');
-      paletteAppointment = extractInfoFromNote(deliveryData.note, 'palette_appointment'); //bool
-      paletteNotes = extractInfoFromNote(deliveryData.note, 'palette_added_notes'); //textarea
-    }
+    // if(deliveryPalette === 'on') {
+    //   paletteEquipment = extractInfoFromNote(deliveryData.note, 'palette_equipment');
+    //   paletteAppointment = extractInfoFromNote(deliveryData.note, 'palette_appointment'); //bool
+    //   paletteNotes = extractInfoFromNote(deliveryData.note, 'palette_added_notes'); //textarea
+    // }
     if(deliveryPackage === 'on' && deliveryPalette === 'on') {
       deliveryPref = "Au colis et en palette";
     } else if(deliveryPackage === 'on' && deliveryPalette === null) {
@@ -193,7 +195,7 @@ app.post('/update-delivery-pref', async (req, res) => {
     } else if(deliveryPackage === null && deliveryPalette === 'on') {
       deliveryPref = "En palette uniquement"
     }
-    
+    console.log('delivery_pref', deliveryPref)
     const clientToUpdate = deliveryData.customer_id;
     const metafields = await getCustomerMetafields(clientToUpdate);
     const deliveryPrefField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'delivery_pref');

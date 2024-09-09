@@ -149,7 +149,7 @@ const getCustomerMetafields = async (clientId) => {
     };
   
     try {
-      console.log("updated data", updatedData);
+      console.log("updated data", updatedData.metafields);
       const response = await fetch(updateCustomerUrl, updateOptions);
       const updatedClient = await response.json();
       return updatedClient;
