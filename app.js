@@ -201,7 +201,7 @@ app.post('/update-delivery-pref', async (req, res) => {
     const paletteNotesField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_notes');
     let updatedDeliveryData;
 
-    if(deliveryPackage.includes('palette')) {
+    if(deliveryPref.includes('palette')) {
     updatedDeliveryData = {
       customer: {
         id: clientToUpdate,
