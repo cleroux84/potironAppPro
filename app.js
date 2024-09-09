@@ -200,7 +200,7 @@ app.post('/update-delivery-pref', async (req, res) => {
     const paletteEquipmentField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_equipment');
     const paletteAppintmentField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_appointment');
     const paletteNotesField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_notes');
-
+    console.log('first field Id: ', deliveryPrefField);
     const updatedDeliveryData = {
       customer: {
         id: clientToUpdate,
@@ -211,28 +211,28 @@ app.post('/update-delivery-pref', async (req, res) => {
             value: deliveryPref,
             type: 'single_line_text_field',
             namespace: 'custom'
-          },
-          {
-            id: paletteEquipmentField.id,
-            key: 'palette_equipment',
-            value: paletteEquipment,
-            type: 'single_line_text_field',
-            namespace: 'custom'
-          },
-          {
-            id: paletteAppintmentField.id,
-            key: 'palette_appointment',
-            value: paletteAppointment,
-            type: 'boolean',
-            namespace: 'custom'
-          },
-          {
-            id: paletteNotesField.id,
-            key: 'palette_notes',
-            value: paletteNotes,
-            type: 'single_line_text_field',
-            namespace: 'custom'
           }
+          // {
+          //   id: paletteEquipmentField.id,
+          //   key: 'palette_equipment',
+          //   value: paletteEquipment,
+          //   type: 'single_line_text_field',
+          //   namespace: 'custom'
+          // },
+          // {
+          //   id: paletteAppintmentField.id,
+          //   key: 'palette_appointment',
+          //   value: paletteAppointment,
+          //   type: 'boolean',
+          //   namespace: 'custom'
+          // },
+          // {
+          //   id: paletteNotesField.id,
+          //   key: 'palette_notes',
+          //   value: paletteNotes,
+          //   type: 'single_line_text_field',
+          //   namespace: 'custom'
+          // }
         ]
       }
     };  
