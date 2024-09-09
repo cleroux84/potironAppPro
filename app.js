@@ -165,10 +165,23 @@ app.post('/create-pro-draft-order', async (req, res) => {
     const data = await createDraftOrder(draftOrder, accessToken);
     res.status(200).json(data); 
   } catch (error) {
-    console.error('Erreur lors de la création du brouillon de commande :', error);
-    res.status(500).json({ error: 'Erreur lors de la création du brouillon de commande.' });
+    console.error('Erreur lors de la création du draft order :', error);
+    res.status(500).json({ error: 'Erreur lors de la création du draft order' });
   }
 });
+
+//update delivery preferences from pages/account-update-delivery
+app.post('/update-delivery-pref', async (req, res) => {
+  try {
+    const deliveryData = req.body;
+    console.log('new delivery pref', deliveryData);
+    
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour des préférences de livraison", error);
+    res.status(500).json({error: "Erreur lors de la mise à jour des préérences de livraison"})
+  }
+
+})
 
 //webhook on update draft order : https://potironapppro.onrender.com/updatedDraftOrder
 app.post('/updatedDraftOrder', async (req, res) => {
@@ -181,6 +194,7 @@ app.post('/updatedDraftOrder', async (req, res) => {
   const draftName = updatedDraftData.name;
   const draftId = "draft" + draftName.replace('#','');
   const orderId = updatedDraftData.id;
+  //il va falloir récupérer les metafields du client concerné par la commande pour les ajouter en tags
 
     if (isCompleted === true && isCommandePro) {
       try {
@@ -193,6 +207,7 @@ app.post('/updatedDraftOrder', async (req, res) => {
         console.log('error shiipingboId', err);
       }
   } else if(isCommandePro && !draftTagExists) {
+    //const metafields = await getCustomerMetafields(updatedDraftOrder.customer.id); ? vérifier  
     try {
       draftTagArray.push(draftId);
       const updatedOrder = {
