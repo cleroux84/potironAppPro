@@ -174,7 +174,6 @@ app.post('/create-pro-draft-order', async (req, res) => {
 app.post('/update-delivery-pref', async (req, res) => {
   try {
     const deliveryData = req.body;
-    console.log('new delivery pref', deliveryData);
     const deliveryPackage = extractInfoFromNote(deliveryData.note, 'package');
     const deliveryPalette = extractInfoFromNote(deliveryData.note, 'palette');
     let paletteEquipment = null;
