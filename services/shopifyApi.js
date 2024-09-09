@@ -137,7 +137,7 @@ const getCustomerMetafields = async (clientId) => {
     }
   };
   
-  const updateCustomerToValidateKbis = async (clientId, updatedData) => {
+  const updateProCustomer = async (clientId, updatedData) => {
     const updateCustomerUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/customers/${clientId}.json`;
     const updateOptions = {
       method: 'PUT',
@@ -181,6 +181,6 @@ module.exports = {
     createDraftOrder,
     updateDraftOrderWithDraftId,
     getCustomerMetafields,
-    updateCustomerToValidateKbis,
+    updateProCustomer,
     createProCustomer
 }

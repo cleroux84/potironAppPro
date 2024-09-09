@@ -20,7 +20,7 @@ const { getTokenWarehouse, refreshAccessTokenWarehouse } = require('./services/s
 const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft } = require('./services/shippingbo/potironParisCRUD.js');
 const { getWarehouseOrderDetails, updateWarehouseOrder } = require('./services/shippingbo/GMAWarehouseCRUD.js');
 const { sendEmailWithKbis, sendWelcomeMailPro } = require('./services/sendMail.js');
-const { createDraftOrder, updateDraftOrderWithDraftId, getCustomerMetafields, updateCustomerToValidateKbis, createProCustomer } = require('./services/shopifyApi.js');
+const { createDraftOrder, updateDraftOrderWithDraftId, getCustomerMetafields, updateProCustomer, createProCustomer } = require('./services/shopifyApi.js');
 
 let accessToken = null;
 let refreshToken = null;
@@ -175,7 +175,59 @@ app.post('/update-delivery-pref', async (req, res) => {
   try {
     const deliveryData = req.body;
     console.log('new delivery pref', deliveryData);
-    console.log('customer id: ', deliveryData.customer_id);
+    const deliveryPackage = extractInfoFromNote(deliveryData.note, 'package');
+    const deliveryPalette = extractInfoFromNote(deliveryData.note, 'palette');
+    let paletteEquipment = null;
+    let paletteAppointment = null;
+    let paletteNotes = '';
+    let deliveryPref = '';
+
+    if(deliveryPalette === 'on') {
+      paletteEquipment = extractInfoFromNote(deliveryData.note, 'palette_equipment');
+      paletteAppointment = extractInfoFromNote(deliveryData.note, 'palette_appointment'); //bool
+      paletteNotes = extractInfoFromNote(deliveryData.note, 'palette_added_notes'); //textarea
+    }
+    if(deliveryPackage === 'on' && deliveryPalette === 'on') {
+      deliveryPref = "Au colis et en palette";
+    } else if(deliveryPackage === 'on' && deliveryPalette === null) {
+      deliveryPref = "Au colis uniquement";
+    } else if(deliveryPackage === null && deliveryPalette === 'on') {
+      deliveryPref = "En palette uniquement"
+    }
+    
+    const clientToUpdate = deliveryData.customer_id;
+    const updatedDeliveryData = {
+      customer: {
+        id: clientToUpdate,
+        metafields: [
+          {
+            key: 'delivery_pref',
+            value: deliveryPref,
+            type: 'single_line_text_field',
+            namespace: 'custom'
+          },
+          {
+            key: 'palette_equipment',
+            value: paletteEquipment,
+            type: 'single_line_text_field',
+            namespace: 'custom'
+          },
+          {
+            key: 'palette_appointment',
+            value: paletteAppointment,
+            type: 'boolean',
+            namespace: 'custom'
+          },
+          {
+            key: 'palette_notes',
+            value: paletteNotes,
+            type: 'single_line_text_field',
+            namespace: 'custom'
+          }
+        ]
+      }
+    };  
+    await updateProCustomer(clientToUpdate, updatedDeliveryData);
   } catch (error) {
     console.error("Erreur lors de la mise à jour des préférences de livraison", error);
     res.status(500).json({error: "Erreur lors de la mise à jour des préérences de livraison"})
@@ -262,7 +314,7 @@ app.post('/updateKbis', async (req, res) => {
                       ]
                     }
                   };  
-                  await updateCustomerToValidateKbis(clientUpdated, updatedCustomerKbis);
+                  await updateProCustomer(clientUpdated, updatedCustomerKbis);
                   console.log('mise à jour fiche client suite envoie du mail acces PRO')
                 } catch (error) {
                   console.error('Erreur lors de la mise à jour du client kbis')
