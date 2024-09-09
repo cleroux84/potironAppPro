@@ -174,8 +174,8 @@ app.post('/create-pro-draft-order', async (req, res) => {
 app.post('/update-delivery-pref', async (req, res) => {
   try {
     const deliveryData = req.body;
-    const deliveryPackage = extractInfoFromNote(deliveryData.note, 'package');
-    const deliveryPalette = extractInfoFromNote(deliveryData.note, 'palette');
+    const deliveryPackage = extractInfoFromNote(deliveryData.customer.note, 'package');
+    const deliveryPalette = extractInfoFromNote(deliveryData.customer.note, 'palette');
     console.log("colis: ", deliveryPackage);
     console.log("palette: ", deliveryPalette);
     let paletteEquipment = null;
@@ -184,9 +184,9 @@ app.post('/update-delivery-pref', async (req, res) => {
     let deliveryPref = '';
 
     // if(deliveryPalette === 'on') {
-    //   paletteEquipment = extractInfoFromNote(deliveryData.note, 'palette_equipment');
-    //   paletteAppointment = extractInfoFromNote(deliveryData.note, 'palette_appointment'); //bool
-    //   paletteNotes = extractInfoFromNote(deliveryData.note, 'palette_added_notes'); //textarea
+    //   paletteEquipment = extractInfoFromNote(deliveryData.customer.note, 'palette_equipment');
+    //   paletteAppointment = extractInfoFromNote(deliveryData.customer.note, 'palette_appointment'); //bool
+    //   paletteNotes = extractInfoFromNote(deliveryData.customer.note, 'palette_added_notes'); //textarea
     // }
     if(deliveryPackage === 'on' && deliveryPalette === 'on') {
       deliveryPref = "Au colis et en palette";
