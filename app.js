@@ -195,29 +195,38 @@ app.post('/update-delivery-pref', async (req, res) => {
     }
     
     const clientToUpdate = deliveryData.customer_id;
+    const deliveryPrefField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'delivery_pref');
+    const paletteEquipmentField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_equipment');
+    const paletteAppintmentField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_appointment');
+    const paletteNotesField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_notes');
+
     const updatedDeliveryData = {
       customer: {
         id: clientToUpdate,
         metafields: [
           {
+            id: deliveryPrefField.id,
             key: 'delivery_pref',
             value: deliveryPref,
             type: 'single_line_text_field',
             namespace: 'custom'
           },
           {
+            id: paletteEquipmentField.id,
             key: 'palette_equipment',
             value: paletteEquipment,
             type: 'single_line_text_field',
             namespace: 'custom'
           },
           {
+            id: paletteAppintmentField.id,
             key: 'palette_appointment',
             value: paletteAppointment,
             type: 'boolean',
             namespace: 'custom'
           },
           {
+            id: paletteNotesField.id,
             key: 'palette_notes',
             value: paletteNotes,
             type: 'single_line_text_field',
