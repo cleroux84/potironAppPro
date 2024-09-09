@@ -174,11 +174,8 @@ app.post('/create-pro-draft-order', async (req, res) => {
 app.post('/update-delivery-pref', async (req, res) => {
   try {
     const deliveryData = req.body;
-    console.log('deliveryData', deliveryData);
     const deliveryPackage = deliveryData.package;
     const deliveryPalette = deliveryData.palette;
-    console.log("colis: ", deliveryPackage);
-    console.log("palette: ", deliveryPalette);
     let paletteEquipment = null;
     let paletteAppointment = null;
     let paletteNotes = '';
@@ -196,15 +193,16 @@ app.post('/update-delivery-pref', async (req, res) => {
     } else if(deliveryPackage === undefined && deliveryPalette === 'on') {
       deliveryPref = "En palette uniquement"
     }
-    console.log('delivery_pref', deliveryPref)
     const clientToUpdate = deliveryData.customer_id;
     const metafields = await getCustomerMetafields(clientToUpdate);
     const deliveryPrefField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'delivery_pref');
     const paletteEquipmentField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_equipment');
     const paletteAppintmentField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_appointment');
     const paletteNotesField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_notes');
-    console.log('first field Id: ', deliveryPrefField);
-    const updatedDeliveryData = {
+    let updatedDeliveryData;
+
+    if(deliveryPackage.includes('palette')) {
+    updatedDeliveryData = {
       customer: {
         id: clientToUpdate,
         metafields: [
@@ -239,7 +237,45 @@ app.post('/update-delivery-pref', async (req, res) => {
         ]
       }
     };  
+  } else {
+    updatedDeliveryData = {
+      customer: {
+        id: clientToUpdate,
+        metafields: [
+          {
+            id: deliveryPrefField.id,
+            key: 'delivery_pref',
+            value: deliveryPref,
+            type: 'single_line_text_field',
+            namespace: 'custom'
+          },
+          {
+            id: paletteEquipmentField.id,
+            key: 'palette_equipment',
+            value: "",
+            type: 'single_line_text_field',
+            namespace: 'custom'
+          },
+          {
+            id: paletteAppintmentField.id,
+            key: 'palette_appointment',
+            value: null,
+            type: 'boolean',
+            namespace: 'custom'
+          },
+          {
+            id: paletteNotesField.id,
+            key: 'palette_notes',
+            value: "",
+            type: 'single_line_text_field',
+            namespace: 'custom'
+          }
+        ]
+      }
+    };  
+  }
     await updateProCustomer(clientToUpdate, updatedDeliveryData);
+    console.log('update delivery pref for customer', clientToUpdate);
   } catch (error) {
     console.error("Erreur lors de la mise à jour des préférences de livraison", error);
     res.status(500).json({error: "Erreur lors de la mise à jour des préérences de livraison"})
