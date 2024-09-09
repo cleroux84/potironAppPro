@@ -197,7 +197,7 @@ app.post('/update-delivery-pref', async (req, res) => {
     const metafields = await getCustomerMetafields(clientToUpdate);
     const deliveryPrefField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'delivery_pref');
     const paletteEquipmentField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_equipment');
-    const paletteAppintmentField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_appointment');
+    const paletteAppointmentField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_appointment');
     const paletteNotesField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_notes');
     let updatedDeliveryData;
 
