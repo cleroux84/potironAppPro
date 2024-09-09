@@ -191,9 +191,9 @@ app.post('/update-delivery-pref', async (req, res) => {
     // }
     if(deliveryPackage === 'on' && deliveryPalette === 'on') {
       deliveryPref = "Au colis et en palette";
-    } else if(deliveryPackage === 'on' && deliveryPalette === null) {
+    } else if(deliveryPackage === 'on' && deliveryPalette === undefined) {
       deliveryPref = "Au colis uniquement";
-    } else if(deliveryPackage === null && deliveryPalette === 'on') {
+    } else if(deliveryPackage === undefined && deliveryPalette === 'on') {
       deliveryPref = "En palette uniquement"
     }
     console.log('delivery_pref', deliveryPref)
