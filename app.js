@@ -214,7 +214,7 @@ app.post('/update-delivery-pref', async (req, res) => {
             value: deliveryPref,
             type: 'single_line_text_field',
             namespace: 'custom'
-          }
+          },
           {
             id: paletteEquipmentField.id,
             key: 'palette_equipment',
