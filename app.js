@@ -174,6 +174,7 @@ app.post('/create-pro-draft-order', async (req, res) => {
 app.post('/update-delivery-pref', async (req, res) => {
   try {
     const deliveryData = req.body;
+    console.log("deliveryData: ", deliveryData);
     const deliveryPackage = deliveryData.package;
     const deliveryPalette = deliveryData.palette;
     let paletteEquipment = null;
@@ -200,11 +201,18 @@ app.post('/update-delivery-pref', async (req, res) => {
     const paletteAppointmentField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_appointment');
     const paletteNotesField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_notes');
     let updatedDeliveryData;
+    console.log("deliveryfield", deliveryPrefField);
+    console.log("paletteEquipmentField", paletteEquipmentField);
+    console.log("paletteAppointmentField", paletteAppointmentField);
+    console.log("paletteNotesField", paletteNotesField);
 
+    console.log("deliveryPalette", deliveryPalette);
     if (deliveryPalette !== 'on') {
       if (paletteEquipmentField) await deleteMetafield(clientToUpdate, paletteEquipmentField.id);
       if (paletteAppointmentField) await deleteMetafield(clientToUpdate, paletteAppointmentField.id);
       if (paletteNotesField) await deleteMetafield(clientToUpdate, paletteNotesField.id);
+      console.log("deliverypref must be 'package only'", deliveryPref);
+
       updatedDeliveryData = {
         customer: {
           id: clientToUpdate,
@@ -220,6 +228,7 @@ app.post('/update-delivery-pref', async (req, res) => {
         }
     } 
   } else {
+    console.log("deliverypref with palette !", deliveryPref);
     updatedDeliveryData = {
       customer: {
         id: clientToUpdate,
