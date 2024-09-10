@@ -296,7 +296,7 @@ app.post('/updatedDraftOrder', async (req, res) => {
   const metafields = await getCustomerMetafields(updatedDraftData.customer.id);
   const deliveryPref = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'delivery_pref');
   const deliveryPrefValue = deliveryPref.value;
-  const test = "toto" + deliveryPrefValue;
+  const test = "Préférences de livraison" + deliveryPrefValue;
   
 
     if (isCompleted === true && isCommandePro) {
