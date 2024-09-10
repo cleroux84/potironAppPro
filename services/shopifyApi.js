@@ -93,7 +93,7 @@ const createDraftOrder = async (draftOrder, accessToken) => {
 }
 
 
-const updateDraftOrderWithTags = async (updatedOrder, orderId) => {
+const updateDraftOrderWithDraftId = async (updatedOrder, orderId) => {
     const updateOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/draft_orders/${orderId}.json`;
     const updateOptions = {
       method: 'PUT',
@@ -201,7 +201,7 @@ const getCustomerMetafields = async (clientId) => {
 
 module.exports = {
     createDraftOrder,
-    updateDraftOrderWithTags,
+    updateDraftOrderWithDraftId,
     getCustomerMetafields,
     updateProCustomer,
     createProCustomer,
