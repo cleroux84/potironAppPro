@@ -20,7 +20,7 @@ const { getTokenWarehouse, refreshAccessTokenWarehouse } = require('./services/s
 const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft } = require('./services/shippingbo/potironParisCRUD.js');
 const { getWarehouseOrderDetails, updateWarehouseOrder } = require('./services/shippingbo/GMAWarehouseCRUD.js');
 const { sendEmailWithKbis, sendWelcomeMailPro } = require('./services/sendMail.js');
-const { createDraftOrder, updateDraftOrderWithTags, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield } = require('./services/shopifyApi.js');
+const { createDraftOrder, updateDraftOrderWithDraftId, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield } = require('./services/shopifyApi.js');
 
 let accessToken = null;
 let refreshToken = null;
@@ -292,12 +292,10 @@ app.post('/updatedDraftOrder', async (req, res) => {
   const draftName = updatedDraftData.name;
   const draftId = "draft" + draftName.replace('#','');
   const orderId = updatedDraftData.id;
-  const customerId = updatedDraftData.customer.id;
-  //const metafields = await getCustomerMetafields(updatedDraftOrder.customer.id);  
+  //il va falloir récupérer les metafields du client concerné par la commande pour les ajouter en tags
 
     if (isCompleted === true && isCommandePro) {
       try {
-        console.log('pas encore le draft tag' )
         const draftDetails = await getShippingboOrderDetails(accessToken, draftId);
         if(draftDetails) {
           const {id: shippingboDraftId} = draftDetails;
@@ -307,23 +305,20 @@ app.post('/updatedDraftOrder', async (req, res) => {
         console.log('error shiipingboId', err);
       }
   } else if(isCommandePro && !draftTagExists) {
+    //const metafields = await getCustomerMetafields(updatedDraftOrder.customer.id); ? vérifier  
     try {
-      console.log('pas le draft tag')
       draftTagArray.push(draftId);
-      console.log('arr', draftTagArray);
       const updatedOrder = {
         draft_order: {
           id: orderId,
           tags: draftTagArray.join(', ')
         }
        };
-      await updateDraftOrderWithTags(updatedOrder, orderId);
+      await updateDraftOrderWithDraftId(updatedOrder, orderId);
       res.status(200).send('Order updated');
     } catch(err) {
       console.log('error shippingboId', err);
     }
-  } else {
-    console.log('else');
   }
 })
 
