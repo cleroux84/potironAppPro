@@ -298,7 +298,7 @@ app.post('/updatedDraftOrder', async (req, res) => {
   let paletteEquipment;
   let paletteAppointment;
   let paletteNotes;
-  if(deliveryPref.includes('palette')) {
+  if(deliveryPref.value.includes('palette')) {
     paletteEquipment = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_equipment');
     paletteAppointment = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_appointment');
     paletteNotes = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_notes');
@@ -316,7 +316,7 @@ app.post('/updatedDraftOrder', async (req, res) => {
   } else if(isCommandePro && !draftTagExists) {
     try {
       draftTagArray.push(draftId);
-      draftTagArray.push(deliveryPref);
+      draftTagArray.push("Preference de livraison: " + deliveryPref.value);
       console.log('equipement', paletteEquipment);
       const updatedOrder = {
         draft_order: {
