@@ -312,7 +312,7 @@ app.post('/updatedDraftOrder', async (req, res) => {
   } else if(isCommandePro && !draftTagExists) {
     try {
       draftTagArray.push(draftId);
-      draftTagArray.push(toto);
+      draftTagArray.push(test);
       const updatedOrder = {
         draft_order: {
           id: orderId,
