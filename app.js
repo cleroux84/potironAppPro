@@ -294,7 +294,8 @@ app.post('/updatedDraftOrder', async (req, res) => {
   const orderId = updatedDraftData.id;
   console.log('customerId', updatedDraftData.customer.id);
   const metafields = await getCustomerMetafields(updatedDraftData.customer.id);
-  console.log('meta', metafields);
+  const deliveryPref = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'delivery_pref');
+  const deliveryPrefValue = deliveryPref.value;
 
     if (isCompleted === true && isCommandePro) {
       try {
@@ -309,6 +310,7 @@ app.post('/updatedDraftOrder', async (req, res) => {
   } else if(isCommandePro && !draftTagExists) {
     try {
       draftTagArray.push(draftId);
+      draftTagArray.push(deliveryPrefValue);
       const updatedOrder = {
         draft_order: {
           id: orderId,
