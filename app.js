@@ -274,6 +274,7 @@ app.post('/update-delivery-pref', async (req, res) => {
     }
     await updateProCustomer(clientToUpdate, updatedDeliveryData);
     console.log('update delivery pref for customer: ', clientToUpdate);
+    res.status(200).json({ message: "Préférences de livraison mises à jour avec succès" });
   } catch (error) {
     console.error("Erreur lors de la mise à jour des préférences de livraison", error);
     res.status(500).json({ error: "Erreur lors de la mise à jour des préférences de livraison" });
