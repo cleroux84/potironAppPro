@@ -293,12 +293,18 @@ app.post('/updatedDraftOrder', async (req, res) => {
   const draftId = "draft" + draftName.replace('#','');
   const orderId = updatedDraftData.id;
   const customerId = updatedDraftData.customer.id;
-  console.log("customerId", customerId);
-  //const metafields = await getCustomerMetafields(updatedDraftOrder.customer.id); ? vérifier  
-
+  const metafields = await getCustomerMetafields(customerId);
+  const deliveryPref = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'delivery_pref');
+  let paletteEquipment;
+  let paletteAppointment;
+  let paletteNotes;
+  if(deliveryPref.includes('palette')) {
+    paletteEquipment = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_equipment');
+    paletteAppointment = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_appointment');
+    paletteNotes = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_notes');
+  }
     if (isCompleted === true && isCommandePro) {
       try {
-        console.log('pas encore le draft tag' )
         const draftDetails = await getShippingboOrderDetails(accessToken, draftId);
         if(draftDetails) {
           const {id: shippingboDraftId} = draftDetails;
@@ -309,8 +315,9 @@ app.post('/updatedDraftOrder', async (req, res) => {
       }
   } else if(isCommandePro && !draftTagExists) {
     try {
-      console.log('pas le draft tag')
       draftTagArray.push(draftId);
+      draftTagArray.push(deliveryPref);
+      console.log('equipement', paletteEquipment);
       const updatedOrder = {
         draft_order: {
           id: orderId,
@@ -323,7 +330,7 @@ app.post('/updatedDraftOrder', async (req, res) => {
       console.log('error shippingboId', err);
     }
   } else {
-    console.log('else', updatedDraftData);
+    
   }
 })
 
