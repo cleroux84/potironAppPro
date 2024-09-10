@@ -283,7 +283,7 @@ app.post('/update-delivery-pref', async (req, res) => {
 
 //webhook on update draft order : https://potironapppro.onrender.com/updatedDraftOrder
 app.post('/updatedDraftOrder', async (req, res) => {
-  const updatedDraftData= req.body;
+  const updatedDraftData = req.body;
   const draftTagString = updatedDraftData.tags || '';
   const draftTagArray = draftTagString.split(',').map(tag => tag.trim());
   const draftTagExists = draftTagArray.some(tag => tag.startsWith("draft"));
@@ -293,38 +293,52 @@ app.post('/updatedDraftOrder', async (req, res) => {
   const draftId = "draft" + draftName.replace('#','');
   const orderId = updatedDraftData.id;
   console.log('customerId', updatedDraftData.customer.id);
-  const metafields = await getCustomerMetafields(updatedDraftData.customer.id);
-  const deliveryPref = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'delivery_pref');
-  const deliveryPrefValue = 'Préférences de livraison : ' + deliveryPref.value;
-
-
+ 
+  try {
+    const metafields = await getCustomerMetafields(updatedDraftData.customer.id);
+    const deliveryPref = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'delivery_pref');
+    const deliveryPrefValue = deliveryPref ? `Préférences de livraison : ${deliveryPref.value}` : '';
+ 
     if (isCompleted === true && isCommandePro) {
       try {
         const draftDetails = await getShippingboOrderDetails(accessToken, draftId);
-        if(draftDetails) {
-          const {id: shippingboDraftId} = draftDetails;
+        if (draftDetails) {
+          const { id: shippingboDraftId } = draftDetails;
           await cancelShippingboDraft(accessToken, shippingboDraftId);
         }
-      } catch(err) {
-        console.log('error shiipingboId', err);
+      } catch (err) {
+        console.log('Erreur shippingboId', err);
       }
-  } else if(isCommandePro && !draftTagExists) {
-    try {
-      draftTagArray.push(draftId);
-      draftTagArray.push(deliveryPrefValue);
-      const updatedOrder = {
-        draft_order: {
-          id: orderId,
-          tags: draftTagArray.join(', ')
+    } else if (isCommandePro && !draftTagExists) {
+      try {
+        draftTagArray.push(draftId);
+ 
+        // N'ajoute `deliveryPrefValue` que s'il existe
+        if (deliveryPrefValue) {
+          draftTagArray.push(deliveryPrefValue);
         }
-       };
-      await updateDraftOrderWithDraftId(updatedOrder, orderId);
-      res.status(200).send('Order updated');
-    } catch(err) {
-      console.log('error shippingboId', err);
+ 
+        const updatedOrder = {
+          draft_order: {
+            id: orderId,
+            tags: draftTagArray.join(', ')
+          }
+        };
+ 
+        await updateDraftOrderWithDraftId(updatedOrder, orderId);
+        res.status(200).send('Order updated');
+      } catch (err) {
+        console.log('Erreur lors de la mise à jour de la commande', err);
+        res.status(500).send('Erreur lors de la mise à jour de la commande');
+      }
+    } else {
+      res.status(200).send('Aucune action nécessaire');
     }
+  } catch (error) {
+    console.log('Erreur lors de la récupération des métadonnées du client', error);
+    res.status(500).send('Erreur lors de la récupération des métadonnées du client');
   }
-})
+});
 
 //webhook on customer update : https://potironapppro.onrender.com/updatekBis
 //send mail to b2B client to confirm his activation and update his account with tags
