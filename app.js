@@ -317,7 +317,7 @@ app.post('/updatedDraftOrder', async (req, res) => {
           tags: draftTagArray.join(', ')
         }
        };
-      await updateDraftOrderWithTags(updatedOrder, orderId);
+      await updateDraftOrderWithDraftId(updatedOrder, orderId);
       res.status(200).send('Order updated');
     } catch(err) {
       console.log('error shippingboId', err);
