@@ -293,11 +293,7 @@ app.post('/updatedDraftOrder', async (req, res) => {
   const draftId = "draft" + draftName.replace('#','');
   const orderId = updatedDraftData.id;
   const customerId = updatedDraftData.customer.id;
-  const metafields = await getCustomerMetafields(customerId);
-  const deliveryPref = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'delivery_pref');
-  const deliveryPrefValue = deliveryPref.value;
-  const deliveryPrefValueSentence = "Préférence de livraison : " + deliveryPrefValue;
-  console.log('delivery pref', deliveryPrefValue);
+  //const metafields = await getCustomerMetafields(updatedDraftOrder.customer.id);  
 
     if (isCompleted === true && isCommandePro) {
       try {
@@ -314,12 +310,7 @@ app.post('/updatedDraftOrder', async (req, res) => {
     try {
       console.log('pas le draft tag')
       draftTagArray.push(draftId);
-      console.log('arr draft id', draftTagArray);
-      draftTagArray.push(deliveryPrefValue);
-      console.log('arr delivery pref', draftTagArray);
-      draftTagArray.push(deliveryPrefValueSentence);
-      console.log('arr sentence pref', draftTagArray);
-
+      console.log('arr', draftTagArray);
       const updatedOrder = {
         draft_order: {
           id: orderId,
