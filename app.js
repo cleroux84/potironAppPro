@@ -295,6 +295,7 @@ app.post('/updatedDraftOrder', async (req, res) => {
   const customerId = updatedDraftData.customer.id;
   const metafields = await getCustomerMetafields(customerId);
   const deliveryPref = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'delivery_pref');
+  const deliveryPrefValue = "Préférence de livraison : " + deliveryPref.value; 
   let paletteEquipment;
   let paletteAppointment;
   let paletteNotes;
@@ -305,6 +306,7 @@ app.post('/updatedDraftOrder', async (req, res) => {
   }
     if (isCompleted === true && isCommandePro) {
       try {
+        console.log('cloture le draft order' )
         const draftDetails = await getShippingboOrderDetails(accessToken, draftId);
         if(draftDetails) {
           const {id: shippingboDraftId} = draftDetails;
@@ -315,9 +317,9 @@ app.post('/updatedDraftOrder', async (req, res) => {
       }
   } else if(isCommandePro && !draftTagExists) {
     try {
+      console.log('pas le draft tag')
       draftTagArray.push(draftId);
-      draftTagArray.push("Preference de livraison: " + deliveryPref.value);
-      console.log('equipement', paletteEquipment);
+      draftTagArray.push(deliveryPrefValue);
       const updatedOrder = {
         draft_order: {
           id: orderId,
