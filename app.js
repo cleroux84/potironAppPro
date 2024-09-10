@@ -20,7 +20,7 @@ const { getTokenWarehouse, refreshAccessTokenWarehouse } = require('./services/s
 const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft } = require('./services/shippingbo/potironParisCRUD.js');
 const { getWarehouseOrderDetails, updateWarehouseOrder } = require('./services/shippingbo/GMAWarehouseCRUD.js');
 const { sendEmailWithKbis, sendWelcomeMailPro } = require('./services/sendMail.js');
-const { createDraftOrder, updateDraftOrderWithDraftId, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield } = require('./services/shopifyApi.js');
+const { createDraftOrder, updateDraftOrderWithTags, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield } = require('./services/shopifyApi.js');
 
 let accessToken = null;
 let refreshToken = null;
@@ -292,10 +292,13 @@ app.post('/updatedDraftOrder', async (req, res) => {
   const draftName = updatedDraftData.name;
   const draftId = "draft" + draftName.replace('#','');
   const orderId = updatedDraftData.id;
-  //il va falloir récupérer les metafields du client concerné par la commande pour les ajouter en tags
+  const customerId = updatedDraftData.customer.id;
+  console.log("customerId", customerId);
+  //const metafields = await getCustomerMetafields(updatedDraftOrder.customer.id); ? vérifier  
 
     if (isCompleted === true && isCommandePro) {
       try {
+        console.log('pas encore le draft tag' )
         const draftDetails = await getShippingboOrderDetails(accessToken, draftId);
         if(draftDetails) {
           const {id: shippingboDraftId} = draftDetails;
@@ -305,8 +308,8 @@ app.post('/updatedDraftOrder', async (req, res) => {
         console.log('error shiipingboId', err);
       }
   } else if(isCommandePro && !draftTagExists) {
-    //const metafields = await getCustomerMetafields(updatedDraftOrder.customer.id); ? vérifier  
     try {
+      console.log('pas le draft tag')
       draftTagArray.push(draftId);
       const updatedOrder = {
         draft_order: {
@@ -314,11 +317,13 @@ app.post('/updatedDraftOrder', async (req, res) => {
           tags: draftTagArray.join(', ')
         }
        };
-      await updateDraftOrderWithDraftId(updatedOrder, orderId);
+      await updateDraftOrderWithTags(updatedOrder, orderId);
       res.status(200).send('Order updated');
     } catch(err) {
       console.log('error shippingboId', err);
     }
+  } else {
+    console.log('else', updatedDraftData);
   }
 })
 
