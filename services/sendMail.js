@@ -61,7 +61,6 @@ async function sendEmailWithKbis(filePath, companyName, fileExtension, firstname
 //Send email to b2b customer when kBis validate
 async function sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer, companyName, deliveryPref, paletteEquipment, paletteAppointment, paletteNotes) {
   let paletteNotesValue;
-  console.log('notes : ', paletteNotes);
   if(paletteNotes !== undefined && paletteNotes !== "undefined") {
     paletteNotesValue = `<p>Notes complémentaires concernant la livraison : ${paletteNotes}</p>`;
   } else {
@@ -101,6 +100,7 @@ async function sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer,
       <p style="text-decoration: underline;">Rappel de vos préférences de livraison: </p>
       <p>Possibilité(s) de livraison : ${deliveryPref}</p>
       ${deliveryTextIfPalette}
+      <p>Vous pouvez modifier ces informations directement sur votre <a href="https://potiron.com/account> compte client </a>.</p>
       <p>Nous restons à votre entière disposition.</p>
       <p>Très belle journée,</p>
       <p>L'équipe de Potiron</p>
