@@ -366,11 +366,12 @@ app.post('/updateKbis', async (req, res) => {
     const companyNameField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'company');
     const deliveryPrefField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'delivery_pref');
     const deliveryPref = deliveryPrefField.value;
+    console.log("deliveryprefupdatekbis", deliveryPref);
     let paletteEquipment;
     let paletteAppointment;
     let paletteNotes;
 
-    if(deliveryPrefField && deliveryPref.includes('palettes')) {
+    if(deliveryPrefField && deliveryPref.includes('palette')) {
       const paletteEquipmentField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_equipment'); 
       if(paletteEquipmentField && paletteEquipmentField.value !== "") {
         paletteEquipment = paletteEquipmentField.value;
