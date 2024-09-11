@@ -430,6 +430,7 @@ app.post('/updateKbis', async (req, res) => {
     }
   } catch (error) {
     console.error('erreur lors de la récuperation des metafields ou de la maj du client')
+    console.error('Détail', error);
   }
 });
 
