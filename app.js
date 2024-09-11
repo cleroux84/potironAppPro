@@ -389,7 +389,6 @@ app.post('/updateKbis', async (req, res) => {
         paletteNotes = paletteNotesField.value;
       }
     }
-console.log("appointment", paletteAppointment);
       if(checkedKbisField && mailProSentField) {
         var firstnameCustomer = updatedData.first_name;
         var nameCustomer = updatedData.last_name;
