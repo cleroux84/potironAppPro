@@ -59,14 +59,18 @@ async function sendEmailWithKbis(filePath, companyName, fileExtension, firstname
   }
 
 //Send email to b2b customer when kBis validate
-async function sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer, companyName, deliveryPref, paletteEquipment, paletteAppointment) {
+async function sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer, companyName, deliveryPref, paletteEquipment, paletteAppointment, paletteNotes) {
+  let paletteNotesValue;
+  if(paletteNotes !== '') {
+    paletteNotesValue = `<p>Notes complémentaires concernant la livraison : ${paletteNotes}</p>`
+  }
   let deliveryTextIfPalette = '';
     if(deliveryPref.includes("palette")) {
       deliveryTextIfPalette = `<p> Equipement nécessaire : ${paletteEquipment}</p>
       <p>Nécessité de prendre RDV pour la livraison : ${paletteAppointment}</p>
+      ${paletteNotesValue}
       `
     }
-  //     <p>Notes complémentaires concernant la livraison : ${paletteNotes}</p>
     const transporter = nodemailer.createTransport({
       service: MAILSERVICE,
       host: MAILHOST,

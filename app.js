@@ -373,16 +373,20 @@ app.post('/updateKbis', async (req, res) => {
     if(deliveryPrefField && deliveryPref.includes('palette')) {
       const paletteEquipmentField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_equipment'); 
       const paletteAppointmentField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_appointment'); 
+      const paletteNotesField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_notes'); 
 
       if(paletteEquipmentField && paletteEquipmentField.value !== "") {
         paletteEquipment = paletteEquipmentField.value;
       }
       if(paletteAppointmentField && paletteAppointmentField.value !== null) {
         if(paletteAppointmentField.value === true) {
-          paletteAppointment = "Oui"
+          paletteAppointment = "Oui";
         } else {
-          paletteAppointment = "Non"
+          paletteAppointment = "Non";
         }
+      }
+      if(paletteNotesField && paletteNotesField.value !== '') {
+        paletteNotes = paletteNotesField.value;
       }
     }
 console.log("appointment", paletteAppointment);
@@ -396,7 +400,7 @@ console.log("appointment", paletteAppointment);
         
         if(kbisState === true && mailProState === false) {
           try {
-            await sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer, companyName, deliveryPref, paletteEquipment, paletteAppointment)
+            await sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer, companyName, deliveryPref, paletteEquipment, paletteAppointment, paletteNotes)
             console.log('Mail de bienvenue après validation du kbis envoyé au client pro', clientUpdated);  
             const updatedCustomerKbis = {
                     customer: {
