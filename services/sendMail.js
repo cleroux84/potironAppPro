@@ -93,7 +93,7 @@ async function sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer,
       <p><a href="https://potiron.com">Visitez notre boutique</a></p>
       <p style="text-decoration: underline;">Rappel de vos préférences de livraison: </p>
       <p>Possibilité(s) de livraison : </p>
-      //sipalette
+      ${deliveryTextIfPalette}
       <p>Nous restons à votre entière disposition.</p>
       <p>Très belle journée,</p>
       <p>L'équipe de Potiron</p>
