@@ -61,6 +61,7 @@ async function sendEmailWithKbis(filePath, companyName, fileExtension, firstname
 //Send email to b2b customer when kBis validate
 async function sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer, companyName, deliveryPref, paletteEquipment, paletteAppointment, paletteNotes) {
   let paletteNotesValue;
+  console.log('notes : ', paletteNotes);
   if(paletteNotes !== undefined) {
     paletteNotesValue = `<p>Notes complémentaires concernant la livraison : ${paletteNotes}</p>`
   }
