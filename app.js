@@ -302,6 +302,9 @@ app.post('/updatedDraftOrder', async (req, res) => {
   let deliveryAppointment;
   let deliveryAppointmentValue;
   let deliveryAppointmentTag;
+  let deliveryNotes;
+  let deliveryNotesValue;
+  let deliveryNotesTag;
   if(deliveryPrefValue.includes('palette')) {
     deliveryEquipment = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_equipment');
     deliveryAppointment = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_appointment');
@@ -309,6 +312,9 @@ app.post('/updatedDraftOrder', async (req, res) => {
     deliveryEquipmentTag = "Equipement : " + deliveryEquipmentValue;
     deliveryAppointmentValue = deliveryAppointment ? (deliveryAppointment.value === true ? "Oui": deliveryAppointment.value === false ? "Non" : deliveryAppointment.value): null;
     deliveryAppointmentTag = "Rendez-vous : " + deliveryAppointmentValue;
+    deliveryNotes = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_notes');
+    deliveryNotesValue = deliveryNotes ? deliveryNotes.value : '';
+    deliveryNotesTag = 'Notes : ' + deliveryNotesValue;
   }
     if (isCompleted === true && isCommandePro) {
       try {
@@ -329,6 +335,9 @@ app.post('/updatedDraftOrder', async (req, res) => {
       }
       if(deliveryAppointment && deliveryAppointmentValue !== null) {
         draftTagArray.push(deliveryAppointmentTag);
+      }
+      if(deliveryNotes && deliveryNotesValue !== '') {
+        draftTagArray.push(deliveryNotesTag)
       }
       const updatedOrder = {
         draft_order: {
