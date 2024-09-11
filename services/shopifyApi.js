@@ -111,7 +111,7 @@ const lastDraftOrder = async (customerId) => {
     const customerDraftOrders = data.draft_orders.filter(order => order.customer && order.customer.id == customerId);
     if(customerDraftOrders.length > 0) {
       const lastDraftOrder = customerDraftOrders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
-      if(lastDraftOptions.status !== 'completed' && lastDraftOptions.status !== closed){
+      if(lastDraftOrder.status !== 'completed' && lastDraftOrder.status !== 'closed'){
         return { orderNumber : lastDraftOrder.name };
       } else {
         return { message : 'Toutes les commandes sont closes' };
@@ -121,7 +121,6 @@ const lastDraftOrder = async (customerId) => {
     }
   } catch (error) {
     console.error('Error to retrieve draft orders', error);
-    res.status(500).send('Error retrieving draft orders');
   }
 }
 
