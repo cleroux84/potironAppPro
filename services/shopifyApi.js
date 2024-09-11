@@ -92,6 +92,27 @@ const createDraftOrder = async (draftOrder, accessToken) => {
     }
 }
 
+const lastDraftOrder = async (customerId) => {
+  const lastDraftUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/draft_orders.json?${customerId}`;
+  const lastDraftOptions = {
+    method: 'GET',
+    headers: {             
+      'Content-Type': 'application/json',             
+      'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
+    },
+    // body: JSON.stringify()
+  };
+  try {
+    const response = await fetch(lastDraftUrl, lastDraftOptions);
+    const data = await response.json();
+    if (data) {
+      console.log('draft order', data);
+    }
+  } catch (error) {
+    console.error('Error to retrieve draft orders', error);
+    res.status(500).send('Error retrieving draft orders');
+  }
+}
 
 const updateDraftOrderWithDraftId = async (updatedOrder, orderId) => {
     const updateOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/draft_orders/${orderId}.json`;
@@ -205,5 +226,6 @@ module.exports = {
     getCustomerMetafields,
     updateProCustomer,
     createProCustomer,
-    deleteMetafield
+    deleteMetafield,
+    lastDraftOrder
 }

@@ -20,7 +20,7 @@ const { getTokenWarehouse, refreshAccessTokenWarehouse } = require('./services/s
 const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft } = require('./services/shippingbo/potironParisCRUD.js');
 const { getWarehouseOrderDetails, updateWarehouseOrder } = require('./services/shippingbo/GMAWarehouseCRUD.js');
 const { sendEmailWithKbis, sendWelcomeMailPro } = require('./services/sendMail.js');
-const { createDraftOrder, updateDraftOrderWithTags, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield, updateDraftOrderWithDraftId } = require('./services/shopifyApi.js');
+const { createDraftOrder, updateDraftOrderWithTags, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield, updateDraftOrderWithDraftId, lastDraftOrder } = require('./services/shopifyApi.js');
 
 let accessToken = null;
 let refreshToken = null;
@@ -450,6 +450,9 @@ function extractInfoFromNote(note, infoLabel) {
 app.get('/last-draft-order/:customer_id', async (req, res) => {
   const customerId = req.params.customer_id;
   console.log(customerId);
+  // const lastDraft = await lastDraftOrder(customerId);
+  // console.log(lastDraft);
+  await lastDraftOrder(customerId);
 })
 
 //webhook on customer creation : https://potironapppro.onrender.com/createProCustomer
