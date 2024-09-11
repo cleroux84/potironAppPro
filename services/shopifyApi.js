@@ -107,15 +107,15 @@ const lastDraftOrder = async (customerId) => {
     if(!response.ok) {
       console.log(`Error fetching draft orders : ${response.statusText}`);
     }
-
     const data = await response.json();
-
     const customerDraftOrders = data.draft_orders.filter(order => order.customer && order.customer.id == customerId);
     if(customerDraftOrders.length > 0) {
       const lastDraftOrder = customerDraftOrders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
-      console.log("last draft order", lastDraftOrder.name);
-      console.log("last draft status", lastDraftOrder.status);
-      return { orderNumber : lastDraftOrder.name };
+      if(lastDraftOptions.status !== 'completed' && lastDraftOptions.status !== closed){
+        return { orderNumber : lastDraftOrder.name };
+      } else {
+        return { message : 'Toutes les commandes sont closes' };
+      }
     } else {
       return { message : "Aucune commande provisoire pour ce client"};
     }
