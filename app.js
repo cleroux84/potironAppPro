@@ -317,7 +317,7 @@ app.post('/updatedDraftOrder', async (req, res) => {
     try {
       draftTagArray.push(draftId);
       draftTagArray.push(deliveryPrefTag);
-      if(deliveryEquipmentValue !== '') {
+      if(deliveryEquipment && deliveryEquipmentValue !== '') {
         draftTagArray.push(deliveryEquipmentTag);
       }
       const updatedOrder = {
