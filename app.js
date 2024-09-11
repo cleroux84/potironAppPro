@@ -296,10 +296,11 @@ app.post('/updatedDraftOrder', async (req, res) => {
   const deliveryPref = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'delivery_pref');
   const deliveryPrefValue = deliveryPref.value;
   const deliveryPrefTag = "Livraison : " + deliveryPrefValue;
+  let deliveryEquipment;
   let deliveryEquipmentValue;
   let deliveryEquipmentTag;
   if(deliveryPrefValue.includes('palette')) {
-    const deliveryEquipment = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'delivery_pref');
+    deliveryEquipment = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'delivery_pref');
     deliveryEquipmentValue = deliveryEquipment ? deliveryEquipment.value : '';
     deliveryEquipmentTag = "Equipement : " + deliveryEquipmentValue;
   }
