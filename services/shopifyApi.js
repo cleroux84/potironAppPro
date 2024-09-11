@@ -112,7 +112,7 @@ const lastDraftOrder = async (customerId) => {
     if(customerDraftOrders.length > 0) {
       const lastDraftOrder = customerDraftOrders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
       if(lastDraftOrder.status !== 'completed' && lastDraftOrder.status !== 'closed'){
-        return { orderNumber : lastDraftOrder.name };
+        return { orderNumber : lastDraftOrder.name, orderId: lastDraftOrder.id };
       } else {
         return { message : 'Toutes les commandes sont closes' };
       }
