@@ -366,7 +366,6 @@ app.post('/updateKbis', async (req, res) => {
     const companyNameField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'company');
     const deliveryPrefField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'delivery_pref');
     const deliveryPref = deliveryPrefField.value;
-    console.log("deliveryprefupdatekbis", deliveryPref);
     let paletteEquipment;
     let paletteAppointment;
     let paletteNotes;
@@ -378,10 +377,15 @@ app.post('/updateKbis', async (req, res) => {
       if(paletteEquipmentField && paletteEquipmentField.value !== "") {
         paletteEquipment = paletteEquipmentField.value;
       }
-      paletteAppointment = deliveryAppointmentField ? (deliveryAppointmentField.value === true ? "Oui": deliveryAppointmentField.value === false ? "Non" : deliveryAppointmentField.value): null;
-      
+      if(paletteAppointmentField && paletteAppointmentField.value !== null) {
+        if(paletteAppointmentField.value === true) {
+          paletteAppointment = "Oui"
+        } else {
+          paletteAppointment = "Non"
+        }
+      }
     }
-
+console.log("appointment", paletteAppointment);
       if(checkedKbisField && mailProSentField) {
         var firstnameCustomer = updatedData.first_name;
         var nameCustomer = updatedData.last_name;
