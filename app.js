@@ -314,7 +314,7 @@ app.post('/updatedDraftOrder', async (req, res) => {
     deliveryAppointmentTag = "Rendez-vous : " + deliveryAppointmentValue;
     deliveryNotes = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_notes');
     deliveryNotesValue = deliveryNotes ? deliveryNotes.value : '';
-    const deliveryNotesEncoded = '"' + deliveryNotesValue + '"';
+    const deliveryNotesEncoded = deliveryNotesValue.replace(/,/g, '-');
     deliveryNotesTag = 'Notes : ' + deliveryNotesEncoded;
   }
     if (isCompleted === true && isCommandePro) {
