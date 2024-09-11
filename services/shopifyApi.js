@@ -93,7 +93,7 @@ const createDraftOrder = async (draftOrder, accessToken) => {
 }
 
 const lastDraftOrder = async (customerId) => {
-  const lastDraftUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/draft_orders.json?${customerId}`;
+  const lastDraftUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/draft_orders.json?customer_id=${customerId}`;
   const lastDraftOptions = {
     method: 'GET',
     headers: {             
