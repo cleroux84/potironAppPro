@@ -314,6 +314,8 @@ app.post('/updatedDraftOrder', async (req, res) => {
     deliveryAppointmentTag = "Rendez-vous : " + deliveryAppointmentValue;
     deliveryNotes = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_notes');
     deliveryNotesValue = deliveryNotes ? deliveryNotes.value : '';
+    const deliveryNotesEncoded = deliveryNotesValue.replace(/,/g, '|');
+    deliveryNotesTag = 'Notes : ' + deliveryNotesEncoded;
   }
     if (isCompleted === true && isCommandePro) {
       try {
@@ -336,9 +338,7 @@ app.post('/updatedDraftOrder', async (req, res) => {
         draftTagArray.push(deliveryAppointmentTag);
       }
       if(deliveryNotes && deliveryNotesValue !== '') {
-        const deliveryNotesEncoded = encodeURIComponent(deliveryNotesValue);
-        deliveryNotesTag = "Notes : " + deliveryNotesEncoded;
-        draftTagArray.push(deliveryNotesTag);
+        draftTagArray.push(deliveryNotesTag)
       }
       const updatedOrder = {
         draft_order: {
