@@ -307,7 +307,7 @@ app.post('/updatedDraftOrder', async (req, res) => {
     deliveryAppointment = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_appointment');
     deliveryEquipmentValue = deliveryEquipment ? deliveryEquipment.value : '';
     deliveryEquipmentTag = "Equipement : " + deliveryEquipmentValue;
-    deliveryAppointmentValue = deliveryAppointment ? deliveryAppointment.value : null;
+    deliveryAppointmentValue = deliveryAppointment ? (deliveryAppointment.value === true ? "Oui": deliveryAppointment.value === false ? "Non" : deliveryAppointment.value): null;
     deliveryAppointmentTag = "Rendez-vous : " + deliveryAppointmentValue;
   }
     if (isCompleted === true && isCommandePro) {
