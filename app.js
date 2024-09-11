@@ -364,6 +364,18 @@ app.post('/updateKbis', async (req, res) => {
     const checkedKbisField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'checkedkbis');
     const mailProSentField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'mailProSent');
     const companyNameField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'company');
+    const deliveryPrefField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'delivery_pref');
+    const deliveryPref = deliveryPrefField.value;
+    let paletteEquipment;
+    let paletteAppointment;
+    let paletteNotes;
+
+    if(deliveryPrefField && deliveryPref.includes('palettes')) {
+      const paletteEquipmentField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_equipment'); 
+      if(paletteEquipmentField && paletteEquipmentField.value !== "") {
+        paletteEquipment = paletteEquipmentField.value;
+      }
+    }
 
       if(checkedKbisField && mailProSentField) {
         var firstnameCustomer = updatedData.first_name;
@@ -375,7 +387,7 @@ app.post('/updateKbis', async (req, res) => {
         
         if(kbisState === true && mailProState === false) {
           try {
-            await sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer, companyName)
+            await sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer, companyName, deliveryPref, paletteEquipment)
             console.log('Mail de bienvenue après validation du kbis envoyé au client pro', clientUpdated);  
             const updatedCustomerKbis = {
                     customer: {
