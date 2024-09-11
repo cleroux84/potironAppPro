@@ -93,20 +93,31 @@ const createDraftOrder = async (draftOrder, accessToken) => {
 }
 
 const lastDraftOrder = async (customerId) => {
-  const lastDraftUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/draft_orders.json?customer_id=${customerId}`;
+  const lastDraftUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/draft_orders.json`;
   const lastDraftOptions = {
     method: 'GET',
     headers: {             
       'Content-Type': 'application/json',             
       'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
     },
-    // body: JSON.stringify()
   };
+
   try {
     const response = await fetch(lastDraftUrl, lastDraftOptions);
+    if(!response.ok) {
+      console.log(`Error fetching draft orders : ${response.statusText}`);
+    }
+
     const data = await response.json();
-    if (data) {
-      console.log('draft order', data);
+
+    const customerDraftOrders = data.draft_orders.filter(order => order.customer && order.customer.id == customerId);
+    if(customerDraftOrders.length > 0) {
+      console.log("draft orders", customerDraftOrders);
+      const lastDraftOrder = customerDraftOrders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
+      console.log("last order", lastDraftOrder);
+      return { orderNumber : lastDraftOrder.name };
+    } else {
+      return { message : "Aucune commande provisoire pour ce client"};
     }
   } catch (error) {
     console.error('Error to retrieve draft orders', error);
