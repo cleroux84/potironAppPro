@@ -65,7 +65,7 @@ async function sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer,
   if(paletteNotes !== undefined && paletteNotes !== "undefined") {
     paletteNotesValue = `<p>Notes complémentaires concernant la livraison : ${paletteNotes}</p>`;
   } else {
-    paletteNotes = '';
+    paletteNotesValue = '';
   }
   let deliveryTextIfPalette = '';
     if(deliveryPref.includes("palette")) {
