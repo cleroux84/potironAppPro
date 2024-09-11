@@ -59,16 +59,13 @@ async function sendEmailWithKbis(filePath, companyName, fileExtension, firstname
   }
 
 //Send email to b2b customer when kBis validate
-async function sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer, companyName, deliveryPref, paletteEquipment) {
-  console.log("deliv pref", deliveryPref);
-  console.log("deliv equipment", paletteEquipment);
-
+async function sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer, companyName, deliveryPref, paletteEquipment, paletteAppointment) {
   let deliveryTextIfPalette = '';
     if(deliveryPref.includes("palette")) {
       deliveryTextIfPalette = `<p> Equipement nécessaire : ${paletteEquipment}</p>
+      <p>Nécessité de prendre RDV pour la livraison : ${paletteAppointment}</p>
       `
     }
-      //     <p>Nécessité de prendre RDV pour la livraison : ${appointmentValue}</p>
   //     <p>Notes complémentaires concernant la livraison : ${paletteNotes}</p>
     const transporter = nodemailer.createTransport({
       service: MAILSERVICE,
@@ -95,7 +92,7 @@ async function sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer,
       <p>Vous avez désormais accès, une fois connecté avec votre login et mot de passe, à l'ensemble du site avec les prix dédiés aux professionnels.</p>
       <p><a href="https://potiron.com">Visitez notre boutique</a></p>
       <p style="text-decoration: underline;">Rappel de vos préférences de livraison: </p>
-      <p>Possibilité(s) de livraison : </p>
+      <p>Possibilité(s) de livraison : ${deliveryPref}</p>
       ${deliveryTextIfPalette}
       <p>Nous restons à votre entière disposition.</p>
       <p>Très belle journée,</p>

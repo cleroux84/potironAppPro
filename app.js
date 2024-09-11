@@ -373,9 +373,13 @@ app.post('/updateKbis', async (req, res) => {
 
     if(deliveryPrefField && deliveryPref.includes('palette')) {
       const paletteEquipmentField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_equipment'); 
+      const paletteAppointmentField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_appointment'); 
+
       if(paletteEquipmentField && paletteEquipmentField.value !== "") {
         paletteEquipment = paletteEquipmentField.value;
       }
+      paletteAppointment = deliveryAppointmentField ? (deliveryAppointmentField.value === true ? "Oui": deliveryAppointmentField.value === false ? "Non" : deliveryAppointmentField.value): null;
+      
     }
 
       if(checkedKbisField && mailProSentField) {
@@ -388,7 +392,7 @@ app.post('/updateKbis', async (req, res) => {
         
         if(kbisState === true && mailProState === false) {
           try {
-            await sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer, companyName, deliveryPref, paletteEquipment)
+            await sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer, companyName, deliveryPref, paletteEquipment, paletteAppointment)
             console.log('Mail de bienvenue après validation du kbis envoyé au client pro', clientUpdated);  
             const updatedCustomerKbis = {
                     customer: {
