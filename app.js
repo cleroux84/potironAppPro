@@ -300,7 +300,7 @@ app.post('/updatedDraftOrder', async (req, res) => {
   let deliveryEquipmentValue;
   let deliveryEquipmentTag;
   if(deliveryPrefValue.includes('palette')) {
-    deliveryEquipment = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'delivery_pref');
+    deliveryEquipment = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_equipment');
     deliveryEquipmentValue = deliveryEquipment ? deliveryEquipment.value : '';
     deliveryEquipmentTag = "Equipement : " + deliveryEquipmentValue;
   }
