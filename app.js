@@ -292,13 +292,17 @@ app.post('/updatedDraftOrder', async (req, res) => {
   const draftName = updatedDraftData.name;
   const draftId = "draft" + draftName.replace('#','');
   const orderId = updatedDraftData.id;
-  console.log('customerId', updatedDraftData.customer.id);
   const metafields = await getCustomerMetafields(updatedDraftData.customer.id);
   const deliveryPref = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'delivery_pref');
   const deliveryPrefValue = deliveryPref.value;
-  const test = "Livraison : " + deliveryPrefValue;
-  
-
+  const deliveryPrefTag = "Livraison : " + deliveryPrefValue;
+  let deliveryEquipmentValue;
+  let deliveryEquipmentTag;
+  if(deliveryPrefValue.includes('palette')) {
+    const deliveryEquipment = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'delivery_pref');
+    deliveryEquipmentValue = deliveryEquipment ? deliveryEquipment.value : '';
+    deliveryEquipmentTag = "Equipement : " + deliveryEquipmentValue;
+  }
     if (isCompleted === true && isCommandePro) {
       try {
         const draftDetails = await getShippingboOrderDetails(accessToken, draftId);
@@ -307,12 +311,15 @@ app.post('/updatedDraftOrder', async (req, res) => {
           await cancelShippingboDraft(accessToken, shippingboDraftId);
         }
       } catch(err) {
-        console.log('error shiipingboId', err);
+        console.log('error shippingboId', err);
       }
   } else if(isCommandePro && !draftTagExists) {
     try {
       draftTagArray.push(draftId);
-      draftTagArray.push(test);
+      draftTagArray.push(deliveryPrefTag);
+      if(deliveryEquipmentValue !== '') {
+        draftTagArray.push(deliveryEquipmentTag);
+      }
       const updatedOrder = {
         draft_order: {
           id: orderId,
