@@ -112,9 +112,9 @@ const lastDraftOrder = async (customerId) => {
 
     const customerDraftOrders = data.draft_orders.filter(order => order.customer && order.customer.id == customerId);
     if(customerDraftOrders.length > 0) {
-      console.log("draft orders", customerDraftOrders);
       const lastDraftOrder = customerDraftOrders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
-      console.log("last order", lastDraftOrder);
+      console.log("last draft order", lastDraftOrder.name);
+      console.log("last draft status", lastDraftOrder.status);
       return { orderNumber : lastDraftOrder.name };
     } else {
       return { message : "Aucune commande provisoire pour ce client"};

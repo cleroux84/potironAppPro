@@ -449,10 +449,12 @@ function extractInfoFromNote(note, infoLabel) {
 //find last draft order and show if in progress
 app.get('/last-draft-order/:customer_id', async (req, res) => {
   const customerId = req.params.customer_id;
-  console.log(customerId);
-  // const lastDraft = await lastDraftOrder(customerId);
-  // console.log(lastDraft);
-  await lastDraftOrder(customerId);
+  try {
+    const lastDraft = await lastDraftOrder(customerId);
+    res.json(lastDraft);
+  } catch (error) {
+    res.status(500).send('Error retrieving last draft order');
+  }
 })
 
 //webhook on customer creation : https://potironapppro.onrender.com/createProCustomer
