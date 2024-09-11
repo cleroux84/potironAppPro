@@ -446,6 +446,12 @@ function extractInfoFromNote(note, infoLabel) {
   }
 }
 
+//find last draft order and show if in progress
+app.get('/last-draft-order/:customer_id', async (req, res) => {
+  const customerId = req.params.customer_id;
+  console.log(customerId);
+})
+
 //webhook on customer creation : https://potironapppro.onrender.com/createProCustomer
 //Send email to potiron team with kbis and create metafields in customer account
 app.post('/createProCustomer', async (req, res) => {
