@@ -299,10 +299,16 @@ app.post('/updatedDraftOrder', async (req, res) => {
   let deliveryEquipment;
   let deliveryEquipmentValue;
   let deliveryEquipmentTag;
+  let deliveryAppointment;
+  let deliveryAppointmentValue;
+  let deliveryAppointmentTag;
   if(deliveryPrefValue.includes('palette')) {
     deliveryEquipment = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_equipment');
+    deliveryAppointment = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_appointment');
     deliveryEquipmentValue = deliveryEquipment ? deliveryEquipment.value : '';
     deliveryEquipmentTag = "Equipement : " + deliveryEquipmentValue;
+    deliveryAppointmentValue = deliveryAppointment ? deliveryAppointment.value : null;
+    deliveryAppointmentTag = "Rendez-vous : " + deliveryAppointmentValue;
   }
     if (isCompleted === true && isCommandePro) {
       try {
@@ -320,6 +326,9 @@ app.post('/updatedDraftOrder', async (req, res) => {
       draftTagArray.push(deliveryPrefTag);
       if(deliveryEquipment && deliveryEquipmentValue !== '') {
         draftTagArray.push(deliveryEquipmentTag);
+      }
+      if(deliveryAppointment && deliveryAppointmentValue !== null) {
+        draftTagArray.push(deliveryAppointmentTag);
       }
       const updatedOrder = {
         draft_order: {
