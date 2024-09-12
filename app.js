@@ -20,7 +20,7 @@ const { getTokenWarehouse, refreshAccessTokenWarehouse } = require('./services/s
 const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft } = require('./services/shippingbo/potironParisCRUD.js');
 const { getWarehouseOrderDetails, updateWarehouseOrder } = require('./services/shippingbo/GMAWarehouseCRUD.js');
 const { sendEmailWithKbis, sendWelcomeMailPro } = require('./services/sendMail.js');
-const { createDraftOrder, updateDraftOrderWithTags, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield, updateDraftOrderWithDraftId, lastDraftOrder } = require('./services/shopifyApi.js');
+const { createDraftOrder, updateDraftOrderWithTags, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById } = require('./services/shopifyApi.js');
 
 let accessToken = null;
 let refreshToken = null;
@@ -366,7 +366,7 @@ app.post('/updateKbis', async (req, res) => {
     const companyNameField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'company');
     const deliveryPrefField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'delivery_pref');
     const deliveryPref = deliveryPrefField && deliveryPrefField.value ? deliveryPrefField.value : null;
-    console.log("deliverypref updatekbis", deliveryPref)
+    // console.log("deliverypref updatekbis", deliveryPref)
     let paletteEquipment;
     let paletteAppointment;
     let paletteNotes;
@@ -447,14 +447,26 @@ function extractInfoFromNote(note, infoLabel) {
   }
 }
 
-//find last draft order and show if in progress
+//get last draft order with customer id
 app.get('/last-draft-order/:customer_id', async (req, res) => {
   const customerId = req.params.customer_id;
   try {
     const lastDraft = await lastDraftOrder(customerId);
     res.json(lastDraft);
   } catch (error) {
-    res.status(500).send('Error retrieving last draft order');
+    res.status(500).send('Error retrieving last draft order by customer id');
+  }
+})
+
+//get draft order by order id
+app.get('/getDraftOrder/:draftOrderId', async (req, res) => {
+  const draftOrderId = req.params.draftOrderId;
+  try {
+    const draftOrderData = await draftOrderById(draftOrderId); 
+    console.log("draftOrderData", draftOrderData)
+    res.json(draftOrderData);
+  } catch (error) {
+    res.status(500).send('Error retrieving draft order by id');
   }
 })
 
