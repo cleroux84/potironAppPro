@@ -463,7 +463,6 @@ app.get('/getDraftOrder/:draftOrderId', async (req, res) => {
   const draftOrderId = req.params.draftOrderId;
   try {
     const draftOrderData = await draftOrderById(draftOrderId); 
-    console.log("draftOrderData", draftOrderData)
     res.json(draftOrderData);
   } catch (error) {
     res.status(500).send('Error retrieving draft order by id');

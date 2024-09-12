@@ -107,7 +107,6 @@ const draftOrderById = async (draftOrderId) => {
       console.log(`Error fetching draft orders : ${response.statusText}`);
     }
     const data = await response.json();
-    console.log('data in api', data);
     return data;
   } catch (error) {
     console.error('Error to retrieve draft order by id', error);
