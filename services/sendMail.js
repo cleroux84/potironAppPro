@@ -99,7 +99,7 @@ async function sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer,
       <p style="text-decoration: underline;">Rappel de vos préférences de livraison: </p>
       <p style="margin: 0;">Possibilité(s) de livraison : ${deliveryPref}</p>
       ${deliveryTextIfPalette}
-      <p>Vous pouvez modifier ces informations directement sur votre <span><a href="https://potiron.com/account> compte client </a>.</span></p>
+      <p>Vous pouvez modifier ces informations directement sur votre compte client.</p>
       <p style="margin: 0;">Nous restons à votre entière disposition.</p>
       <p style="margin: 0;">Très belle journée,</p>
       <p>L'équipe de Potiron</p>
