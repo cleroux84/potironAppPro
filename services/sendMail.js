@@ -34,12 +34,11 @@ async function sendEmailWithKbis(filePath, companyName, fileExtension, firstname
         subject: 'Nouveau Kbis (' + companyName + ') à vérifier et valider !', 
         html:`
         <p>Bonjour, </p>
-        <p>Une nouvelle demande d'inscription pro est arrivée pour <strong>${firstnameCustomer} ${nameCustomer}</strong>.</p>
-        <p>Vous trouverez le KBIS de <strong>${companyName}</strong> ci-joint.</p>
-        <p>Ce nouveau client est joignable à ${mailCustomer} et au ${phone}.</p>
-        <p>Pensez à le valider pour que le client ait accès aux prix destinés aux professionnels.</p>
-        <p>Bonne journée,</p>
-        <p>Céline Leroux</p>
+        <p style="margin: 0;">Une nouvelle demande d'inscription pro est arrivée pour <strong>${firstnameCustomer} ${nameCustomer}</strong>.</p>
+        <p style="margin: 0;">Vous trouverez le KBIS de <strong>${companyName}</strong> ci-joint.</p>
+        <p style="margin: 0;">Ce nouveau client est joignable à ${mailCustomer} et au ${phone}.</p>
+        <p style="margin: 0;">Pensez à le valider pour que le client ait accès aux prix destinés aux professionnels.</p>
+        <p>Bonne journée !</p>
         <img src='cid:signature'/>
         `,     
         attachments: [
@@ -62,14 +61,14 @@ async function sendEmailWithKbis(filePath, companyName, fileExtension, firstname
 async function sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer, companyName, deliveryPref, paletteEquipment, paletteAppointment, paletteNotes) {
   let paletteNotesValue;
   if(paletteNotes !== undefined && paletteNotes !== "undefined") {
-    paletteNotesValue = `<p>Notes complémentaires concernant la livraison : ${paletteNotes}</p>`;
+    paletteNotesValue = `<p style="margin: 0;">Notes complémentaires concernant la livraison : ${paletteNotes}</p>`;
   } else {
     paletteNotesValue = '';
   }
   let deliveryTextIfPalette = '';
     if(deliveryPref.includes("palette")) {
-      deliveryTextIfPalette = `<p> Equipement nécessaire : ${paletteEquipment}</p>
-      <p>Nécessité de prendre RDV pour la livraison : ${paletteAppointment}</p>
+      deliveryTextIfPalette = `<p style="margin: 0;"> Equipement nécessaire : ${paletteEquipment}</p>
+      <p style="margin: 0;">Nécessité de prendre RDV pour la livraison : ${paletteAppointment}</p>
       ${paletteNotesValue}
       `
     }
@@ -94,15 +93,15 @@ async function sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer,
       subject: 'Accès Pro Potiron Paris', 
       html:`
       <p>Bonjour ${firstnameCustomer} ${nameCustomer},</p>
-      <p>Nos équipes ont validé votre KBIS concernant ${companyName}, nous vous souhaitons la bienvenue !</p>
-      <p>Vous avez désormais accès, une fois connecté avec votre login et mot de passe, à l'ensemble du site avec les prix dédiés aux professionnels.</p>
+      <p style="margin: 0;">Nos équipes ont validé votre KBIS concernant ${companyName}, nous vous souhaitons la bienvenue !</p>
+      <p style="margin: 0;">Vous avez désormais accès, une fois connecté avec votre login et mot de passe, à l'ensemble du site avec les prix dédiés aux professionnels.</p>
       <p><a href="https://potiron.com">Visitez notre boutique</a></p>
       <p style="text-decoration: underline;">Rappel de vos préférences de livraison: </p>
-      <p>Possibilité(s) de livraison : ${deliveryPref}</p>
+      <p style="margin: 0;">Possibilité(s) de livraison : ${deliveryPref}</p>
       ${deliveryTextIfPalette}
       <p>Vous pouvez modifier ces informations directement sur votre <a href="https://potiron.com/account> compte client </a>.</p>
-      <p>Nous restons à votre entière disposition.</p>
-      <p>Très belle journée,</p>
+      <p style="margin: 0;">Nous restons à votre entière disposition.</p>
+      <p style="margin: 0;">Très belle journée,</p>
       <p>L'équipe de Potiron</p>
       <img src='cid:signature'/>
       `,     
@@ -121,9 +120,9 @@ async function sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer,
   async function sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone, shippingAddress, deliveryPrefValue, paletteEquipmentValue, appointmentValue, paletteNotes) {
     let deliveryTextIfPalette = '';
     if(deliveryPrefValue.includes("palette")) {
-      deliveryTextIfPalette = `<p> Equipement nécessaire : ${paletteEquipmentValue}</p>
-      <p>Nécessité de prendre RDV pour la livraison : ${appointmentValue}</p>
-      <p>Notes complémentaires concernant la livraison : ${paletteNotes}</p>
+      deliveryTextIfPalette = `<p style="margin: 0;"> Equipement nécessaire : ${paletteEquipmentValue}</p>
+      <p style="margin: 0;">Nécessité de prendre RDV pour la livraison : ${appointmentValue}</p>
+      <p style="margin: 0;">Notes complémentaires concernant la livraison : ${paletteNotes}</p>
       `
     }
     const transporter = nodemailer.createTransport({
@@ -147,11 +146,12 @@ async function sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer,
       subject: 'Nouvelle demande de cotation pour Commande Provisoire ' + draftOrderId, 
       html:`
       <p>Bonjour, </p>
-      <p>Une nouvelle commande provisoire a été créée pour le client PRO : ${firstnameCustomer} ${nameCustomer}</p>
-      <p>Il est joignable pour valider la cotation à ${customerMail} et au ${customerPhone} </p>
-      <p>L'adresse de livraison renseignée est : ${shippingAddress}</p>
+      <p style="margin: 0;">Une nouvelle commande provisoire a été créée pour le client PRO : ${firstnameCustomer} ${nameCustomer}</p>
+      <p style="margin: 0;">Il est joignable pour valider la cotation à ${customerMail} et au ${customerPhone} </p>
+      <p style="margin: 0;">L'adresse de livraison renseignée est : ${shippingAddress}</p>
       <p>Préférence(s) de livraison : ${deliveryPrefValue}</p>
       ${deliveryTextIfPalette}
+      <p>Bonne journée ! </p>
       <img src='cid:signature'/>
       `,     
       attachments: [
