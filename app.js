@@ -19,7 +19,7 @@ const { getToken, refreshAccessToken } = require('./services/shippingbo/potironP
 const { getTokenWarehouse, refreshAccessTokenWarehouse } = require('./services/shippingbo/gmaWarehouseAuth.js');
 const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft } = require('./services/shippingbo/potironParisCRUD.js');
 const { getWarehouseOrderDetails, updateWarehouseOrder } = require('./services/shippingbo/GMAWarehouseCRUD.js');
-const { sendEmailWithKbis, sendWelcomeMailPro, sendMailFromMicrosoft } = require('./services/sendMail.js');
+const { sendEmailWithKbis, sendWelcomeMailPro, getMicrosoftAccessToken, sendMicrosoftEmailWithKbis } = require('./services/sendMail.js');
 const { createDraftOrder, updateDraftOrderWithTags, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById } = require('./services/shopifyApi.js');
 
 let accessToken = null;
@@ -526,6 +526,11 @@ app.post('/createProCustomer', async (req, res) => {
           return;
         }
         // Envoi du fichier par e-mail
+        // const microsoftAccessToken = await getMicrosoftAccessToken();
+        // if(microsoftAccessToken) {
+        //   await sendMicrosoftEmailWithKbis()
+        // }
+        // sendMicrosoftEmailWithKbis(microsoftAccessToken, mailCustomer, companyName, filePath)
         sendEmailWithKbis(filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone)
           .then(() => {
             console.log('Mail envoyé pour validation du kbis');

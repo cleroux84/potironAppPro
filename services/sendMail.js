@@ -1,6 +1,9 @@
 const nodemailer = require('nodemailer'); 
 const fs = require('fs');
 require('dotenv').config();
+const { ConfidentialClientApplication } = require('@azure/msal-node');
+const { Client } = require('@microsoft/microsoft-graph-client');
+require ('isomorphic-fetch');
 
 const MAILSERVICE = process.env.MAILSERVICE;
 const MAILHOST = process.env.MAILHOST;
@@ -10,52 +13,119 @@ const MAILSENDERPASS = process.env.MAILSENDERPASS;
 const MAILRECIPIENT = process.env.MAILRECIPIENT;
 const MAILCOTATION = process.env.MAILCOTATION;
 
+//config miscrosoft data
+const config = {
+  auth: {
+      clientId: process.env.MS365_CLIENT_ID, // ID de l'application
+      authority: `https://login.microsoftonline.com/${process.env.MS365_TENANT_ID}`, // ID du locataire
+      clientSecret: process.env.MS365_CLIENT_SECRET // Secret client
+  }
+};
+const cca = new ConfidentialClientApplication(config);
+
+async function sendMicrosoftEmailWithKbis(accessToken, filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone) {
+  const client = Client.init({
+      authProvider: (done) => {
+          done(null, accessToken); // Utilisation du token
+      }
+  });
+
+  const message = {
+      subject: `Nouveau Kbis pour ${companyName} à vérifier et valider`,
+      body: {
+          contentType: 'HTML',
+          content: `
+        <p>Bonjour, </p>
+        <p style="margin: 0;">Une nouvelle demande d'inscription pro est arrivée pour <strong>${firstnameCustomer} ${nameCustomer}</strong>.</p>
+        <p style="margin: 0;">Vous trouverez le KBIS de <strong>${companyName}</strong> ci-joint.</p>
+        <p style="margin: 0;">Ce nouveau client est joignable à ${mailCustomer} et au ${phone}.</p>
+        <p style="margin: 0;">Pensez à le valider pour que le client ait accès aux prix destinés aux professionnels.</p>
+        <p>Bonne journée !</p>
+        <img src='cid:signature'/>
+          `
+      },
+      toRecipients: [
+          {
+              emailAddress: {
+                  address: MAILRECIPIENT
+              }
+          }
+      ],
+      attachments: [
+          {
+              '@odata.type': '#microsoft.graph.fileAttachment',
+              name: `kbis_${companyName}.pdf`,
+              contentBytes: fs.readFileSync(filePath).toString('base64')  // Conversion en base64
+          }
+      ]
+  };
+
+  try {
+      await client.api('/users/me/sendMail').post({ message });
+      console.log('Email envoyé avec succès');
+  } catch (error) {
+      console.log('Erreur lors de l\'envoi de l\'email : ', error);
+  }
+}
+
+async function getMicrosoftAccessToken() {
+  const clientCredentialRequest = {
+    scopes: ['https://graph.microsoft.com/.default'],
+  };
+
+  try {
+      const authResponse = await cca.acquireTokenByClientCredential(clientCredentialRequest);
+      return authResponse.accessToken;
+  } catch (error) {
+      console.log('Erreur d\'authentification : ', error);
+  }
+}
+
 //Send email with kbis to Potiron Team to check and validate company
 async function sendEmailWithKbis(filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone) {
-  console.log('PPL send mail');
-  // const transporter = nodemailer.createTransport({
-    //     service: MAILSERVICE,
-    //     host: MAILHOST,
-    //     port: MAILPORT,
-    //     secure: false,
-    //     auth: {
-    //         user: MAILSENDER, 
-    //         pass: MAILSENDERPASS
-    //     },
-    //     tls: {
-    //       ciphers: 'SSLv3'
-    //   }
-    // });
+    const transporter = nodemailer.createTransport({
+        service: MAILSERVICE,
+        host: MAILHOST,
+        port: MAILPORT,
+        secure: false,
+        auth: {
+            user: MAILSENDER, 
+            pass: MAILSENDERPASS
+        },
+        tls: {
+          ciphers: 'SSLv3'
+      }
+    });
   
-    // const mailOptions = {
-    //     from: '"POTIRON PARIS - Nouveau kBis" <noreply@potiron.com>',
-    //     replyTo: 'bonjour@potiron.com', 
-    //     to: MAILRECIPIENT,
-    //     cc: MAILSENDER,
-    //     subject: 'Nouveau Kbis (' + companyName + ') à vérifier et valider !', 
-    //     html:`
-    //     <p>Bonjour, </p>
-    //     <p style="margin: 0;">Une nouvelle demande d'inscription pro est arrivée pour <strong>${firstnameCustomer} ${nameCustomer}</strong>.</p>
-    //     <p style="margin: 0;">Vous trouverez le KBIS de <strong>${companyName}</strong> ci-joint.</p>
-    //     <p style="margin: 0;">Ce nouveau client est joignable à ${mailCustomer} et au ${phone}.</p>
-    //     <p style="margin: 0;">Pensez à le valider pour que le client ait accès aux prix destinés aux professionnels.</p>
-    //     <p>Bonne journée !</p>
-    //     <img src='cid:signature'/>
-    //     `,     
-    //     attachments: [
-    //         {
-    //             filename: 'kbis_' + companyName + fileExtension,
-    //             content: fs.createReadStream(filePath)
-    //         },
-    //         {
-    //           filename: 'signature.png',
-    //           path: 'assets/signature.png',
-    //           cid: 'signature'
-    //         }
-    //     ]
-    // };
-
-    // return transporter.sendMail(mailOptions);
+    const mailOptions = {
+        from: '"POTIRON PARIS - Nouveau kBis" <noreply@potiron.com>',
+        replyTo: 'bonjour@potiron.com', 
+        to: MAILRECIPIENT,
+        cc: MAILSENDER,
+        subject: 'Nouveau Kbis (' + companyName + ') à vérifier et valider !', 
+        html:`
+        <p>Bonjour, </p>
+        <p style="margin: 0;">Une nouvelle demande d'inscription pro est arrivée pour <strong>${firstnameCustomer} ${nameCustomer}</strong>.</p>
+        <p style="margin: 0;">Vous trouverez le KBIS de <strong>${companyName}</strong> ci-joint.</p>
+        <p style="margin: 0;">Ce nouveau client est joignable à ${mailCustomer} et au ${phone}.</p>
+        <p style="margin: 0;">Pensez à le valider pour que le client ait accès aux prix destinés aux professionnels.</p>
+        <p>Bonne journée !</p>
+        <img src='cid:signature'/>
+        `,     
+        attachments: [
+            {
+                filename: 'kbis_' + companyName + fileExtension,
+                content: fs.createReadStream(filePath)
+            },
+            {
+              filename: 'signature.png',
+              path: 'assets/signature.png',
+              cid: 'signature'
+            }
+        ]
+    };
+  
+    return transporter.sendMail(mailOptions);
   }
 
 //Send email to b2b customer when kBis validate
@@ -169,5 +239,7 @@ async function sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer,
   module.exports = {
     sendEmailWithKbis,
     sendWelcomeMailPro,
-    sendNewDraftOrderMail
+    sendNewDraftOrderMail,
+    getMicrosoftAccessToken,
+    sendMicrosoftEmailWithKbis
   }
