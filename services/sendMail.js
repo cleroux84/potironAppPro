@@ -10,6 +10,12 @@ const MAILSENDERPASS = process.env.MAILSENDERPASS;
 const MAILRECIPIENT = process.env.MAILRECIPIENT;
 const MAILCOTATION = process.env.MAILCOTATION;
 
+
+//Send mail from microsoft TEST
+async function sendMailFromMicrosoft() {
+  console.log("send mail from miscrosoft");
+}
+
 //Send email with kbis to Potiron Team to check and validate company
 async function sendEmailWithKbis(filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone) {
     const transporter = nodemailer.createTransport({
@@ -168,5 +174,6 @@ async function sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer,
   module.exports = {
     sendEmailWithKbis,
     sendWelcomeMailPro,
-    sendNewDraftOrderMail
+    sendNewDraftOrderMail,
+    sendMailFromMicrosoft
   }

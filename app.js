@@ -19,7 +19,7 @@ const { getToken, refreshAccessToken } = require('./services/shippingbo/potironP
 const { getTokenWarehouse, refreshAccessTokenWarehouse } = require('./services/shippingbo/gmaWarehouseAuth.js');
 const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft } = require('./services/shippingbo/potironParisCRUD.js');
 const { getWarehouseOrderDetails, updateWarehouseOrder } = require('./services/shippingbo/GMAWarehouseCRUD.js');
-const { sendEmailWithKbis, sendWelcomeMailPro } = require('./services/sendMail.js');
+const { sendEmailWithKbis, sendWelcomeMailPro, sendMailFromMicrosoft } = require('./services/sendMail.js');
 const { createDraftOrder, updateDraftOrderWithTags, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById } = require('./services/shopifyApi.js');
 
 let accessToken = null;
@@ -467,6 +467,11 @@ app.get('/getDraftOrder/:draftOrderId', async (req, res) => {
   } catch (error) {
     res.status(500).send('Error retrieving draft order by id');
   }
+})
+
+//test to send mail from microsoft
+app.get('/sendMailMicrosoft', async(req, res) => {
+  await sendMailFromMicrosoft();
 })
 
 //webhook on customer creation : https://potironapppro.onrender.com/createProCustomer
