@@ -293,10 +293,11 @@ app.post('/updatedDraftOrder', async (req, res) => {
   const draftId = "draft" + draftName.replace('#','');
   const orderId = updatedDraftData.id;
   const metafields = await getCustomerMetafields(updatedDraftData.customer.id);
+  let deliveryPref;
   let deliveryPrefTag;
   let deliveryPrefValue;
   if(metafields) {
-    const deliveryPref = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'delivery_pref');
+    deliveryPref = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'delivery_pref');
     deliveryPrefValue = deliveryPref.value;
     deliveryPrefTag = "Livraison : " + deliveryPrefValue;
   }
@@ -309,7 +310,7 @@ app.post('/updatedDraftOrder', async (req, res) => {
   let deliveryNotes;
   let deliveryNotesValue;
   let deliveryNotesTag;
-  if(deliveryPrefValue.includes('palette')) {
+  if( deliveryPref && deliveryPrefValue.includes('palette')) {
     deliveryEquipment = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_equipment');
     deliveryAppointment = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_appointment');
     deliveryEquipmentValue = deliveryEquipment ? deliveryEquipment.value : '';
