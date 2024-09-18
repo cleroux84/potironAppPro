@@ -54,7 +54,7 @@ async function sendEmailWithKbis(filePath, companyName, fileExtension, firstname
     //         }
     //     ]
     // };
-    return {message: "PPL : send mail from microsoft"}
+
     // return transporter.sendMail(mailOptions);
   }
 
