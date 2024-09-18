@@ -294,9 +294,10 @@ app.post('/updatedDraftOrder', async (req, res) => {
   const orderId = updatedDraftData.id;
   const metafields = await getCustomerMetafields(updatedDraftData.customer.id);
   let deliveryPrefTag;
+  let deliveryPrefValue;
   if(metafields) {
     const deliveryPref = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'delivery_pref');
-    const deliveryPrefValue = deliveryPref.value;
+    deliveryPrefValue = deliveryPref.value;
     deliveryPrefTag = "Livraison : " + deliveryPrefValue;
   }
   let deliveryEquipment;
