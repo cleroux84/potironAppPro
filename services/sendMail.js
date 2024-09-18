@@ -12,7 +12,7 @@ const MAILCOTATION = process.env.MAILCOTATION;
 
 //Send email with kbis to Potiron Team to check and validate company
 async function sendEmailWithKbis(filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone) {
-  console.log('PPL send mail')  
+  console.log('PPL send mail');
   // const transporter = nodemailer.createTransport({
     //     service: MAILSERVICE,
     //     host: MAILHOST,
@@ -54,7 +54,7 @@ async function sendEmailWithKbis(filePath, companyName, fileExtension, firstname
     //         }
     //     ]
     // };
-  
+    return {message: "PPL : send mail from microsoft"}
     // return transporter.sendMail(mailOptions);
   }
 
