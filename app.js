@@ -359,13 +359,21 @@ app.post('/updatedDraftOrder', async (req, res) => {
 app.post('/updateKbis', async (req, res) => {
   var updatedData = req.body;
   const clientUpdated = updatedData.id;
+  let checkedKbisField;
+  let mailProSentField;
+  let companyNameField;
+  let deliveryPrefField;
+  let deliveryPref;
+
   try {
     const metafields = await getCustomerMetafields(clientUpdated);
-    const checkedKbisField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'checkedkbis');
-    const mailProSentField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'mailProSent');
-    const companyNameField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'company');
-    const deliveryPrefField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'delivery_pref');
-    const deliveryPref = deliveryPrefField && deliveryPrefField.value ? deliveryPrefField.value : null;
+    if(metafields) {
+      checkedKbisField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'checkedkbis');
+      mailProSentField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'mailProSent');
+      companyNameField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'company');
+      deliveryPrefField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'delivery_pref');
+      deliveryPref = deliveryPrefField && deliveryPrefField.value ? deliveryPrefField.value : null;
+    }
     // console.log("deliverypref updatekbis", deliveryPref)
     let paletteEquipment;
     let paletteAppointment;
