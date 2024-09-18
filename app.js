@@ -528,9 +528,8 @@ app.post('/createProCustomer', async (req, res) => {
         // Envoi du fichier par e-mail
         // const microsoftAccessToken = await getMicrosoftAccessToken();
         // if(microsoftAccessToken) {
-        //   await sendMicrosoftEmailWithKbis()
+          // await sendMicrosoftEmailWithKbis(microsoftAccessToken, filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone)
         // }
-        // sendMicrosoftEmailWithKbis(microsoftAccessToken, mailCustomer, companyName, filePath)
         sendEmailWithKbis(filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone)
           .then(() => {
             console.log('Mail envoyé pour validation du kbis');

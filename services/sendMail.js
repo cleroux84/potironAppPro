@@ -1,7 +1,7 @@
 const nodemailer = require('nodemailer'); 
 const fs = require('fs');
 require('dotenv').config();
-const { ConfidentialClientApplication } = require('@azure/msal-node');
+// const { ConfidentialClientApplication } = require('@azure/msal-node');
 const { Client } = require('@microsoft/microsoft-graph-client');
 require ('isomorphic-fetch');
 
@@ -14,14 +14,14 @@ const MAILRECIPIENT = process.env.MAILRECIPIENT;
 const MAILCOTATION = process.env.MAILCOTATION;
 
 //config miscrosoft data
-const config = {
-  auth: {
-      clientId: process.env.MS365_CLIENT_ID, // ID de l'application
-      authority: `https://login.microsoftonline.com/${process.env.MS365_TENANT_ID}`, // ID du locataire
-      clientSecret: process.env.MS365_CLIENT_SECRET // Secret client
-  }
-};
-const cca = new ConfidentialClientApplication(config);
+// const config = {
+//   auth: {
+//       clientId: process.env.MS365_CLIENT_ID, // ID de l'application
+//       authority: `https://login.microsoftonline.com/${process.env.MS365_TENANT_ID}`, // ID du locataire
+//       clientSecret: process.env.MS365_CLIENT_SECRET // Secret client
+//   }
+// };
+// const cca = new ConfidentialClientApplication(config);
 
 async function sendMicrosoftEmailWithKbis(accessToken, filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone) {
   const client = Client.init({
@@ -56,9 +56,16 @@ async function sendMicrosoftEmailWithKbis(accessToken, filePath, companyName, fi
               '@odata.type': '#microsoft.graph.fileAttachment',
               name: `kbis_${companyName}.pdf`,
               contentBytes: fs.readFileSync(filePath).toString('base64')  // Conversion en base64
-          }
-      ]
-  };
+          },
+          {
+            '@odata.type': '#microsoft.graph.fileAttachment',
+            name: 'signature.png', // Nom de la signature
+            contentId: 'signatureImage', // ID utilisé dans le cid
+            isInline: true, // Indique que l'image est inline (pas comme pièce jointe classique)
+            contentBytes: fs.readFileSync('assets/signature.png').toString('base64') // Conversion de la signature en base64
+          } 
+        ]
+    };
 
   try {
       await client.api('/users/me/sendMail').post({ message });
