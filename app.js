@@ -482,13 +482,6 @@ app.get('/getDraftOrder/:draftOrderId', async (req, res) => {
   }
 })
 
-//test to send mail from microsoft
-app.get('/sendMailMicrosoft', async(req, res) => {
-  console.log('PPL send mail')
-  const mail = await sendMailFromMicrosoft();
-  console.log(mail);
-})
-
 //webhook on customer creation : https://potironapppro.onrender.com/createProCustomer
 //Send email to potiron team with kbis and create metafields in customer account
 app.post('/createProCustomer', async (req, res) => {

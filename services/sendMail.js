@@ -10,57 +10,52 @@ const MAILSENDERPASS = process.env.MAILSENDERPASS;
 const MAILRECIPIENT = process.env.MAILRECIPIENT;
 const MAILCOTATION = process.env.MAILCOTATION;
 
-
-//Send mail from microsoft TEST
-async function sendMailFromMicrosoft() {
-  console.log("send mail from miscrosoft");
-}
-
 //Send email with kbis to Potiron Team to check and validate company
 async function sendEmailWithKbis(filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone) {
-    const transporter = nodemailer.createTransport({
-        service: MAILSERVICE,
-        host: MAILHOST,
-        port: MAILPORT,
-        secure: false,
-        auth: {
-            user: MAILSENDER, 
-            pass: MAILSENDERPASS
-        },
-        tls: {
-          ciphers: 'SSLv3'
-      }
-    });
+  console.log('PPL send mail')  
+  // const transporter = nodemailer.createTransport({
+    //     service: MAILSERVICE,
+    //     host: MAILHOST,
+    //     port: MAILPORT,
+    //     secure: false,
+    //     auth: {
+    //         user: MAILSENDER, 
+    //         pass: MAILSENDERPASS
+    //     },
+    //     tls: {
+    //       ciphers: 'SSLv3'
+    //   }
+    // });
   
-    const mailOptions = {
-        from: '"POTIRON PARIS - Nouveau kBis" <noreply@potiron.com>',
-        replyTo: 'bonjour@potiron.com', 
-        to: MAILRECIPIENT,
-        cc: MAILSENDER,
-        subject: 'Nouveau Kbis (' + companyName + ') à vérifier et valider !', 
-        html:`
-        <p>Bonjour, </p>
-        <p style="margin: 0;">Une nouvelle demande d'inscription pro est arrivée pour <strong>${firstnameCustomer} ${nameCustomer}</strong>.</p>
-        <p style="margin: 0;">Vous trouverez le KBIS de <strong>${companyName}</strong> ci-joint.</p>
-        <p style="margin: 0;">Ce nouveau client est joignable à ${mailCustomer} et au ${phone}.</p>
-        <p style="margin: 0;">Pensez à le valider pour que le client ait accès aux prix destinés aux professionnels.</p>
-        <p>Bonne journée !</p>
-        <img src='cid:signature'/>
-        `,     
-        attachments: [
-            {
-                filename: 'kbis_' + companyName + fileExtension,
-                content: fs.createReadStream(filePath)
-            },
-            {
-              filename: 'signature.png',
-              path: 'assets/signature.png',
-              cid: 'signature'
-            }
-        ]
-    };
+    // const mailOptions = {
+    //     from: '"POTIRON PARIS - Nouveau kBis" <noreply@potiron.com>',
+    //     replyTo: 'bonjour@potiron.com', 
+    //     to: MAILRECIPIENT,
+    //     cc: MAILSENDER,
+    //     subject: 'Nouveau Kbis (' + companyName + ') à vérifier et valider !', 
+    //     html:`
+    //     <p>Bonjour, </p>
+    //     <p style="margin: 0;">Une nouvelle demande d'inscription pro est arrivée pour <strong>${firstnameCustomer} ${nameCustomer}</strong>.</p>
+    //     <p style="margin: 0;">Vous trouverez le KBIS de <strong>${companyName}</strong> ci-joint.</p>
+    //     <p style="margin: 0;">Ce nouveau client est joignable à ${mailCustomer} et au ${phone}.</p>
+    //     <p style="margin: 0;">Pensez à le valider pour que le client ait accès aux prix destinés aux professionnels.</p>
+    //     <p>Bonne journée !</p>
+    //     <img src='cid:signature'/>
+    //     `,     
+    //     attachments: [
+    //         {
+    //             filename: 'kbis_' + companyName + fileExtension,
+    //             content: fs.createReadStream(filePath)
+    //         },
+    //         {
+    //           filename: 'signature.png',
+    //           path: 'assets/signature.png',
+    //           cid: 'signature'
+    //         }
+    //     ]
+    // };
   
-    return transporter.sendMail(mailOptions);
+    // return transporter.sendMail(mailOptions);
   }
 
 //Send email to b2b customer when kBis validate
@@ -174,6 +169,5 @@ async function sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer,
   module.exports = {
     sendEmailWithKbis,
     sendWelcomeMailPro,
-    sendNewDraftOrderMail,
-    sendMailFromMicrosoft
+    sendNewDraftOrderMail
   }
