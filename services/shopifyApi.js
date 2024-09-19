@@ -110,25 +110,14 @@ const orderById = async (orderName, orderMail, customerId) => {
       console.log(`Error fetching order by name : ${response.statusText}`);
     }
     const ordersData = await response.json();
-    console.log("orders customer", ordersData);
+    // console.log("orders customer", ordersData);
     if (ordersData) {
       myOrderData = ordersData.find(order => order.name === orderName);
+      console.log('in', myOrderData);
     }
     console.log("my order data", myOrderData);
-  }
-//     const response = await fetch(orderUrl, orderOptions);
-//     if(!response.ok) {
-//       console.log(`Error fetching order by name : ${response.statusText}`);
-//     }
-//     const data = await response.json();
-    // const myOrderData = data.orders.find(order => order.name === 7008);
-    // if(!myOrderData) {
-    //   console.log('commande non trouvée', orderName);
-    //   return null;
-    // }
-    // console.log('data', myOrderData);
-  //   return data;
-   catch (error) {
+    return myOrderData;
+  } catch (error) {
     console.error('Error tor retrieve order by name', error);
   }
 }
