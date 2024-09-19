@@ -95,7 +95,7 @@ const createDraftOrder = async (draftOrder, accessToken) => {
 const orderById = async (orderName, orderMail) => {
   console.log("commande recherché", orderName);
   const orderTest = '7008'
-  const orderUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/orders.json?status=any&name=#7008`;
+  const orderUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/orders.json?status=any`;
   const orderOptions = {
     method: 'GET',
     headers: {             
@@ -109,8 +109,13 @@ const orderById = async (orderName, orderMail) => {
       console.log(`Error fetching order by name : ${response.statusText}`);
     }
     const data = await response.json();
-    console.log('data', data);
-    return data;
+    const myOrderData = data.orders.find(order => order.name === orderName);
+    if(!myOrderData) {
+      console.log('commande non trouvée', orderName);
+      return null;
+    }
+    console.log('data', myOrderData);
+    return myOrderData;
   } catch (error) {
     console.error('Error tor retrieve order by name', error);
   }
