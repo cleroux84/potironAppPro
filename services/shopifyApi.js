@@ -94,8 +94,8 @@ const createDraftOrder = async (draftOrder, accessToken) => {
 
 const orderById = async (orderName, orderMail) => {
   console.log("commande recherché", orderName);
-  const orderTest = 7008;
-  const orderUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/orders.json?name=%23${orderTest}`;
+ console.log('type', typeof orderName);
+  const orderUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/orders.json?name=${orderName}`;
   const orderOptions = {
     method: 'GET',
     headers: {             
@@ -109,7 +109,7 @@ const orderById = async (orderName, orderMail) => {
       console.log(`Error fetching order by name : ${response.statusText}`);
     }
     const data = await response.json();
-    // const myOrderData = data.orders.find(order => order.order_number === 7008);
+    // const myOrderData = data.orders.find(order => order.name === 7008);
     // if(!myOrderData) {
     //   console.log('commande non trouvée', orderName);
     //   return null;
