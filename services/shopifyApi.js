@@ -92,44 +92,34 @@ const createDraftOrder = async (draftOrder, accessToken) => {
     }
 }
 
-const orderById = async (orderName) => {
-  console.log("Commande recherchée:", orderName);
- 
-  const orderUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/orders.json?name=${orderName}`;
+const orderById = async (orderName, orderMail) => {
+  console.log("commande recherché", orderName);
+ console.log('type', typeof orderName);
+  const orderUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/orders.json?name=${orderName}&status="closed"`;
   const orderOptions = {
     method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Shopify-Access-Token': SHOPIFY_APPTOKEN
+    headers: {             
+      'Content-Type': 'application/json',             
+      'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
     }
-  };
- 
+  }
   try {
     const response = await fetch(orderUrl, orderOptions);
- 
-    if (!response.ok) {
-      throw new Error(`Erreur lors de la récupération de la commande : ${response.statusText}`);
+    if(!response.ok) {
+      console.log(`Error fetching order by name : ${response.statusText}`);
     }
- 
     const data = await response.json();
-    console.log('Données retournées par Shopify:', data);
- 
-    if (data.orders && data.orders.length > 0) {
-      // Filtrer les commandes pour trouver celle avec le bon nom
-      const filteredOrders = data.orders.filter(order => order.name === orderName);
-      if (filteredOrders.length > 0) {
-        return filteredOrders[0]; // Retourner la première commande trouvée
-      } else {
-        throw new Error('Aucune commande trouvée avec ce nom.');
-      }
-    } else {
-      throw new Error('Aucune commande trouvée.');
-    }
+    // const myOrderData = data.orders.find(order => order.name === 7008);
+    // if(!myOrderData) {
+    //   console.log('commande non trouvée', orderName);
+    //   return null;
+    // }
+    // console.log('data', myOrderData);
+    return data;
   } catch (error) {
-    console.error('Erreur lors de la récupération de la commande:', error.message);
-    throw error;
+    console.error('Error tor retrieve order by name', error);
   }
-};
+}
 
 const draftOrderById = async (draftOrderId) => {
   const draftOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/draft_orders/${draftOrderId}.json`;
