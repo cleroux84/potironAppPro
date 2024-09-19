@@ -20,7 +20,7 @@ const { getTokenWarehouse, refreshAccessTokenWarehouse } = require('./services/s
 const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft } = require('./services/shippingbo/potironParisCRUD.js');
 const { getWarehouseOrderDetails, updateWarehouseOrder } = require('./services/shippingbo/GMAWarehouseCRUD.js');
 const { sendEmailWithKbis, sendWelcomeMailPro, getMicrosoftAccessToken, sendMicrosoftEmailWithKbis } = require('./services/sendMail.js');
-const { createDraftOrder, updateDraftOrderWithTags, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById } = require('./services/shopifyApi.js');
+const { createDraftOrder, updateDraftOrderWithTags, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById, orderById } = require('./services/shopifyApi.js');
 
 let accessToken = null;
 let refreshToken = null;
@@ -485,11 +485,15 @@ app.get('/getDraftOrder/:draftOrderId', async (req, res) => {
 app.get('/getOrderById', async (req, res) => {
   const orderName = req.query.getOrder_name;
   const orderMail = req.query.getOrder_mail;
-console.log("name recu", orderName);
-console.log("mail recu", orderMail);
-
-res.json({success: true, orderName, orderMail })
-
+  console.log("name recu", orderName);
+  console.log("mail recu", orderMail);
+  try {
+    const orderData = await orderById(orderName, orderMail);
+    console.log("orderdata", orderData);
+    res.json(orderData);
+  } catch (error) {
+    res.status(500).send('Error retrieving order by name');
+  }
 })
 
 //webhook on customer creation : https://potironapppro.onrender.com/createProCustomer

@@ -92,8 +92,27 @@ const createDraftOrder = async (draftOrder, accessToken) => {
     }
 }
 
-const orderById = async (orderName) => {
+const orderById = async (orderName, orderMail) => {
   console.log("commande recherché", orderName);
+  const orderUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/orders.json.query=name:${orderName}`;
+  const orderOptions = {
+    method: 'GET',
+    headers: {             
+      'Content-Type': 'application/json',             
+      'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
+    }
+  }
+  try {
+    const response = await fetch(orderUrl, orderOptions);
+    if(!response.ok) {
+      console.log(`Error fetching order by name : ${response.statusText}`);
+    }
+    const data = await response.json();
+    console.log('data', data);
+    return data;
+  } catch (error) {
+    console.error('Error tor retrieve order by name', error);
+  }
 }
 
 const draftOrderById = async (draftOrderId) => {
@@ -265,5 +284,6 @@ module.exports = {
     createProCustomer,
     deleteMetafield,
     lastDraftOrder,
-    draftOrderById
+    draftOrderById,
+    orderById
 }
