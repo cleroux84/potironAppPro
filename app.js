@@ -482,6 +482,16 @@ app.get('/getDraftOrder/:draftOrderId', async (req, res) => {
   }
 })
 
+app.get('/getOrderById', async (req, res) => {
+  const orderName = req.query.getOrder_name;
+  const orderMail = req.query.getOrder_mail;
+console.log("name recu", orderName);
+console.log("mail recu", orderMail);
+
+res.json({success: true, orderName, orderMail })
+
+})
+
 //webhook on customer creation : https://potironapppro.onrender.com/createProCustomer
 //Send email to potiron team with kbis and create metafields in customer account
 app.post('/createProCustomer', async (req, res) => {

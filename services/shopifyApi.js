@@ -92,6 +92,10 @@ const createDraftOrder = async (draftOrder, accessToken) => {
     }
 }
 
+const orderById = async (orderName) => {
+  console.log("commande recherché", orderName);
+}
+
 const draftOrderById = async (draftOrderId) => {
   const draftOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/draft_orders/${draftOrderId}.json`;
   const draftOrderOptions = {
