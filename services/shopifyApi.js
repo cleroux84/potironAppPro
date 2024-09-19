@@ -95,7 +95,7 @@ const createDraftOrder = async (draftOrder, accessToken) => {
 const orderById = async (orderName, orderMail, customerId) => {
   console.log("commande recherché", orderName);
   console.log('customerid', customerId);
-  const orderUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/customers/6140664479894/orders.json`;
+  const orderUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/customers/${customerId}.json`;
   const orderOptions = {
     method: 'GET',
     headers: {             
