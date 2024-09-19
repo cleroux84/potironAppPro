@@ -485,10 +485,12 @@ app.get('/getDraftOrder/:draftOrderId', async (req, res) => {
 app.get('/getOrderById', async (req, res) => {
   const orderName = req.query.getOrder_name;
   const orderMail = req.query.getOrder_mail;
+  const customerId = req.query.customer_id;
+
   console.log("name recu", orderName);
   console.log("mail recu", orderMail);
   try {
-    const orderData = await orderById(orderName, orderMail);
+    const orderData = await orderById(orderName, orderMail, customerId);
     console.log("orderdata", orderData);
     res.json(orderData);
   } catch (error) {
