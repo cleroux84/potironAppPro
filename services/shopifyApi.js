@@ -110,12 +110,9 @@ const orderById = async (orderName, orderMail, customerId) => {
       console.log(`Error fetching order by name : ${response.statusText}`);
     }
     const ordersData = await response.json();
-    // console.log("orders customer", ordersData);
     if (ordersData) {
       myOrderData = ordersData.orders.find(order => order.name === orderName);
-      console.log('in', myOrderData);
     }
-    console.log("my order data", myOrderData);
     return myOrderData;
   } catch (error) {
     console.error('Error tor retrieve order by name', error);
