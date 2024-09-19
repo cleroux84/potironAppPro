@@ -111,9 +111,10 @@ const orderById = async (orderName, orderMail, customerId) => {
     }
     const ordersData = await response.json();
     console.log("orders customer", ordersData);
-    // if (ordersData) {
-    //   myOrderData = ordersData.find(order => order.name === orderName);
-    // }
+    if (ordersData) {
+      myOrderData = ordersData.find(order => order.name === orderName);
+    }
+    console.log("my order data", myOrderData);
   }
 //     const response = await fetch(orderUrl, orderOptions);
 //     if(!response.ok) {
