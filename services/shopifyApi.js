@@ -112,7 +112,7 @@ const orderById = async (orderName, orderMail, customerId) => {
     const ordersData = await response.json();
     // console.log("orders customer", ordersData);
     if (ordersData) {
-      myOrderData = ordersData.find(order => order.name === orderName);
+      myOrderData = ordersData.orders.find(order => order.name === orderName);
       console.log('in', myOrderData);
     }
     console.log("my order data", myOrderData);
