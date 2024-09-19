@@ -109,7 +109,7 @@ const orderById = async (orderName, orderMail) => {
       console.log(`Error fetching order by name : ${response.statusText}`);
     }
     const data = await response.json();
-    const myOrderData = data.orders.find(order => order.name === orderName);
+    const myOrderData = data.orders.find(order => order.order_number === 7008);
     if(!myOrderData) {
       console.log('commande non trouvée', orderName);
       return null;
