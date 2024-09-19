@@ -124,9 +124,9 @@ const orderById = async (orderName, orderMail, customerId) => {
     // }
     // console.log('data', myOrderData);
   //   return data;
-  // } catch (error) {
-  //   console.error('Error tor retrieve order by name', error);
-  // }
+   catch (error) {
+    console.error('Error tor retrieve order by name', error);
+  }
 }
 
 const draftOrderById = async (draftOrderId) => {
