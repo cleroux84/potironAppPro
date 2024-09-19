@@ -92,10 +92,11 @@ const createDraftOrder = async (draftOrder, accessToken) => {
     }
 }
 
-const orderById = async (orderName, orderMail) => {
+const orderById = async (orderName, orderMail, customerId) => {
   console.log("commande recherché", orderName);
- console.log('type', typeof orderName);
-  const orderUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/orders.json?name=${orderName}&status="closed"`;
+
+//  console.log('type', typeof orderName);
+  const orderUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/customers/${customerId}/orders.json`;
   const orderOptions = {
     method: 'GET',
     headers: {             
@@ -108,17 +109,24 @@ const orderById = async (orderName, orderMail) => {
     if(!response.ok) {
       console.log(`Error fetching order by name : ${response.statusText}`);
     }
-    const data = await response.json();
+    const ordersData = await response.json();
+    console.log("orders customer", ordersData)
+  }
+//     const response = await fetch(orderUrl, orderOptions);
+//     if(!response.ok) {
+//       console.log(`Error fetching order by name : ${response.statusText}`);
+//     }
+//     const data = await response.json();
     // const myOrderData = data.orders.find(order => order.name === 7008);
     // if(!myOrderData) {
     //   console.log('commande non trouvée', orderName);
     //   return null;
     // }
     // console.log('data', myOrderData);
-    return data;
-  } catch (error) {
-    console.error('Error tor retrieve order by name', error);
-  }
+  //   return data;
+  // } catch (error) {
+  //   console.error('Error tor retrieve order by name', error);
+  // }
 }
 
 const draftOrderById = async (draftOrderId) => {
