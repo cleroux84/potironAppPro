@@ -511,29 +511,33 @@ app.get('/getOrderById', async (req, res) => {
 
 app.get('/checkIfsReturnPossible', async (req, res) => {
   const orderId = req.query.warehouseOrderId;
-  const itemsToReturn = req.query.return_items.split(','); // On récupère un tableau des références des produits
+  const itemsToReturn = req.query.return_items.split(',');
  
   try {
     // 1. Récupérer les détails d'expédition pour la commande
     const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId);
-    console.log('Détails de la commande:', warehouseOrder);
- 
-    // 2. Accéder aux expéditions
     const shipments = warehouseOrder.order.shipments;
  
-    // 3. Vérifier les références des articles dans les expéditions
+    // 2. Vérifier les références des articles dans les expéditions
     const results = itemsToReturn.map(ref => {
-      const foundItem = shipments.flatMap(shipment => shipment.order_items_shipments)
-        .find(item => item.order_item_id.toString() === ref); // Assure-toi que la comparaison est correcte
+      let foundIndex = -1; // -1 signifie que la référence n'a pas été trouvée
+      const foundItem = shipments.find((shipment, index) => {
+        const item = shipment.order_items_shipments.find(item => item.order_item_id.toString() === ref);
+        if (item) {
+          foundIndex = index; // Met à jour l'index si trouvé
+          return true; // S'arrête dès qu'un item est trouvé
+        }
+        return false; // Continue la recherche
+      });
  
       return {
         product_ref: ref,
         found: foundItem ? true : false,
-        quantity: foundItem ? foundItem.quantity : 0
+        index: foundIndex // L'index de l'expédition où l'item a été trouvé
       };
     });
  
-    // 4. Retourner les résultats au frontend
+    // 3. Retourner les résultats au frontend
     res.json({
       success: true,
       message: 'Vérification des produits et expéditions réussie',
