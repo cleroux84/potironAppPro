@@ -75,10 +75,10 @@ const getWarehouseOrderDetails = async (accessTokenWarehouse, shippingboId) => {
         const response = await fetch(getShipmentUrl, getShipmentOptions);
         const data = await response.json();
         // if(data.shipments && data.shipments.length > 0) {
-        if(data.order.shipments) {
-          const shipments = data.order.shipments;
+        if(data) {
+          // const shipments = data.order.shipments;
           // console.log('final order data', shipments);
-          return shipments;
+          return data;
           // const shipment = data.shipment[0];
           // console.log('shipment', shipment);
           // return shipment;

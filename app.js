@@ -487,14 +487,17 @@ app.get('/getOrderById', async (req, res) => {
   const orderMail = req.query.getOrder_mail;
   const customerId = req.query.customer_id;
   try {
-    const orderData = await orderById(orderName, orderMail, 8063057985864);
+    // const orderData = await orderById(orderName, orderMail, 8063057985864);
+    const orderData = await orderById(orderName, orderMail, customerId);
     // console.log("orderdata", orderData);
     const shopifyOrderId = orderData.id;
     const shippingboDataPotiron = await getShippingboOrderDetails(accessToken, shopifyOrderId); 
     const shippingboDataWarehouse = await getWarehouseOrderToReturn(accessTokenWarehouse, shippingboDataPotiron.id);
     // console.log('warehouse data', shippingboDataWarehouse);
-    const shipmentDetails = await getshippingDetails(accessTokenWarehouse, shippingboDataWarehouse.id);
-    console.log('shipment detail', shipmentDetails);
+    const orderDetails = await getshippingDetails(accessTokenWarehouse, shippingboDataWarehouse.id);
+    const shipmentDetails = orderDetails.order.shipments;
+    console.log('orderDetails to find line items', orderDetails)
+    console.log('shipments detail', shipmentDetails);
     res.status(200).json();
   } catch (error) {
     res.status(500).send('Error retrieving order by name');
