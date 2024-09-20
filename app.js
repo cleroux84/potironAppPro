@@ -496,7 +496,8 @@ app.get('/getOrderById', async (req, res) => {
     // console.log('warehouse data', shippingboDataWarehouse);
     const orderDetails = await getshippingDetails(accessTokenWarehouse, shippingboDataWarehouse.id);
     const shipmentDetails = orderDetails.order.shipments;
-    console.log('orderDetails to find line items', orderDetails)
+    console.log('order Items', orderDetails.order.order_items);
+    console.log('order tags to exclude if pro', orderDetails.order.order_tags);
     console.log('shipments detail', shipmentDetails);
     res.status(200).json();
   } catch (error) {
