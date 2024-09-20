@@ -19,7 +19,6 @@ const getShippingboOrderDetails = async (accessToken, shopifyOrderId) => {
     try {
       const response = await fetch(getOrderUrl, getOrderOptions);
       const data = await response.json();
-      console.log('data', data);
       if (data.orders && data.orders.length > 0) {
         const {id, origin_ref} = data.orders[0];
         return {id, origin_ref};
