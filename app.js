@@ -511,13 +511,39 @@ app.get('/getOrderById', async (req, res) => {
 
 app.get('/checkIfsReturnPossible', async (req, res) => {
   const orderId = req.query.warehouseOrderId;
-  const itemsToReturn = req.query.return_items;
-  console.log("produit a retourner : ", itemsToReturn);
-  const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId);
-  console.log('order concerned : ', warehouseOrder.order);
-  console.log('shipment details numero 1: ', warehouseOrder.order.shipments[3].order_items_shipments);
-
-})
+  const itemsToReturn = req.query.return_items.split(','); // On récupère un tableau des références des produits
+ 
+  try {
+    // 1. Récupérer les détails d'expédition pour la commande
+    const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId);
+    console.log('Détails de la commande:', warehouseOrder);
+ 
+    // 2. Accéder aux expéditions
+    const shipments = warehouseOrder.order.shipments;
+ 
+    // 3. Vérifier les références des articles dans les expéditions
+    const results = itemsToReturn.map(ref => {
+      const foundItem = shipments.flatMap(shipment => shipment.order_items_shipments)
+        .find(item => item.order_item_id.toString() === ref); // Assure-toi que la comparaison est correcte
+ 
+      return {
+        product_ref: ref,
+        found: foundItem ? true : false,
+        quantity: foundItem ? foundItem.quantity : 0
+      };
+    });
+ 
+    // 4. Retourner les résultats au frontend
+    res.json({
+      success: true,
+      message: 'Vérification des produits et expéditions réussie',
+      results: results
+    });
+  } catch (error) {
+    console.error('Erreur lors de la vérification des expéditions:', error);
+    res.status(500).send('Erreur lors de la vérification des expéditions');
+  }
+});
 
 //webhook on customer creation : https://potironapppro.onrender.com/createProCustomer
 //Send email to potiron team with kbis and create metafields in customer account
