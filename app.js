@@ -515,7 +515,7 @@ app.get('/checkIfsReturnPossible', async (req, res) => {
   console.log("produit a retourner : ", itemsToReturn);
   const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId);
   console.log('order concerned : ', warehouseOrder.order);
-  console.log('shipment details numero 1: ', warehouseOrder.order.shipments[1].order_items_shipments);
+  console.log('shipment details numero 1: ', warehouseOrder.order.shipments[2].order_items_shipments);
 
 })
 
