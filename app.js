@@ -511,7 +511,7 @@ app.get('/getOrderById', async (req, res) => {
 
 app.get('/checkIfsReturnPossible', async (req, res) => {
   const orderId = req.query.warehouseOrderId;
-  const itemsToReturn = req.query.productRefs;
+  const itemsToReturn = req.query.return_items;
   console.log("produit a retourner : ", itemsToReturn);
   const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId);
   console.log('order concerned : ', warehouseOrder.order);
