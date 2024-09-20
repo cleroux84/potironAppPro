@@ -3,6 +3,7 @@ const API_APP_ID = process.env.API_APP_ID;
 
 //Retrieve shippingbo order ID from ShopifyID or DraftID and send Shippingbo ID in Potiron Paris Shippingbo
 const getShippingboOrderDetails = async (accessToken, shopifyOrderId) => {
+  console.log("id for shippingbo", shopifyOrderId);
     const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
     const getOrderOptions = {
       method: 'GET',
@@ -18,6 +19,7 @@ const getShippingboOrderDetails = async (accessToken, shopifyOrderId) => {
     try {
       const response = await fetch(getOrderUrl, getOrderOptions);
       const data = await response.json();
+      console.log('data', data);
       if (data.orders && data.orders.length > 0) {
         const {id, origin_ref} = data.orders[0];
         return {id, origin_ref};
