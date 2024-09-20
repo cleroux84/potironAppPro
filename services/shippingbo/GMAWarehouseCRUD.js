@@ -30,6 +30,33 @@ const getWarehouseOrderDetails = async (accessTokenWarehouse, shippingboId) => {
     }
   };
 
+  const getWarehouseOrderToReturn = async (accessTokenWarehouse, shippingboId) => {
+    const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shippingboId}`;
+    const getOrderOptions = {
+      method: 'GET',
+      headers: {
+        'Content-type': 'application/json',
+        Accept: 'application/json',
+        'X-API-VERSION': '1',
+        'X-API-APP-ID': API_APP_WAREHOUSE_ID,
+        Authorization: `Bearer ${accessTokenWarehouse}`
+      },
+    };
+    try {
+      const response = await fetch(getOrderUrl, getOrderOptions);
+      const data = await response.json();
+      if (data.orders && data.orders.length > 0) {
+        return data.orders[0];
+      } else {
+        console.log('No data orders found in warehouse');
+        return null;
+      }
+    } catch (err) {
+      console.error('Error fetching Shippingbo order ID Warehouse', err);
+      return null;
+    }
+  };
+
 //update orders origin and origin ref in shippingbo GMA => Entrepôt to add "Commande PRO" and "PRO-"
   const updateWarehouseOrder = async (accessTokenWarehouse, shippingboOrderId, originRef) => {
     if(originRef.includes('PRO-') === false)  {
@@ -65,5 +92,6 @@ const getWarehouseOrderDetails = async (accessTokenWarehouse, shippingboId) => {
 
   module.exports = {
     getWarehouseOrderDetails,
-    updateWarehouseOrder
+    updateWarehouseOrder,
+    getWarehouseOrderToReturn
   }
