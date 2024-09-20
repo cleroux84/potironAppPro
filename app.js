@@ -492,7 +492,7 @@ app.get('/getOrderById', async (req, res) => {
     const shopifyOrderId = orderData.id;
     const shippingboDataPotiron = await getShippingboOrderDetails(accessToken, shopifyOrderId); 
     const shippingboDataWarehouse = await getWarehouseOrderToReturn(accessTokenWarehouse, shippingboDataPotiron.id);
-    console.log('warehouse data', shippingboDataWarehouse);
+    // console.log('warehouse data', shippingboDataWarehouse);
     const shipmentDetails = await getshippingDetails(accessTokenWarehouse, shippingboDataWarehouse.id);
     console.log('shipment detail', shipmentDetails);
     res.status(200).json();
