@@ -1,3 +1,4 @@
+const { response } = require('express');
 const fetch = require('node-fetch');
 const API_APP_WAREHOUSE_ID = process.env.API_APP_WAREHOUSE_ID;
 
@@ -57,6 +58,37 @@ const getWarehouseOrderDetails = async (accessTokenWarehouse, shippingboId) => {
     }
   };
 
+  //get shipments detail of an order
+  const getshippingDetails = async (accessTokenWarehouse, shippingboId) => {
+    const getShipmentUrl = `https://app.shippingbo.com/shipments?search[order_id__eq][]=${shippingboId}`;
+    const getShipmentOptions = {
+      method: 'GET',
+      headers: {
+        'Content-type': 'application/json',
+        Accept: 'application/json',
+        'X-API-VERSION': '1',
+        'X-API-APP-ID': API_APP_WAREHOUSE_ID,
+        Authorization: `Bearer ${accessTokenWarehouse}`
+      },
+    }
+      try {
+        const response = await fetch(getShipmentUrl, getShipmentOptions);
+        const data = await response.json();
+        if(data.shipments && data.shipments.length > 0) {
+          const shipment = data.shipment[0];
+          console.log('shipment', shipment);
+          return shipment;
+        } else {
+          console.log("no shipment result");
+          return null;
+        }
+        
+      } catch (error) {
+        console.error("error fetching shipment details", error);
+        return null;
+      }
+  }
+
 //update orders origin and origin ref in shippingbo GMA => Entrepôt to add "Commande PRO" and "PRO-"
   const updateWarehouseOrder = async (accessTokenWarehouse, shippingboOrderId, originRef) => {
     if(originRef.includes('PRO-') === false)  {
@@ -93,5 +125,6 @@ const getWarehouseOrderDetails = async (accessTokenWarehouse, shippingboId) => {
   module.exports = {
     getWarehouseOrderDetails,
     updateWarehouseOrder,
-    getWarehouseOrderToReturn
+    getWarehouseOrderToReturn,
+    getshippingDetails
   }
