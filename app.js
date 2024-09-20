@@ -495,13 +495,13 @@ app.get('/getOrderById', async (req, res) => {
     const shippingboDataWarehouse = await getWarehouseOrderToReturn(accessTokenWarehouse, shippingboDataPotiron.id);
     // console.log('warehouse data', shippingboDataWarehouse);
     const orderDetails = await getshippingDetails(accessTokenWarehouse, shippingboDataWarehouse.id);
-    const shipmentDetails = orderDetails.order.shipments;
-    console.log('order Items', orderDetails.order.order_items);
-    console.log('order tags to exclude if pro', orderDetails.order.order_tags);
-    console.log('shipments detail', shipmentDetails);
-    res.status(200).json();
+    // const shipmentDetails = orderDetails.order.shipments;
+    const orderItems = orderDetails.order.order_items;
+    // console.log('order tags to exclude if pro', orderDetails.order.order_tags);
+    // console.log('shipments detail', shipmentDetails);
+    res.status(200).json(orderItems);
   } catch (error) {
-    res.status(500).send('Error retrieving order by name');
+    res.status(500).send('Error retrieving order warehouse by id');
   }
 })
 
