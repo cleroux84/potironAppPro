@@ -499,7 +499,7 @@ app.get('/getOrderById', async (req, res) => {
     const orderItems = orderDetails.order.order_items;
     const orderWarehouseId = orderDetails.order.id;
     // console.log('order tags to exclude if pro', orderDetails.order.order_tags);
-    console.log('shipments detail to find how to do :', shipmentDetails);
+    // console.log('shipments detail to find how to do :', shipmentDetails);
     res.status(200).json({
       orderItems: orderItems,
       orderId: orderWarehouseId
@@ -509,7 +509,13 @@ app.get('/getOrderById', async (req, res) => {
   }
 })
 
-app.get('/isReturnPossible', async (req, res) => {
+app.get('/checkIfsReturnPossible', async (req, res) => {
+  const orderId = req.query.warehouseOrderId;
+  const itemsToReturn = req.query.productRefs;
+  console.log("produit a retourner : ", itemsToReturn);
+  const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId);
+  console.log('order concerned : ', warehouseOrder.order);
+  console.log('shipment details : ', warehouseOrder.order.shipments);
 
 })
 
