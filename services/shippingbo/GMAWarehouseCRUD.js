@@ -60,7 +60,7 @@ const getWarehouseOrderDetails = async (accessTokenWarehouse, shippingboId) => {
 
   //get shipments detail of an order
   const getshippingDetails = async (accessTokenWarehouse, shippingboId) => {
-    const getShipmentUrl = `https://app.shippingbo.com/shipments?search[order_id__eq][]=${shippingboId}`;
+    const getShipmentUrl = `https://app.shippingbo.com/orders/${shippingboId}/shipments`;
     const getShipmentOptions = {
       method: 'GET',
       headers: {
