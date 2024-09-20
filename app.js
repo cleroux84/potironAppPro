@@ -497,12 +497,20 @@ app.get('/getOrderById', async (req, res) => {
     const orderDetails = await getshippingDetails(accessTokenWarehouse, shippingboDataWarehouse.id);
     const shipmentDetails = orderDetails.order.shipments;
     const orderItems = orderDetails.order.order_items;
+    const orderWarehouseId = orderDetails.order.id;
     // console.log('order tags to exclude if pro', orderDetails.order.order_tags);
     console.log('shipments detail to find how to do :', shipmentDetails);
-    res.status(200).json(orderItems);
+    res.status(200).json({
+      orderItems: orderItems,
+      orderId: orderWarehouseId
+    });
   } catch (error) {
     res.status(500).send('Error retrieving order warehouse by id');
   }
+})
+
+app.get('/isReturnPossible', async (req, res) => {
+
 })
 
 //webhook on customer creation : https://potironapppro.onrender.com/createProCustomer
