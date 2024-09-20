@@ -514,34 +514,33 @@ app.get('/checkIfsReturnPossible', async (req, res) => {
   const itemsToReturn = req.query.return_items.split(',');
  
   try {
-    // 1. Récupérer les détails d'expédition pour la commande
     const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId);
     const shipments = warehouseOrder.order.shipments;
  
-    // 2. Vérifier les références des articles dans les expéditions
-    const results = itemsToReturn.map(ref => {
-      let foundIndex = -1; // -1 signifie que la référence n'a pas été trouvée
+    itemsToReturn.forEach(ref => {
       const foundItem = shipments.find((shipment, index) => {
         const item = shipment.order_items_shipments.find(item => item.order_item_id.toString() === ref);
         if (item) {
-          foundIndex = index; // Met à jour l'index si trouvé
-          return true; // S'arrête dès qu'un item est trouvé
+          // Si l'article est trouvé, vérifie la méthode d'expédition
+          const shippingMethod = shipment.shipping_method_name;
+          if (shippingMethod && shippingMethod.includes("colissimo")) {
+            console.log(`Référence ${ref} trouvée dans l'expédition ${index} avec la méthode d'expédition : ${shippingMethod}`);
+          } else {
+            console.log(`Référence ${ref} trouvée dans l'expédition ${index} mais sans méthode d'expédition "colissimo".`);
+          }
+          return true; // Sort de la boucle
         }
         return false; // Continue la recherche
       });
  
-      return {
-        product_ref: ref,
-        found: foundItem ? true : false,
-        index: foundIndex // L'index de l'expédition où l'item a été trouvé
-      };
+      if (!foundItem) {
+        console.log(`Référence ${ref} non trouvée dans les expéditions.`);
+      }
     });
  
-    // 3. Retourner les résultats au frontend
     res.json({
       success: true,
-      message: 'Vérification des produits et expéditions réussie',
-      results: results
+      message: 'Vérification des produits et expéditions réussie'
     });
   } catch (error) {
     console.error('Erreur lors de la vérification des expéditions:', error);
