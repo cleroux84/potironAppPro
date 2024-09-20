@@ -487,18 +487,18 @@ app.get('/getOrderById', async (req, res) => {
   const orderMail = req.query.getOrder_mail;
   const customerId = req.query.customer_id;
   try {
-    // const orderData = await orderById(orderName, orderMail, 8063057985864);
-    const orderData = await orderById(orderName, orderMail, customerId);
+    const orderData = await orderById(orderName, orderMail, 8063057985864);
+    // const orderData = await orderById(orderName, orderMail, customerId);
     // console.log("orderdata", orderData);
     const shopifyOrderId = orderData.id;
     const shippingboDataPotiron = await getShippingboOrderDetails(accessToken, shopifyOrderId); 
     const shippingboDataWarehouse = await getWarehouseOrderToReturn(accessTokenWarehouse, shippingboDataPotiron.id);
     // console.log('warehouse data', shippingboDataWarehouse);
     const orderDetails = await getshippingDetails(accessTokenWarehouse, shippingboDataWarehouse.id);
-    // const shipmentDetails = orderDetails.order.shipments;
+    const shipmentDetails = orderDetails.order.shipments;
     const orderItems = orderDetails.order.order_items;
     // console.log('order tags to exclude if pro', orderDetails.order.order_tags);
-    // console.log('shipments detail', shipmentDetails);
+    console.log('shipments detail to find how to do :', shipmentDetails);
     res.status(200).json(orderItems);
   } catch (error) {
     res.status(500).send('Error retrieving order warehouse by id');
