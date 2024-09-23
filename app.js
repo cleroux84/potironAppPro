@@ -488,16 +488,16 @@ app.get('/getOrderById', async (req, res) => {
   const customerId = req.query.customer_id;
   try {
     // const orderData = await orderById(orderName, orderMail, 6406535905430); // pas colissimo #8021
-    const orderData = await orderById(orderName, orderMail, 8063057985864); //4 colissimo #8012
+    // const orderData = await orderById(orderName, orderMail, 8063057985864); //4 colissimo #8012
     // const orderData = await orderById(orderName, orderMail, 8074569285960); //1 colissimo #8058
-    // const orderData = await orderById(orderName, orderMail, customerId);
+    const orderData = await orderById(orderName, orderMail, customerId);
     // console.log("orderdata", orderData);
-    // if(orderDetails.order.order_tags.includes('Commande PRO')) {
-    //   return res.status(200).json({
-    //     success: false,
-    //     message: 'Contacter le SAV'
-    //   })
-    // }
+    if(orderData.tags.includes('Commande PRO')) {
+      return res.status(200).json({
+        success: false,
+        message: 'Contacter le SAV'
+      })
+    }
     const shopifyOrderId = orderData.id;
     const shippingboDataPotiron = await getShippingboOrderDetails(accessToken, shopifyOrderId); 
     const shippingboDataWarehouse = await getWarehouseOrderToReturn(accessTokenWarehouse, shippingboDataPotiron.id);
