@@ -487,8 +487,8 @@ app.get('/getOrderById', async (req, res) => {
   const orderMail = req.query.getOrder_mail;
   const customerId = req.query.customer_id;
   try {
-    const orderData = await orderById(orderName, orderMail, 6406535905430); // pas colissimo #8021
-    // const orderData = await orderById(orderName, orderMail, 8063057985864); //4 colissimo #8012
+    // const orderData = await orderById(orderName, orderMail, 6406535905430); // pas colissimo #8021
+    const orderData = await orderById(orderName, orderMail, 8063057985864); //4 colissimo #8012
     // const orderData = await orderById(orderName, orderMail, customerId);
     // console.log("orderdata", orderData);
     if(orderData.tags.includes('Commande PRO')) {
@@ -525,6 +525,7 @@ app.get('/checkIfsReturnPossible', async (req, res) => {
       const foundItem = shipments.find((shipment, index) => {
         const item = shipment.order_items_shipments.find(item => item.order_item_id.toString() === ref);
         if (item) {
+          console.log('item à retourner', item);
           const shippingMethod = shipment.shipping_method_name;
           if (shippingMethod && shippingMethod.includes("colissimo")) {
             //return ok : 2 choix de retours
