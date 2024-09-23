@@ -530,9 +530,12 @@ app.get('/checkIfsReturnPossible', async (req, res) => {
         const item = shipment.order_items_shipments.find(item => item.order_item_id.toString() === ref);
         if (item) {
           const shippingMethod = shipment.shipping_method_name;
+          console.log('method', shippingMethod);
           if (shippingMethod && shippingMethod.includes("colissimo")) {
+            console.log('toto', shippingMethod);
             console.log(`Référence ${ref} trouvée dans l'expédition ${index} avec la méthode d'expédition : ${shippingMethod}`);
           } else {
+            console.log('loulou', shippingMethod)
             console.log(`Référence ${ref} trouvée dans l'expédition ${index} mais sans méthode d'expédition "colissimo".`);
             allItemsHaveColissimo = false;
           }
