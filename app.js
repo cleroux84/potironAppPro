@@ -505,6 +505,7 @@ app.get('/getOrderById', async (req, res) => {
       return res.status(200).json({
         success: false,
         orderItems: orderItems,
+        orderName: orderName,
         message: 'Contacter le SAV'
       })
     }
