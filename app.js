@@ -490,14 +490,9 @@ app.get('/getOrderById', async (req, res) => {
     // const orderData = await orderById(orderName, orderMail, 6406535905430); // pas colissimo #8021
     // const orderData = await orderById(orderName, orderMail, 8063057985864); //4 colissimo #8012
     // const orderData = await orderById(orderName, orderMail, 8074569285960); //1 colissimo #8058
-    const orderData = await orderById(orderName, orderMail, customerId);
+    const orderData = await orderById(orderName, orderMail, customerId); //moi livré : #6989
     // console.log("orderdata", orderData);
-    if(orderData.tags.includes('Commande PRO')) {
-      return res.status(200).json({
-        success: false,
-        message: 'Contacter le SAV'
-      })
-    }
+    
     const shopifyOrderId = orderData.id;
     const shippingboDataPotiron = await getShippingboOrderDetails(accessToken, shopifyOrderId); 
     const shippingboDataWarehouse = await getWarehouseOrderToReturn(accessTokenWarehouse, shippingboDataPotiron.id);
@@ -506,8 +501,13 @@ app.get('/getOrderById', async (req, res) => {
     const shipmentDetails = orderDetails.order.shipments;
     const orderItems = orderDetails.order.order_items;
     const orderWarehouseId = orderDetails.order.id;
-    console.log('order tags to exclude if pro', orderData);
-    // console.log('shipments detail to find how to do :', shipmentDetails);
+    if(orderData.tags.includes('Commande PRO')) {
+      return res.status(200).json({
+        success: false,
+        orderItems: orderItems,
+        message: 'Contacter le SAV'
+      })
+    }
     res.status(200).json({
       success: true,
       orderItems: orderItems,
