@@ -569,10 +569,10 @@ app.get('/checkIfsReturnPossible', async (req, res) => {
 });
 
 app.post('/returnProduct', async (req, res) => {
-  const customerId = req.params.customerId;
-  const totalOrder = req.params.totalOrder;
-  const productRefs = req.params.productRefs.split(',');
-  const optionChosen = req.params.returnOption;
+  const customerId = req.body.customerId;
+  const totalOrder = req.body.totalOrder;
+  const productRefs = req.body.productRefs.split(',');
+  const optionChosen = req.body.returnOption;
   console.log("chosen", optionChosen);
   
 })
