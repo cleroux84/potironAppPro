@@ -499,8 +499,8 @@ app.get('/getOrderById', async (req, res) => {
     const shipmentDetails = orderDetails.order.shipments;
     const orderItems = orderDetails.order.order_items;
     const orderWarehouseId = orderDetails.order.id;
-    console.log('order tags to exclude if pro', orderDetails.order.order_tags);
-    // console.log('shipments detail to find how to do :', shipmentDetails);
+    // console.log('order tags to exclude if pro', orderDetails.order.order_tags);
+    console.log('shipments detail to find how to do :', shipmentDetails);
     res.status(200).json({
       orderItems: orderItems,
       orderId: orderWarehouseId
@@ -517,7 +517,6 @@ app.get('/checkIfsReturnPossible', async (req, res) => {
   try {
     const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId);
     const shipments = warehouseOrder.order.shipments;
-    let allItemsHaveColissimo = true;
  
     itemsToReturn.forEach(ref => {
       const foundItem = shipments.find((shipment, index) => {
@@ -530,7 +529,6 @@ app.get('/checkIfsReturnPossible', async (req, res) => {
           } else {
             //return not ok : Se rapprocher du SAV pour retourner tel et/ou tels produits
             console.log(`Référence ${ref} trouvée dans l'expédition ${index} mais sans méthode d'expédition "colissimo".`);
-            allItemsHaveColissimo = false;
           }
           return true;
         }
@@ -539,16 +537,8 @@ app.get('/checkIfsReturnPossible', async (req, res) => {
  
       if (!foundItem) {
         console.log(`Référence ${ref} non trouvée dans les expéditions.`);
-        allItemsHaveColissimo = false;
       }
     });
-
-      if(!allItemsHaveColissimo) {
-        return res.status(200).json({
-          success: false,
-          message: 'Contacter le SAV.'
-        });
-      }
  
     res.json({
       success: true,
