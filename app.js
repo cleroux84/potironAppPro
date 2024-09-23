@@ -506,7 +506,8 @@ app.get('/getOrderById', async (req, res) => {
     const shipmentDetails = orderDetails.order.shipments;
     const orderItems = orderDetails.order.order_items;
     const orderWarehouseId = orderDetails.order.id;
-    console.log('order tags to exclude if pro', orderDetails.order.order_tags);
+    console.log('order tags to exclude if pro', orderData.order
+    );
     // console.log('shipments detail to find how to do :', shipmentDetails);
     res.status(200).json({
       success: true,
