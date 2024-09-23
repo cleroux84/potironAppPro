@@ -488,7 +488,7 @@ app.get('/getOrderById', async (req, res) => {
   const customerId = req.query.customer_id;
   try {
     // const orderData = await orderById(orderName, orderMail, 6406535905430); // pas colissimo #8021
-    const orderData = await orderById(orderName, orderMail, 8063057985864); //4 colissimo #8012
+    const orderData = await orderById(orderName, orderMail, 8074569285960); //1 colissimo #8058
     // const orderData = await orderById(orderName, orderMail, customerId);
     // console.log("orderdata", orderData);
     // if(orderDetails.order.order_tags.includes('Commande PRO')) {
@@ -531,7 +531,7 @@ app.get('/checkIfsReturnPossible', async (req, res) => {
         if (item) {
           const shippingMethod = shipment.shipping_method_name;
           console.log('method', shippingMethod);
-          if (shippingMethod && shippingMethod.includes("colissimo")) {
+          if (shippingMethod && shippingMethod.includes("Colissimo")) {
             console.log('toto', shippingMethod);
             console.log(`Référence ${ref} trouvée dans l'expédition ${index} avec la méthode d'expédition : ${shippingMethod}`);
           } else {
