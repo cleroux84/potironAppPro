@@ -491,9 +491,6 @@ app.get('/getOrderById', async (req, res) => {
     const orderData = await orderById(orderName, orderMail, 8063057985864); //4 colissimo #8012
     // const orderData = await orderById(orderName, orderMail, customerId);
     // console.log("orderdata", orderData);
-    if(orderData.tags.includes('Commande PRO')) {
-      console.log('retour par SAV - commande pro');
-    }
     const shopifyOrderId = orderData.id;
     const shippingboDataPotiron = await getShippingboOrderDetails(accessToken, shopifyOrderId); 
     const shippingboDataWarehouse = await getWarehouseOrderToReturn(accessTokenWarehouse, shippingboDataPotiron.id);
