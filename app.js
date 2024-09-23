@@ -574,10 +574,10 @@ app.post('/returnProduct', async (req, res) => {
   const productRefs = req.body.productRefs.split(',');
   const optionChosen = req.body.returnOption;
   
-  if (optionChosen === option1) {
+  if (optionChosen === "option1") {
     //creer un fichier return.js
     console.log("create discount_code + générate labels + ??return?? + send mail to magalie")
-  } else if( optionChosen === option2) {
+  } else if( optionChosen === "option2") {
     console.log("generate label + remboursement ? + mail à  ??")
   }
   
