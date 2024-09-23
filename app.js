@@ -559,7 +559,8 @@ app.get('/checkIfsReturnPossible', async (req, res) => {
     res.json({
       success: true,
       message: 'Articles colissimo !',
-      order: warehouseOrder
+      order: warehouseOrder,
+      productRefs: req.query.return_items
     });
   } catch (error) {
     console.error('Erreur lors de la vérification des expéditions:', error);
