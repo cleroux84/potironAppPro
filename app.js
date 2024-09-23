@@ -525,6 +525,7 @@ app.get('/checkIfsReturnPossible', async (req, res) => {
  
   try {
     const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId);
+    console.log("warehouseOrder", warehouseOrder);
     const shipments = warehouseOrder.order.shipments;
     let allItemsHaveColissimo = true;
  
@@ -533,12 +534,9 @@ app.get('/checkIfsReturnPossible', async (req, res) => {
         const item = shipment.order_items_shipments.find(item => item.order_item_id.toString() === ref);
         if (item) {
           const shippingMethod = shipment.shipping_method_name;
-          console.log('method', shippingMethod);
           if (shippingMethod && shippingMethod.includes("Colissimo")) {
-            console.log('toto', shippingMethod);
             console.log(`Référence ${ref} trouvée dans l'expédition ${index} avec la méthode d'expédition : ${shippingMethod}`);
           } else {
-            console.log('loulou', shippingMethod)
             console.log(`Référence ${ref} trouvée dans l'expédition ${index} mais sans méthode d'expédition "colissimo".`);
             allItemsHaveColissimo = false;
           }
@@ -560,13 +558,18 @@ app.get('/checkIfsReturnPossible', async (req, res) => {
     }
     res.json({
       success: true,
-      message: 'Articles colissimo !'
+      message: 'Articles colissimo !',
+      order: warehouseOrder
     });
   } catch (error) {
     console.error('Erreur lors de la vérification des expéditions:', error);
     res.status(500).send('Erreur lors de la vérification des expéditions');
   }
 });
+
+app.post('/returnProduct', async (req, res) => {
+  console.log('req',req.body);
+})
 
 //webhook on customer creation : https://potironapppro.onrender.com/createProCustomer
 //Send email to potiron team with kbis and create metafields in customer account
