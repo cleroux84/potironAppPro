@@ -491,6 +491,13 @@ app.get('/getOrderById', async (req, res) => {
     const orderData = await orderById(orderName, orderMail, 8063057985864); //4 colissimo #8012
     // const orderData = await orderById(orderName, orderMail, customerId);
     // console.log("orderdata", orderData);
+    if(orderData.order.order_tags.includes('Commande PRO')) {
+      console.log('Retour sur commande pro');
+      return res.status(200).json( {
+        success: false,
+        message: 'Commande Pro, contacter le SAV.'
+      })
+    }
     const shopifyOrderId = orderData.id;
     const shippingboDataPotiron = await getShippingboOrderDetails(accessToken, shopifyOrderId); 
     const shippingboDataWarehouse = await getWarehouseOrderToReturn(accessTokenWarehouse, shippingboDataPotiron.id);
@@ -502,6 +509,7 @@ app.get('/getOrderById', async (req, res) => {
     // console.log('order tags to exclude if pro', orderDetails.order.order_tags);
     // console.log('shipments detail to find how to do :', shipmentDetails);
     res.status(200).json({
+      success: true,
       orderItems: orderItems,
       orderId: orderWarehouseId
     });
@@ -517,12 +525,12 @@ app.get('/checkIfsReturnPossible', async (req, res) => {
   try {
     const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId);
     const shipments = warehouseOrder.order.shipments;
+    let allItemsHaveColissimo = true;
  
     itemsToReturn.forEach(ref => {
       const foundItem = shipments.find((shipment, index) => {
         const item = shipment.order_items_shipments.find(item => item.order_item_id.toString() === ref);
         if (item) {
-          console.log('item à retourner', item);
           const shippingMethod = shipment.shipping_method_name;
           if (shippingMethod && shippingMethod.includes("colissimo")) {
             //return ok : 2 choix de retours
@@ -530,6 +538,7 @@ app.get('/checkIfsReturnPossible', async (req, res) => {
           } else {
             //return not ok : Se rapprocher du SAV pour retourner tel et/ou tels produits
             console.log(`Référence ${ref} trouvée dans l'expédition ${index} mais sans méthode d'expédition "colissimo".`);
+            allItemsHaveColissimo = false;
           }
           return true;
         }
@@ -538,8 +547,16 @@ app.get('/checkIfsReturnPossible', async (req, res) => {
  
       if (!foundItem) {
         console.log(`Référence ${ref} non trouvée dans les expéditions.`);
+        allItemsHaveColissimo = false;
       }
     });
+
+      if(!allItemsHaveColissimo) {
+        return res.status(200).json({
+          success: false,
+          message: 'Contacter le SAV.'
+        });
+      }
  
     res.json({
       success: true,
