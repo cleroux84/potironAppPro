@@ -569,11 +569,12 @@ app.get('/checkIfsReturnPossible', async (req, res) => {
 });
 
 app.post('/returnProduct', async (req, res) => {
-  const customerId = req.query.customerId;
-  const totalOrder = req.query.totalOrder;
-  const productRefs = req.query.productRefs.split(',');
-  console.log("ref", productRefs);
-  console.log('tot', totalOrder);
+  const customerId = req.params.customerId;
+  const totalOrder = req.params.totalOrder;
+  const productRefs = req.params.productRefs.split(',');
+  const optionChosen = req.params.returnOption;
+  console.log("chosen", optionChosen);
+  
 })
 
 //webhook on customer creation : https://potironapppro.onrender.com/createProCustomer
