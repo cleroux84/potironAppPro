@@ -487,10 +487,13 @@ app.get('/getOrderById', async (req, res) => {
   const orderMail = req.query.getOrder_mail;
   const customerId = req.query.customer_id;
   try {
-    const orderData = await orderById(orderName, orderMail, 6406535905430); // pas colissimo
-    // const orderData = await orderById(orderName, orderMail, 8063057985864); //4 colissimo
+    const orderData = await orderById(orderName, orderMail, 6406535905430); // pas colissimo #8021
+    // const orderData = await orderById(orderName, orderMail, 8063057985864); //4 colissimo #8012
     // const orderData = await orderById(orderName, orderMail, customerId);
     // console.log("orderdata", orderData);
+    if(orderData.tags.includes('Commande PRO')) {
+      console.log('retour par SAV - commande pro');
+    }
     const shopifyOrderId = orderData.id;
     const shippingboDataPotiron = await getShippingboOrderDetails(accessToken, shopifyOrderId); 
     const shippingboDataWarehouse = await getWarehouseOrderToReturn(accessTokenWarehouse, shippingboDataPotiron.id);
@@ -522,16 +525,17 @@ app.get('/checkIfsReturnPossible', async (req, res) => {
       const foundItem = shipments.find((shipment, index) => {
         const item = shipment.order_items_shipments.find(item => item.order_item_id.toString() === ref);
         if (item) {
-          // Si l'article est trouvé, vérifie la méthode d'expédition
           const shippingMethod = shipment.shipping_method_name;
           if (shippingMethod && shippingMethod.includes("colissimo")) {
+            //return ok : 2 choix de retours
             console.log(`Référence ${ref} trouvée dans l'expédition ${index} avec la méthode d'expédition : ${shippingMethod}`);
           } else {
+            //return not ok : Se rapprocher du SAV pour retourner tel et/ou tels produits
             console.log(`Référence ${ref} trouvée dans l'expédition ${index} mais sans méthode d'expédition "colissimo".`);
           }
-          return true; // Sort de la boucle
+          return true;
         }
-        return false; // Continue la recherche
+        return false;
       });
  
       if (!foundItem) {
