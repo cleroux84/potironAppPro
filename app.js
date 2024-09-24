@@ -580,7 +580,7 @@ app.post('/returnProduct', async (req, res) => {
     console.log("create discount_code + générate labels + ??return?? + send mail to magalie")
     // const priceRules = await createDiscountCode(customerId, totalOrder);
     // const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId); 
-    const createReturnOrder = await createReturnOrder(accessTokenWarehouse, orderId);
+    const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId);
     // console.log('my order', warehouseOrder);
     return res.status(200).json({
       success: true,
