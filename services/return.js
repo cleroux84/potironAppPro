@@ -1,6 +1,47 @@
 const SHOPIFYAPPTOKEN = process.env.SHOPIFYAPPTOKEN;
+const API_APP_WAREHOUSE_ID = process.env.API_APP_WAREHOUSE_ID;
 const Shopify = require('shopify-api-node');
 const fetch = require('node-fetch');
+
+const createReturnOrder = async (accessTokenWarehouse, orderId) => {
+    const originalOrder = await getshippingDetails(accessTokenWarehouse, orderId); 
+
+    const createReturnUrl = `https://app.shippingbo.com/return_orders`;
+    const returnOrder = {
+        "order_id": orderId,
+        "reason" : "Test",
+        "reason_ref" : "test_ref",
+        "return_order_expected_items_attributes": originalOrder.order_items.map(item => ({
+            quantity: item.quantity,
+            user_ref: item.product_ref
+        })),
+        "return_order_type": "Etiquette retour",
+        "skipexpected_items_creation" : false,
+        "source": originalOrder.source,
+        "source_ref": originalOrder.source_ref
+    }
+    const createReturnOptions = {
+        method: 'POST',
+        headers: {
+        'Content-type': 'application/json',
+        Accept: 'application/json',
+        'X-API-VERSION' : '1',
+        'X-API-APP-ID': API_APP_WAREHOUSE_ID,
+        Authorization: `Bearer ${accessTokenWarehouse}`
+      },
+      body: JSON.stringify(returnOrder)
+    };
+    try {
+        const response = await fetch(createReturnUrl, createReturnOptions);
+        const data = await response.json();
+        console.log("return created", data);
+        if(response.ok) {
+            console.log('return create in GMA Shippingbo for order: ', orderId);
+          }
+    } catch (error) {
+        console.error('Error creatring GMA shippingbo return order', error);
+    }
+}
 
 const createDiscountCode = async (customerId, totalOrder) => {
     const createPriceRuleUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/price_rules.json`
@@ -70,5 +111,6 @@ const createDiscountCode = async (customerId, totalOrder) => {
 }
 
 module.exports = {
-    createDiscountCode
+    createDiscountCode,
+    createReturnOrder
 }
