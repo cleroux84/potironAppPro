@@ -3,7 +3,7 @@ const Shopify = require('shopify-api-node');
 const fetch = require('node-fetch');
 
 const createDiscountCode = async (customerId, totalOrder) => {
-    const createDiscountUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/price_rules.json`
+    const createPriceRuleUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/price_rules.json`
     const nowDate = new Date().toISOString();
     const OneWeekLater = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
     const discountRule = {
@@ -23,7 +23,7 @@ const createDiscountCode = async (customerId, totalOrder) => {
             "currency": "EUR"
          }
     }
-    const createDiscountOptions = {
+    const createPriceRuleOptions = {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -34,12 +34,33 @@ const createDiscountCode = async (customerId, totalOrder) => {
 
     console.log("total", totalOrder);
     try {
-        const response = await fetch(createDiscountUrl, createDiscountOptions);
+        const response = await fetch(createPriceRuleUrl, createPriceRuleOptions);
         if(!response.ok) {
             console.log('error fetching price rules');
         }
-        const data = await response.json();
-        console.log("created price rules", data);
+        const priceRule = await response.json();
+        // console.log("created price rules", data);
+        const discountCodeUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/price_rules/${priceRule.price_rule.id}/discount_codes.json`
+        const discountCode = {
+            "discount_code": {
+                "code": `RETURN-${customerId}`
+            }
+        }
+        const discountCodeOptions = {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json',
+            'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
+            },
+            body: JSON.stringify(discountCode)
+        }
+        const discountResponse = await fetch(discountCodeUrl, discountCodeOptions);
+        if(!discountResponse) {
+            console.log('error fetching discount code');
+        }
+        const discountData = await discountResponse.json();
+        console.log('Discount code created to record in customer account ? ', discountData)
+
     } catch (error) {
         console.error('erreur creation code de reduction');
     }
