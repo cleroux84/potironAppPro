@@ -577,7 +577,12 @@ app.post('/returnProduct', async (req, res) => {
   
   if (optionChosen === "option1") {
     console.log("create discount_code + générate labels + ??return?? + send mail to magalie")
-    const priceRules = await createDiscountCode(customerId, totalOrder)
+    const priceRules = await createDiscountCode(customerId, totalOrder);
+    return res.status(200).json({
+      success: true,
+      code: priceRules.discount_code.code,
+      amount: priceRules.discount_code.usage_count
+    })
   } else if( optionChosen === "option2") {
     console.log("generate label + remboursement ? + mail à  ??")
   }

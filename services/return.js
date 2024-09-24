@@ -32,11 +32,11 @@ const createDiscountCode = async (customerId, totalOrder) => {
         body: JSON.stringify(discountRule)
     };
 
-    console.log("total", totalOrder);
+    // console.log("total", totalOrder);
     try {
         const response = await fetch(createPriceRuleUrl, createPriceRuleOptions);
         if(!response.ok) {
-            console.log('error fetching price rules');
+            console.log('error fetching price rules', response)
         }
         const priceRule = await response.json();
         // console.log("created price rules", data);
@@ -59,7 +59,9 @@ const createDiscountCode = async (customerId, totalOrder) => {
             console.log('error fetching discount code');
         }
         const discountData = await discountResponse.json();
-        console.log('Discount code created to record in customer account ? ', discountData)
+        return discountData;
+        // console.log('Discount code created to record in customer account ? ', discountData)
+
 
     } catch (error) {
         console.error('erreur creation code de reduction');
