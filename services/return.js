@@ -44,6 +44,27 @@ const createReturnOrder = async (accessTokenWarehouse, orderId) => {
     }
 }
 
+const getReturnOrderDetails = async (accessTokenWarehouse, returnOrderId) => {
+    const returnOrderUrl = `https://app.shippingbo.com/return_orders/${returnOrderId}`;
+    const returnOrderOptions = {
+        method: 'GET',
+        headers: {
+            'Content-type': 'application/json',
+            Accept: 'application/json',
+            'X-API-VERSION' : '1',
+            'X-API-APP-ID': API_APP_WAREHOUSE_ID,
+            Authorization: `Bearer ${accessTokenWarehouse}`
+          }
+    }
+    try {
+        const response = await fetch(returnOrderUrl, returnOrderOptions);
+        const data = await response.json();
+        console.log('return order:', data);
+    } catch (error) {
+        console.error('error getting return order', error);
+    }
+}
+
 const createDiscountCode = async (customerId, totalOrder) => {
     const createPriceRuleUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/price_rules.json`
     const nowDate = new Date().toISOString();
@@ -113,5 +134,6 @@ const createDiscountCode = async (customerId, totalOrder) => {
 
 module.exports = {
     createDiscountCode,
-    createReturnOrder
+    createReturnOrder,
+    getReturnOrderDetails
 }

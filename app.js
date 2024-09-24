@@ -21,7 +21,7 @@ const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft 
 const { getWarehouseOrderDetails, updateWarehouseOrder, getWarehouseOrderToReturn, getshippingDetails } = require('./services/shippingbo/GMAWarehouseCRUD.js');
 const { sendEmailWithKbis, sendWelcomeMailPro, getMicrosoftAccessToken, sendMicrosoftEmailWithKbis } = require('./services/sendMail.js');
 const { createDraftOrder, updateDraftOrderWithTags, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById, orderById } = require('./services/shopifyApi.js');
-const { createDiscountCode, createReturnOrder } = require('./services/return.js');
+const { createDiscountCode, createReturnOrder, getReturnOrderDetails } = require('./services/return.js');
 
 let accessToken = null;
 let refreshToken = null;
@@ -580,13 +580,14 @@ app.post('/returnProduct', async (req, res) => {
     console.log("create discount_code + générate labels + ??return?? + send mail to magalie")
     // const priceRules = await createDiscountCode(customerId, totalOrder);
     // const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId); 
-    const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId);
+    // const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId);
+    getReturnOrderDetails(accessTokenWarehouse, 622096);
     // console.log('my order', warehouseOrder);
-    return res.status(200).json({
-      success: true,
+    // return res.status(200).json({
+      // success: true,
       // data: priceRules,
       // order: warehouseOrder
-    })
+    // })
   } else if( optionChosen === "option2") {
     console.log("generate label + remboursement ? + mail à  ??")
   }
