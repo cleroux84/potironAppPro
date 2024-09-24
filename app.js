@@ -580,7 +580,8 @@ app.post('/returnProduct', async (req, res) => {
     const priceRules = await createDiscountCode(customerId, totalOrder);
     return res.status(200).json({
       success: true,
-      data: priceRules
+      data: priceRules,
+      totalDiscount: (totalOrder / 100).toFixed(2);
     })
   } else if( optionChosen === "option2") {
     console.log("generate label + remboursement ? + mail à  ??")
