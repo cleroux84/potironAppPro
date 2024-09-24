@@ -21,6 +21,7 @@ const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft 
 const { getWarehouseOrderDetails, updateWarehouseOrder, getWarehouseOrderToReturn, getshippingDetails } = require('./services/shippingbo/GMAWarehouseCRUD.js');
 const { sendEmailWithKbis, sendWelcomeMailPro, getMicrosoftAccessToken, sendMicrosoftEmailWithKbis } = require('./services/sendMail.js');
 const { createDraftOrder, updateDraftOrderWithTags, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById, orderById } = require('./services/shopifyApi.js');
+const { createDiscountCode } = require('./services/return.js');
 
 let accessToken = null;
 let refreshToken = null;
@@ -575,8 +576,8 @@ app.post('/returnProduct', async (req, res) => {
   const optionChosen = req.body.returnOption;
   
   if (optionChosen === "option1") {
-    //creer un fichier return.js
     console.log("create discount_code + générate labels + ??return?? + send mail to magalie")
+    const priceRules = await createDiscountCode(customerId, totalOrder)
   } else if( optionChosen === "option2") {
     console.log("generate label + remboursement ? + mail à  ??")
   }
