@@ -13,12 +13,10 @@ const createReturnOrder = async (accessTokenWarehouse, orderId) => {
         "order_id": orderId,
         "reason" : "Test",
         "reason_ref" : "test_ref",
-        "return_order_expected_items_attributes": [
-            {
-                quantity: 1,
-                user_ref: "PP-2315000"
-            }
-        ],
+        "return_order_expected_items_attributes": originalOrder.order.order_items.map(item => ({
+            quantity: item.quantity,
+            user_ref: item.product_ref
+        })),
         "return_order_type": "return_order_label",
         "skip_expected_items_creation" : true,
         "source": originalOrder.order.source,
