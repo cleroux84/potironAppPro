@@ -37,6 +37,7 @@ const createReturnOrder = async (accessTokenWarehouse, orderId) => {
         const response = await fetch(createReturnUrl, createReturnOptions);
         const data = await response.json();
         console.log("return created", data);
+        return data;
         if(response.ok) {
             console.log('return create in GMA Shippingbo for order: ', orderId);
           }
