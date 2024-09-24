@@ -16,7 +16,7 @@ const createReturnOrder = async (accessTokenWarehouse, orderId) => {
             user_ref: item.product_ref
         })),
         "return_order_type": "Etiquette retour",
-        "skipexpected_items_creation" : false,
+        "skip_expected_items_creation" : false,
         "source": originalOrder.source,
         "source_ref": originalOrder.source_ref
     }
