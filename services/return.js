@@ -20,7 +20,7 @@ const createReturnOrder = async (accessTokenWarehouse, orderId) => {
             }
         ],
         "return_order_type": "return_order_label",
-        "skip_expected_items_creation" : false,
+        "skip_expected_items_creation" : true,
         "source": originalOrder.order.source,
         "source_ref": originalOrder.order.source_ref
     }
