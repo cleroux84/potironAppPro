@@ -6,18 +6,20 @@ const createDiscountCode = async (customerId, totalOrder) => {
     const createDiscountUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/price_rules.json`
     const nowDate = new Date().toISOString();
     const OneWeekLater = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
-    const discountTest = {
+    const discountRule = {
         "price_rule": {
-            "title": "Test from API",
+            "title": "Auto from API",
             "target_type": "line_item",
             "target_selection": "all",
             "allocation_method": "across",
             "value_type": "fixed_amount",
-            "value": "-20.0", // Montant de la réduction en euros
+            "value": `-${(totalOrder / 100).toFixed(2)}`,
             "customer_selection": "prerequisite",
             "prerequisite_customer_ids": [customerId],
             "starts_at": nowDate,
             "ends_at": OneWeekLater,
+            "once_per_customer": true,
+            "usage_limit": 1,
             "currency": "EUR"
          }
     }
@@ -27,7 +29,7 @@ const createDiscountCode = async (customerId, totalOrder) => {
             'Content-Type': 'application/json',
             'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
         },
-        body: JSON.stringify(discountTest)
+        body: JSON.stringify(discountRule)
     };
 
     console.log("total", totalOrder);
