@@ -8,14 +8,17 @@ const createReturnOrder = async (accessTokenWarehouse, orderId) => {
     const originalOrder = await getshippingDetails(accessTokenWarehouse, orderId); 
     console.log('originalOrder', originalOrder);
     const createReturnUrl = `https://app.shippingbo.com/return_orders`;
+    const orderItem = originalOrder.order.order_items[0];
     const returnOrder = {
         "order_id": orderId,
         "reason" : "Test",
         "reason_ref" : "test_ref",
-        "return_order_expected_items_attributes": originalOrder.order.order_items.map(item => ({
-            quantity: item.quantity,
-            user_ref: item.product_ref
-        })),
+        "return_order_expected_items_attributes": [
+            {
+                quantity: orderItem.quantity,
+                user_ref: orderItem.product_ref
+            }
+        ],
         "return_order_type": "return_order_label",
         "skip_expected_items_creation" : false,
         "source": originalOrder.order.source,
