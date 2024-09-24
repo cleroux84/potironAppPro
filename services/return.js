@@ -7,41 +7,41 @@ const { getshippingDetails } = require('./shippingbo/GMAWarehouseCRUD');
 const createReturnOrder = async (accessTokenWarehouse, orderId) => {
     const originalOrder = await getshippingDetails(accessTokenWarehouse, orderId); 
     console.log('originalOrder', originalOrder);
-    // const createReturnUrl = `https://app.shippingbo.com/return_orders`;
-    // const returnOrder = {
-    //     "order_id": orderId,
-    //     "reason" : "Test",
-    //     "reason_ref" : "test_ref",
-    //     "return_order_expected_items_attributes": originalOrder.order_items.map(item => ({
-    //         quantity: item.quantity,
-    //         user_ref: item.product_ref
-    //     })),
-    //     "return_order_type": "Etiquette retour",
-    //     "skip_expected_items_creation" : false,
-    //     "source": originalOrder.source,
-    //     "source_ref": originalOrder.source_ref
-    // }
-    // const createReturnOptions = {
-    //     method: 'POST',
-    //     headers: {
-    //     'Content-type': 'application/json',
-    //     Accept: 'application/json',
-    //     'X-API-VERSION' : '1',
-    //     'X-API-APP-ID': API_APP_WAREHOUSE_ID,
-    //     Authorization: `Bearer ${accessTokenWarehouse}`
-    //   },
-    //   body: JSON.stringify(returnOrder)
-    // };
-    // try {
-    //     const response = await fetch(createReturnUrl, createReturnOptions);
-    //     const data = await response.json();
-    //     console.log("return created", data);
-    //     if(response.ok) {
-    //         console.log('return create in GMA Shippingbo for order: ', orderId);
-    //       }
-    // } catch (error) {
-    //     console.error('Error creatring GMA shippingbo return order', error);
-    // }
+    const createReturnUrl = `https://app.shippingbo.com/return_orders`;
+    const returnOrder = {
+        "order_id": orderId,
+        "reason" : "Test",
+        "reason_ref" : "test_ref",
+        "return_order_expected_items_attributes": originalOrder.order.order_items.map(item => ({
+            quantity: item.quantity,
+            user_ref: item.product_ref
+        })),
+        "return_order_type": "Etiquette retour",
+        "skip_expected_items_creation" : false,
+        "source": originalOrder.order.source,
+        "source_ref": originalOrder.order.source_ref
+    }
+    const createReturnOptions = {
+        method: 'POST',
+        headers: {
+        'Content-type': 'application/json',
+        Accept: 'application/json',
+        'X-API-VERSION' : '1',
+        'X-API-APP-ID': API_APP_WAREHOUSE_ID,
+        Authorization: `Bearer ${accessTokenWarehouse}`
+      },
+      body: JSON.stringify(returnOrder)
+    };
+    try {
+        const response = await fetch(createReturnUrl, createReturnOptions);
+        const data = await response.json();
+        console.log("return created", data);
+        if(response.ok) {
+            console.log('return create in GMA Shippingbo for order: ', orderId);
+          }
+    } catch (error) {
+        console.error('Error creatring GMA shippingbo return order', error);
+    }
 }
 
 const createDiscountCode = async (customerId, totalOrder) => {
