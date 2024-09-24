@@ -8,7 +8,7 @@ const createDiscountCode = async (customerId, totalOrder) => {
     const OneWeekLater = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
     const discountRule = {
         "price_rule": {
-            "title": "Auto from API",
+            "title": `Retour auto ${customerId}`,
             "target_type": "line_item",
             "target_selection": "all",
             "allocation_method": "across",

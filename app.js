@@ -574,13 +574,17 @@ app.post('/returnProduct', async (req, res) => {
   const totalOrder = req.body.totalOrder;
   const productRefs = req.body.productRefs.split(',');
   const optionChosen = req.body.returnOption;
+  const orderId = req.body.orderId;
   
   if (optionChosen === "option1") {
     console.log("create discount_code + générate labels + ??return?? + send mail to magalie")
     const priceRules = await createDiscountCode(customerId, totalOrder);
+    const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId); 
+    console.log('my order', warehouseOrder);
     return res.status(200).json({
       success: true,
-      data: priceRules
+      data: priceRules,
+      order: warehouseOrder
     })
   } else if( optionChosen === "option2") {
     console.log("generate label + remboursement ? + mail à  ??")
