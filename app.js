@@ -299,8 +299,10 @@ app.post('/updatedDraftOrder', async (req, res) => {
   let deliveryPrefValue;
   if(metafields) {
     deliveryPref = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'delivery_pref');
-    deliveryPrefValue = deliveryPref.value;
-    deliveryPrefTag = "Livraison : " + deliveryPrefValue;
+    if(deliveryPref) {  
+      deliveryPrefValue = deliveryPref.value;
+      deliveryPrefTag = "Livraison : " + deliveryPrefValue;
+    }
   }
   let deliveryEquipment;
   let deliveryEquipmentValue;
