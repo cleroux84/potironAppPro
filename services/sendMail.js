@@ -32,6 +32,8 @@ async function sendMicrosoftEmailWithKbis(accessToken, filePath, companyName, fi
           done(null, accessToken); // Utilisation du token
       }
   });
+console.log('MICROSOFT USER', user.id);
+
   const message = {
       subject: `Nouveau Kbis pour ${companyName} à vérifier et valider`,
       body: {
@@ -70,10 +72,8 @@ async function sendMicrosoftEmailWithKbis(accessToken, filePath, companyName, fi
     };
     console.log('message ms365', message.toRecipients);
   try {
-      await client.api('/users/bonjour@potiron.com/sendMail').post({ message });
+      await client.api('/users/me/sendMail').post({ message });
       console.log('Email envoyé avec succès');
-      const user = await client.api('/users/your-email@example.com').get();
-console.log('MICROSOFT USER ID', user.id);
   } catch (error) {
       console.log('Erreur lors de l\'envoi de l\'email : ', error);
   }
