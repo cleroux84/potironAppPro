@@ -1,7 +1,7 @@
 const nodemailer = require('nodemailer'); 
 const fs = require('fs');
 require('dotenv').config();
-// const { ConfidentialClientApplication } = require('@azure/msal-node');
+const { ConfidentialClientApplication } = require('@azure/msal-node');
 const { Client } = require('@microsoft/microsoft-graph-client');
 require ('isomorphic-fetch');
 
@@ -12,16 +12,19 @@ const MAILSENDER = process.env.MAILSENDER;
 const MAILSENDERPASS = process.env.MAILSENDERPASS;
 const MAILRECIPIENT = process.env.MAILRECIPIENT;
 const MAILCOTATION = process.env.MAILCOTATION;
+const MS365CLIENTID = process.env.MS365_CLIENT_ID; //ID de l'application microsoft
+const MS365TENANTID = process.env.MS365_TENANT_ID; // ID du locataire
+const MS365SECRET = process.env.MS365_CLIENT_SECRET;
 
 //config miscrosoft data
-// const config = {
-//   auth: {
-//       clientId: process.env.MS365_CLIENT_ID, // ID de l'application
-//       authority: `https://login.microsoftonline.com/${process.env.MS365_TENANT_ID}`, // ID du locataire
-//       clientSecret: process.env.MS365_CLIENT_SECRET // Secret client
-//   }
-// };
-// const cca = new ConfidentialClientApplication(config);
+const config = {
+  auth: {
+      clientId: MS365CLIENTID, 
+      authority: `https://login.microsoftonline.com/${MS365TENANTID}`, 
+      clientSecret: MS365SECRET 
+  }
+};
+const cca = new ConfidentialClientApplication(config);
 
 async function sendMicrosoftEmailWithKbis(accessToken, filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone) {
   const client = Client.init({
