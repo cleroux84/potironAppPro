@@ -72,7 +72,7 @@ console.log('MICROSOFT USER', user.id);
     };
     console.log('message ms365', message.toRecipients);
   try {
-      await client.api('/users/me/sendMail').post({ message });
+      await client.api('/users/5f6d8017-a904-4d6a-9701-644b280f9073/sendMail').post({ message });
       console.log('Email envoyé avec succès');
   } catch (error) {
       console.log('Erreur lors de l\'envoi de l\'email : ', error);
