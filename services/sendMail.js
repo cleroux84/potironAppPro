@@ -32,7 +32,6 @@ async function sendMicrosoftEmailWithKbis(accessToken, filePath, companyName, fi
           done(null, accessToken); // Utilisation du token
       }
   });
-console.log('MICROSOFT USER', user.id);
 
   const message = {
       subject: `Nouveau Kbis pour ${companyName} à vérifier et valider`,
