@@ -19,11 +19,10 @@ const createReturnOrder = async (accessTokenWarehouse, orderId) => {
         })),
         "return_order_type": "return_order_label",
         "skip_expected_items_creation" : true,
-        "shipping_method_id" : 63,
         "source": originalOrder.order.source,
         "source_ref": originalOrder.order.source_ref
     }
-    console.log('object to create return', returnOrder);
+    // console.log('object to create return', returnOrder);
     const createReturnOptions = {
         method: 'POST',
         headers: {
@@ -39,6 +38,8 @@ const createReturnOrder = async (accessTokenWarehouse, orderId) => {
         const response = await fetch(createReturnUrl, createReturnOptions);
         const data = await response.json();
         console.log("return created", data);
+        const returnId = data.id;
+        const shipmentData = await createShipment(accessTokenWarehouse, returnId);
         return data;
         if(response.ok) {
             console.log('return create in GMA Shippingbo for order: ', orderId);
@@ -47,6 +48,37 @@ const createReturnOrder = async (accessTokenWarehouse, orderId) => {
         console.error('Error creatring GMA shippingbo return order', error);
     }
 }
+
+const createShipment = async (accessTokenWarehouse, returnId) => {
+    const createShipmentUrl = `https://app.shippingbo.com/shipments`;
+    const shipmentToCreate = {
+        "shipment": {
+            "carrier_id" : 1,
+            "order_id": returnId,
+            "shipping_method_id" : 63,
+            "shipment_type" : "return_label"
+        }
+    }
+    const createShipmentOptions = {
+        method: 'POST',
+        headers: {
+        'Content-type': 'application/json',
+        Accept: 'application/json',
+        'X-API-VERSION' : '1',
+        'X-API-APP-ID': API_APP_WAREHOUSE_ID,
+        Authorization: `Bearer ${accessTokenWarehouse}`
+    },
+    body: JSON.stringify(shipmentToCreate)
+    };
+
+    try {
+        const response = await fetch(createShipmentUrl, createShipmentOptions);
+        const shipmentData = await response.json();
+        console.log('shipment created', shipmentData);
+    } catch (error) {
+        console.error('error creating shipment', error);
+    }
+} 
 
 const getReturnOrderDetails = async (accessTokenWarehouse, returnOrderId) => {
     const returnOrderUrl = `https://app.shippingbo.com/return_orders/${returnOrderId}`;
