@@ -32,7 +32,7 @@ async function sendMicrosoftEmailWithKbis(accessToken, filePath, companyName, fi
           done(null, accessToken); // Utilisation du token
       }
   });
-
+  console.log('client m365', client);
   const message = {
       subject: `Nouveau Kbis pour ${companyName} à vérifier et valider`,
       body: {
@@ -69,7 +69,7 @@ async function sendMicrosoftEmailWithKbis(accessToken, filePath, companyName, fi
           } 
         ]
     };
-
+    console.log('message ms365', message);
   try {
       await client.api('/users/me/sendMail').post({ message });
       console.log('Email envoyé avec succès');
@@ -85,6 +85,7 @@ async function getMicrosoftAccessToken() {
 
   try {
       const authResponse = await cca.acquireTokenByClientCredential(clientCredentialRequest);
+      console.log('m365accesstoken', authResponse.accessToken);
       return authResponse.accessToken;
   } catch (error) {
       console.log('Erreur d\'authentification : ', error);
