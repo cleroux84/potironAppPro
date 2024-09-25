@@ -72,6 +72,8 @@ async function sendMicrosoftEmailWithKbis(accessToken, filePath, companyName, fi
   try {
       await client.api('/users/bonjour@potiron.com/sendMail').post({ message });
       console.log('Email envoyé avec succès');
+      const user = await client.api('/users/your-email@example.com').get();
+console.log('MICROSOFT USER ID', user.id);
   } catch (error) {
       console.log('Erreur lors de l\'envoi de l\'email : ', error);
   }
