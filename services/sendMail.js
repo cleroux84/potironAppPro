@@ -70,7 +70,7 @@ async function sendMicrosoftEmailWithKbis(accessToken, filePath, companyName, fi
     };
     console.log('message ms365', message.toRecipients);
   try {
-      await client.api('/v1.0/me/sendMail').post({ message });
+      await client.api('/users/bonjour@potiron.com/sendMail').post({ message });
       console.log('Email envoyé avec succès');
   } catch (error) {
       console.log('Erreur lors de l\'envoi de l\'email : ', error);
