@@ -32,7 +32,6 @@ async function sendMicrosoftEmailWithKbis(accessToken, filePath, companyName, fi
           done(null, accessToken); // Utilisation du token
       }
   });
-  console.log('client m365', client);
   const message = {
       subject: `Nouveau Kbis pour ${companyName} à vérifier et valider`,
       body: {
@@ -71,7 +70,7 @@ async function sendMicrosoftEmailWithKbis(accessToken, filePath, companyName, fi
     };
     console.log('message ms365', message.toRecipients);
   try {
-      await client.api('/users/me/sendMail').post({ message });
+      await client.api('/v1.0/me/sendMail').post({ message });
       console.log('Email envoyé avec succès');
   } catch (error) {
       console.log('Erreur lors de l\'envoi de l\'email : ', error);
