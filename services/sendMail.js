@@ -50,7 +50,7 @@ async function sendMicrosoftEmailWithKbis(accessToken, filePath, companyName, fi
       toRecipients: [
           {
               emailAddress: {
-                  address: MAILRECIPIENT
+                  address: "c.leroux@potiron.com"
               }
           }
       ],
