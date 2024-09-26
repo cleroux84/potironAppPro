@@ -26,10 +26,12 @@ const config = {
 };
 const cca = new ConfidentialClientApplication(config);
 
-async function sendMicrosoftEmailWithKbis(accessToken, filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone) {
+async function sendMicrosoftEmailWithKbis(filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone) {
+const msaccessToken = "eyJ0eXAiOiJKV1QiLCJub25jZSI6IjhoMmNlU0NHT3dTN3ZSd0NVejlzY1M2NTdra3NVQldSNGlaNU9SRWlVX1kiLCJhbGciOiJSUzI1NiIsIng1dCI6Ik1jN2wzSXo5M2c3dXdnTmVFbW13X1dZR1BrbyIsImtpZCI6Ik1jN2wzSXo5M2c3dXdnTmVFbW13X1dZR1BrbyJ9.eyJhdWQiOiIwMDAwMDAwMy0wMDAwLTAwMDAtYzAwMC0wMDAwMDAwMDAwMDAiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC9kZDZiYjgwNi1kNWViLTRhZmQtYjJiNS1jMzA1MjQwNzZmNjUvIiwiaWF0IjoxNzI3MzU0NzkxLCJuYmYiOjE3MjczNTQ3OTEsImV4cCI6MTcyNzM1OTkxMCwiYWNjdCI6MCwiYWNyIjoiMSIsImFpbyI6IkFWUUFxLzhZQUFBQU5YWGxCYllwejRDL28wU2M4TEVuOHVRNmRiaDlUakFBSndMcW9rbGxCUjBKREUxOVVRQWNFSFZlZXQyMFcyQlRwMU9BUnRGUnByWms0TVJkNExIRHRqbVhPcXA1YlNmanlhNktGSzFKZXBRPSIsImFtciI6WyJwd2QiLCJtZmEiXSwiYXBwX2Rpc3BsYXluYW1lIjoicG90aXJvbk1haWxQcm8iLCJhcHBpZCI6IjVjYWRmNmU2LWFhOTYtNGZmOS05YWY0LWNlOWVlOTA3MjU2MyIsImFwcGlkYWNyIjoiMSIsImZhbWlseV9uYW1lIjoiTEVST1VYIiwiZ2l2ZW5fbmFtZSI6IkPDqWxpbmUiLCJpZHR5cCI6InVzZXIiLCJpcGFkZHIiOiIyYTAxOmUwYTplYjE6NTBjMDo4ZDZkOjFkY2I6YmY2NDplNGUiLCJuYW1lIjoiQ8OpbGluZSBMRVJPVVgiLCJvaWQiOiI1YjNlYTYwZS05NjdjLTRjNjItOGMwYy1kOGQwZWQ1ZjU0NzMiLCJwbGF0ZiI6IjMiLCJwdWlkIjoiMTAwMzIwMDFFOTQ3OTI1RSIsInJoIjoiMC5BWE1BQnJocjNldlZfVXF5dGNNRkpBZHZaUU1BQUFBQUFBQUF3QUFBQUFBQUFBQnpBQ2suIiwic2NwIjoiTWFpbC5TZW5kIFVzZXIuUmVhZCBwcm9maWxlIG9wZW5pZCBlbWFpbCIsInNpZ25pbl9zdGF0ZSI6WyJrbXNpIl0sInN1YiI6InRnWDRmUWFCYW9YOWVLLWI0UldhYUgyLWc4cTdyVlBYU2VmSkNDNDdmaHciLCJ0ZW5hbnRfcmVnaW9uX3Njb3BlIjoiRVUiLCJ0aWQiOiJkZDZiYjgwNi1kNWViLTRhZmQtYjJiNS1jMzA1MjQwNzZmNjUiLCJ1bmlxdWVfbmFtZSI6ImMubGVyb3V4QHBvdGlyb24uY29tIiwidXBuIjoiYy5sZXJvdXhAcG90aXJvbi5jb20iLCJ1dGkiOiJ4SWRQa2JZbUtrQ1N3Q0wyOFNvb0FBIiwidmVyIjoiMS4wIiwid2lkcyI6WyJiNzlmYmY0ZC0zZWY5LTQ2ODktODE0My03NmIxOTRlODU1MDkiXSwieG1zX2lkcmVsIjoiMSAxMCIsInhtc19zdCI6eyJzdWIiOiI2RGF6bjdlSWdKdDFDVThTdzAzSXlEQnZGMVEwOXhsRkJwUEg3aW9NYy1nIn0sInhtc190Y2R0IjoxNjAwMTc4NDE1LCJ4bXNfdGRiciI6IkVVIn0.BJnepI5jgU3nk4aTy5jwzA4ernzfZ9NMUfEXxHT7YS4pQokO3AldwZkRQkN6XENUVcMgMKj-HQPAMWy1XXUmMl47Wf7T72sxEMkMjW6xQXS95ybr4x5jYd4z79B01r6RasCGeX4JMCaniKh2ZNabD-3ydJKQsSflUc3wFpi2XlPzI2MuAFmPVud1ysaiiQ0VcIN5F1lhJK2g-O7mfuO0AIttcuWTryuLbE0VamNgL8Uru8Pypj4soIU5WewQbA0JiJu92s5ByWPzcdQVfCDyhFLXg-giGF8OXXNcAQ0DOBNJATSE_txiYbr8PK8ZtdqSCrfTkJxD2LCXOgvM6dqunA"
+
   const client = Client.init({
       authProvider: (done) => {
-          done(null, accessToken); // Utilisation du token
+          done(null, msaccessToken); // Utilisation du token
       }
   });
 
@@ -71,8 +73,8 @@ async function sendMicrosoftEmailWithKbis(accessToken, filePath, companyName, fi
     };
     // console.log('message ms365', message.toRecipients);
   try {
-      // await client.api('/users/me/sendMail').post({ message });
-      await client.api('/users/5f6d8017-a904-4d6a-9701-644b280f9073/sendMail').post({ message });
+      await client.api('/me/sendMail').post({ message });
+      // await client.api('/users/5f6d8017-a904-4d6a-9701-644b280f9073/sendMail').post({ message }); //bonjour@potiron.com
 
       console.log('Email envoyé avec succès');
   } catch (error) {
@@ -84,19 +86,42 @@ async function sendMicrosoftEmailWithKbis(accessToken, filePath, companyName, fi
   }
 }
 
-async function getMicrosoftAccessToken() {
-  const clientCredentialRequest = {
-    scopes: ['https://graph.microsoft.com/.default'],
+async function authenticateMicrosoftUser() {
+  const authCodeUrlParameters = {
+    scopes: ["Mail.Send", "User.Read"],
+    redirectUri: "http://localhost:3000/auth/callback",
   };
+  const authUrl = await cca.getAuthCodeUrl(authCodeUrlParameters);
+  console.log(`Please visit this URL to authenticate; ${authUrl}`)
+}
 
+async function getAccessTokenFromCode(authCode) {
+  const tokenRequest = {
+    code: authCode,
+    scopes: ['Mail.Send', 'User.Read'],
+    redirectUri: 'http://localhost:3000/auth/callback'
+  };
   try {
-      const authResponse = await cca.acquireTokenByClientCredential(clientCredentialRequest);
-      console.log('m365accesstoken', authResponse.accessToken);
-      return authResponse.accessToken;
+    const authResponse = await cca.acquireTokenByCode(tokenRequest);
+    return authResponse.accessToken;
   } catch (error) {
-      console.log('Erreur d\'authentification : ', error);
+    console.error("Erreur lors de l'acquisition du token", error);
   }
 }
+
+// async function getMicrosoftAccessToken() {
+//   const clientCredentialRequest = {
+//     scopes: ['https://graph.microsoft.com/.default'],
+//   };
+
+//   try {
+//       const authResponse = await cca.acquireTokenByClientCredential(clientCredentialRequest);
+//       // console.log('m365accesstoken', authResponse.accessToken);
+//       return authResponse.accessToken;
+//   } catch (error) {
+//       console.log('Erreur d\'authentification : ', error);
+//   }
+// }
 
 //Send email with kbis to Potiron Team to check and validate company
 async function sendEmailWithKbis(filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone) {

@@ -642,11 +642,11 @@ app.post('/createProCustomer', async (req, res) => {
         }
         // Envoi du fichier par e-mail
         try {
-          const microsoftAccessToken = await getMicrosoftAccessToken();
-          if(microsoftAccessToken) {
-            await sendMicrosoftEmailWithKbis(microsoftAccessToken, filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone);
+          // const microsoftAccessToken = await getMicrosoftAccessToken();
+          // if(microsoftAccessToken) {
+            await sendMicrosoftEmailWithKbis(filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone);
             console.log('Mail envoyé pour validation du KBIS via MS365');
-          }
+          // }
           fs.unlink(uploadedFile.path, (err) => {
                   if (err) {
                       console.error('Erreur lors de la suppression du fichier :', err);
