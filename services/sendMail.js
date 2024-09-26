@@ -69,12 +69,18 @@ async function sendMicrosoftEmailWithKbis(accessToken, filePath, companyName, fi
           } 
         ]
     };
-    console.log('message ms365', message.toRecipients);
+    // console.log('message ms365', message.toRecipients);
   try {
+      // await client.api('/users/me/sendMail').post({ message });
       await client.api('/users/5f6d8017-a904-4d6a-9701-644b280f9073/sendMail').post({ message });
+
       console.log('Email envoyé avec succès');
   } catch (error) {
+    if(error.response) {
+      console.log('erreur API', error.response.data);
+    } else {
       console.log('Erreur lors de l\'envoi de l\'email : ', error);
+      }
   }
 }
 
@@ -85,7 +91,7 @@ async function getMicrosoftAccessToken() {
 
   try {
       const authResponse = await cca.acquireTokenByClientCredential(clientCredentialRequest);
-      // console.log('m365accesstoken', authResponse.accessToken);
+      console.log('m365accesstoken', authResponse.accessToken);
       return authResponse.accessToken;
   } catch (error) {
       console.log('Erreur d\'authentification : ', error);
