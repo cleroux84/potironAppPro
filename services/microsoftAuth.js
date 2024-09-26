@@ -1,0 +1,46 @@
+const client = require('./db.js');
+const fetch = require('node-fetch');
+require('dotenv').config();
+
+const MS365CLIENTID = process.env.MS365_CLIENT_ID;
+const MS365TENANTID = process.env.MS365_TENANT_ID; 
+const MS365SECRET = process.env.MS365_CLIENT_SECRET;
+
+let accessTokenMS365 = null;
+let refresTokenMS365 = null;
+
+const saveRefreshTokenMS365 = async (token) => {
+    try {
+        await client.query('UPDATE tokens SET refresh_token_ms365 =$1 where ID = 1', [token]);
+        console.log('RefreshToken saved in db for MS365');
+    } catch (error) {
+        console.error('Error saving refreshTokenMS365 in db', error);
+    }
+}
+
+const refreshMS365AccessToken = async () => {
+    const tokenMS365Url = `https://login.microsoftonline.com/${MS365TENANTID}/oauth2/v2.0/token`;
+    const refreshMS365Options = {
+        headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json'
+          },
+          body: JSON.stringify({
+            client_id: MS365CLIENTID,
+            scope: 'https://graph.microsoft.com/.default',
+            refresh_token: refresTokenMS365,
+            grant_type: 'refresh_token',
+            client_secret: MS365SECRET
+          })
+    }
+
+    try {
+        const response = await fetch(tokenMS365Url, refreshMS365Options);
+        const data = await response.json();
+        accessTokenMS365 = data.access_token;
+        refresTokenMS365 = data.refresh_token;
+        await saveRefreshTokenMS365(data.refresh_token);
+    } catch (error) {
+        console.error('Error obtaining access token MS365:', error);
+    }
+} 
