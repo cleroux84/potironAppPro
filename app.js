@@ -651,15 +651,8 @@ app.post('/createProCustomer', async (req, res) => {
           // if(microsoftAccessToken) {
             let accessTokenMS365 = getAccessTokenMS365();
             if(accessTokenMS365 === null)
-              {
-               refreshMS365AccessToken();
-               accessTokenMS365 = getAccessTokenMS365(); 
-              await sendMicrosoftEmailWithKbis(accessTokenMS365, filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone);
-              }
-              else {
-                await sendMicrosoftEmailWithKbis(accessTokenMS365, filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone);
-              }
-                console.log('Mail envoyé pour validation du KBIS via MS365');
+            await sendMicrosoftEmailWithKbis(accessTokenMS365, filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone);
+            console.log('Mail envoyé pour validation du KBIS via MS365');
           // }
           fs.unlink(uploadedFile.path, (err) => {
                   if (err) {
