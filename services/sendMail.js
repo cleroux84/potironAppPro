@@ -282,6 +282,6 @@ async function sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer,
     sendEmailWithKbis,
     sendWelcomeMailPro,
     sendNewDraftOrderMail,
-    getMicrosoftAccessToken,
+    // getMicrosoftAccessToken,
     sendMicrosoftEmailWithKbis
   }
