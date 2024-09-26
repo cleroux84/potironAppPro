@@ -73,7 +73,7 @@ const msaccessToken = "eyJ0eXAiOiJKV1QiLCJub25jZSI6IjhoMmNlU0NHT3dTN3ZSd0NVejlzY
     };
     // console.log('message ms365', message.toRecipients);
   try {
-      await client.api('/5f6d8017-a904-4d6a-9701-644b280f9073/sendMail').post({ message });
+      await client.api('/me/sendMail').post({ message });
       // await client.api('/users/5f6d8017-a904-4d6a-9701-644b280f9073/sendMail').post({ message }); //bonjour@potiron.com
 
       console.log('Email envoyé avec succès');
