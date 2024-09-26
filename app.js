@@ -22,7 +22,7 @@ const { getWarehouseOrderDetails, updateWarehouseOrder, getWarehouseOrderToRetur
 const { sendEmailWithKbis, sendWelcomeMailPro, getMicrosoftAccessToken, sendMicrosoftEmailWithKbis } = require('./services/sendMail.js');
 const { createDraftOrder, updateDraftOrderWithTags, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById, orderById } = require('./services/shopifyApi.js');
 const { createDiscountCode, createReturnOrder, getReturnOrderDetails } = require('./services/return.js');
-const { refreshMS365AccessToken } = require('./services/microsoftAuth.js');
+const { refreshMS365AccessToken, getAccessTokenMS365 } = require('./services/microsoftAuth.js');
 
 let accessToken = null;
 let refreshToken = null;
@@ -649,7 +649,9 @@ app.post('/createProCustomer', async (req, res) => {
         try {
           // const microsoftAccessToken = await getMicrosoftAccessToken();
           // if(microsoftAccessToken) {
-            await sendMicrosoftEmailWithKbis(filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone);
+            let accessTokenMS365 = getAccessTokenMS365();
+            console.log('access365', accessTokenMS365)
+            await sendMicrosoftEmailWithKbis(accessTokenMS365, filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone);
             console.log('Mail envoyé pour validation du KBIS via MS365');
           // }
           fs.unlink(uploadedFile.path, (err) => {
