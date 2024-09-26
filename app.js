@@ -22,6 +22,7 @@ const { getWarehouseOrderDetails, updateWarehouseOrder, getWarehouseOrderToRetur
 const { sendEmailWithKbis, sendWelcomeMailPro, getMicrosoftAccessToken, sendMicrosoftEmailWithKbis } = require('./services/sendMail.js');
 const { createDraftOrder, updateDraftOrderWithTags, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById, orderById } = require('./services/shopifyApi.js');
 const { createDiscountCode, createReturnOrder, getReturnOrderDetails } = require('./services/return.js');
+const { refreshMS365AccessToken } = require('./services/microsoftAuth.js');
 
 let accessToken = null;
 let refreshToken = null;
@@ -73,6 +74,10 @@ const initializeTokens = async () => {
       await refreshAccessToken(); //1h50 
       await refreshAccessTokenWarehouse();
   }, 6600000); //1h50
+  setInterval(async () => {
+    console.log('auto refresh MS365');
+    await refreshMS365AccessToken();
+  }, 4500000); //1h15
 
 };
  
