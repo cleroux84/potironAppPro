@@ -12,9 +12,6 @@ const MAILSENDER = process.env.MAILSENDER;
 const MAILSENDERPASS = process.env.MAILSENDERPASS;
 const MAILRECIPIENT = process.env.MAILRECIPIENT;
 const MAILCOTATION = process.env.MAILCOTATION;
-const MS365CLIENTID = process.env.MS365_CLIENT_ID; //ID de l'application microsoft
-const MS365TENANTID = process.env.MS365_TENANT_ID; // ID du locataire
-const MS365SECRET = process.env.MS365_CLIENT_SECRET;
 
 const signatureAttachement =  {
   '@odata.type': '#microsoft.graph.fileAttachment',
@@ -32,7 +29,7 @@ const initiMicrosoftGraphClient = (accessTokenMS365) => {
     }
   });
 }
-//Send email with kbis to Potiron Team to check and validate company
+//Send email with kbis to Potiron Team (Magalie) from bonjour@potiron.com to check and validate company
 async function sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone) {
   const client = initiMicrosoftGraphClient(accessTokenMS365);
 
@@ -78,10 +75,9 @@ async function sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileEx
   }
 }
 
-
-
 //Send email to b2b customer when kBis validate
-async function sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer, companyName, deliveryPref, paletteEquipment, paletteAppointment, paletteNotes) {
+async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCustomer, mailCustomer, companyName, deliveryPref, paletteEquipment, paletteAppointment, paletteNotes) {
+  const client = initiMicrosoftGraphClient(accessTokenMS365);
   let paletteNotesValue;
   if(paletteNotes !== undefined && paletteNotes !== "undefined") {
     paletteNotesValue = `<p style="margin: 0;">Notes complémentaires concernant la livraison : ${paletteNotes}</p>`;
@@ -95,49 +91,43 @@ async function sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer,
       ${paletteNotesValue}
       `
     }
-    const transporter = nodemailer.createTransport({
-      service: MAILSERVICE,
-      host: MAILHOST,
-      port: MAILPORT,
-      secure: false,
-      auth: {
-          user: MAILSENDER, 
-          pass: MAILSENDERPASS
-      },
-      tls: {
-        ciphers: 'SSLv3'
+  const message = {
+    subject: 'Accès Pro Potiron Paris', 
+    body: {
+      contentType: 'HTML',
+      content: `
+        <p>Bonjour ${firstnameCustomer} ${nameCustomer},</p>
+        <p style="margin: 0;">Nos équipes ont validé votre KBIS concernant ${companyName}, nous vous souhaitons la bienvenue !</p>
+        <p style="margin: 0;">Vous avez désormais accès, une fois connecté avec votre login et mot de passe, à l'ensemble du site avec les prix dédiés aux professionnels.</p>
+        <p><a href="https://potiron.com">Visitez notre boutique</a></p>
+        <p style="text-decoration: underline;">Rappel de vos préférences de livraison: </p>
+        <p style="margin: 0;">Possibilité(s) de livraison : ${deliveryPref}</p>
+        ${deliveryTextIfPalette}
+        <p>Vous pouvez modifier ces informations directement sur votre compte client.</p>
+        <p style="margin: 0;">Nous restons à votre entière disposition.</p>
+        <p style="margin: 0;">Très belle journée,</p>
+        <p>L'équipe de Potiron</p>
+        <img src='cid:signature'/>
+      `
+    },
+    toRecipients: [
+      {
+        emailAddress: {
+          address: mailCustomer
+        }
       }
-    });
-    const mailOptions = {
-      from: '"POTIRON PARIS PRO" <noreply@potiron.com>',
-      replyTo: 'bonjour@potiron.com', 
-      to: mailCustomer,
-      cc: MAILSENDER,
-      subject: 'Accès Pro Potiron Paris', 
-      html:`
-      <p>Bonjour ${firstnameCustomer} ${nameCustomer},</p>
-      <p style="margin: 0;">Nos équipes ont validé votre KBIS concernant ${companyName}, nous vous souhaitons la bienvenue !</p>
-      <p style="margin: 0;">Vous avez désormais accès, une fois connecté avec votre login et mot de passe, à l'ensemble du site avec les prix dédiés aux professionnels.</p>
-      <p><a href="https://potiron.com">Visitez notre boutique</a></p>
-      <p style="text-decoration: underline;">Rappel de vos préférences de livraison: </p>
-      <p style="margin: 0;">Possibilité(s) de livraison : ${deliveryPref}</p>
-      ${deliveryTextIfPalette}
-      <p>Vous pouvez modifier ces informations directement sur votre compte client.</p>
-      <p style="margin: 0;">Nous restons à votre entière disposition.</p>
-      <p style="margin: 0;">Très belle journée,</p>
-      <p>L'équipe de Potiron</p>
-      <img src='cid:signature'/>
-      `,     
-      attachments: [
-          {
-            filename: 'signature.png',
-            path: 'assets/signature.png',
-            cid: 'signature'
-          }
-      ]
-    };
-    return transporter.sendMail(mailOptions);
-  }
+    ],
+    attachments: [
+      signatureAttachement
+    ]
+  };
+  try {
+    await client.api('/me/sendMail').post({ message });
+    console.log('Email to welcome pro customer send successfully');
+  } catch (error) {
+    console.error('Error send welcome pro mail', error);
+  }  
+}
 
 //Send mail to Potiron Team to ask delivery quote
   async function sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone, shippingAddress, deliveryPrefValue, paletteEquipmentValue, appointmentValue, paletteNotes) {

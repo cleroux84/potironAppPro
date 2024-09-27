@@ -421,7 +421,12 @@ app.post('/updateKbis', async (req, res) => {
         
         if(kbisState === true && mailProState === false) {
           try {
-            await sendWelcomeMailPro(firstnameCustomer, nameCustomer, mailCustomer, companyName, deliveryPref, paletteEquipment, paletteAppointment, paletteNotes)
+            let accessTokenMS365 = getAccessTokenMS365();
+            if(!accessTokenMS365) {
+              await refreshMS365AccessToken();
+              accessTokenMS365 = getAccessTokenMS365();
+            }
+            await sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCustomer, mailCustomer, companyName, deliveryPref, paletteEquipment, paletteAppointment, paletteNotes)
             console.log('Mail de bienvenue après validation du kbis envoyé au client pro', clientUpdated);  
             const updatedCustomerKbis = {
                     customer: {
