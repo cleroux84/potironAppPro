@@ -19,7 +19,7 @@ const { getToken, refreshAccessToken } = require('./services/shippingbo/potironP
 const { getTokenWarehouse, refreshAccessTokenWarehouse } = require('./services/shippingbo/gmaWarehouseAuth.js');
 const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft } = require('./services/shippingbo/potironParisCRUD.js');
 const { getWarehouseOrderDetails, updateWarehouseOrder, getWarehouseOrderToReturn, getshippingDetails } = require('./services/shippingbo/GMAWarehouseCRUD.js');
-const { sendEmailWithKbis, sendWelcomeMailPro, getMicrosoftAccessToken, sendMicrosoftEmailWithKbis } = require('./services/sendMail.js');
+const { sendEmailWithKbis, sendWelcomeMailPro } = require('./services/sendMail.js');
 const { createDraftOrder, updateDraftOrderWithTags, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById, orderById } = require('./services/shopifyApi.js');
 const { createDiscountCode, createReturnOrder, getReturnOrderDetails } = require('./services/return.js');
 const { refreshMS365AccessToken, getAccessTokenMS365 } = require('./services/microsoftAuth.js');
@@ -74,12 +74,11 @@ const initializeTokens = async () => {
       await refreshAccessToken(); //1h50 
       await refreshAccessTokenWarehouse();
   }, 6600000); //1h50
+  //refreshToken every 1h15 for MS365
   setInterval(async () => {
     console.log('auto refresh MS365 before');
     await refreshMS365AccessToken();
-  // }, 4500000); //1h15
-  }, 300000); // 5minutes
-
+   }, 4500000); //1h15
 };
  
 initializeTokens();
@@ -651,7 +650,7 @@ app.post('/createProCustomer', async (req, res) => {
               await refreshMS365AccessToken();
               accessTokenMS365 = getAccessTokenMS365();
             }
-            await sendMicrosoftEmailWithKbis(accessTokenMS365, filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone);
+            await sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone);
             console.log('Mail envoyé pour validation du KBIS via MS365');
           fs.unlink(uploadedFile.path, (err) => {
                   if (err) {
