@@ -78,8 +78,8 @@ const initializeTokens = async () => {
   setInterval(async () => {
     console.log('auto refresh MS365 before');
     await refreshMS365AccessToken();
-  //  }, 4500000); //1h15
-  }, 300000);
+   }, 4500000); //1h15
+  // }, 300000);
 };
  
 initializeTokens();
