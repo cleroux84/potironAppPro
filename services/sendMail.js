@@ -63,10 +63,10 @@ async function sendMicrosoftEmailWithKbis(accessTokenMS365, filePath, companyNam
           },
           {
             '@odata.type': '#microsoft.graph.fileAttachment',
-            name: 'signature.png', // Nom de la signature
-            contentId: 'signature', // ID utilisé dans le cid
-            isInline: true, // Indique que l'image est inline (pas comme pièce jointe classique)
-            contentBytes: fs.readFileSync('assets/signature.png').toString('base64') // Conversion de la signature en base64
+            name: 'signature.png',
+            contentId: 'signature', 
+            isInline: true,
+            contentBytes: fs.readFileSync('assets/signature.png').toString('base64')
           } 
         ]
     };
