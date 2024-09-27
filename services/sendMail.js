@@ -59,13 +59,14 @@ async function sendMicrosoftEmailWithKbis(accessTokenMS365, filePath, companyNam
           {
               '@odata.type': '#microsoft.graph.fileAttachment',
               name: `kbis_${companyName}.pdf`,
-              contentBytes: fs.readFileSync(filePath).toString('base64')  // Conversion en base64
+              contentBytes: fs.readFileSync(filePath).toString('base64') 
           },
           {
             '@odata.type': '#microsoft.graph.fileAttachment',
             name: 'signature.png',
             contentId: 'signature', 
             isInline: true,
+            contentType: 'image/png',
             contentBytes: fs.readFileSync('assets/signature.png').toString('base64')
           } 
         ]

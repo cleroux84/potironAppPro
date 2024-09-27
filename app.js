@@ -106,7 +106,6 @@ app.post('/upload', upload.single('uploadFile'), (req, res) => {
   originalFileName = req.file.originalname;
   fileExtension = path.extname(originalFileName); 
   filePath = req.file.path;
-  console.log('filepath upload: ', filePath);
   res.status(200).send('Fichier téléchargé avec succès.');
 });
 
