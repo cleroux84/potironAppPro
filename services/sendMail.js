@@ -130,7 +130,8 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
 }
 
 //Send mail to Potiron Team to ask delivery quote
-  async function sendNewDraftOrderMail(firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone, shippingAddress, deliveryPrefValue, paletteEquipmentValue, appointmentValue, paletteNotes) {
+  async function sendNewDraftOrderMail(accessTokenMS365, firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone, shippingAddress, deliveryPrefValue, paletteEquipmentValue, appointmentValue, paletteNotes) {
+    const client = initiMicrosoftGraphClient(accessTokenMS365);
     let deliveryTextIfPalette = '';
     if(deliveryPrefValue.includes("palette")) {
       deliveryTextIfPalette = `<p style="margin: 0;"> Equipement nécessaire : ${paletteEquipmentValue}</p>
@@ -138,44 +139,38 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
       <p style="margin: 0;">Notes complémentaires concernant la livraison : ${paletteNotes}</p>
       `
     }
-    const transporter = nodemailer.createTransport({
-      service: MAILSERVICE,
-      host: MAILHOST,
-      port: MAILPORT,
-      secure: false,
-      auth: {
-          user: MAILSENDER, 
-          pass: MAILSENDERPASS
-      },
-      tls: {
-        ciphers: 'SSLv3'
-      }
-    });
-    const mailOptions = {
-      from: '"POTIRON PARIS PRO" <noreply@potiron.com>',
-      replyTo: 'bonjour@potiron.com', 
-      to: MAILCOTATION,
-      cc: MAILSENDER,
+    const message = {
       subject: 'Nouvelle demande de cotation pour Commande Provisoire ' + draftOrderId, 
-      html:`
-      <p>Bonjour, </p>
-      <p style="margin: 0;">Une nouvelle commande provisoire a été créée pour le client PRO : ${firstnameCustomer} ${nameCustomer}</p>
-      <p style="margin: 0;">Il est joignable pour valider la cotation à ${customerMail} et au ${customerPhone} </p>
-      <p style="margin: 0;">L'adresse de livraison renseignée est : ${shippingAddress}</p>
-      <p>Préférence(s) de livraison : ${deliveryPrefValue}</p>
-      ${deliveryTextIfPalette}
-      <p>Bonne journée ! </p>
-      <img src='cid:signature'/>
-      `,     
-      attachments: [
-          {
-            filename: 'signature.png',
-            path: 'assets/signature.png',
-            cid: 'signature'
+      body: {
+        contentType: 'HTML',
+        content: `
+          <p>Bonjour, </p>
+          <p style="margin: 0;">Une nouvelle commande provisoire a été créée pour le client PRO : ${firstnameCustomer} ${nameCustomer}</p>
+          <p style="margin: 0;">Il est joignable pour valider la cotation à ${customerMail} et au ${customerPhone} </p>
+          <p style="margin: 0;">L'adresse de livraison renseignée est : ${shippingAddress}</p>
+          <p>Préférence(s) de livraison : ${deliveryPrefValue}</p>
+          ${deliveryTextIfPalette}
+          <p>Bonne journée ! </p>
+          <img src='cid:signature'/>
+        `
+      },
+      toRecipients: [
+        {
+          emailAddress: {
+            address: MAILCOTATION
           }
+        }
+      ],
+      attachments: [
+        signatureAttachement
       ]
     };
-    return transporter.sendMail(mailOptions);
+    try {
+      await client.api('/me/sendMail').post({ message });
+      console.log("Email for cotation sucessfully sent");
+    } catch (error) {
+      console.error('error sending cotation message', error);
+    }
   }
   
   module.exports = {

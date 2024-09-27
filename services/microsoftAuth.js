@@ -37,7 +37,6 @@ const saveRefreshTokenMS365 = async (token) => {
 }
 
 const refreshMS365AccessToken = async () => {
-    // console.log('before ms365', refresTokenMS365);
     if(!refresTokenMS365) {
         refresTokenMS365 = await getRefreshTokenMS365();
     }
@@ -63,8 +62,6 @@ const refreshMS365AccessToken = async () => {
             accessTokenMS365 = data.access_token;
             refresTokenMS365 = data.refresh_token;
             await saveRefreshTokenMS365(data.refresh_token);
-            // console.log('after ms365', refresTokenMS365);
-
             console.log('Access token MS365 refreshed successfully');
         } else {
             console.error('Error refreshing token MS365', data);
