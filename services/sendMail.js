@@ -25,6 +25,14 @@ const signatureAttachement =  {
   contentBytes: fs.readFileSync('assets/signature.png').toString('base64')
 } 
 
+const initiMicrosoftGraphClient = (accessTokenMS365) => {
+  return Client.init({
+    authProvider: (done) => {
+        done(null, accessTokenMS365); 
+    }
+  });
+}
+
 //config miscrosoft data
 const config = {
   auth: {
@@ -37,12 +45,7 @@ const cca = new ConfidentialClientApplication(config);
 
 //Send email with kbis to Potiron Team to check and validate company
 async function sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone) {
-
-  const client = Client.init({
-      authProvider: (done) => {
-          done(null, accessTokenMS365); 
-      }
-  });
+  const client = initiMicrosoftGraphClient(accessTokenMS365);
 
   const message = {
       subject: `Nouveau Kbis pour ${companyName} à vérifier et valider`,
@@ -74,12 +77,9 @@ async function sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileEx
           signatureAttachement
         ]
     };
-    // console.log('message ms365', message.toRecipients);
   try {
       await client.api('/me/sendMail').post({ message });
-      // await client.api('/users/5f6d8017-a904-4d6a-9701-644b280f9073/sendMail').post({ message }); //bonjour@potiron.com
-
-      console.log('Email envoyé avec succès');
+      console.log('Email KBIS envoyé avec succès');
   } catch (error) {
     if(error.response) {
       console.log('erreur API', error.response.data);
