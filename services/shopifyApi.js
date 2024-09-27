@@ -214,13 +214,12 @@ const getCustomerMetafields = async (clientId) => {
     try {
       const response = await fetch(metafieldsUrl, fetchOptions);
       const data = await response.json();
-      if (!data.metafields) {
-        console.log('Error : No metafields found');
+      if (data.metafields) {
+        return data.metafields;
       }
-      return data.metafields;
     } catch (error) {
       console.error('Error fetching metafields:', error);
-      throw error; // Propager l'erreur pour une gestion ultérieure
+      throw error; 
     }
   };
   
