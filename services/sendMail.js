@@ -32,17 +32,6 @@ const initiMicrosoftGraphClient = (accessTokenMS365) => {
     }
   });
 }
-
-//config miscrosoft data
-const config = {
-  auth: {
-      clientId: MS365CLIENTID, 
-      authority: `https://login.microsoftonline.com/${MS365TENANTID}`, 
-      clientSecret: MS365SECRET 
-  }
-};
-const cca = new ConfidentialClientApplication(config);
-
 //Send email with kbis to Potiron Team to check and validate company
 async function sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone) {
   const client = initiMicrosoftGraphClient(accessTokenMS365);

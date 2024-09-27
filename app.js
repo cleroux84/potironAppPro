@@ -651,12 +651,11 @@ app.post('/createProCustomer', async (req, res) => {
               accessTokenMS365 = getAccessTokenMS365();
             }
             await sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone);
-            console.log('Mail envoyé pour validation du KBIS via MS365');
-          fs.unlink(uploadedFile.path, (err) => {
-                  if (err) {
-                      console.error('Erreur lors de la suppression du fichier :', err);
-                  }
-              });
+            fs.unlink(uploadedFile.path, (err) => {
+                    if (err) {
+                        console.error('Erreur lors de la suppression du fichier :', err);
+                    }
+                });
         } catch (error) {
           console.error('Erreur lors de l\'envoi de l\'e-mail :', error);
         }
