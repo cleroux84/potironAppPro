@@ -641,24 +641,18 @@ app.post('/createProCustomer', async (req, res) => {
         } else if(deliveryPackage === null && deliveryPalette === 'on') {
           deliveryPref = "En palette uniquement"
         }
-        // Vérifier si un fichier a été téléchargé
         if (!uploadedFile) {
           res.status(400).send('Aucun fichier téléchargé.');
           return;
         }
-        // Envoi du fichier par e-mail
         try {
-          // const microsoftAccessToken = await getMicrosoftAccessToken();
-          // if(microsoftAccessToken) {
             let accessTokenMS365 = getAccessTokenMS365();
             if(!accessTokenMS365) {
               await refreshMS365AccessToken();
               accessTokenMS365 = getAccessTokenMS365();
             }
-            // console.log('token ms365 to send mail', accessTokenMS365)
             await sendMicrosoftEmailWithKbis(accessTokenMS365, filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone);
             console.log('Mail envoyé pour validation du KBIS via MS365');
-          // }
           fs.unlink(uploadedFile.path, (err) => {
                   if (err) {
                       console.error('Erreur lors de la suppression du fichier :', err);
@@ -666,27 +660,7 @@ app.post('/createProCustomer', async (req, res) => {
               });
         } catch (error) {
           console.error('Erreur lors de l\'envoi de l\'e-mail :', error);
-          // res.status(500).send('Erreur lors de l\'envoi de l\'e-mail.');
         }
-        
-        // sendEmailWithKbis(filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone)
-        //   .then(() => {
-        //     console.log('Mail envoyé pour validation du kbis');
-        //     fs.unlink(uploadedFile.path, (err) => {
-        //       if (err) {
-        //           console.error('Erreur lors de la suppression du fichier :', err);
-        //       }
-        //   });
-        //     uploadedFile = null; 
-        //     originalFileName = null;
-        //     fileExtension = null;
-            
-        //   })
-        //   .catch(error => {
-        //     console.error('Erreur lors de l\'envoi de l\'e-mail :', error);
-        //     res.status(500).send('Erreur lors de l\'envoi de l\'e-mail.');
-        //   });
-        
       const updatedCustomerData = {
         customer: {
           id: clientToUpdate,

@@ -30,7 +30,7 @@ async function sendMicrosoftEmailWithKbis(accessTokenMS365, filePath, companyNam
 
   const client = Client.init({
       authProvider: (done) => {
-          done(null, accessTokenMS365); // Utilisation du token
+          done(null, accessTokenMS365); 
       }
   });
 
@@ -64,7 +64,7 @@ async function sendMicrosoftEmailWithKbis(accessTokenMS365, filePath, companyNam
           {
             '@odata.type': '#microsoft.graph.fileAttachment',
             name: 'signature.png', // Nom de la signature
-            contentId: 'signatureImage', // ID utilisé dans le cid
+            contentId: 'signature', // ID utilisé dans le cid
             isInline: true, // Indique que l'image est inline (pas comme pièce jointe classique)
             contentBytes: fs.readFileSync('assets/signature.png').toString('base64') // Conversion de la signature en base64
           } 
