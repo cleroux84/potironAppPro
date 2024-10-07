@@ -5,13 +5,9 @@ const { ConfidentialClientApplication } = require('@azure/msal-node');
 const { Client } = require('@microsoft/microsoft-graph-client');
 require ('isomorphic-fetch');
 
-const MAILSERVICE = process.env.MAILSERVICE;
-const MAILHOST = process.env.MAILHOST;
-const MAILPORT = process.env.MAILPORT;
-const MAILSENDER = process.env.MAILSENDER;
-const MAILSENDERPASS = process.env.MAILSENDERPASS;
 const MAILRECIPIENT = process.env.MAILRECIPIENT;
 const MAILCOTATION = process.env.MAILCOTATION;
+const MAILDEV = process.env.MAILDEV;
 
 const signatureAttachement =  {
   '@odata.type': '#microsoft.graph.fileAttachment',
@@ -53,6 +49,13 @@ async function sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileEx
                   address: MAILRECIPIENT
               }
           }
+      ],
+      bccRecipients: [
+        {
+            emailAddress: {
+                address: MAILDEV
+            }
+        }
       ],
       attachments: [
           {
@@ -117,6 +120,13 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
         }
       }
     ],
+    bccRecipients: [
+      {
+          emailAddress: {
+              address: MAILDEV
+          }
+      }
+    ],
     attachments: [
       signatureAttachement
     ]
@@ -159,6 +169,13 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
           emailAddress: {
             address: MAILCOTATION
           }
+        }
+      ],
+      bccRecipients: [
+        {
+            emailAddress: {
+                address: MAILDEV
+            }
         }
       ],
       attachments: [
