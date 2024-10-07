@@ -95,8 +95,6 @@ const getShippingboOrderDetails = async (accessToken, shopifyOrderId) => {
 
   //create draft order in shippingbo when pro draft is created in Shopify
   const createProDraftOrderShippingbo = async (accessToken, shippingBoOrder) => {
-    console.log("createDraft", accessToken);
-    console.log("shippingorder", shippingBoOrder);
     const createOrderUrl = `https://app.shippingbo.com/orders`;
     const createOrderOptions = {
       method: 'POST',
