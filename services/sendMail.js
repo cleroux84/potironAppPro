@@ -95,21 +95,21 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
       `
     }
   const message = {
-    subject: 'Accès Pro Potiron Paris', 
+    subject: 'Validation de votre espace pro - Pro Potiron Paris', 
     body: {
       contentType: 'HTML',
       content: `
         <p>Bonjour ${firstnameCustomer} ${nameCustomer},</p>
-        <p style="margin: 0;">Nos équipes ont validé votre KBIS concernant ${companyName}, nous vous souhaitons la bienvenue !</p>
-        <p style="margin: 0;">Vous avez désormais accès, une fois connecté avec votre login et mot de passe, à l'ensemble du site avec les prix dédiés aux professionnels.</p>
+        <p style="margin: 0;">Nous vous souhaitons la bienvenue chez Potiron Paris - Espace Pro !</p>
+        <p style="margin: 0;">Une fois connecté avec votre login et votre mot de passe, vous aurez accès à l'ensemble de nos produits aux tarifs pour professionnels.</p>
         <p><a href="https://potiron.com">Visitez notre boutique</a></p>
-        <p style="text-decoration: underline;">Rappel de vos préférences de livraison: </p>
+        <p style="text-decoration: underline;">Rappel de vos préférences de livraison : </p>
         <p style="margin: 0;">Possibilité(s) de livraison : ${deliveryPref}</p>
         ${deliveryTextIfPalette}
         <p>Vous pouvez modifier ces informations directement sur votre compte client.</p>
         <p style="margin: 0;">Nous restons à votre entière disposition.</p>
         <p style="margin: 0;">Très belle journée,</p>
-        <p>L'équipe de Potiron</p>
+        <p>L'équipe de Potiron Paris</p>
         <img src='cid:signature'/>
       `
     },
