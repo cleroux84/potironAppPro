@@ -28,7 +28,7 @@ const initiMicrosoftGraphClient = (accessTokenMS365) => {
 //Send email with kbis to Potiron Team (Magalie) from bonjour@potiron.com to check and validate company
 async function sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone) {
   const client = initiMicrosoftGraphClient(accessTokenMS365);
-  let nameCustomerNoStar = nameCustomer.replace(/⭐/g, '').trim();
+  let nameCustomerNoStar = nameCustomer.replace('⭐', '').trim();
 
   const message = {
       subject: `Nouveau Kbis pour ${companyName} à vérifier et valider`,
