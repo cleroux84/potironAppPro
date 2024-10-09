@@ -135,7 +135,7 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
   };
   try {
     await client.api('/me/sendMail').post({ message });
-    await updateCustomerWithStar(6140664479894);
+    // await updateCustomerWithStar(6140664479894);
 
     console.log('Email to welcome pro customer send successfully');
   } catch (error) {
@@ -196,22 +196,22 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
     }
   }
 
-  async function updateCustomerWithStar(customerId) {
-    const customerData = await getCustomerData(customerId);
-    const updatedCustomerStar = {
-      customer: {
-        id: customerId,
-        last_name: customerData.last_name + " ⭐ "
-    }
-  }
-  try {
-    const starAdded = await createProCustomer(customerId, updatedCustomerStar);
-    console.log("Création d'un client pro"); 
-    res.status(200).json(updatedCustomerStar);
-  } catch (error) {
-    console.error('error adding star to existed customer', error);
-  }
-}
+//   async function updateCustomerWithStar(customerId) {
+//     const customerData = await getCustomerData(customerId);
+//     const updatedCustomerStar = {
+//       customer: {
+//         id: customerId,
+//         last_name: customerData.last_name + " ⭐ "
+//     }
+//   }
+//   try {
+//     const starAdded = await createProCustomer(customerId, updatedCustomerStar);
+//     console.log("Création d'un client pro"); 
+//     res.status(200).json(updatedCustomerStar);
+//   } catch (error) {
+//     console.error('error adding star to existed customer', error);
+//   }
+// }
   
   module.exports = {
     sendWelcomeMailPro,
