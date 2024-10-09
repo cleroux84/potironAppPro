@@ -135,7 +135,7 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
   };
   try {
     await client.api('/me/sendMail').post({ message });
-    await updateCustomerWithStar(6140664479894);
+    await updateCustomerWithStar(8112499654984);
 
     console.log('Email to welcome pro customer send successfully');
   } catch (error) {
