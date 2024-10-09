@@ -621,7 +621,7 @@ app.post('/createProCustomer', async (req, res) => {
         const phone = extractInfoFromNote(myData.note, 'phone');
         const sector = extractInfoFromNote(myData.note, 'sector');
         const mailCustomer = myData.email;
-        const nameCustomer = myData.last_name + "PRO";
+        const nameCustomer = myData.last_name;
         const firstnameCustomer = myData.first_name;
         const address1 = extractInfoFromNote(myData.note, 'address1');
         const address2 = extractInfoFromNote(myData.note, 'address2');
@@ -668,6 +668,7 @@ app.post('/createProCustomer', async (req, res) => {
       const updatedCustomerData = {
         customer: {
           id: clientToUpdate,
+          last_name: nameCustomer + "- PRO -",
           phone: phone,
           note: '', 
           addresses: [
