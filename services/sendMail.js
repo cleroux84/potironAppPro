@@ -135,6 +135,8 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
   };
   try {
     await client.api('/me/sendMail').post({ message });
+    await updateCustomerWithStar(6140664479894);
+
     console.log('Email to welcome pro customer send successfully');
   } catch (error) {
     console.error('Error send welcome pro mail', error);
@@ -188,7 +190,6 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
     };
     try {
       await client.api('/me/sendMail').post({ message });
-      await updateCustomerWithStar(6140664479894);
       console.log("Email for cotation sucessfully sent");
     } catch (error) {
       console.error('error sending cotation message', error);
