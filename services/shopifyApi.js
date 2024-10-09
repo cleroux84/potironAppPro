@@ -201,25 +201,25 @@ const updateDraftOrderWithDraftId = async (updatedOrder, orderId) => {
     }
 }
 
-// const getCustomerData = async (clientId) => {
-//   const getCustomerUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/customers/${clientId}.json`;
-//   const getCustomerOptions = {
-//     method: 'GET',         
-//       headers: {             
-//         'Content-Type': 'application/json',             
-//         'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
-//       }
-//   };
-//   try {
-//     const response = await fetch(getCustomerUrl, getCustomerOptions);
-//     const data = await response.json();
-//     if(data) {
-//       return data;
-//     }
-//   } catch (error) {
-//     console.error('error retrieving data by customer id');
-//   }
-// }
+const getCustomerData = async (clientId) => {
+  const getCustomerUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/customers/${clientId}.json`;
+  const getCustomerOptions = {
+    method: 'GET',         
+      headers: {             
+        'Content-Type': 'application/json',             
+        'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
+      }
+  };
+  try {
+    const response = await fetch(getCustomerUrl, getCustomerOptions);
+    const data = await response.json();
+    if(data) {
+      return data;
+    }
+  } catch (error) {
+    console.error('error retrieving data by customer id');
+  }
+}
 
 const getCustomerMetafields = async (clientId) => {
     const metafieldsUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/customers/${clientId}/metafields.json`;
@@ -316,5 +316,5 @@ module.exports = {
     lastDraftOrder,
     draftOrderById,
     orderById,
-    // getCustomerData
+    getCustomerData
 }
