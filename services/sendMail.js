@@ -3,6 +3,7 @@ const fs = require('fs');
 require('dotenv').config();
 const { ConfidentialClientApplication } = require('@azure/msal-node');
 const { Client } = require('@microsoft/microsoft-graph-client');
+const { getCustomerData, createProCustomer } = require('./shopifyApi');
 require ('isomorphic-fetch');
 
 const MAILRECIPIENT = process.env.MAILRECIPIENT;
@@ -187,11 +188,29 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
     };
     try {
       await client.api('/me/sendMail').post({ message });
+      await updateCustomerWithStar(6140664479894);
       console.log("Email for cotation sucessfully sent");
     } catch (error) {
       console.error('error sending cotation message', error);
     }
   }
+
+  async function updateCustomerWithStar(customerId) {
+    const customerData = getCustomerData(customerId);
+    const updatedCustomerStar = {
+      customer: {
+        id: customerId,
+        last_name: customerData.last_name + + " ⭐ "
+    }
+  }
+  try {
+    const starAdded = await createProCustomer(customerId, updateCustomerWithStar);
+    console.log("Création d'un client pro"); 
+    res.status(200).json(updateCustomerWithStar);
+  } catch (error) {
+    console.error('error adding star to existed customer', error);
+  }
+}
   
   module.exports = {
     sendWelcomeMailPro,

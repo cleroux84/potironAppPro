@@ -201,6 +201,26 @@ const updateDraftOrderWithDraftId = async (updatedOrder, orderId) => {
     }
 }
 
+const getCustomerData = async (clientId) => {
+  const getCustomerUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/customers/${clientId}.json`;
+  const getCustomerOptions = {
+    method: 'GET',         
+      headers: {             
+        'Content-Type': 'application/json',             
+        'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
+      }
+  };
+  try {
+    const response = await fetch(getCustomerUrl, getCustomerOptions);
+    const data = await response.json();
+    if(data) {
+      return data;
+    }
+  } catch (error) {
+    console.error('error retrieving data by customer id');
+  }
+}
+
 const getCustomerMetafields = async (clientId) => {
     const metafieldsUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/customers/${clientId}/metafields.json`;
     const fetchOptions = {         
@@ -240,7 +260,7 @@ const getCustomerMetafields = async (clientId) => {
       return updatedClient;
     } catch (error) {
       console.error('Error updating client data:', error);
-      throw error; // Propager l'erreur pour une gestion ultérieure
+      throw error;
     }
   };
 
@@ -285,6 +305,7 @@ const getCustomerMetafields = async (clientId) => {
     }
   }
 
+
 module.exports = {
     createDraftOrder,
     updateDraftOrderWithDraftId,
@@ -294,5 +315,6 @@ module.exports = {
     deleteMetafield,
     lastDraftOrder,
     draftOrderById,
-    orderById
+    orderById,
+    getCustomerData
 }
