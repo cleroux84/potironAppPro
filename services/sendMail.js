@@ -197,11 +197,11 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
   }
 
   async function updateCustomerWithStar(customerId) {
-    const customerData = getCustomerData(customerId);
+    const customerData = await getCustomerData(customerId);
     const updatedCustomerStar = {
       customer: {
         id: customerId,
-        last_name: customerData.last_name + + " ⭐ "
+        last_name: customerData.last_name + " ⭐ "
     }
   }
   try {
