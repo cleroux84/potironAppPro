@@ -203,14 +203,12 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
     const updatedCustomerStar = {
       customer: {
         id: customerId,
-        // last_name: customerData.customer.last_name + " ⭐ "
-        last_name: "Leroux"
+        last_name: customerData.customer.last_name + " ⭐ "
     }
   }
   try {
     await createProCustomer(customerId, updatedCustomerStar);
     console.log("Création d'un client pro"); 
-    res.status(200).json(updatedCustomerStar);
   } catch (error) {
     console.error('error adding star to existed customer', error);
   }
