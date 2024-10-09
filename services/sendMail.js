@@ -204,7 +204,7 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
     const updatedCustomerStar = {
       customer: {
         id: customerId,
-        last_name: customerData.last_name + " ⭐ "
+        last_name: "Leroux" + " ⭐ "
     }
   }
   try {
