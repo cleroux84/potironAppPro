@@ -28,15 +28,14 @@ const initiMicrosoftGraphClient = (accessTokenMS365) => {
 //Send email with kbis to Potiron Team (Magalie) from bonjour@potiron.com to check and validate company
 async function sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone) {
   const client = initiMicrosoftGraphClient(accessTokenMS365);
-  // let nameCustomerNoStar = nameCustomer.replace('⭐', '').trim();
-console.log('star', nameCustomer);
+  let nameNoStar = nameCustomer.replace(/⭐/g, '').trim();
   const message = {
       subject: `Nouveau Kbis pour ${companyName} à vérifier et valider`,
       body: {
           contentType: 'HTML',
           content: `
         <p>Bonjour, </p>
-        <p style="margin: 0;">Une nouvelle demande d'inscription pro est arrivée pour <strong>${firstnameCustomer} ${nameCustomer}</strong>.</p>
+        <p style="margin: 0;">Une nouvelle demande d'inscription pro est arrivée pour <strong>${firstnameCustomer} ${nameNoStar}</strong>.</p>
         <p style="margin: 0;">Vous trouverez le KBIS de <strong>${companyName}</strong> ci-joint.</p>
         <p style="margin: 0;">Ce nouveau client est joignable à ${mailCustomer} et au ${phone}.</p>
         <p style="margin: 0;">Pensez à le valider pour que le client ait accès aux prix destinés aux professionnels.</p>
@@ -83,6 +82,7 @@ console.log('star', nameCustomer);
 async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCustomer, mailCustomer, companyName, deliveryPref, paletteEquipment, paletteAppointment, paletteNotes) {
   const client = initiMicrosoftGraphClient(accessTokenMS365);
   let paletteNotesValue;
+  let nameNoStar = nameCustomer.replace(/⭐/g, '').trim();
   if(paletteNotes !== undefined && paletteNotes !== "undefined") {
     paletteNotesValue = `<p style="margin: 0;">Notes complémentaires concernant la livraison : ${paletteNotes}</p>`;
   } else {
@@ -95,13 +95,12 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
       ${paletteNotesValue}
       `
     }
-  let nameCustomerNoStar = nameCustomer.replace(/[^a-zAZ0-9]/g, '').trim();
   const message = {
     subject: 'Validation de votre espace pro - Pro Potiron Paris', 
     body: {
       contentType: 'HTML',
       content: `
-        <p>Bonjour ${firstnameCustomer} ${nameCustomerNoStar},</p>
+        <p>Bonjour ${firstnameCustomer} ${nameNoStar},</p>
         <p style="margin: 0;">Nous vous souhaitons la bienvenue chez Potiron Paris - Espace Pro !</p>
         <p style="margin: 0;">Une fois connecté avec votre login et votre mot de passe, vous aurez accès à l'ensemble de nos produits aux tarifs pour professionnels.</p>
         <p><a href="https://potiron.com">Visitez notre boutique</a></p>
@@ -151,7 +150,7 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
       <p style="margin: 0;">Notes complémentaires concernant la livraison : ${paletteNotes}</p>
       `
     }
-  let nameCustomerNoStar = nameCustomer.replace(/[^a-zAZ0-9]/g, '').trim();
+    let nameNoStar = nameCustomer.replace(/⭐/g, '').trim();
 
     const message = {
       subject: 'Nouvelle demande de cotation pour Commande Provisoire ' + draftOrderId, 
@@ -159,7 +158,7 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
         contentType: 'HTML',
         content: `
           <p>Bonjour, </p>
-          <p style="margin: 0;">Une nouvelle commande provisoire a été créée pour le client PRO : ${firstnameCustomer} ${nameCustomerNoStar}</p>
+          <p style="margin: 0;">Une nouvelle commande provisoire a été créée pour le client PRO : ${firstnameCustomer} ${nameNoStar}</p>
           <p style="margin: 0;">Si besoin, il est joignable à ${customerMail} et au ${customerPhone} </p>
           <p style="margin: 0;">L'adresse de livraison renseignée est : ${shippingAddress}</p>
           <p>Préférence(s) de livraison : ${deliveryPrefValue}</p>
