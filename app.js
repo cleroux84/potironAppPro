@@ -668,7 +668,7 @@ app.post('/createProCustomer', async (req, res) => {
       const updatedCustomerData = {
         customer: {
           id: clientToUpdate,
-          last_name: nameCustomer + "- PRO -",
+          last_name: nameCustomer + " - PRO -",
           phone: phone,
           note: '', 
           addresses: [
