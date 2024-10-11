@@ -632,10 +632,6 @@ app.post('/upgrade-account', async (req, res) => {
         let paletteAppointment = null;
         let paletteNotes = '';
 
-        console.log("deliveryPackage", deliveryPackage);
-        console.log('deliveryPalette', deliveryPalette);
-
-
         if(deliveryPalette === 'on') {
           paletteEquipment = customerData['customer[note][palette_equipment]'];
           paletteAppointment = customerData['customer[note][palette_appointment]']; //bool
@@ -644,7 +640,7 @@ app.post('/upgrade-account', async (req, res) => {
         let deliveryPref = '';
         if(deliveryPackage === 'on' && deliveryPalette === 'on') {
           deliveryPref = "Au colis et en palette";
-        } else if(deliveryPackage === 'on' && deliveryPalette === null) {
+        } else if(deliveryPackage === 'on' && (deliveryPalette === null || deliveryPalette === undefined)) {
           deliveryPref = "Au colis uniquement";
         } else if(deliveryPackage === null && deliveryPalette === 'on') {
           deliveryPref = "En palette uniquement"
