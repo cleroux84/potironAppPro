@@ -613,7 +613,6 @@ app.post('/upgrade-account', async (req, res) => {
   var b2BState = customerData['customer[tags]'];
   console.log("b2bstate", b2BState)
   if (b2BState && b2BState.includes("VIP")) {
-    console.log("PPL");
         const clientToUpdate = customerData['customer[id]'];
         const siret = customerData['customer[note][siret]'];
         const companyName = customerData['customer[note][company_name]'];
@@ -632,6 +631,10 @@ app.post('/upgrade-account', async (req, res) => {
         let paletteEquipment = null;
         let paletteAppointment = null;
         let paletteNotes = '';
+
+        console.log("deliveryPackage", deliveryPackage);
+        console.log('deliveryPalette', deliveryPalette);
+
 
         if(deliveryPalette === 'on') {
           paletteEquipment = customerData['customer[note][palette_equipment]'];
@@ -673,6 +676,7 @@ app.post('/upgrade-account', async (req, res) => {
           last_name: nameCustomer + " ⭐ ",
           phone: phone,
           note: '', 
+          tags: 'VIP',
           addresses: [
             {
               customer_id: clientToUpdate,
