@@ -751,9 +751,15 @@ app.post('/upgrade-account', async (req, res) => {
           ]
         }
       }
-      const updatedCustomer = await createProCustomer(clientToUpdate, upgradedCustomer);
-      console.log("Création d'un client pro");
-      res.status(200).json(updatedCustomer);
+      try {
+        console.log('client mis à jour', upgradedCustomer);
+        const updatedCustomer = await createProCustomer(clientToUpdate, upgradedCustomer);
+        console.log("Création d'un client pro");
+        res.status(200).json(updatedCustomer);
+      } catch (error) {
+        console.error('erreur upgraded customer', error);
+      }
+     
 
   }
 
