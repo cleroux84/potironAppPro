@@ -26,11 +26,15 @@ const initiMicrosoftGraphClient = (accessTokenMS365) => {
   });
 }
 //Send email with kbis to Potiron Team (Magalie) from bonjour@potiron.com to check and validate company
-async function sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone) {
+async function sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone, isUpgrade) {
   const client = initiMicrosoftGraphClient(accessTokenMS365);
   let nameNoStar = nameCustomer.replace(/⭐/g, '').trim();
+  let mailObjectkBis = `Nouveau Kbis pour ${companyName} à vérifier et valider`;
+  if(isUpgrade) {
+    mailObjectkBis = `Demande Upgrade Compte professionnel pour ${companyName}`;
+  }
   const message = {
-      subject: `Nouveau Kbis pour ${companyName} à vérifier et valider`,
+      subject: mailObjectkBis,
       body: {
           contentType: 'HTML',
           content: `
