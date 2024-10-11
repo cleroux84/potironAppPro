@@ -609,11 +609,12 @@ app.post('/returnProduct', async (req, res) => {
 })
 
 app.post('/upgrade-account', async (req, res) => {
-  console.log("PPL", req.body)
   var customerData = req.body;
   var b2BState = customerData.tags;
+  console.log("b2bstate", b2BState)
   if (b2BState && b2BState.includes("VIP")) {
-    const clientToUpdate = customerData.id;
+    console.log("PPL");
+        const clientToUpdate = customerData.id;
         const siret = extractInfoFromNote(customerData.note, 'siret');
         const companyName = extractInfoFromNote(customerData.note, 'company_name');
         const tva = extractInfoFromNote(customerData.note, 'tva');
