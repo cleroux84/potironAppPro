@@ -614,29 +614,29 @@ app.post('/upgrade-account', async (req, res) => {
   console.log("b2bstate", b2BState)
   if (b2BState && b2BState.includes("VIP")) {
     console.log("PPL");
-        const clientToUpdate = customerData.id;
-        const siret = extractInfoFromNote(customerData.note, 'siret');
-        const companyName = extractInfoFromNote(customerData.note, 'company_name');
-        const tva = extractInfoFromNote(customerData.note, 'tva');
-        const phone = extractInfoFromNote(customerData.note, 'phone');
-        const sector = extractInfoFromNote(customerData.note, 'sector');
-        const mailCustomer = customerData.email;
-        const nameCustomer = customerData.last_name;
-        const firstnameCustomer = customerData.first_name;
-        const address1 = extractInfoFromNote(customerData.note, 'address1');
-        const address2 = extractInfoFromNote(customerData.note, 'address2');
-        const zip = extractInfoFromNote(customerData.note, 'zip');
-        const city = extractInfoFromNote(customerData.note, 'city');
-        const deliveryPackage = extractInfoFromNote(customerData.note, 'package');
-        const deliveryPalette = extractInfoFromNote(customerData.note, 'palette');
+        const clientToUpdate = customerData['customer[id]'];
+        const siret = customerData['customer[note][siret]'];
+        const companyName = customerData['customer[note][company_name]'];
+        const tva = customerData['customer[note][tva]'];
+        const phone = customerData['customer[note][phone]'];
+        const sector = customerData['customer[note][sector]'];
+        const mailCustomer = customerData['customer[email]'];
+        const nameCustomer = customerData['customer[last_name]']
+        const firstnameCustomer = customerData['customer[first_name]']
+        const address1 = customerData['customer[note][address1]'];
+        const address2 = customerData['customer[note][address2]'];
+        const zip = customerData['customer[note][zip]']
+        const city = customerData['customer[note][city]'];
+        const deliveryPackage = customerData['customer[note][package]'];
+        const deliveryPalette = customerData['customer[note][palette]'];
         let paletteEquipment = null;
         let paletteAppointment = null;
         let paletteNotes = '';
 
         if(deliveryPalette === 'on') {
-          paletteEquipment = extractInfoFromNote(customerData.note, 'palette_equipment');
-          paletteAppointment = extractInfoFromNote(customerData.note, 'palette_appointment'); //bool
-          paletteNotes = extractInfoFromNote(customerData.note, 'palette_added_notes'); //textarea
+          paletteEquipment = customerData['customer[note][palette_equipment]'];
+          paletteAppointment = customerData['customer[note][palette_appointment]']; //bool
+          paletteNotes = customerData['customer[note][palette_added_notes]']; //textarea
         }
         let deliveryPref = '';
         if(deliveryPackage === 'on' && deliveryPalette === 'on') {
