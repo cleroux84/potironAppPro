@@ -609,6 +609,7 @@ app.post('/returnProduct', async (req, res) => {
 })
 
 app.post('/upgrade-account', async (req, res) => {
+  console.log("PPL", req.body)
   var customerData = req.body;
   var b2BState = customerData.tags;
   if (b2BState && b2BState.includes("VIP")) {
