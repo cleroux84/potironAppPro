@@ -70,13 +70,13 @@ const initializeTokens = async () => {
 }
 //refreshToken every 1h50
     setInterval(async () => {
-      console.log("auto refresh");
+      console.log("auto refresh shippingbo Token");
       await refreshAccessToken(); //1h50 
       await refreshAccessTokenWarehouse();
   }, 6600000); //1h50
   //refreshToken every 1h15 for MS365
   setInterval(async () => {
-    console.log('auto refresh MS365 before');
+    console.log('auto refresh MS365 token');
     await refreshMS365AccessToken();
    }, 4500000); //1h15
   // }, 300000);
@@ -752,9 +752,8 @@ app.post('/upgrade-account', async (req, res) => {
         }
       }
       try {
-        console.log('client mis à jour', upgradedCustomer);
         const updatedCustomer = await createProCustomer(clientToUpdate, upgradedCustomer);
-        console.log("Création d'un client pro");
+        console.log("Update for Pro account", clientToUpdate);
         res.status(200).json(updatedCustomer);
       } catch (error) {
         console.error('erreur upgraded customer', error);
