@@ -1,16 +1,26 @@
 const fetch = require('node-fetch');
 
 const colissimoApiKey = process.env.CBOX_API_KEY;
+const colissimoContract = process.env.CBOX_CONTRACT;
+const colissimoPassword = process.env.CBOX_PWD;
 
 const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
     const data = {
-        "shipment": {
+        "contractNumber": colissimoContract,
+        "password": colissimoPassword,
+        "outputFormat": {
+            "outputPrintingType": "PDF"
+        },
+        "letter": {
             "sender": senderCustomer,
-            "recipient": recipientPotiron,
-            "parcel": parcel
+            "addressee": recipientPotiron,
+            "parcel": {
+                "weight": parcel.weight,
+                "insuranceValue": 0
+            }
         }
     };
-    const colissimoUrl = 'https://api.colissimo.fr/v1/label';
+    const colissimoUrl = 'https://ws.colissimo.fr/sls-ws/SlsServiceWSRest/2.0/generateLabel';
     const colissimoOptions = {
         method: 'POST',
         headers: {
@@ -29,7 +39,7 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
         console.log('suivi', responseData.labelUrl);
         //send by mail
     } catch (error) { 
-        console.error('Erreur creatinf label from CBox', error.message);
+        console.error('Erreur creating label from CBox', error.message);
     }
 }
 
