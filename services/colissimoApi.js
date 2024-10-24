@@ -24,14 +24,14 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
     const colissimoOptions = {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${colissimoApiKey}` 
-        },
+            'Content-Type': 'application/json'
+            },
         body: JSON.stringify(data)
     }
 
     try {
         const response = await fetch(colissimoUrl, colissimoOptions);
+        console.log('response text', response.text());
         if(!response.ok) {
             console.log('Erreur creating label from colissimo API');
         }
