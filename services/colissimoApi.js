@@ -51,7 +51,7 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
             }
         }
     };
-    const colissimoUrl = 'https://www.colissimo.fr/generateLabel';
+    const colissimoUrl = 'https://ws.colissimo.fr/sls-ws/SlsServiceWSRest/2.0/generateLabel';
     const colissimoOptions = {
         method: 'POST',
         headers: {
