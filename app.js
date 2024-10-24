@@ -23,6 +23,7 @@ const { sendEmailWithKbis, sendWelcomeMailPro } = require('./services/sendMail.j
 const { createDraftOrder, updateDraftOrderWithTags, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById, orderById } = require('./services/shopifyApi.js');
 const { createDiscountCode, createReturnOrder, getReturnOrderDetails } = require('./services/return.js');
 const { refreshMS365AccessToken, getAccessTokenMS365 } = require('./services/microsoftAuth.js');
+const { createLabel } = require('./services/colissimoApi.js');
 
 let accessToken = null;
 let refreshToken = null;
@@ -593,14 +594,38 @@ app.post('/returnProduct', async (req, res) => {
     console.log("create discount_code + générate labels + ??return?? + send mail to magalie")
     // const priceRules = await createDiscountCode(customerId, totalOrder);
     const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId); 
-    const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId);
-    getReturnOrderDetails(accessTokenWarehouse, 622096);
+    const senderCustomer = {
+      'name': "toto",
+      'address': "466 rue du Maréchal Leclerc",
+      'city': "Riorges",
+      "postalCode": "42153",
+      "country": "FR"
+  };
+  const recipientPotiron = {
+      'name': "Potiron",
+      'address': "501 avenue de la couronne des pres",
+      'city': "Epone",
+      "postalCode": "78680",
+      "country": "FR"
+  };
+  const parcel = {
+    "weight": 400,
+    "dimensions": {
+      "length": 30,
+      "width": 20,
+      "height": 10
+    }
+  };
+    const createLabelData = await createLabel(senderCustomer, recipientPotiron, parcel);
+    // const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId);
+    // getReturnOrderDetails(accessTokenWarehouse, 622096);
     // console.log('my order', warehouseOrder);
     return res.status(200).json({
       success: true,
       // data: priceRules,
-      getOrder: warehouseOrder,
-      returnOrder: returnOrderData
+      // getOrder: warehouseOrder,
+      // returnOrder: returnOrderData
+      label: createLabelData
     })
   } else if( optionChosen === "option2") {
     console.log("generate label + remboursement ? + mail à  ??")
