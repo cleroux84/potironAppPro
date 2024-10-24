@@ -111,6 +111,7 @@ const orderById = async (orderName, orderMail, customerId) => {
   try {
     const response = await fetch(orderUrl, orderOptions);
     let myOrderData;
+    console.log("data", response.json());
     if(!response.ok) {
       console.log(`Error fetching order by name : ${response.statusText}`);
     }
