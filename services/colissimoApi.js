@@ -6,8 +6,8 @@ const colissimoPassword = process.env.CBOX_PWD;
  
 const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
     const data = `{
-        "contractNumber": colissimoContract,
-        "password": colissimoPassword,
+        "contractNumber": ${colissimoContract},
+        "password": ${colissimoPassword},
         "outputFormat": {
             "x": 0,
             "y": 0,
