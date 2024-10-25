@@ -19,7 +19,7 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
         "letter": {
             "service": {
             "productCode": "DOM",
-            "depositDate": new Date().toISOString(),
+            "depositDate": new Date().toISOString().split('T')[0], // Format ISO sans heures
             "mailBoxPicking": false
             },
             "parcel": {
@@ -48,10 +48,10 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
                 }
             }
         }
-    }
+    };
  
-    // Vérifier le JSON avant de l'envoyer
-    console.log(JSON.stringify(data, null, 2)); // Ajout d'une indentation pour plus de lisibilité
+    // Log du JSON
+    console.log(JSON.stringify(data, null, 2));
  
     const colissimoUrl = 'https://ws.colissimo.fr/sls-ws/SlsServiceWSRest/2.0/generateLabel';
     const colissimoOptions = {
@@ -61,31 +61,43 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
             'apiKey': colissimoApiKey
         },
         body: JSON.stringify(data)
-    }
+    };
  
     try {
         const response = await fetch(colissimoUrl, colissimoOptions);
         const textResponse = await response.text();
-        console.log('text response', textResponse); 
-        try {
-            const jsonResponse = JSON.parse(textResponse);
-            return jsonResponse;
-        } catch (parseError) {
-            console.error('parsing', parseError.message);
+        console.log('text response', textResponse);
+ 
+        // Diviser la réponse en sections
+        const parts = textResponse.split('--uuid:');
+ 
+        let jsonResponse = null;
+ 
+        // Recherche de la partie JSON
+        for (const part of parts) {
+            if (part.includes('application/json')) {
+                const jsonPart = part.substring(part.indexOf('{'), part.lastIndexOf('}') + 1);
+                try {
+                    jsonResponse = JSON.parse(jsonPart);
+                    console.log('JSON Response:', jsonResponse);
+                } catch (parseError) {
+                    console.error('Erreur lors du parsing JSON:', parseError.message);
+                }
+                break;
+            }
         }
-        // if(!response.ok) {
-        //     const errorData = await response.json();
-
-        //     console.log('Erreur creating label from colissimo API', errorData);
-
-        // }
-        // const responseData = await response.json();
-        // console.log('suivi', responseData);
-        // return responseData.labelUrl;
-    } catch (error) { 
+ 
+        if (jsonResponse && jsonResponse.labelV2Response && jsonResponse.labelV2Response.pdfUrl) {
+            console.log('URL du PDF:', jsonResponse.labelV2Response.pdfUrl);
+            return jsonResponse.labelV2Response.pdfUrl;
+        } else {
+            console.log("Pas d'URL PDF trouvée dans la réponse JSON");
+            return null;
+        }
+    } catch (error) {
         console.error('Erreur creating label from CBox', error);
     }
-}
+};
  
 module.exports = {
     createLabel
