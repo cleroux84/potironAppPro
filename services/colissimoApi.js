@@ -14,7 +14,7 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
             "outputPrintingType": "PDF_10x15_300dpi",
             "dematerialized": true,
             "returnType": "BPR",
-            "printCODDocument": true
+            "printCODDocument": false
         },
         "letter": {
             "service": {
