@@ -76,7 +76,7 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
         console.log('suivi', responseData);
         return responseData.labelUrl;
     } catch (error) { 
-        console.error('Erreur creating label from CBox', error.message);
+        console.error('Erreur creating label from CBox', error);
     }
 }
  
