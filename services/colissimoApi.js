@@ -65,15 +65,23 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
  
     try {
         const response = await fetch(colissimoUrl, colissimoOptions);
-        if(!response.ok) {
-            const errorData = await response.json();
-
-            console.log('Erreur creating label from colissimo API', errorData);
-
+        const textResponse = await response.text();
+        console.log('text response', textResponse); 
+        try {
+            const jsonResponse = JSON.parse(textResponse);
+            return jsonResponse;
+        } catch (parseError) {
+            console.error('parsing', parseError.message);
         }
-        const responseData = await response.json();
-        console.log('suivi', responseData);
-        return responseData.labelUrl;
+        // if(!response.ok) {
+        //     const errorData = await response.json();
+
+        //     console.log('Erreur creating label from colissimo API', errorData);
+
+        // }
+        // const responseData = await response.json();
+        // console.log('suivi', responseData);
+        // return responseData.labelUrl;
     } catch (error) { 
         console.error('Erreur creating label from CBox', error);
     }
