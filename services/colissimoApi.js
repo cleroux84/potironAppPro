@@ -11,44 +11,57 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
         "outputFormat": {
             "x": 0,
             "y": 0,
-            "outputPrintingType": "PDF_10x15_300dpi",
-            "dematerialized": false,
-            "returnType": "BPR",
-            "printCODDocument": true
-        },
-        "letter": {
+            "outputPrintingType": "ZPL_10x15_203dpi"
+            },
+            "letter": {
             "service": {
-            "productCode": "DOM",
-            "depositDate": new Date().toISOString(),
+            "productCode": "COL",
+            "depositDate": "2024-25-10",
+            "totalAmount": 569,
             "mailBoxPicking": false
             },
             "parcel": {
-                "weight": 4
+            "weight": 3,
+            "nonMachinable": false
             },
             "sender": {
-                "address": {
-                    "companyName": "Expéditeur",
-                    "lastName": "Durand",
-                    "firstName": "Pierre",
-                    "line2": "1 rue de la Poste",
-                    "city": "Paris",
-                    "zipCode": "75001",
-                    "countryCode": "FR"
-                }
+            "address": {
+            "companyName": "cvd",
+            "lastName": "dfdf",
+            "firstName": "dfdf",
+            "line0": "s",
+            "email": "sg@toto.Fr",
+            "line1": "az",
+            "line2": "string",
+            "countryCode": "FR",
+            "zipCode": "75001",
+            "city": "Paris"
+            }
             },
             "addressee": {
-                "address": {
-                    "companyName": "Potiron",
-                    "lastName": "Leroux",
-                    "firstName": "Céline",
-                    "line2": "10 avenue des Champs Élysées",
-                    "city": "Paris",
-                    "zipCode": "75008",
-                    "countryCode": "FR"
-                }
+            "address": {
+            "companyName": "the comp",
+            "lastName": "you",
+            "firstName": "mee",
+            "line0": "line0",
+            "line1": "line1",
+            "line2": "fgfg",
+            "countryCode": "FR",
+            "city": "Paris",
+            "zipCode": "75015"
             }
-        }
-    }
+            }
+            },
+            "fields": {
+            "customField": [
+            {
+            "key": "string",
+            "value": "string"
+            }
+            ]
+            }
+           }
+            
  
     // Vérifier le JSON avant de l'envoyer
     console.log(JSON.stringify(data, null, 2)); // Ajout d'une indentation pour plus de lisibilité
