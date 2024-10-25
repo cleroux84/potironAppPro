@@ -9,15 +9,15 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
         "contractNumber": colissimoContract,
         "password": colissimoPassword,
         "outputFormat": {
-            "outputPrintingType": "PDF_10x15_300dpi",
+            "outputPrintingType": "ZPL_10X15_203dpi",
             "dematerialized": false,
             "returnType": "BPR"
         },
         "letter": {
             "service": {
             "productCode": "DOM",
-            // "depositDate": new Date().toISOString(),
-            // "commercialName": "Potiron"
+            "depositDate": new Date().toISOString(),
+            "commercialName": "Potiron"
             },
             "parcel": {
              "weight": 4
@@ -60,7 +60,7 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
     const colissimoOptions = {
         method: 'POST',
         headers: {
-            'Content-Type': '*/*',
+            'Content-Type': 'application/json',
             'apiKey': colissimoApiKey
         },
         body: JSON.stringify(data)
