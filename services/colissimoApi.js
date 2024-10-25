@@ -9,42 +9,32 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
         "contractNumber": colissimoContract,
         "password": colissimoPassword,
         "outputFormat": {
-            "x": 0,
-            "y": 0,
             "outputPrintingType": "PDF_10x15_300dpi",
             "dematerialized": false,
             "returnType": "BPR",
-            "printCODDocument": true
         },
         "letter": {
             "service": {
             "productCode": "DOM",
-            "depositDate": "2024-10-25T14:15:22Z",
-            "mailBoxPicking": false,
-            "vatCode": 0,
-            "orderNumber": "12345",
+            "depositDate": new Date().toISOString(),
             "commercialName": "Potiron"
             },
             "parcel": {
-            "weight": 4,
-            "insuranceAmount": 0,
-            "insuranceValue": 0,
-            "nonMachinable": false,
-            "returnReceipt": false
+             "weight": 4
             },
             "sender": {
-            "address": {
-                "companyName": "Expéditeur",
-                "lastName": "Durand",
-                "firstName": "Pierre",
-                "line0": "1 rue de la Poste",
-                "line1": " ",
-                "line2": " ",
-                "line3": " ",
-                "city": "Paris",
-                "zipCode": "75001",
-                "countryCode": "FR"
-            }
+                "address": {
+                    "companyName": "Expéditeur",
+                    "lastName": "Durand",
+                    "firstName": "Pierre",
+                    "line0": "1 rue de la Poste",
+                    "line1": " ",
+                    "line2": " ",
+                    "line3": " ",
+                    "city": "Paris",
+                    "zipCode": "75001",
+                    "countryCode": "FR"
+                }
             },
             "addressee": {
             "address": {
@@ -62,7 +52,6 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
             }
         }
     }
-    console.log('example date', new Date().toISOString());
  
     // Vérifier le JSON avant de l'envoyer
     console.log(JSON.stringify(data, null, 2)); // Ajout d'une indentation pour plus de lisibilité
