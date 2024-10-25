@@ -56,14 +56,14 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
     // Vérifier le JSON avant de l'envoyer
     console.log(JSON.stringify(data, null, 2)); // Ajout d'une indentation pour plus de lisibilité
  
-    const colissimoUrl = 'https://ws.colissimo.fr/sls-ws/SlsServiceWSRest/2.0/generateLabel';
+    const colissimoUrl = 'https://ws.colissimo.fr/sls-ws/SlsServiceWSRest/2.0/generateLabel?format=json';
     const colissimoOptions = {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json; charset=UTF-8',
+            'Content-Type': 'application/json',
             'apiKey': colissimoApiKey
         },
-        body: JSON.stringify(JSON.parse(JSON.stringify(data)))
+        body: JSON.stringify(data)
     }
  
     try {
