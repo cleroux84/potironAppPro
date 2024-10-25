@@ -12,14 +12,11 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
             "x": 0,
             "y": 0,
             "outputPrintingType": "PDF_10x15_300dpi",
-            "dematerialized": true,
-            "returnType": "BPR",
-            "printCODDocument": false
         },
         "letter": {
             "service": {
             "productCode": "DOM",
-            "depositDate": new Date().toISOString().split('T')[0], // Format ISO sans heures
+            "depositDate": new Date().toISOString(),
             "mailBoxPicking": false
             },
             "parcel": {
@@ -79,7 +76,7 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
                 const jsonPart = part.substring(part.indexOf('{'), part.lastIndexOf('}') + 1);
                 try {
                     jsonResponse = JSON.parse(jsonPart);
-                    console.log('JSON Response:', jsonResponse);
+                    // console.log('JSON Response:', jsonResponse);
                 } catch (parseError) {
                     console.error('Erreur lors du parsing JSON:', parseError.message);
                 }
