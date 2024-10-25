@@ -5,6 +5,10 @@ const colissimoContract = process.env.CBOX_CONTRACT;
 const colissimoPassword = process.env.CBOX_PWD;
  
 const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
+    console.log('key', colissimoApiKey);
+    console.log('contract', colissimoContract);
+    console.log('pwd', colissimoPassword);
+
     const data = {
   "contractNumber": colissimoContract,
   "password": colissimoPassword,
@@ -80,10 +84,13 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
     try {
         const response = await fetch(colissimoUrl, colissimoOptions);
         if(!response.ok) {
-            console.log('Erreur creating label from colissimo API');
+            const errorData = await response.json();
+
+            console.log('Erreur creating label from colissimo API', errorData);
+
         }
         const responseData = await response.json();
-        console.log('suivi', responseData.labelUrl);
+        console.log('suivi', responseData);
         return responseData.labelUrl;
     } catch (error) { 
         console.error('Erreur creating label from CBox', error.message);
