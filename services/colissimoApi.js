@@ -5,64 +5,51 @@ const colissimoContract = process.env.CBOX_CONTRACT;
 const colissimoPassword = process.env.CBOX_PWD;
  
 const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
-    const data = {
+    const data = `{
         "contractNumber": colissimoContract,
         "password": colissimoPassword,
         "outputFormat": {
             "x": 0,
             "y": 0,
-            "outputPrintingType": "ZPL_10x15_203dpi"
-            },
-            "letter": {
+            "outputPrintingType": "PDF_10x15_300dpi",
+            "dematerialized": false,
+            "returnType": "BPR",
+            "printCODDocument": true
+        },
+        "letter": {
             "service": {
-            "productCode": "COL",
-            "depositDate": "2024-25-10",
-            "totalAmount": 569,
+            "productCode": "DOM",
+            "depositDate": new Date().toISOString(),
             "mailBoxPicking": false
             },
             "parcel": {
-            "weight": 3,
-            "nonMachinable": false
+                "weight": 4
             },
             "sender": {
-            "address": {
-            "companyName": "cvd",
-            "lastName": "dfdf",
-            "firstName": "dfdf",
-            "line0": "s",
-            "email": "sg@toto.Fr",
-            "line1": "az",
-            "line2": "string",
-            "countryCode": "FR",
-            "zipCode": "75001",
-            "city": "Paris"
-            }
+                "address": {
+                    "companyName": "Expéditeur",
+                    "lastName": "Durand",
+                    "firstName": "Pierre",
+                    "line2": "1 rue de la Poste",
+                    "city": "Paris",
+                    "zipCode": "75001",
+                    "countryCode": "FR"
+                }
             },
             "addressee": {
-            "address": {
-            "companyName": "the comp",
-            "lastName": "you",
-            "firstName": "mee",
-            "line0": "line0",
-            "line1": "line1",
-            "line2": "fgfg",
-            "countryCode": "FR",
-            "city": "Paris",
-            "zipCode": "75015"
+                "address": {
+                    "companyName": "Potiron",
+                    "lastName": "Leroux",
+                    "firstName": "Céline",
+                    "line2": "10 avenue des Champs Élysées",
+                    "city": "Paris",
+                    "zipCode": "75008",
+                    "countryCode": "FR"
+                }
             }
-            }
-            },
-            "fields": {
-            "customField": [
-            {
-            "key": "string",
-            "value": "string"
-            }
-            ]
-            }
-           }
-            
- 
+        }
+    }
+ `
     // Vérifier le JSON avant de l'envoyer
     console.log(JSON.stringify(data, null, 2)); // Ajout d'une indentation pour plus de lisibilité
  
@@ -71,9 +58,10 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'Content-Length': data.length.toString(),
             'apiKey': colissimoApiKey
         },
-        body: JSON.stringify(data)
+        body: data
     }
  
     try {
