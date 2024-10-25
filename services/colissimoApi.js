@@ -60,7 +60,7 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
     const colissimoOptions = {
         method: 'POST',
         headers: {
-            // 'Content-Type': 'application/json',
+            'Content-Type': 'application/json; charset=UTF-8',
             'apiKey': colissimoApiKey
         },
         body: JSON.stringify(data)
