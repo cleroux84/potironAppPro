@@ -19,7 +19,7 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
         "letter": {
             "service": {
             "productCode": "DOM",
-            "depositDate": new Date().toISOString(),
+            "depositDate": "2024-10-25T14:15:22Z",
             "mailBoxPicking": false,
             "vatCode": 0,
             "orderNumber": "12345",
@@ -62,7 +62,7 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
             }
         }
     }
- 
+    console.log('example date', new Date().toISOString());
  
     // Vérifier le JSON avant de l'envoyer
     console.log(JSON.stringify(data, null, 2)); // Ajout d'une indentation pour plus de lisibilité
