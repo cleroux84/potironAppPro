@@ -9,54 +9,51 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
         "contractNumber": colissimoContract,
         "password": colissimoPassword,
         "outputFormat": {
-            "outputPrintingType": "PDF_10x15_300dpi"
-            // "dematerialized": false,
-            // "returnType": "BPR"
+            "x": 0,
+            "y": 0,
+            "outputPrintingType": "PDF_10x15_300dpi",
+            "dematerialized": false,
+            "returnType": "BPR",
+            "printCODDocument": true
         },
-        // "letter": {
-        //     "service": {
-        //     "productCode": "DOM",
-        //     "depositDate": new Date().toISOString(),
-        //     "commercialName": "Potiron"
-        //     },
-        //     "parcel": {
-        //      "weight": 4
-        //     },
-        //     "sender": {
-        //         "address": {
-        //             "companyName": "Expéditeur",
-        //             "lastName": "Durand",
-        //             "firstName": "Pierre",
-        //             "line0": "1 rue de la Poste",
-        //             "line1": " ",
-        //             "line2": " ",
-        //             "line3": " ",
-        //             "city": "Paris",
-        //             "zipCode": "75001",
-        //             "countryCode": "FR"
-        //         }
-        //     },
-        //     "addressee": {
-        //     "address": {
-        //         "companyName": "Potiron",
-        //         "lastName": "Leroux",
-        //         "firstName": "Céline",
-        //         "line0": "10 avenue des Champs Élysées",
-        //         "line1": " ",
-        //         "line2": " ",
-        //         "line3": " ",
-        //         "city": "Paris",
-        //         "zipCode": "75008",
-        //         "countryCode": "FR"
-        //     }
-        //     }
-        // }
+        "letter": {
+            "service": {
+            "productCode": "DOM",
+            "depositDate": new Date().toISOString(),
+            "mailBoxPicking": false
+            },
+            "parcel": {
+                "weight": 4
+            },
+            "sender": {
+                "address": {
+                    "companyName": "Expéditeur",
+                    "lastName": "Durand",
+                    "firstName": "Pierre",
+                    "line2": "1 rue de la Poste",
+                    "city": "Paris",
+                    "zipCode": "75001",
+                    "countryCode": "FR"
+                }
+            },
+            "addressee": {
+                "address": {
+                    "companyName": "Potiron",
+                    "lastName": "Leroux",
+                    "firstName": "Céline",
+                    "line2": "10 avenue des Champs Élysées",
+                    "city": "Paris",
+                    "zipCode": "75008",
+                    "countryCode": "FR"
+                }
+            }
+        }
     }
  
     // Vérifier le JSON avant de l'envoyer
     console.log(JSON.stringify(data, null, 2)); // Ajout d'une indentation pour plus de lisibilité
  
-    const colissimoUrl = 'https://ws.colissimo.fr/sls-ws/SlsServiceWSRest/2.0/generateLabel?format=json';
+    const colissimoUrl = 'https://ws.colissimo.fr/sls-ws/SlsServiceWSRest/2.0/generateLabel';
     const colissimoOptions = {
         method: 'POST',
         headers: {
