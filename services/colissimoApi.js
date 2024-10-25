@@ -9,46 +9,57 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
         "contractNumber": colissimoContract,
         "password": colissimoPassword,
         "outputFormat": {
-            "outputPrintingType": "PDF"
-        },
+        "x": 0,
+        "y": 0,
+        "outputPrintingType": "PDF_10x15_300dpi",
+        "dematerialized": true,
+        "returnType": "BPR",
+        "printCODDocument": true
+    },
         "letter": {
             "service": {
                 "productCode": "DOM", 
                 "depositDate": new Date().toISOString(),
-                "commercialName": "POTIRON TEST"
+                "mailBoxPicking": false,
+                "vatCode": 0,
+                "orderNumber": "12345",
+                "commercialName": "Potiron Retour"
             },
             "parcel": {
-                "weight": parcel.weight,
+                "weight": 0.4,
+                "insuranceAmount": 0,
                 "insuranceValue": 0,
-                "recommendationLevel": "R1",
-                "nonMachinable": false
+                "nonMachinable": false,
+                "returnReceipt": false
             },
-            "sender": {
+              "sender": {
                 "address": {
-                    "companyName": "Client Retour",
-                    "lastName": "Retour",
-                    "firstName": "Client",
-                    "line1": senderCustomer.address,
-                    "city": senderCustomer.city,
-                    "zipCode": senderCustomer.postalCode,
-                    "countryCode": senderCustomer.country,
-                    "email": "client@exemple.com",
-                    "phoneNumber": "0600000000"
-                }
-            },
-            "addressee": {
+                    "companyName": "Expéditeur",
+                    "lastName": "Durand",
+                    "firstName": "Pierre",
+                    "line0": "1 rue de la Poste",
+                    "line1": " ",
+                    "line2": " ",
+                    "line3": " ",
+                    "city": "Paris",
+                    "zipCode": "75001",
+                    "countryCode": "FR"
+                 }   
+                },
+             "addressee": {
                 "address": {
                     "companyName": "Potiron",
-                    "lastName": "Céline",
+                    "lastName": "Leroux",
                     "firstName": "Céline",
-                    "line1": recipientPotiron.address,
-                    "city": recipientPotiron.city,
-                    "zipCode": recipientPotiron.postalCode,
-                    "countryCode": recipientPotiron.country,
-                    "email": "c.leroux@potiron.com",
-                    "phoneNumber": "0612345678"
+                    "line0": "10 avenue des Champs-Élysées",
+                    "line1": " ",
+                    "line2": " ",
+                    "line3": " ",
+                    "city": "Paris",
+                    "zipCode": "75008",
+                    "countryCode": "FR"
                 }
-            }
+                }
         }
     };
  
@@ -72,6 +83,7 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
         }
         const responseData = await response.json();
         console.log('suivi', responseData.labelUrl);
+        return responseData.labelUrl;
     } catch (error) { 
         console.error('Erreur creating label from CBox', error.message);
     }
