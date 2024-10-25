@@ -63,7 +63,7 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
             'Content-Type': 'application/json; charset=UTF-8',
             'apiKey': colissimoApiKey
         },
-        body: JSON.parse(JSON.stringify(data))
+        body: JSON.stringify(JSON.parse(JSON.stringify(data)))
     }
  
     try {
