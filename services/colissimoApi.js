@@ -5,9 +5,9 @@ const colissimoContract = process.env.CBOX_CONTRACT;
 const colissimoPassword = process.env.CBOX_PWD;
  
 const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
-    const data = `{
-        "contractNumber": ${colissimoContract},
-        "password": ${colissimoPassword},
+    const data = {
+        "contractNumber": colissimoContract,
+        "password": colissimoPassword,
         "outputFormat": {
             "x": 0,
             "y": 0,
@@ -49,7 +49,7 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
             }
         }
     }
- `
+ 
     // Vérifier le JSON avant de l'envoyer
     console.log(JSON.stringify(data, null, 2)); // Ajout d'une indentation pour plus de lisibilité
  
@@ -58,10 +58,9 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Content-Length': data.length.toString(),
             'apiKey': colissimoApiKey
         },
-        body: data
+        body: JSON.stringify(data)
     }
  
     try {
