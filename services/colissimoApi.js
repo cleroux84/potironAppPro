@@ -11,7 +11,7 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
         "outputFormat": {
             "x": 0,
             "y": 0,
-            "returnType": "SendPDFLinkByMal",
+            "returnType": "SendPDFLinkByMail",
             "outputPrintingType": "PDF_10x15_300dpi",
         },
         "letter": {
@@ -31,7 +31,8 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
                     "line2": "1 rue de la Poste",
                     "city": "Paris",
                     "zipCode": "75001",
-                    "countryCode": "FR"
+                    "countryCode": "FR",
+                    "email": "c.leroux@potiron.com"
                 }
             },
             "addressee": {
@@ -42,7 +43,8 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
                     "line2": "10 avenue des Champs Élysées",
                     "city": "Paris",
                     "zipCode": "75008",
-                    "countryCode": "FR"
+                    "countryCode": "FR",
+                    "email": "c.leroux@potiron.com"
                 }
             }
         }
