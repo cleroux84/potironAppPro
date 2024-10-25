@@ -10,15 +10,15 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
         "password": colissimoPassword,
         "outputFormat": {
             "outputPrintingType": "PDF_10x15_300dpi",
-            "dematerialized": false,
-            "returnType": "BPR"
+            // "dematerialized": false,
+            // "returnType": "BPR"
         },
-        "letter": {
-            "service": {
-            "productCode": "DOM",
+        // "letter": {
+        //     "service": {
+        //     "productCode": "DOM",
             // "depositDate": new Date().toISOString(),
             // "commercialName": "Potiron"
-            },
+            // },
             // "parcel": {
             //  "weight": 4
             // },
