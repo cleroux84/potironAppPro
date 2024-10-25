@@ -8,11 +8,11 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
     const data = {
         "contractNumber": colissimoContract,
         "password": colissimoPassword,
-        // "outputFormat": {
-        //     "outputPrintingType": "PDF_10x15_300dpi",
-        //     "dematerialized": false,
-        //     "returnType": "BPR"
-        // },
+        "outputFormat": {
+            "outputPrintingType": "PDF_10x15_300dpi"
+            // "dematerialized": false,
+            // "returnType": "BPR"
+        },
         // "letter": {
         //     "service": {
         //     "productCode": "DOM",
