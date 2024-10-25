@@ -11,6 +11,7 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
         "outputFormat": {
             "x": 0,
             "y": 0,
+            "returnType": "SendPDFLinkByMal",
             "outputPrintingType": "PDF_10x15_300dpi",
         },
         "letter": {
@@ -63,7 +64,7 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
     try {
         const response = await fetch(colissimoUrl, colissimoOptions);
         const textResponse = await response.text();
-        console.log('text response', textResponse);
+        // console.log('text response', textResponse);
  
         // Diviser la réponse en sections
         const parts = textResponse.split('--uuid:');
