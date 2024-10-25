@@ -23,7 +23,7 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
   "letter": {
     "service": {
       "productCode": "DOM",
-      "depositDate": "2024-10-25T14:15:22Z",
+      "depositDate": new Date().toISOString(),
       "mailBoxPicking": false,
       "vatCode": 0,
       "orderNumber": "12345",
