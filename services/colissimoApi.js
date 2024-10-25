@@ -8,49 +8,49 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
     const data = {
         "contractNumber": colissimoContract,
         "password": colissimoPassword,
-        "outputFormat": {
-            "outputPrintingType": "ZPL_10X15_203dpi",
-            "dematerialized": false,
-            "returnType": "BPR"
-        },
-        "letter": {
-            "service": {
-            "productCode": "DOM",
-            "depositDate": new Date().toISOString(),
-            "commercialName": "Potiron"
-            },
-            "parcel": {
-             "weight": 4
-            },
-            "sender": {
-                "address": {
-                    "companyName": "Expéditeur",
-                    "lastName": "Durand",
-                    "firstName": "Pierre",
-                    "line0": "1 rue de la Poste",
-                    "line1": " ",
-                    "line2": " ",
-                    "line3": " ",
-                    "city": "Paris",
-                    "zipCode": "75001",
-                    "countryCode": "FR"
-                }
-            },
-            "addressee": {
-            "address": {
-                "companyName": "Potiron",
-                "lastName": "Leroux",
-                "firstName": "Céline",
-                "line0": "10 avenue des Champs Élysées",
-                "line1": " ",
-                "line2": " ",
-                "line3": " ",
-                "city": "Paris",
-                "zipCode": "75008",
-                "countryCode": "FR"
-            }
-            }
-        }
+        // "outputFormat": {
+        //     "outputPrintingType": "PDF_10x15_300dpi",
+        //     "dematerialized": false,
+        //     "returnType": "BPR"
+        // },
+        // "letter": {
+        //     "service": {
+        //     "productCode": "DOM",
+        //     "depositDate": new Date().toISOString(),
+        //     "commercialName": "Potiron"
+        //     },
+        //     "parcel": {
+        //      "weight": 4
+        //     },
+        //     "sender": {
+        //         "address": {
+        //             "companyName": "Expéditeur",
+        //             "lastName": "Durand",
+        //             "firstName": "Pierre",
+        //             "line0": "1 rue de la Poste",
+        //             "line1": " ",
+        //             "line2": " ",
+        //             "line3": " ",
+        //             "city": "Paris",
+        //             "zipCode": "75001",
+        //             "countryCode": "FR"
+        //         }
+        //     },
+        //     "addressee": {
+        //     "address": {
+        //         "companyName": "Potiron",
+        //         "lastName": "Leroux",
+        //         "firstName": "Céline",
+        //         "line0": "10 avenue des Champs Élysées",
+        //         "line1": " ",
+        //         "line2": " ",
+        //         "line3": " ",
+        //         "city": "Paris",
+        //         "zipCode": "75008",
+        //         "countryCode": "FR"
+        //     }
+        //     }
+        // }
     }
  
     // Vérifier le JSON avant de l'envoyer

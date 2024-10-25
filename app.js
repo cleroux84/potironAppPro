@@ -609,12 +609,11 @@ app.post('/returnProduct', async (req, res) => {
       "country": "FR"
   };
   const parcel = {
-    "weight": 400,
-    "dimensions": {
-      "length": 30,
-      "width": 20,
-      "height": 10
-    }
+    "weight": 0.4,
+    "insuranceAmount": 0,
+    "insuranceValue": 0,
+    "nonMachinable": false,
+    "returnReceipt": false
   };
     const createLabelData = await createLabel(senderCustomer, recipientPotiron, parcel);
     // const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId);
