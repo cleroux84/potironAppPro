@@ -49,10 +49,7 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
             }
         }
     };
- 
-    // Log du JSON
-    console.log(JSON.stringify(data, null, 2));
- 
+  
     const colissimoUrl = 'https://ws.colissimo.fr/sls-ws/SlsServiceWSRest/2.0/generateLabel';
     const colissimoOptions = {
         method: 'POST',
@@ -79,7 +76,7 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
                 const jsonPart = part.substring(part.indexOf('{'), part.lastIndexOf('}') + 1);
                 try {
                     jsonResponse = JSON.parse(jsonPart);
-                    // console.log('JSON Response:', jsonResponse);
+                    return jsonResponse;
                 } catch (parseError) {
                     console.error('Erreur lors du parsing JSON:', parseError.message);
                 }
