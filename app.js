@@ -615,11 +615,11 @@ app.post('/returnProduct', async (req, res) => {
   };
     //create a return order in shippingbo warehouse
     const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId);
-    const returnOrderId = await returnOrderData.id;
+    const returnOrderId = returnOrderData.return_order.id;
     console.log("id return order created", returnOrderId);
     //create a return label with colissimo API
     const createLabelData = await createLabel(senderCustomer, parcel);
-    const parcelNumber = await createLabelData.parcelNumber;
+    const parcelNumber = createLabelData.parcelNumber;
     const updateReturnOrderWithLabel = await updateReturnOrder(accessTokenWarehouse, returnOrderId, parcelNumber)
     console.log('updat', updateReturnOrderWithLabel);
     // getReturnOrderDetails(accessTokenWarehouse, 622096);
