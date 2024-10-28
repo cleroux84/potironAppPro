@@ -605,7 +605,7 @@ app.post('/returnProduct', async (req, res) => {
       "email": warehouseOrder.order.shipping_address.email
   };
   const parcel = {
-    "weight": warehouseOrder.shipments.total_weight / 1000,
+    "weight": 0.4,
     "insuranceAmount": 0,
     "insuranceValue": 0,
     "nonMachinable": false,
