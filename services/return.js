@@ -52,8 +52,8 @@ const updateReturnOrder = async (accessTokenWarehouse, orderId, parcelNumber) =>
     const updatedData = {
         "id": orderId,
         "state": "new",
-        "reason": "test to change"
-        // "shipping_ref": "parcelNumber",
+        // "reason": "test to change"
+        "shipping_ref": "parcelNumber",
         // "shipping_method_id": 220,
         // "user_mail": "c.leroux@potiron.com"
     }
