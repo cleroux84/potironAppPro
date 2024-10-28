@@ -11,7 +11,7 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
         "outputFormat": {
             "x": 0,
             "y": 0,
-            "returnType": "SendPDFLinkByMail",
+            "returnType": "ReturnPDFLink",
             "outputPrintingType": "PDF_10x15_300dpi",
         },
         "letter": {
