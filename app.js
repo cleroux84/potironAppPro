@@ -603,7 +603,8 @@ app.post('/returnProduct', async (req, res) => {
       "postalCode": warehouseOrder.order.shipping_address.zip,
       "country": warehouseOrder.order.shipping_address.country,
       "email": warehouseOrder.order.shipping_address.email,
-      "phone": warehouseOrder.order.shipping_address.phone1
+      "phone": warehouseOrder.order.shipping_address.phone1,
+      "origin_ref": warehouseOrder.order.origin_ref
   };
   const parcel = {
     "weight": warehouseOrder.order.shipments[0].total_weight / 1000,

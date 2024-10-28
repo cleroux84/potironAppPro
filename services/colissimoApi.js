@@ -66,13 +66,13 @@ const createLabel = async (senderCustomer, parcel) => {
         const response = await fetch(colissimoUrl, colissimoOptions);
         const buffer = await response.arrayBuffer(); // Récupère la réponse sous forme de tableau de bits
         const textResponse = new TextDecoder().decode(buffer); // Décodage de la réponse pour analyse
-        console.log('text response', textResponse);
+        // console.log('text response', textResponse);
  
         // Vérifie si c'est un flux PDF
         if (textResponse.includes('%PDF')) {
             // Conversion en base64
             const pdfBase64 = Buffer.from(buffer).toString('base64');
-            // const trackingNumber = textResponse.
+            console.log('par ici');
             return `data:application/pdf;base64,${pdfBase64}`; // Retourne un lien de type data URI
         }
  
@@ -85,6 +85,7 @@ const createLabel = async (senderCustomer, parcel) => {
                 try {
                     jsonResponse = JSON.parse(jsonPart);
                     if (jsonResponse.labelV2Response && jsonResponse.labelV2Response.pdfUrl) {
+                        console.log('ppl');
                         return jsonResponse.labelV2Response.pdfUrl;
                     }
                 } catch (parseError) {
