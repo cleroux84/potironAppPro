@@ -26,8 +26,6 @@ const createLabel = async (senderCustomer, parcel) => {
             "sender": {
                 "address": {
                     "companyName": senderCustomer.name,
-                    // "lastName": "Durand",
-                    // "firstName": "Pierre",
                     "line2": senderCustomer.address,
                     "line3": senderCustomer.address2,
                     "city": senderCustomer.city,
@@ -64,37 +62,18 @@ const createLabel = async (senderCustomer, parcel) => {
  
     try {
         const response = await fetch(colissimoUrl, colissimoOptions);
-        const buffer = await response.arrayBuffer(); // Récupère la réponse sous forme de tableau de bits
-        const textResponse = new TextDecoder().decode(buffer); // Décodage de la réponse pour analyse
+        const buffer = await response.arrayBuffer(); 
+        const textResponse = new TextDecoder().decode(buffer); 
         // console.log('text response', textResponse);
- 
-        // Vérifie si c'est un flux PDF
-        if (textResponse.includes('%PDF')) {
+         if (textResponse.includes('%PDF')) {
             const pdfBase64 = Buffer.from(buffer).toString('base64');
             const parcelNumber = extractParcelNumber(textResponse);
-            console.log('numéro de suivi', parcelNumber);
-            return `data:application/pdf;base64,${pdfBase64}`; // Retourne un lien de type data URI
-        }
- 
-        // Parse la réponse JSON si ce n'est pas un flux PDF
-        // const parts = textResponse.split('--uuid:');
-        // let jsonResponse = null;
-        // for (const part of parts) {
-        //     if (part.includes('application/json')) {
-        //         const jsonPart = part.substring(part.indexOf('{'), part.lastIndexOf('}') + 1);
-        //         try {
-        //             jsonResponse = JSON.parse(jsonPart);
-        //             if (jsonResponse.labelV2Response && jsonResponse.labelV2Response.pdfUrl) {
-        //                 console.log('ppl');
-        //                 return jsonResponse.labelV2Response.pdfUrl;
-        //             }
-        //         } catch (parseError) {
-        //             console.error('Erreur lors du parsing JSON:', parseError.message);
-        //         }
-        //         break;
-        //     }
-        // }
- 
+            return {
+                pdfData: `data:application/pdf;base64,${pdfBase64}`,
+                parcelNumber: parcelNumber,
+                origin_ref: senderCustomer.origin_ref
+            }
+        } 
         return null; 
     } catch (error) {
         console.error('Erreur lors de la création de l\'étiquette depuis CBox', error);
