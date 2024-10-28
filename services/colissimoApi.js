@@ -62,21 +62,28 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
  
     try {
         const response = await fetch(colissimoUrl, colissimoOptions);
-        const textResponse = await response.text();
+        const buffer = await response.arrayBuffer(); // Récupère la réponse sous forme de tableau de bits
+        const textResponse = new TextDecoder().decode(buffer); // Décodage de la réponse pour analyse
         console.log('text response', textResponse);
  
-        // Diviser la réponse en sections
+        // Vérifie si c'est un flux PDF
+        if (textResponse.includes('%PDF')) {
+            // Conversion en base64
+            const pdfBase64 = Buffer.from(buffer).toString('base64');
+            return `data:application/pdf;base64,${pdfBase64}`; // Retourne un lien de type data URI
+        }
+ 
+        // Parse la réponse JSON si ce n'est pas un flux PDF
         const parts = textResponse.split('--uuid:');
- 
         let jsonResponse = null;
- 
-        // Recherche de la partie JSON
         for (const part of parts) {
             if (part.includes('application/json')) {
                 const jsonPart = part.substring(part.indexOf('{'), part.lastIndexOf('}') + 1);
                 try {
                     jsonResponse = JSON.parse(jsonPart);
-                    return jsonResponse;
+                    if (jsonResponse.labelV2Response && jsonResponse.labelV2Response.pdfUrl) {
+                        return jsonResponse.labelV2Response.pdfUrl;
+                    }
                 } catch (parseError) {
                     console.error('Erreur lors du parsing JSON:', parseError.message);
                 }
@@ -84,15 +91,9 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
             }
         }
  
-        if (jsonResponse && jsonResponse.labelV2Response && jsonResponse.labelV2Response.pdfUrl) {
-            console.log('URL du PDF:', jsonResponse.labelV2Response.pdfUrl);
-            return jsonResponse.labelV2Response.pdfUrl;
-        } else {
-            console.log("Pas d'URL PDF trouvée dans la réponse JSON");
-            return null;
-        }
+        return null; // Si rien n'est trouvé
     } catch (error) {
-        console.error('Erreur creating label from CBox', error);
+        console.error('Erreur lors de la création de l\'étiquette depuis CBox', error);
     }
 };
  
