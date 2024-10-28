@@ -20,7 +20,8 @@ const createReturnOrder = async (accessTokenWarehouse, orderId) => {
         "return_order_type": "return_order_label",
         "skip_expected_items_creation" : true,
         "source": originalOrder.order.source,
-        "source_ref": originalOrder.order.source_ref
+        "source_ref": originalOrder.order.source_ref,
+        "shipping_ref": "created from return"
     }
     // console.log('object to create return', returnOrder);
     const createReturnOptions = {
@@ -53,9 +54,9 @@ const updateReturnOrder = async (accessTokenWarehouse, orderId, parcelNumber) =>
     const updatedData = {
         "id": orderId,
         "state": "new",
-        "shipping_ref": parcelNumber,
-        "shipping_method_id": 220,
-        "user_mail": "c.leroux@potiron.com"
+        "shipping_ref": "parcelNumber",
+        // "shipping_method_id": 220,
+        // "user_mail": "c.leroux@potiron.com"
     }
     const updateReturnUrl = `https://app.shippingbo.com/return_orders/${orderId}`;
     const updateReturnOptions = {
