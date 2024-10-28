@@ -69,13 +69,17 @@ const updateReturnOrder = async (accessTokenWarehouse, orderId, parcelNumber) =>
       body: JSON.stringify(updatedData)
     };
     try {
+        console.log('id in update', orderId);
+        console.log('parcel in update', parcelNumber);
+
         const response = await fetch(updateReturnUrl, updateReturnOptions);
         const data = await response.json();
-        console.log("return updated", data);
-    } catch (error) {
-        
-    }
-
+        if(response.ok) {
+          console.log('updated return order in shippingbo warehouse with colissimo data: ', shippingboOrderId);
+        }
+      } catch (error) {
+         console.error('Error updating shippingbo order', error);
+      }
 
 }
 
