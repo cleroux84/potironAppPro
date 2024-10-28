@@ -100,7 +100,6 @@ const getWarehouseOrderDetails = async (accessTokenWarehouse, shippingboId) => {
     }
     const updatedOrder= {
       id: shippingboOrderId,
-      state: "any",
       origin: "Commande PRO",
       origin_ref: originRef
   }

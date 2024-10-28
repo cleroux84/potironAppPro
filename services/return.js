@@ -52,6 +52,7 @@ const createReturnOrder = async (accessTokenWarehouse, orderId) => {
 const updateReturnOrder = async (accessTokenWarehouse, orderId, parcelNumber) => {
     const updatedData = {
         "id": orderId,
+        "state": "any",
         "shipping_ref": parcelNumber,
         "shipping_method_id": 63,
         "user_mail": "c.leroux@potiron.com"
@@ -69,13 +70,10 @@ const updateReturnOrder = async (accessTokenWarehouse, orderId, parcelNumber) =>
       body: JSON.stringify(updatedData)
     };
     try {
-        console.log('id in update', orderId);
-        console.log('parcel in update', parcelNumber);
-
         const response = await fetch(updateReturnUrl, updateReturnOptions);
         const data = await response.json();
         if(response.ok) {
-          console.log('updated return order in shippingbo warehouse with colissimo data: ', shippingboOrderId);
+          console.log('updated return order in shippingbo warehouse with colissimo data: ', data);
         }
       } catch (error) {
          console.error('Error updating shippingbo order', error);
