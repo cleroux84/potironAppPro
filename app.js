@@ -623,7 +623,7 @@ app.post('/returnProduct', async (req, res) => {
     return res.status(200).json({
       success: true,
       // data: priceRules,
-      // getOrder: warehouseOrder,
+      getOrder: warehouseOrder,
       // returnOrder: returnOrderData
       label: createLabelData
     })
