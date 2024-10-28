@@ -621,9 +621,9 @@ app.post('/returnProduct', async (req, res) => {
     const createLabelData = await createLabel(senderCustomer, parcel);
     const parcelNumber = createLabelData.parcelNumber;
     const updateReturnOrderWithLabel = await updateReturnOrder(accessTokenWarehouse, returnOrderId, parcelNumber)
-    console.log('updat', updateReturnOrderWithLabel);
-    // getReturnOrderDetails(accessTokenWarehouse, 622096);
-    // console.log('my order', warehouseOrder);
+    console.log('updat ', updateReturnOrderWithLabel);
+    const example = await getReturnOrderDetails(accessTokenWarehouse, 622096);
+    console.log('my order EXAMPLE', example);
     return res.status(200).json({
       success: true,
       // data: priceRules,
