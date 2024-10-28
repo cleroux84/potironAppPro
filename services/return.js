@@ -20,9 +20,7 @@ const createReturnOrder = async (accessTokenWarehouse, orderId) => {
         "return_order_type": "return_order_label",
         "skip_expected_items_creation" : true,
         "source": originalOrder.order.source,
-        "source_ref": originalOrder.order.source_ref,
-        "shipping_ref": "created from return"
-    }
+        "source_ref": originalOrder.order.source_ref    }
     // console.log('object to create return', returnOrder);
     const createReturnOptions = {
         method: 'POST',
@@ -54,7 +52,8 @@ const updateReturnOrder = async (accessTokenWarehouse, orderId, parcelNumber) =>
     const updatedData = {
         "id": orderId,
         "state": "new",
-        "shipping_ref": "parcelNumber",
+        "reason": "test to change"
+        // "shipping_ref": "parcelNumber",
         // "shipping_method_id": 220,
         // "user_mail": "c.leroux@potiron.com"
     }
@@ -71,8 +70,6 @@ const updateReturnOrder = async (accessTokenWarehouse, orderId, parcelNumber) =>
       body: JSON.stringify(updatedData)
     };
     try {
-        console.log("bearer", accessTokenWarehouse);
-
         const response = await fetch(updateReturnUrl, updateReturnOptions);
         const data = await response.json();
         console.log('response status', response.status, 'body', data)
