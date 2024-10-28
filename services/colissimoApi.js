@@ -4,7 +4,7 @@ const colissimoApiKey = process.env.CBOX_API_KEY;
 const colissimoContract = process.env.CBOX_CONTRACT;
 const colissimoPassword = process.env.CBOX_PWD;
  
-const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
+const createLabel = async (senderCustomer, parcel) => {
     const data = {
         "contractNumber": colissimoContract,
         "password": colissimoPassword,
@@ -21,23 +21,24 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
             "mailBoxPicking": false
             },
             "parcel": {
-                "weight": 4
+                "weight": parcel.weight
             },
             "sender": {
                 "address": {
-                    "companyName": "Expéditeur",
-                    "lastName": "Durand",
-                    "firstName": "Pierre",
-                    "line2": "1 rue de la Poste",
-                    "city": "Paris",
-                    "zipCode": "75001",
-                    "countryCode": "FR",
-                    "email": "c.leroux@potiron.com"
+                    "companyName": senderCustomer.name,
+                    // "lastName": "Durand",
+                    // "firstName": "Pierre",
+                    "line2": senderCustomer.address,
+                    "line3": senderCustomer.address2,
+                    "city": senderCustomer.city,
+                    "zipCode": senderCustomer.postalCode,
+                    "countryCode": senderCustomer.country,
+                    "email": senderCustomer.email
                 }
             },
             "addressee": {
                 "address": {
-                    "companyName": "Potiron",
+                    "companyName": "GMA Potiron PARIS",
                     "lastName": "Leroux",
                     "firstName": "Céline",
                     "line2": "10 avenue des Champs Élysées",

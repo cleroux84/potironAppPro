@@ -596,27 +596,22 @@ app.post('/returnProduct', async (req, res) => {
     const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId);
     console.log("warehouse", warehouseOrder); 
     const senderCustomer = {
-      'name': "toto",
-      'address': "466 rue du Maréchal Leclerc",
-      'city': "Riorges",
-      "postalCode": "42153",
-      "country": "FR"
-  };
-  const recipientPotiron = {
-      'name': "Potiron",
-      'address': "501 avenue de la couronne des pres",
-      'city': "Epone",
-      "postalCode": "78680",
-      "country": "FR"
+      'name': warehouseOrder.order.shipping_address.fullname,
+      'address': warehouseOrder.order.shipping_address.street1,
+      'address2': warehouseOrder.order.shipping_address.street2,
+      'city': warehouseOrder.order.shipping_address.city,
+      "postalCode": warehouseOrder.order.shipping_address.zip,
+      "country": warehouseOrder.order.shipping_address.country,
+      "email": warehouseOrder.order.shipping_address.email
   };
   const parcel = {
-    "weight": 0.4,
+    "weight": warehouseOrder.shipments.total_weight / 1000,
     "insuranceAmount": 0,
     "insuranceValue": 0,
     "nonMachinable": false,
     "returnReceipt": false
   };
-    const createLabelData = await createLabel(senderCustomer, recipientPotiron, parcel);
+    const createLabelData = await createLabel(senderCustomer, parcel);
     // const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId);
     // getReturnOrderDetails(accessTokenWarehouse, 622096);
     // console.log('my order', warehouseOrder);
