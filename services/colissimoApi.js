@@ -70,32 +70,31 @@ const createLabel = async (senderCustomer, parcel) => {
  
         // Vérifie si c'est un flux PDF
         if (textResponse.includes('%PDF')) {
-            // Conversion en base64
+            console.log("là", response.data);
             const pdfBase64 = Buffer.from(buffer).toString('base64');
-            console.log('par ici');
             return `data:application/pdf;base64,${pdfBase64}`; // Retourne un lien de type data URI
         }
  
         // Parse la réponse JSON si ce n'est pas un flux PDF
-        const parts = textResponse.split('--uuid:');
-        let jsonResponse = null;
-        for (const part of parts) {
-            if (part.includes('application/json')) {
-                const jsonPart = part.substring(part.indexOf('{'), part.lastIndexOf('}') + 1);
-                try {
-                    jsonResponse = JSON.parse(jsonPart);
-                    if (jsonResponse.labelV2Response && jsonResponse.labelV2Response.pdfUrl) {
-                        console.log('ppl');
-                        return jsonResponse.labelV2Response.pdfUrl;
-                    }
-                } catch (parseError) {
-                    console.error('Erreur lors du parsing JSON:', parseError.message);
-                }
-                break;
-            }
-        }
+        // const parts = textResponse.split('--uuid:');
+        // let jsonResponse = null;
+        // for (const part of parts) {
+        //     if (part.includes('application/json')) {
+        //         const jsonPart = part.substring(part.indexOf('{'), part.lastIndexOf('}') + 1);
+        //         try {
+        //             jsonResponse = JSON.parse(jsonPart);
+        //             if (jsonResponse.labelV2Response && jsonResponse.labelV2Response.pdfUrl) {
+        //                 console.log('ppl');
+        //                 return jsonResponse.labelV2Response.pdfUrl;
+        //             }
+        //         } catch (parseError) {
+        //             console.error('Erreur lors du parsing JSON:', parseError.message);
+        //         }
+        //         break;
+        //     }
+        // }
  
-        return null; // Si rien n'est trouvé
+        // return null; 
     } catch (error) {
         console.error('Erreur lors de la création de l\'étiquette depuis CBox', error);
     }
