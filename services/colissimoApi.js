@@ -64,7 +64,7 @@ const createLabel = async (senderCustomer, recipientPotiron, parcel) => {
         const response = await fetch(colissimoUrl, colissimoOptions);
         const buffer = await response.arrayBuffer(); // Récupère la réponse sous forme de tableau de bits
         const textResponse = new TextDecoder().decode(buffer); // Décodage de la réponse pour analyse
-        console.log('text response', textResponse);
+        // console.log('text response', textResponse);
  
         // Vérifie si c'est un flux PDF
         if (textResponse.includes('%PDF')) {

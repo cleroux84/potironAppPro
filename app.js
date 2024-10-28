@@ -591,9 +591,10 @@ app.post('/returnProduct', async (req, res) => {
   const orderId = req.body.orderId;
   
   if (optionChosen === "option1") {
-    console.log("create discount_code + générate labels + ??return?? + send mail to magalie")
+    // console.log("create discount_code + générate labels + ??return?? + send mail to magalie")
     // const priceRules = await createDiscountCode(customerId, totalOrder);
-    const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId); 
+    const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId);
+    console.log("warehouse", warehouseOrder); 
     const senderCustomer = {
       'name': "toto",
       'address': "466 rue du Maréchal Leclerc",
