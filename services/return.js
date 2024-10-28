@@ -11,8 +11,8 @@ const createReturnOrder = async (accessTokenWarehouse, orderId) => {
     const orderItem = originalOrder.order.order_items[0];
     const returnOrder = {
         "order_id": orderId,
-        "reason" : "Test",
-        "reason_ref" : "test_ref",
+        "reason" : "Retour en ligne",
+        "reason_ref" : "Retour Automatisé",
         "return_order_expected_items_attributes": originalOrder.order.order_items.map(item => ({
             quantity: item.quantity,
             user_ref: item.product_ref
@@ -39,7 +39,7 @@ const createReturnOrder = async (accessTokenWarehouse, orderId) => {
         const data = await response.json();
         console.log("return created", data);
         const returnId = data.id;
-        const shipmentData = await createShipment(accessTokenWarehouse, returnId);
+        // const shipmentData = await createShipment(accessTokenWarehouse, returnId);
         return data;
         if(response.ok) {
             console.log('return create in GMA Shippingbo for order: ', orderId);
@@ -47,6 +47,36 @@ const createReturnOrder = async (accessTokenWarehouse, orderId) => {
     } catch (error) {
         console.error('Error creatring GMA shippingbo return order', error);
     }
+}
+
+const updateReturnOrder = async (accessTokenWarehouse, orderId, parcelNumber) => {
+    const updatedData = {
+        "id": orderId,
+        "shipping_ref": parcelNumber,
+        "shipping_method_id": 63,
+        "user_mail": "c.leroux@potiron.com"
+    }
+    const updateReturnUrl = `https://app.shippingbo.com/return_orders/${orderId}`;
+    const updateReturnOptions = {
+        method: 'PATCH',
+        headers: {
+        'Content-type': 'application/json',
+        Accept: 'application/json',
+        'X-API-VERSION' : '1',
+        'X-API-APP-ID': API_APP_WAREHOUSE_ID,
+        Authorization: `Bearer ${accessTokenWarehouse}`
+      },
+      body: JSON.stringify(updatedData)
+    };
+    try {
+        const response = await fetch(updateReturnUrl, updateReturnOptions);
+        const data = await response.json();
+        console.log("return updated", data);
+    } catch (error) {
+        
+    }
+
+
 }
 
 const createShipment = async (accessTokenWarehouse, returnId) => {
@@ -171,5 +201,6 @@ const createDiscountCode = async (customerId, totalOrder) => {
 module.exports = {
     createDiscountCode,
     createReturnOrder,
-    getReturnOrderDetails
+    getReturnOrderDetails,
+    updateReturnOrder
 }

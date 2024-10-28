@@ -21,7 +21,7 @@ const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft 
 const { getWarehouseOrderDetails, updateWarehouseOrder, getWarehouseOrderToReturn, getshippingDetails } = require('./services/shippingbo/GMAWarehouseCRUD.js');
 const { sendEmailWithKbis, sendWelcomeMailPro } = require('./services/sendMail.js');
 const { createDraftOrder, updateDraftOrderWithTags, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById, orderById } = require('./services/shopifyApi.js');
-const { createDiscountCode, createReturnOrder, getReturnOrderDetails } = require('./services/return.js');
+const { createDiscountCode, createReturnOrder, getReturnOrderDetails, updateReturnOrder } = require('./services/return.js');
 const { refreshMS365AccessToken, getAccessTokenMS365 } = require('./services/microsoftAuth.js');
 const { createLabel } = require('./services/colissimoApi.js');
 
@@ -613,8 +613,15 @@ app.post('/returnProduct', async (req, res) => {
     "nonMachinable": false,
     "returnReceipt": false
   };
+    //create a return order in shippingbo warehouse
+    const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId);
+    const returnOrderId = returnOrderData.id;
+    console.log("id return order created", returnOrderId);
+    //create a return label with colissimo API
     const createLabelData = await createLabel(senderCustomer, parcel);
-    // const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId);
+    const parcelNumber = createLabelData.parcelNumber;
+    const updateReturnOrderWithLabel = await updateReturnOrder(accessTokenWarehouse, returnOrderId, parcelNumber)
+    console.log('updat', updateReturnOrderWithLabel);
     // getReturnOrderDetails(accessTokenWarehouse, 622096);
     // console.log('my order', warehouseOrder);
     return res.status(200).json({

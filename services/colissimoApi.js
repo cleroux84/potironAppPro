@@ -44,7 +44,8 @@ const createLabel = async (senderCustomer, parcel) => {
                     "city": "Paris",
                     "zipCode": "75008",
                     "countryCode": "FR",
-                    "email": "c.leroux@potiron.com"
+                    "email": "c.leroux@potiron.com",
+                    "phoneNumber": "06"
                 }
             }
         }
