@@ -51,13 +51,11 @@ const createReturnOrder = async (accessTokenWarehouse, orderId) => {
 
 const updateReturnOrder = async (accessTokenWarehouse, orderId, parcelNumber) => {
     const updatedData = {
-       return_order: {
-            "id": orderId,
-            "state": "new",
-            "shipping_ref": parcelNumber,
-            "shipping_method_id": 220,
-            "user_mail": "c.leroux@potiron.com"
-        }
+        "id": orderId,
+        "state": "new",
+        "shipping_ref": parcelNumber,
+        "shipping_method_id": 220,
+        "user_mail": "c.leroux@potiron.com"
     }
     const updateReturnUrl = `https://app.shippingbo.com/return_orders/${orderId}`;
     const updateReturnOptions = {
@@ -74,6 +72,7 @@ const updateReturnOrder = async (accessTokenWarehouse, orderId, parcelNumber) =>
     try {
         const response = await fetch(updateReturnUrl, updateReturnOptions);
         const data = await response.json();
+        console.log('response status', response.status, 'body', data)
         if(response.ok) {
           console.log('updated return order in shippingbo warehouse with colissimo data: ', data);
         }
