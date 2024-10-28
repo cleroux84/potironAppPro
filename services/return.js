@@ -52,7 +52,7 @@ const createReturnOrder = async (accessTokenWarehouse, orderId) => {
 const updateReturnOrder = async (accessTokenWarehouse, orderId, parcelNumber) => {
     const updatedData = {
         "id": orderId,
-        "state": "any",
+        "state": "new",
         "shipping_ref": parcelNumber,
         "shipping_method_id": 63,
         "user_mail": "c.leroux@potiron.com"
