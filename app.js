@@ -602,10 +602,11 @@ app.post('/returnProduct', async (req, res) => {
       'city': warehouseOrder.order.shipping_address.city,
       "postalCode": warehouseOrder.order.shipping_address.zip,
       "country": warehouseOrder.order.shipping_address.country,
-      "email": warehouseOrder.order.shipping_address.email
+      "email": warehouseOrder.order.shipping_address.email,
+      "phone": warehouseOrder.order.shipping_address.phone1
   };
   const parcel = {
-    "weight": 0.4,
+    "weight": warehouseOrder.order.shipments.total_weight / 1000,
     "insuranceAmount": 0,
     "insuranceValue": 0,
     "nonMachinable": false,
