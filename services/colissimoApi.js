@@ -72,6 +72,7 @@ const createLabel = async (senderCustomer, parcel) => {
         if (textResponse.includes('%PDF')) {
             // Conversion en base64
             const pdfBase64 = Buffer.from(buffer).toString('base64');
+            // const trackingNumber = textResponse.
             return `data:application/pdf;base64,${pdfBase64}`; // Retourne un lien de type data URI
         }
  

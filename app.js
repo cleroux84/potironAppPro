@@ -606,7 +606,7 @@ app.post('/returnProduct', async (req, res) => {
       "phone": warehouseOrder.order.shipping_address.phone1
   };
   const parcel = {
-    "weight": warehouseOrder.order.shipments.total_weight / 1000,
+    "weight": warehouseOrder.order.shipments[0].total_weight / 1000,
     "insuranceAmount": 0,
     "insuranceValue": 0,
     "nonMachinable": false,
