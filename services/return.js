@@ -70,6 +70,8 @@ const updateReturnOrder = async (accessTokenWarehouse, orderId, parcelNumber) =>
       body: JSON.stringify(updatedData)
     };
     try {
+        console.log("bearer", accessTokenWarehouse);
+
         const response = await fetch(updateReturnUrl, updateReturnOptions);
         const data = await response.json();
         console.log('response status', response.status, 'body', data)
