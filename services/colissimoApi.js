@@ -70,8 +70,9 @@ const createLabel = async (senderCustomer, parcel) => {
  
         // Vérifie si c'est un flux PDF
         if (textResponse.includes('%PDF')) {
-            console.log("là", response.data);
             const pdfBase64 = Buffer.from(buffer).toString('base64');
+            const parcelNumber = extractParcelNumber(textResponse);
+            console.log('numéro de suivi', parcelNumber);
             return `data:application/pdf;base64,${pdfBase64}`; // Retourne un lien de type data URI
         }
  
@@ -94,11 +95,17 @@ const createLabel = async (senderCustomer, parcel) => {
         //     }
         // }
  
-        // return null; 
+        return null; 
     } catch (error) {
         console.error('Erreur lors de la création de l\'étiquette depuis CBox', error);
     }
 };
+
+const extractParcelNumber = (textResponse) => {
+    const regex = /"parcelNumber":"(\w+)"/; 
+    const match = textResponse.match(regex);
+    return match ? match[1]: null;
+}
  
 module.exports = {
     createLabel
