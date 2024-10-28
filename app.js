@@ -594,7 +594,7 @@ app.post('/returnProduct', async (req, res) => {
     // console.log("create discount_code + générate labels + ??return?? + send mail to magalie")
     // const priceRules = await createDiscountCode(customerId, totalOrder);
     const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId);
-    console.log("warehouse", warehouseOrder); 
+    // console.log("warehouse", warehouseOrder); 
     const senderCustomer = {
       'name': warehouseOrder.order.shipping_address.fullname,
       'address': warehouseOrder.order.shipping_address.street1,
@@ -615,11 +615,11 @@ app.post('/returnProduct', async (req, res) => {
   };
     //create a return order in shippingbo warehouse
     const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId);
-    const returnOrderId = returnOrderData.id;
+    const returnOrderId = await returnOrderData.id;
     console.log("id return order created", returnOrderId);
     //create a return label with colissimo API
     const createLabelData = await createLabel(senderCustomer, parcel);
-    const parcelNumber = createLabelData.parcelNumber;
+    const parcelNumber = await createLabelData.parcelNumber;
     const updateReturnOrderWithLabel = await updateReturnOrder(accessTokenWarehouse, returnOrderId, parcelNumber)
     console.log('updat', updateReturnOrderWithLabel);
     // getReturnOrderDetails(accessTokenWarehouse, 622096);
