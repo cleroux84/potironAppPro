@@ -197,8 +197,9 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
     }
   }
 
-  async function sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfData, parcelNumber) {
+  async function sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfDownloadLink, parcelNumber) {
     const client = initiMicrosoftGraphClient(accessTokenMS365);
+ 
     const message = {
         subject: 'Votre demande de retour Potiron Paris',
         body: {
@@ -206,13 +207,14 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
             content: `
               <p>Bonjour ${senderCustomer.name},</p>
               <p>Votre demande de retour a bien été prise en compte...</p>
-              <p>Veuillez trouver en pièce jointe l'étiquette de retour à imprimer et coller sur votre colis.</p>
+              <p>Vous pouvez télécharger l'étiquette Retour à imprimer et coller sur votre colis ici : </p>
+              <p><a href="${pdfDownloadLink}" target="_blank">Télécharger l'étiquette Colissimo</a></p>
               <p>Numéro de colis : ${parcelNumber}</p>
               <p>Nous restons à votre entière disposition.</p>
               <p>Très belle journée,</p>
               <p>L'équipe de Potiron Paris</p>
               <img src='cid:signature'/>
-                          `
+            `
         },
         toRecipients: [
             {
@@ -229,12 +231,6 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
             }
         ],
         attachments: [
-            {
-                '@odata.type': '#microsoft.graph.fileAttachment',
-                name: 'etiquette_retour_colissimo.pdf',
-                contentBytes: pdfData, // Base64 string
-                contentType: 'application/pdf'
-            },
             signatureAttachement
         ]
     };
