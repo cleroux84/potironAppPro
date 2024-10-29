@@ -146,7 +146,7 @@ const createDiscountCode = async (customerId, totalOrder) => {
             "target_selection": "all",
             "allocation_method": "across",
             "value_type": "fixed_amount",
-            "value": 100,
+            "value": "-100",
             "customer_selection": "prerequisite",
             "prerequisite_customer_ids": [customerId],
             "starts_at": nowDate,
