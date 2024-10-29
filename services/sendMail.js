@@ -196,9 +196,58 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
       console.error('error sending cotation message', error);
     }
   }
+
+  async function sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfData, parcelNumber) {
+    const client = initiMicrosoftGraphClient(accessTokenMS365);
+    const downloadLink = `data:application/pdf;base64,${pdfData}`;
+
+    
+    const message = {
+      subject: 'Votre demande de retour Potiron Paris', 
+      body: {
+        contentType: 'HTML',
+        content: `
+          <p>Bonjour ${senderCustomer.name},</p>
+          <p style="margin: 0;">Votre demande de retour a bien été prise en compte...</p>
+          <p style="margin: 0;">Vous pouvez télécharger l'étiquette Retour à imprimer et coller sur votre colis ici : </p>
+          <p><a href="${downloadLink}" target="_blank">Télécharger l'étiquette Colissimo</a></p>
+          <p style="margin: 0;">Numéro de colis : (lien ?) ${parcelNumber}</p>
+
+          <p style="margin: 0;">Nous restons à votre entière disposition.</p>
+          <p style="margin: 0;">Très belle journée,</p>
+          <p>L'équipe de Potiron Paris</p>
+          <img src='cid:signature'/>
+        `
+      },
+      toRecipients: [
+        {
+          emailAddress: {
+            address: senderCustomer.email
+          }
+        }
+      ],
+      bccRecipients: [
+        {
+            emailAddress: {
+                address: MAILDEV
+            }
+        }
+      ],
+      attachments: [
+        signatureAttachement
+      ]
+    };
+    try {
+      await client.api('/me/sendMail').post({ message });
+      console.log("Email for customer return order sucessfully sent");
+    } catch (error) {
+      console.error('error sending cotation message', error);
+    }
+  }
   
   module.exports = {
     sendWelcomeMailPro,
     sendNewDraftOrderMail,
-    sendEmailWithKbis
+    sendEmailWithKbis,
+    sendReturnDataToCustomer
   }

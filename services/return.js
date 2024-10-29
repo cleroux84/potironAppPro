@@ -49,11 +49,12 @@ const createReturnOrder = async (accessTokenWarehouse, orderId) => {
 }
 
 const updateReturnOrder = async (accessTokenWarehouse, orderId, parcelNumber) => {
+    //retour support shippingbo : shiping_ref n'existe pas en écriture sur les commandes retours - en cours !
     const updatedData = {
         "id": orderId,
         "state": "new",
         // "reason": "test to change"
-        "shipping_ref": "parcelNumber",
+        // "shipping_ref": parcelNumber,
         // "shipping_method_id": 220,
         // "user_mail": "c.leroux@potiron.com"
     }

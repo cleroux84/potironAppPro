@@ -19,7 +19,7 @@ const { getToken, refreshAccessToken } = require('./services/shippingbo/potironP
 const { getTokenWarehouse, refreshAccessTokenWarehouse } = require('./services/shippingbo/gmaWarehouseAuth.js');
 const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft } = require('./services/shippingbo/potironParisCRUD.js');
 const { getWarehouseOrderDetails, updateWarehouseOrder, getWarehouseOrderToReturn, getshippingDetails } = require('./services/shippingbo/GMAWarehouseCRUD.js');
-const { sendEmailWithKbis, sendWelcomeMailPro } = require('./services/sendMail.js');
+const { sendEmailWithKbis, sendWelcomeMailPro, sendReturnDataToCustomr, sendReturnDataToCustomer } = require('./services/sendMail.js');
 const { createDraftOrder, updateDraftOrderWithTags, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById, orderById } = require('./services/shopifyApi.js');
 const { createDiscountCode, createReturnOrder, getReturnOrderDetails, updateReturnOrder } = require('./services/return.js');
 const { refreshMS365AccessToken, getAccessTokenMS365 } = require('./services/microsoftAuth.js');
@@ -591,10 +591,12 @@ app.post('/returnProduct', async (req, res) => {
   const orderId = req.body.orderId;
   
   if (optionChosen === "option1") {
-    // console.log("create discount_code + générate labels + ??return?? + send mail to magalie")
     // const priceRules = await createDiscountCode(customerId, totalOrder);
+    
+    //Retrieve data from initial order
     const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId);
     // console.log("warehouse", warehouseOrder); 
+    //create object from initial order for label
     const senderCustomer = {
       'name': warehouseOrder.order.shipping_address.fullname,
       'address': warehouseOrder.order.shipping_address.street1,
@@ -605,29 +607,38 @@ app.post('/returnProduct', async (req, res) => {
       "email": warehouseOrder.order.shipping_address.email,
       "phone": warehouseOrder.order.shipping_address.phone1,
       "origin_ref": warehouseOrder.order.origin_ref
-  };
-  const parcel = {
-    "weight": warehouseOrder.order.shipments[0].total_weight / 1000,
-    "insuranceAmount": 0,
-    "insuranceValue": 0,
-    "nonMachinable": false,
-    "returnReceipt": false
-  };
+    };
+    const parcel = {
+      "weight": warehouseOrder.order.shipments[0].total_weight / 1000,
+      "insuranceAmount": 0,
+      "insuranceValue": 0,
+      "nonMachinable": false,
+      "returnReceipt": false
+    };
     //create a return order in shippingbo warehouse
-    const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId);
-    const returnOrderId = returnOrderData.return_order.id;
-    console.log("id return order created", returnOrderId);
+    // const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId);
+    // const returnOrderId = returnOrderData.return_order.id;
+
     //create a return label with colissimo API
     const createLabelData = await createLabel(senderCustomer, parcel);
     const parcelNumber = createLabelData.parcelNumber;
-    const updateReturnOrderWithLabel = await updateReturnOrder(accessTokenWarehouse, returnOrderId, parcelNumber)
-    console.log('updat ', updateReturnOrderWithLabel);
-    // const example = await getReturnOrderDetails(accessTokenWarehouse, 622096);
-    // console.log('my order EXAMPLE', example);
+
+    //update the return order with parcel number (numéro de colis) from colissimo - WIP
+    // const updateReturnOrderWithLabel = await updateReturnOrder(accessTokenWarehouse, returnOrderId, parcelNumber)
+
+    //send email to Magalie with parcel number and shopify Id and return order Id
+    //send email to customer with link to dwld label and parcel number
+    let accessTokenMS365 = getAccessTokenMS365();
+    if(!accessTokenMS365) {
+      await refreshMS365AccessToken();
+      accessTokenMS365 = getAccessTokenMS365();
+    }
+    await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, createLabelData.label.pdfData, parcelNumber);
+
     return res.status(200).json({
       success: true,
       // data: priceRules,
-      getOrder: warehouseOrder,
+      // getOrder: warehouseOrder,
       // returnOrder: returnOrderData
       label: createLabelData
     })
