@@ -4,6 +4,7 @@ require('dotenv').config();
 const { ConfidentialClientApplication } = require('@azure/msal-node');
 const { Client } = require('@microsoft/microsoft-graph-client');
 require ('isomorphic-fetch');
+const path = require('path');
 
 const MAILRECIPIENT = process.env.MAILRECIPIENT;
 const MAILCOTATION = process.env.MAILCOTATION;
@@ -199,19 +200,25 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
 
   async function sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfDownloadLink, parcelNumber) {
     const client = initiMicrosoftGraphClient(accessTokenMS365);
- 
+    
+    const pdfBuffer = Buffer.from(pdfBase64, 'base64');
+    const fileName = `etiquette_retour_${Date.now()}.pdf`;
+    const filePath = path.join('uploads', fileName);
+    fs.writeFileSync(filePath, pdfBuffer);
+    const downloadLink = `https://votre-serveur.com/uploads/${fileName}`;
+
     const message = {
         subject: 'Votre demande de retour Potiron Paris',
         body: {
             contentType: 'HTML',
             content: `
               <p>Bonjour ${senderCustomer.name},</p>
-              <p>Votre demande de retour a bien été prise en compte...</p>
-              <p>Vous pouvez télécharger l'étiquette Retour à imprimer et coller sur votre colis ici : </p>
-              <p><a href="${pdfDownloadLink}" target="_blank">Télécharger l'étiquette Colissimo</a></p>
+              <p>Votre demande de retour a bien été prise en compte.</p>
+              <p>Vous pouvez télécharger l'étiquette Retour à imprimer ici : 
+              <a href="${downloadLink}" target="_blank">Télécharger l'étiquette Colissimo</a>
+              </p>
               <p>Numéro de colis : ${parcelNumber}</p>
-              <p>Nous restons à votre entière disposition.</p>
-              <p>Très belle journée,</p>
+              <p>Nous restons à votre disposition.</p>
               <p>L'équipe de Potiron Paris</p>
               <img src='cid:signature'/>
             `
@@ -231,13 +238,20 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
             }
         ],
         attachments: [
-            signatureAttachement
+          {
+            '@odata.type': '#microsoft.graph.fileAttachment',
+            name: fileName,
+            contentBytes: pdfBase64,
+            contentType: 'application/pdf'
+          },
+          signatureAttachement
         ]
     };
  
     try {
         await client.api('/me/sendMail').post({ message });
         console.log("Email for customer return order successfully sent");
+        fs.unlinkSync(filePath);
     } catch (error) {
         console.error('Error sending return order message', error);
     }
