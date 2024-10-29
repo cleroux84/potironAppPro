@@ -633,7 +633,7 @@ app.post('/returnProduct', async (req, res) => {
       await refreshMS365AccessToken();
       accessTokenMS365 = getAccessTokenMS365();
     }
-    console.log('link ici', createLabelData.label.pdfData);
+    console.log('link ici', createLabelData);
     await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, createLabelData.label.pdfData, parcelNumber);
 
     return res.status(200).json({
