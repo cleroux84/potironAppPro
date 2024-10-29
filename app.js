@@ -644,8 +644,8 @@ app.post('/returnProduct', async (req, res) => {
       success: true,
       data: priceRules,
       // getOrder: warehouseOrder,
-      // returnOrder: returnOrderData,
-      // label: createLabelData
+      returnOrder: returnOrderData,
+      label: createLabelData
     })
   } else if( optionChosen === "option2") {
     console.log("generate label + remboursement ? + mail à  ??")
