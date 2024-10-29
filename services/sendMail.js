@@ -200,7 +200,7 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
   async function sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfData, parcelNumber) {
     const client = initiMicrosoftGraphClient(accessTokenMS365);
     const downloadLink = `data:application/pdf;base64,${pdfData}`;
-
+    console.log("link here", downloadLink);
     
     const message = {
       subject: 'Votre demande de retour Potiron Paris', 
