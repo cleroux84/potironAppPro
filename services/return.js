@@ -194,7 +194,7 @@ const createDiscountCode = async (customerId, totalOrder) => {
         const discountData = await discountResponse.json();
         return {
             discountData: discountData,
-            discountule: discountRule
+            discountRule: discountRule
         }
 
     } catch (error) {

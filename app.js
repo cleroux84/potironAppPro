@@ -591,13 +591,16 @@ app.post('/returnProduct', async (req, res) => {
   const orderId = req.body.orderId;
   
   if (optionChosen === "option1") {
+    //Create discount code in shopify
     const priceRules = await createDiscountCode(customerId, totalOrder);
-    console.log('rules', priceRules);
+    const discountCode = priceRules.discountData.discount_code.code;
+    const discountAmount = priceRules.discountRule.price_rule.value;
+    const discountEnd = priceRules.discountRule.price_rule.ends_at;
 
-    // console.log("priceRules", priceRules);
     //Retrieve data from initial order
     const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId);
     // console.log("warehouse", warehouseOrder); 
+
     //create object from initial order for label
     const senderCustomer = {
       'name': warehouseOrder.order.shipping_address.fullname,
@@ -618,12 +621,12 @@ app.post('/returnProduct', async (req, res) => {
       "returnReceipt": false
     };
     //create a return order in shippingbo warehouse
-    // const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId);
-    // const returnOrderId = returnOrderData.return_order.id;
+    const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId);
+    const returnOrderId = returnOrderData.return_order.id;
 
     //create a return label with colissimo API
-    // const createLabelData = await createLabel(senderCustomer, parcel);
-    // const parcelNumber = createLabelData.parcelNumber;
+    const createLabelData = await createLabel(senderCustomer, parcel);
+    const parcelNumber = createLabelData.parcelNumber;
 
     //update the return order with parcel number (numéro de colis) from colissimo - WIP
     // const updateReturnOrderWithLabel = await updateReturnOrder(accessTokenWarehouse, returnOrderId, parcelNumber)
@@ -633,9 +636,9 @@ app.post('/returnProduct', async (req, res) => {
       accessTokenMS365 = getAccessTokenMS365();
     }
     //send email to Magalie with parcel number and shopify Id and return order Id
-    // await sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumber, returnOrderId)
+    await sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumber, returnOrderId, discountCode, discountAmount, discountEnd)
     //send email to customer with link to dwld label and parcel number
-    // await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, createLabelData.pdfData, parcelNumber);
+    await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, createLabelData.pdfData, parcelNumber, discountCode, discountAmount, discountEnd);
 
     return res.status(200).json({
       success: true,
