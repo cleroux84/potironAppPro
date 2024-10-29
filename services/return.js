@@ -146,7 +146,7 @@ const createDiscountCode = async (customerId, totalOrder) => {
             "target_selection": "all",
             "allocation_method": "across",
             "value_type": "fixed_amount",
-            "value": "-100",
+            "value": `-${(totalOrder / 100).toFixed(2)}`,
             "customer_selection": "prerequisite",
             "prerequisite_customer_ids": [customerId],
             "starts_at": nowDate,
@@ -192,9 +192,10 @@ const createDiscountCode = async (customerId, totalOrder) => {
             console.log('error fetching discount code');
         }
         const discountData = await discountResponse.json();
-        return discountData;
-        // console.log('Discount code created to record in customer account ? ', discountData)
-
+        return {
+            discountData: discountData,
+            discountule: discountRule
+        }
 
     } catch (error) {
         console.error('erreur creation code de reduction');
