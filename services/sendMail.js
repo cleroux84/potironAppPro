@@ -198,7 +198,7 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
     }
   }
 
-  async function sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfDownloadLink, parcelNumber) {
+  async function sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfBase64, parcelNumber) {
     const client = initiMicrosoftGraphClient(accessTokenMS365);
     
     const pdfBuffer = Buffer.from(pdfBase64, 'base64');
