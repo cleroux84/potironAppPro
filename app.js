@@ -596,6 +596,8 @@ app.post('/returnProduct', async (req, res) => {
     const discountCode = priceRules.discountData.discount_code.code;
     const discountAmount = priceRules.discountRule.price_rule.value;
     const discountEnd = priceRules.discountRule.price_rule.ends_at;
+    const discountDate = new Date(discountEnd);
+    const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
 
     //Retrieve data from initial order
     const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId);
@@ -636,9 +638,9 @@ app.post('/returnProduct', async (req, res) => {
       accessTokenMS365 = getAccessTokenMS365();
     }
     //send email to Magalie with parcel number and shopify Id and return order Id
-    await sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumber, returnOrderId, discountCode, discountAmount, discountEnd)
+    await sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumber, returnOrderId, discountCode, discountAmount, formattedDate)
     //send email to customer with link to dwld label and parcel number
-    await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, createLabelData.pdfData, parcelNumber, discountCode, discountAmount, discountEnd);
+    await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, createLabelData.pdfData, parcelNumber, discountCode, discountAmount, formattedDate);
 
     return res.status(200).json({
       success: true,
