@@ -197,11 +197,51 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
       console.error('error sending cotation message', error);
     }
   }
-
+  //Send email to Magalie with parcelNumber when automated return
+  async function sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumber, returnOrderId) {
+    const client = initiMicrosoftGraphClient(accessTokenMS365);
+    const message = {
+      subject: 'Nouvelle demande de retour automatisé', 
+      body: {
+        contentType: 'HTML',
+        content: `
+          <p>Bonjour, </p>
+          <p style="margin: 0;">Une nouvelle commande demande de retour a été créée pour le client : ${senderCustomer.name}</p>
+          <p style="margin: 0;">Une commande retour a été créée dans Shippingbo GMA : ${returnOrderId}</p>
+          <p style="margin: 0;">La commande d'origine Shopify est : ${senderCustomer.origin_ref}</p>
+          <p style="margin: 0;">Une étiquette Retour Colissimo a été générée et envoyé au client avec le numéro de suivi : ${parcelNumber}</p>
+          <p>Bonne journée ! </p>
+          <img src='cid:signature'/>
+        `
+      },
+      toRecipients: [
+        {
+          emailAddress: {
+            address: "cleroux84@gmail.com"
+          }
+        }
+      ],
+      bccRecipients: [
+        {
+            emailAddress: {
+                address: MAILDEV
+            }
+        }
+      ],
+      attachments: [
+        signatureAttachement
+      ]
+    };
+    try {
+      await client.api('/me/sendMail').post({ message });
+      console.log("Email SAv after automated return sucessfully sent");
+    } catch (error) {
+      console.error('error sending cotation message', error);
+    }
+  }
+  //Send email to customer with label colissmo attched
   async function sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfBase64, parcelNumber) {
     const client = initiMicrosoftGraphClient(accessTokenMS365);
- 
-    // Supprimer le préfixe pour obtenir seulement les données base64
     const cleanBase64 = pdfBase64.replace(/^data:application\/pdf;base64,/, '');
  
     const message = {
@@ -211,8 +251,8 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
             content: `
               <p>Bonjour ${senderCustomer.name},</p>
               <p>Votre demande de retour a bien été prise en compte.</p>
-              <p>Vous pouvez télécharger l'étiquette de retour ci-jointe et l'imprimer pour votre colis.</p>
-              <p>Numéro de colis : ${parcelNumber}</p>
+              <p>Vous trouverez l'étiquette de retour ci-jointe, il suffit de l'imprimer pour votre colis.</p>
+              <p>TEXTE A VOIR - Numéro de colis : ${parcelNumber}</p>
               <p>Très belle journée,</p>
               <p>L'équipe de Potiron Paris</p>
               <img src='cid:signature'/>
@@ -255,5 +295,6 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
     sendWelcomeMailPro,
     sendNewDraftOrderMail,
     sendEmailWithKbis,
-    sendReturnDataToCustomer
+    sendReturnDataToCustomer,
+    sendReturnDataToSAV
   }

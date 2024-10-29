@@ -19,7 +19,7 @@ const { getToken, refreshAccessToken } = require('./services/shippingbo/potironP
 const { getTokenWarehouse, refreshAccessTokenWarehouse } = require('./services/shippingbo/gmaWarehouseAuth.js');
 const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft } = require('./services/shippingbo/potironParisCRUD.js');
 const { getWarehouseOrderDetails, updateWarehouseOrder, getWarehouseOrderToReturn, getshippingDetails } = require('./services/shippingbo/GMAWarehouseCRUD.js');
-const { sendEmailWithKbis, sendWelcomeMailPro, sendReturnDataToCustomr, sendReturnDataToCustomer } = require('./services/sendMail.js');
+const { sendEmailWithKbis, sendWelcomeMailPro, sendReturnDataToCustomer, sendReturnDataToSAV } = require('./services/sendMail.js');
 const { createDraftOrder, updateDraftOrderWithTags, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById, orderById } = require('./services/shopifyApi.js');
 const { createDiscountCode, createReturnOrder, getReturnOrderDetails, updateReturnOrder } = require('./services/return.js');
 const { refreshMS365AccessToken, getAccessTokenMS365 } = require('./services/microsoftAuth.js');
@@ -616,8 +616,8 @@ app.post('/returnProduct', async (req, res) => {
       "returnReceipt": false
     };
     //create a return order in shippingbo warehouse
-    // const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId);
-    // const returnOrderId = returnOrderData.return_order.id;
+    const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId);
+    const returnOrderId = returnOrderData.return_order.id;
 
     //create a return label with colissimo API
     const createLabelData = await createLabel(senderCustomer, parcel);
@@ -625,14 +625,15 @@ app.post('/returnProduct', async (req, res) => {
 
     //update the return order with parcel number (numéro de colis) from colissimo - WIP
     // const updateReturnOrderWithLabel = await updateReturnOrder(accessTokenWarehouse, returnOrderId, parcelNumber)
-
-    //send email to Magalie with parcel number and shopify Id and return order Id
-    //send email to customer with link to dwld label and parcel number
     let accessTokenMS365 = getAccessTokenMS365();
     if(!accessTokenMS365) {
       await refreshMS365AccessToken();
       accessTokenMS365 = getAccessTokenMS365();
     }
+    //send email to Magalie with parcel number and shopify Id and return order Id
+    await sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumber, returnOrderId)
+    //send email to customer with link to dwld label and parcel number
+    
     await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, createLabelData.pdfData, parcelNumber);
 
     return res.status(200).json({
