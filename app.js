@@ -592,7 +592,10 @@ app.post('/returnProduct', async (req, res) => {
   
   if (optionChosen === "option1") {
     const priceRules = await createDiscountCode(customerId, totalOrder);
-    console.log("priceRules", priceRules);
+    const discountCode = priceRules.discount_code.code;
+    const amount_discount = priceRules.discount_code.usage_count;
+
+    // console.log("priceRules", priceRules);
     //Retrieve data from initial order
     const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId);
     // console.log("warehouse", warehouseOrder); 
@@ -616,12 +619,12 @@ app.post('/returnProduct', async (req, res) => {
       "returnReceipt": false
     };
     //create a return order in shippingbo warehouse
-    // const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId);
-    // const returnOrderId = returnOrderData.return_order.id;
+    const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId);
+    const returnOrderId = returnOrderData.return_order.id;
 
     //create a return label with colissimo API
-    // const createLabelData = await createLabel(senderCustomer, parcel);
-    // const parcelNumber = createLabelData.parcelNumber;
+    const createLabelData = await createLabel(senderCustomer, parcel);
+    const parcelNumber = createLabelData.parcelNumber;
 
     //update the return order with parcel number (numéro de colis) from colissimo - WIP
     // const updateReturnOrderWithLabel = await updateReturnOrder(accessTokenWarehouse, returnOrderId, parcelNumber)
@@ -631,16 +634,16 @@ app.post('/returnProduct', async (req, res) => {
       accessTokenMS365 = getAccessTokenMS365();
     }
     //send email to Magalie with parcel number and shopify Id and return order Id
-    // await sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumber, returnOrderId)
+    await sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumber, returnOrderId)
     //send email to customer with link to dwld label and parcel number
-    // await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, createLabelData.pdfData, parcelNumber);
+    await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, createLabelData.pdfData, parcelNumber);
 
     return res.status(200).json({
       success: true,
       data: priceRules,
       // getOrder: warehouseOrder,
-      // returnOrder: returnOrderData,
-      // label: createLabelData
+      returnOrder: returnOrderData,
+      label: createLabelData
     })
   } else if( optionChosen === "option2") {
     console.log("generate label + remboursement ? + mail à  ??")
