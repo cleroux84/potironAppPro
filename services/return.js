@@ -6,7 +6,7 @@ const { getshippingDetails } = require('./shippingbo/GMAWarehouseCRUD');
 
 const createReturnOrder = async (accessTokenWarehouse, orderId) => {
     const originalOrder = await getshippingDetails(accessTokenWarehouse, orderId); 
-    console.log('originalOrder', originalOrder);
+    console.log('originalOrder', originalOrder.id);
     const createReturnUrl = `https://app.shippingbo.com/return_orders`;
     const orderItem = originalOrder.order.order_items[0];
     const returnOrder = {
