@@ -200,25 +200,20 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
 
   async function sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfBase64, parcelNumber) {
     const client = initiMicrosoftGraphClient(accessTokenMS365);
-    
-    const pdfBuffer = Buffer.from(pdfBase64, 'base64');
-    const fileName = `etiquette_retour_${Date.now()}.pdf`;
-    const filePath = path.join('uploads', fileName);
-    fs.writeFileSync(filePath, pdfBuffer);
-    const downloadLink = `https://votre-serveur.com/uploads/${fileName}`;
-
+ 
+    // Supprimer le préfixe pour obtenir seulement les données base64
+    const cleanBase64 = pdfBase64.replace(/^data:application\/pdf;base64,/, '');
+ 
     const message = {
-        subject: 'Votre demande de retour Potiron Paris',
+        subject: 'Votre demande de retour Potiron Paris', 
         body: {
             contentType: 'HTML',
             content: `
               <p>Bonjour ${senderCustomer.name},</p>
               <p>Votre demande de retour a bien été prise en compte.</p>
-              <p>Vous pouvez télécharger l'étiquette Retour à imprimer ici : 
-              <a href="${downloadLink}" target="_blank">Télécharger l'étiquette Colissimo</a>
-              </p>
+              <p>Vous pouvez télécharger l'étiquette de retour ci-jointe et l'imprimer pour votre colis.</p>
               <p>Numéro de colis : ${parcelNumber}</p>
-              <p>Nous restons à votre disposition.</p>
+              <p>Très belle journée,</p>
               <p>L'équipe de Potiron Paris</p>
               <img src='cid:signature'/>
             `
@@ -238,20 +233,19 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
             }
         ],
         attachments: [
-          {
-            '@odata.type': '#microsoft.graph.fileAttachment',
-            name: fileName,
-            contentBytes: pdfBase64,
-            contentType: 'application/pdf'
-          },
-          signatureAttachement
+            {
+                '@odata.type': '#microsoft.graph.fileAttachment',
+                name: 'etiquette_retour_colissimo.pdf',
+                contentType: 'application/pdf',
+                contentBytes: cleanBase64
+            },
+            signatureAttachement
         ]
     };
  
     try {
         await client.api('/me/sendMail').post({ message });
         console.log("Email for customer return order successfully sent");
-        fs.unlinkSync(filePath);
     } catch (error) {
         console.error('Error sending return order message', error);
     }
