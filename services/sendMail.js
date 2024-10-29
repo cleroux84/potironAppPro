@@ -200,6 +200,7 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
   //Send email to Magalie with parcelNumber when automated return
   async function sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumber, returnOrderId) {
     const client = initiMicrosoftGraphClient(accessTokenMS365);
+    const packageTrack = "https://www.laposte.fr/outils/suivre-vos-envois?code=" + parcelNumber;
     const message = {
       subject: 'Nouvelle demande de retour automatisé', 
       body: {
@@ -210,6 +211,7 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
           <p style="margin: 0;">Une commande retour a été créée dans Shippingbo GMA : ${returnOrderId}</p>
           <p style="margin: 0;">La commande d'origine Shopify est : ${senderCustomer.origin_ref}</p>
           <p style="margin: 0;">Une étiquette Retour Colissimo a été générée et envoyé au client avec le numéro de suivi : ${parcelNumber}</p>
+          <p><a href="${packageTrack}">Suivre le colis</a></p>
           <p>Bonne journée ! </p>
           <img src='cid:signature'/>
         `
@@ -239,11 +241,11 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
       console.error('error sending cotation message', error);
     }
   }
-  //Send email to customer with label colissmo attched
+  //Send email to customer with label colissmo attached
   async function sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfBase64, parcelNumber) {
     const client = initiMicrosoftGraphClient(accessTokenMS365);
     const cleanBase64 = pdfBase64.replace(/^data:application\/pdf;base64,/, '');
- 
+    const packageTrack = "https://www.laposte.fr/outils/suivre-vos-envois?code=" + parcelNumber;
     const message = {
         subject: 'Votre demande de retour Potiron Paris', 
         body: {
@@ -253,6 +255,7 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
               <p>Votre demande de retour a bien été prise en compte.</p>
               <p>Vous trouverez l'étiquette de retour ci-jointe, il suffit de l'imprimer pour votre colis.</p>
               <p>TEXTE A VOIR - Numéro de colis : ${parcelNumber}</p>
+              <p><a href="${packageTrack}">Suivre mon colis</a></p>
               <p>Très belle journée,</p>
               <p>L'équipe de Potiron Paris</p>
               <img src='cid:signature'/>
