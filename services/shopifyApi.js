@@ -285,7 +285,7 @@ const getCustomerMetafields = async (clientId) => {
   }
 
   const getProductWeightBySku = async (sku) => {
-    const getProductDetailsUrl = 'https://potiron2021.myshopify.com/admin/api/2024-07/graphql.json';
+    const getProductDetailsUrl = 'https://potiron2021.myshopify.com/admin/api/2024-04/graphql.json';
     const getProductDetailsOptions = {
       method: "POST",
       headers: {
@@ -300,6 +300,7 @@ const getCustomerMetafields = async (clientId) => {
                 node {
                   id
                   sku
+                  weight
                   product {
                     id
                     title
