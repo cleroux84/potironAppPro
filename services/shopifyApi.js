@@ -298,11 +298,12 @@ const getCustomerMetafields = async (clientId) => {
             productVariants(first: 1, query: "sku:${sku}") {
               edges {
                 node {
-                  weight
+                  id
                   sku
                   product {
                     id
                     title
+                    weight
                   }
                 }
               }
