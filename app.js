@@ -589,6 +589,7 @@ app.post('/returnProduct', async (req, res) => {
   const productRefs = req.body.productRefs.split(',');
   const optionChosen = req.body.returnOption;
   const orderId = req.body.orderId;
+  const all = req.body;
   
   if (optionChosen === "option1") {
     //Create discount code in shopify
@@ -647,7 +648,8 @@ app.post('/returnProduct', async (req, res) => {
       data: priceRules,
       getOrder: warehouseOrder,
       returnOrder: returnOrderData,
-      label: createLabelData
+      label: createLabelData,
+      all: all
     })
   } else if( optionChosen === "option2") {
     console.log("generate label + remboursement ? + mail à  ??")
