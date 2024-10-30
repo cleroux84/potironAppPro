@@ -285,7 +285,7 @@ const getCustomerMetafields = async (clientId) => {
   }
 
   const getProductDetails = async (sku) => {
-    const getProductDetailsUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/products.json?sku=${sku}`
+    const getProductDetailsUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/products/search.json?query=sku=${sku}`
     const getProductDetailsOptions = {
       method: 'GET',
         headers: {
