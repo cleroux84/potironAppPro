@@ -591,6 +591,7 @@ app.post('/returnProduct', async (req, res) => {
   const customerId = req.body.customerId;
   const totalOrder = req.body.totalOrder;
   const productRefs = req.body.productRefs.split(',');
+  const productSku = req.body.productSku;
   const optionChosen = req.body.returnOption;
   const orderId = req.body.orderId;
   const returnAll = req.body.returnAllOrder;
@@ -601,12 +602,14 @@ app.post('/returnProduct', async (req, res) => {
     // console.log("warehouse", warehouseOrder); 
     console.log("return all", returnAll);
     let weightToReturn;
-    getProductWeightBySku("PP-2312008");
+    
     if(returnAll) {
       weightToReturn = warehouseOrder.order.shipments[0].total_weight / 1000;
     } else {
       weightToReturn = 2;
-      //const weight = calc with shopify get product
+      console.log('product sku to return to find weight', productSku);
+      //pour chaque sku : getProductWeightBySku("PP-2312008");
+      //ajouter le poids et set weightToReturn deja en kg !
       console.log('retrieve weight for each return product in api shopify');
     }
     //create object from initial order for label
