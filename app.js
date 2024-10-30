@@ -610,12 +610,12 @@ app.post('/returnProduct', async (req, res) => {
       console.log('product sku to return to find weight', productSku);
       //pour chaque sku : getProductWeightBySku("PP-2312008");
       //ajouter le poids et set weightToReturn deja en kg !
-
+//TODO : extraire le poids de weight avant de l'additionner...
       for (const sku of productSku) {
         const weight = await getProductWeightBySku(sku);
         if(weight) {
-          weightToReturn += weight;
-          console.log('weight', weight);
+          weightToReturn += weight.weight;
+          console.log('weight', weight.weight);
         }
       console.log('retrieve weight', weightToReturn);
     }
@@ -652,8 +652,8 @@ app.post('/returnProduct', async (req, res) => {
     // const returnOrderId = returnOrderData.return_order.id;
 
     // create a return label with colissimo API
-    // const createLabelData = await createLabel(senderCustomer, parcel);
-    // const parcelNumber = createLabelData.parcelNumber;
+    const createLabelData = await createLabel(senderCustomer, parcel);
+    const parcelNumber = createLabelData.parcelNumber;
 
     //update the return order with parcel number (numéro de colis) from colissimo - WIP
     // const updateReturnOrderWithLabel = await updateReturnOrder(accessTokenWarehouse, returnOrderId, parcelNumber)

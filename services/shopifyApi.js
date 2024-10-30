@@ -317,14 +317,14 @@ const getCustomerMetafields = async (clientId) => {
       const response = await fetch(getProductDetailsUrl, getProductDetailsOptions);
       if (!response.ok) throw new Error(`Erreur lors de la récupération du produit par SKU : ${response.statusText}`);
       const data = await response.json();
-      const productVariantWeight = data.data.productVariantWeights.edges[0]?.node.weight;
-      if (!productVariantWeight) {
+      const productVariant = data.data.productVariants.edges[0]?.node;
+      if (!productVariant) {
         console.log("Aucun produit trouvé pour ce SKU");
         return null;
       }
    
-      console.log("Produit trouvé :", productVariantWeight);
-      return productVariantWeight;
+      console.log("Produit trouvé :", productVariant);
+      return productVariant;
     } catch (error) {
       console.error("Erreur lors de la récupération du produit par SKU :", error);
     }
