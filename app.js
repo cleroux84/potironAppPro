@@ -605,6 +605,7 @@ app.post('/returnProduct', async (req, res) => {
     
     if(returnAll) {
       weightToReturn = warehouseOrder.order.shipments[0].total_weight / 1000;
+      console.log("weight all", weightToReturn);
     } else {
       console.log('product sku to return to find weight', productSku);
       //pour chaque sku : getProductWeightBySku("PP-2312008");
@@ -672,7 +673,7 @@ app.post('/returnProduct', async (req, res) => {
       // data: priceRules,
       getOrder: warehouseOrder,
       // returnOrder: returnOrderData,
-      label: createLabelData
+      // label: createLabelData
     })
   } else if( optionChosen === "option2") {
     console.log("generate label + remboursement ? + mail à  ??")
