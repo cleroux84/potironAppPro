@@ -601,7 +601,7 @@ app.post('/returnProduct', async (req, res) => {
     const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId);
     // console.log("warehouse", warehouseOrder); 
     console.log("return all", returnAll);
-    let weightToReturn;
+    let weightToReturn = 0;
     
     if(returnAll) {
       weightToReturn = warehouseOrder.order.shipments[0].total_weight / 1000;
