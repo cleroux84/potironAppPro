@@ -614,7 +614,8 @@ app.post('/returnProduct', async (req, res) => {
       for (const sku of productSku) {
         const weight = await getProductWeightBySku(sku);
         if(weight) {
-          weightToReturn += weight;
+          // weightToReturn += weight;
+          console.log('weight', weight);
         }
       console.log('retrieve weight for each return product in api shopify');
     }
