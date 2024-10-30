@@ -652,7 +652,7 @@ app.post('/returnProduct', async (req, res) => {
     // const returnOrderId = returnOrderData.return_order.id;
 
     // create a return label with colissimo API
-    const createLabelData = await createLabel(senderCustomer, parcel);
+    // const createLabelData = await createLabel(senderCustomer, parcel);
     // const parcelNumber = createLabelData.parcelNumber;
 
     //update the return order with parcel number (numéro de colis) from colissimo - WIP
