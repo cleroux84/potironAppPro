@@ -507,9 +507,9 @@ app.get('/getOrderById', async (req, res) => {
     // const orderData = await orderById(orderName, orderMail, 8074569285960); //1 colissimo #8058
     // const orderData = await orderById(orderName, orderMail, 8174393917768); //4 articles identiques colissimo #8294
     // const orderData = await orderById(orderName, orderMail, 8045312737608); //3 articles colissimo #7865
-    const orderData = await orderById(orderName, orderMail, 8076398264648); //3 articles colissimo #8102
+    // const orderData = await orderById(orderName, orderMail, 8076398264648); //3 articles colissimo #8102
     
-    // const orderData = await orderById(orderName, orderMail, customerId); //moi livré : #6989
+    const orderData = await orderById(orderName, orderMail, customerId); //moi livré : #6989
     // console.log("orderdata", orderData);
     
     const shopifyOrderId = orderData.id;
@@ -593,24 +593,20 @@ app.post('/returnProduct', async (req, res) => {
   const productRefs = req.body.productRefs.split(',');
   const optionChosen = req.body.returnOption;
   const orderId = req.body.orderId;
-  const weightProduct = req.body.weightToReturn;
+  const returnAll = req.body.returnAllOrder;
   
   if (optionChosen === "option1") {
-  console.log("weight to return", weightProduct)
-
-
-    //Create discount code in shopify
-    // const priceRules = await createDiscountCode(customerId, totalOrder);
-    // const discountCode = priceRules.discountData.discount_code.code;
-    // const discountAmount = priceRules.discountRule.price_rule.value;
-    // const discountEnd = priceRules.discountRule.price_rule.ends_at;
-    // const discountDate = new Date(discountEnd);
-    // const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
-
     //Retrieve data from initial order
     const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId);
     // console.log("warehouse", warehouseOrder); 
-
+    console.log("return all", returnAll);
+    let weightToReturn;
+    if(returnAll) {
+      weightToReturn = warehouseOrder.order.shipments[0].total_weight / 1000;
+    } else {
+      weightToReturn = 2;
+      console.log('retrieve weight for each return product in api shopify');
+    }
     //create object from initial order for label
     const senderCustomer = {
       'name': warehouseOrder.order.shipping_address.fullname,
@@ -624,12 +620,20 @@ app.post('/returnProduct', async (req, res) => {
       "origin_ref": warehouseOrder.order.origin_ref
     };
     const parcel = {
-      "weight": warehouseOrder.order.shipments[0].total_weight / 1000,
+      "weight": weightToReturn,
       "insuranceAmount": 0,
       "insuranceValue": 0,
       "nonMachinable": false,
       "returnReceipt": false
     };
+    //Create discount code in shopify
+    // const priceRules = await createDiscountCode(customerId, totalOrder);
+    // const discountCode = priceRules.discountData.discount_code.code;
+    // const discountAmount = priceRules.discountRule.price_rule.value;
+    // const discountEnd = priceRules.discountRule.price_rule.ends_at;
+    // const discountDate = new Date(discountEnd);
+    // const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
+
     //create a return order in shippingbo warehouse
     // const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId);
     // const returnOrderId = returnOrderData.return_order.id;
