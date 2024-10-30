@@ -287,60 +287,47 @@ const getCustomerMetafields = async (clientId) => {
   const getProductDetails = async (sku) => {
     const getProductDetailsUrl = 'https://potiron2021.myshopify.com/admin/api/2024-07/graphql.json';
     const getProductDetailsOptions = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-Shopify-Access-Token': SHOPIFYAPPTOKEN
-        },
-        body: JSON.stringify({
-            query: `
-                query($sku: String!) {
-                    products(first: 1, query: "sku:${sku}") {
-                        edges {
-                            node {
-                                id
-                                title
-                                variants(first: 1) {
-                                    edges {
-                                        node {
-                                            sku
-                                            price
-                                            inventoryQuantity
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Shopify-Access-Token": SHOPIFYAPPTOKEN,
+      },
+      body: JSON.stringify({
+        query: `
+          {
+            productVariants(first: 1, query: "sku:${sku}") {
+              edges {
+                node {
+                  id
+                  sku
+                  product {
+                    id
+                    title
+                  }
                 }
-            `,
-            variables: { sku }
-        })
+              }
+            }
+          }
+        `,
+      }),
     };
- 
+   
     try {
-        const response = await fetch(getProductDetailsUrl, getProductDetailsOptions);
-        if (!response.ok) {
-            console.error(`Erreur lors de la récupération du produit par SKU : ${response.statusText}`);
-            return null;
-        }
- 
-        const result = await response.json();
-        console.log("here", result.data);
-        // const product = result.data.products.edges[0]?.node;
- 
-        if (!product) {
-            console.log("Aucun produit trouvé pour ce SKU.");
-            return null;
-        }
- 
-        console.log('Produit trouvé:', product);
-        return product;
-    } catch (error) {
-        console.error('Erreur lors de la récupération du produit par SKU:', error);
+      const response = await fetch(getProductDetailsUrl, getProductDetailsOptions);
+      if (!response.ok) throw new Error(`Erreur lors de la récupération du produit par SKU : ${response.statusText}`);
+      const data = await response.json();
+      const productVariant = data.data.productVariants.edges[0]?.node;
+      if (!productVariant) {
+        console.log("Aucun produit trouvé pour ce SKU");
         return null;
+      }
+   
+      console.log("Produit trouvé :", productVariant);
+      return productVariant;
+    } catch (error) {
+      console.error("Erreur lors de la récupération du produit par SKU :", error);
     }
-};
+  };
 
 module.exports = {
     createDraftOrder,
