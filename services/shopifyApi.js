@@ -326,7 +326,8 @@ const getCustomerMetafields = async (clientId) => {
         }
  
         const result = await response.json();
-        const product = result.data.products.edges[0]?.node;
+        console.log("here", result.data);
+        // const product = result.data.products.edges[0]?.node;
  
         if (!product) {
             console.log("Aucun produit trouvé pour ce SKU.");
