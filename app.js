@@ -611,7 +611,6 @@ app.post('/returnProduct', async (req, res) => {
       //pour chaque sku : getProductWeightBySku("PP-2312008");
       //ajouter le poids et set weightToReturn deja en kg !
 
-      //ajouter le poids et set weightToReturn deja en kg !
       for (const sku of productSku) {
         const weight = await getProductWeightBySku(sku);
         if(weight) {
