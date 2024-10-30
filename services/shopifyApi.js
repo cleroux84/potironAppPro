@@ -303,7 +303,6 @@ const getCustomerMetafields = async (clientId) => {
                   product {
                     id
                     title
-                    weight
                   }
                 }
               }
