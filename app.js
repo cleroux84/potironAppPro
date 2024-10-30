@@ -638,9 +638,9 @@ app.post('/returnProduct', async (req, res) => {
     // const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId);
     // const returnOrderId = returnOrderData.return_order.id;
 
-    //create a return label with colissimo API
-    // const createLabelData = await createLabel(senderCustomer, parcel);
-    // const parcelNumber = createLabelData.parcelNumber;
+    // create a return label with colissimo API
+    const createLabelData = await createLabel(senderCustomer, parcel);
+    const parcelNumber = createLabelData.parcelNumber;
 
     //update the return order with parcel number (numéro de colis) from colissimo - WIP
     // const updateReturnOrderWithLabel = await updateReturnOrder(accessTokenWarehouse, returnOrderId, parcelNumber)
@@ -659,7 +659,7 @@ app.post('/returnProduct', async (req, res) => {
       // data: priceRules,
       getOrder: warehouseOrder,
       // returnOrder: returnOrderData,
-      // label: createLabelData
+      label: createLabelData
     })
   } else if( optionChosen === "option2") {
     console.log("generate label + remboursement ? + mail à  ??")
