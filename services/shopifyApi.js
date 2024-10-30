@@ -300,8 +300,6 @@ const getCustomerMetafields = async (clientId) => {
                 node {
                   id
                   sku
-                  weight
-                  weightUnit
                   product {
                     id
                     title
@@ -318,7 +316,7 @@ const getCustomerMetafields = async (clientId) => {
       const response = await fetch(getProductDetailsUrl, getProductDetailsOptions);
       if (!response.ok) throw new Error(`Erreur lors de la récupération du produit par SKU : ${response.statusText}`);
       const data = await response.json();
-      const productVariant = data.data.productVariants.edges[0]?.node.weight;
+      const productVariant = data.data.productVariants.edges[0]?.node;
       if (!productVariant) {
         console.log("Aucun produit trouvé pour ce SKU");
         return null;
