@@ -503,9 +503,9 @@ app.get('/getOrderById', async (req, res) => {
   const customerId = req.query.customer_id;
   try {
     // const orderData = await orderById(orderName, orderMail, 6406535905430); // pas colissimo #8021
-    // const orderData = await orderById(orderName, orderMail, 8063057985864); //4 colissimo #8012
+    const orderData = await orderById(orderName, orderMail, 8063057985864); //4 colissimo #8012
     // const orderData = await orderById(orderName, orderMail, 8074569285960); //1 colissimo #8058
-    const orderData = await orderById(orderName, orderMail, customerId); //moi livré : #6989
+    // const orderData = await orderById(orderName, orderMail, customerId); //moi livré : #6989
     // console.log("orderdata", orderData);
     
     const shopifyOrderId = orderData.id;
@@ -523,7 +523,7 @@ app.get('/getOrderById', async (req, res) => {
         orderName: orderName,
         message: 'Contacter le SAV'
       })
-    }
+    }//
     res.status(200).json({
       success: true,
       orderItems: orderItems,
