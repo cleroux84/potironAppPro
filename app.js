@@ -503,10 +503,10 @@ app.get('/getOrderById', async (req, res) => {
   const customerId = req.query.customer_id;
   try {
     // const orderData = await orderById(orderName, orderMail, 6406535905430); // pas colissimo #8021
-    // const orderData = await orderById(orderName, orderMail, 8063057985864); //4 colissimo #8012
+    const orderData = await orderById(orderName, orderMail, 8063057985864); //4 colissimo #8012
     // const orderData = await orderById(orderName, orderMail, 8074569285960); //1 colissimo #8058
-    const orderData = await orderById(orderName, orderMail, customerId); //moi livré : #6989
-    // console.log("orderdata", orderData);
+    // const orderData = await orderById(orderName, orderMail, customerId); //moi livré : #6989
+    console.log("orderdata", orderData);
     
     const shopifyOrderId = orderData.id;
     const shippingboDataPotiron = await getShippingboOrderDetails(accessToken, shopifyOrderId); 
@@ -592,12 +592,12 @@ app.post('/returnProduct', async (req, res) => {
   
   if (optionChosen === "option1") {
     //Create discount code in shopify
-    const priceRules = await createDiscountCode(customerId, totalOrder);
-    const discountCode = priceRules.discountData.discount_code.code;
-    const discountAmount = priceRules.discountRule.price_rule.value;
-    const discountEnd = priceRules.discountRule.price_rule.ends_at;
-    const discountDate = new Date(discountEnd);
-    const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
+    // const priceRules = await createDiscountCode(customerId, totalOrder);
+    // const discountCode = priceRules.discountData.discount_code.code;
+    // const discountAmount = priceRules.discountRule.price_rule.value;
+    // const discountEnd = priceRules.discountRule.price_rule.ends_at;
+    // const discountDate = new Date(discountEnd);
+    // const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
 
     //Retrieve data from initial order
     const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId);
@@ -623,12 +623,12 @@ app.post('/returnProduct', async (req, res) => {
       "returnReceipt": false
     };
     //create a return order in shippingbo warehouse
-    const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId);
-    const returnOrderId = returnOrderData.return_order.id;
+    // const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId);
+    // const returnOrderId = returnOrderData.return_order.id;
 
     //create a return label with colissimo API
-    const createLabelData = await createLabel(senderCustomer, parcel);
-    const parcelNumber = createLabelData.parcelNumber;
+    // const createLabelData = await createLabel(senderCustomer, parcel);
+    // const parcelNumber = createLabelData.parcelNumber;
 
     //update the return order with parcel number (numéro de colis) from colissimo - WIP
     // const updateReturnOrderWithLabel = await updateReturnOrder(accessTokenWarehouse, returnOrderId, parcelNumber)
@@ -638,16 +638,16 @@ app.post('/returnProduct', async (req, res) => {
       accessTokenMS365 = getAccessTokenMS365();
     }
     //send email to Magalie with parcel number and shopify Id and return order Id
-    await sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumber, returnOrderId, discountCode, discountAmount, formattedDate)
+    // await sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumber, returnOrderId, discountCode, discountAmount, formattedDate)
     //send email to customer with link to dwld label and parcel number
-    await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, createLabelData.pdfData, parcelNumber, discountCode, discountAmount, formattedDate);
+    // await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, createLabelData.pdfData, parcelNumber, discountCode, discountAmount, formattedDate);
 
     return res.status(200).json({
       success: true,
-      data: priceRules,
-      // getOrder: warehouseOrder,
-      returnOrder: returnOrderData,
-      label: createLabelData
+      // data: priceRules,
+      getOrder: warehouseOrder,
+      // returnOrder: returnOrderData,
+      // label: createLabelData
     })
   } else if( optionChosen === "option2") {
     console.log("generate label + remboursement ? + mail à  ??")
