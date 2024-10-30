@@ -299,7 +299,8 @@ const getCustomerMetafields = async (clientId) => {
               edges {
                 node {
                   id
-                  sku
+                  sku,
+                  weight
                   product {
                     id
                     title
