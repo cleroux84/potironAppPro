@@ -284,7 +284,7 @@ const getCustomerMetafields = async (clientId) => {
     }
   }
 
-  const getProductDetails = async (sku) => {
+  const getProductWeightBySku = async (sku) => {
     const getProductDetailsUrl = 'https://potiron2021.myshopify.com/admin/api/2024-07/graphql.json';
     const getProductDetailsOptions = {
       method: "POST",
@@ -300,6 +300,8 @@ const getCustomerMetafields = async (clientId) => {
                 node {
                   id
                   sku
+                  weight
+                  weightUnit
                   product {
                     id
                     title
@@ -316,7 +318,7 @@ const getCustomerMetafields = async (clientId) => {
       const response = await fetch(getProductDetailsUrl, getProductDetailsOptions);
       if (!response.ok) throw new Error(`Erreur lors de la récupération du produit par SKU : ${response.statusText}`);
       const data = await response.json();
-      const productVariant = data.data.productVariants.edges[0]?.node;
+      const productVariant = data.data.productVariants.edges[0]?.node.weight;
       if (!productVariant) {
         console.log("Aucun produit trouvé pour ce SKU");
         return null;
@@ -339,5 +341,5 @@ module.exports = {
     lastDraftOrder,
     draftOrderById,
     orderById,
-    getProductDetails
+    getProductWeightBySku
 }
