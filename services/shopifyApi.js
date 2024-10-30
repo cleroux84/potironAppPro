@@ -284,6 +284,27 @@ const getCustomerMetafields = async (clientId) => {
     }
   }
 
+  const getProductDetails = async (sku) => {
+    const getProductDetailsUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/products.json?sku=${sku}`
+    const getProductDetailsOptions = {
+      method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Shopify-Access-Token': SHOPIFYAPPTOKEN
+          }
+    }
+    try {
+      const response = await fetch(getProductDetailsUrl, getProductDetailsOptions);
+    if(!response.ok) {
+      console.log(`Error fetching product by sku : ${response.statusText}`);
+    }
+    const myProduct = await response.json();
+    console.log('product', myProduct);
+    } catch (error) {
+      console.error('error retrieving product by sku', error);
+    }
+  }
+
 module.exports = {
     createDraftOrder,
     updateDraftOrderWithDraftId,
@@ -293,5 +314,6 @@ module.exports = {
     deleteMetafield,
     lastDraftOrder,
     draftOrderById,
-    orderById
+    orderById,
+    getProductDetails
 }

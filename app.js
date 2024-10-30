@@ -20,7 +20,7 @@ const { getTokenWarehouse, refreshAccessTokenWarehouse } = require('./services/s
 const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft } = require('./services/shippingbo/potironParisCRUD.js');
 const { getWarehouseOrderDetails, updateWarehouseOrder, getWarehouseOrderToReturn, getshippingDetails } = require('./services/shippingbo/GMAWarehouseCRUD.js');
 const { sendEmailWithKbis, sendWelcomeMailPro, sendReturnDataToCustomer, sendReturnDataToSAV } = require('./services/sendMail.js');
-const { createDraftOrder, updateDraftOrderWithTags, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById, orderById } = require('./services/shopifyApi.js');
+const { createDraftOrder, updateDraftOrderWithTags, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById, orderById, getProductDetails } = require('./services/shopifyApi.js');
 const { createDiscountCode, createReturnOrder, getReturnOrderDetails, updateReturnOrder } = require('./services/return.js');
 const { refreshMS365AccessToken, getAccessTokenMS365 } = require('./services/microsoftAuth.js');
 const { createLabel } = require('./services/colissimoApi.js');
@@ -601,10 +601,12 @@ app.post('/returnProduct', async (req, res) => {
     // console.log("warehouse", warehouseOrder); 
     console.log("return all", returnAll);
     let weightToReturn;
+    getProductDetails("PP-2312008");
     if(returnAll) {
       weightToReturn = warehouseOrder.order.shipments[0].total_weight / 1000;
     } else {
       weightToReturn = 2;
+      //const weight = calc with shopify get product
       console.log('retrieve weight for each return product in api shopify');
     }
     //create object from initial order for label
