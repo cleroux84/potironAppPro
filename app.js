@@ -589,7 +589,6 @@ app.get('/checkIfsReturnPossible', async (req, res) => {
 
 app.post('/returnProduct', async (req, res) => {
   const customerId = req.body.customerId;
-  const totalOrder = req.body.totalOrder;
   const productRefs = req.body.productRefs.split(',');
   const productSku = req.body.productSku;
   const optionChosen = req.body.returnOption;
@@ -602,21 +601,24 @@ app.post('/returnProduct', async (req, res) => {
     // console.log("warehouse", warehouseOrder); 
     console.log("return all", returnAll);
     let weightToReturn = 0;
+    let totalOrder = 0;
     
     if(returnAll) {
       weightToReturn = warehouseOrder.order.shipments[0].total_weight / 1000;
+      totalOrder = req.body.totalOrder;
       console.log("weight all", weightToReturn);
     } else {
       console.log('product sku to return to find weight', productSku);
       //pour chaque sku : getProductWeightBySku("PP-2312008");
       //ajouter le poids et set weightToReturn deja en kg !
       for (const sku of productSku) {
-        const weight = await getProductWeightBySku(sku);
-        if(weight) {
-          weightToReturn += weight.weight;
-          console.log('weight', weight.weight);
+        const productFoundSku = await getProductWeightBySku(sku);
+        if(productFoundSku) {
+          weightToReturn += productFoundSku.weight;
+          totalOrder += productFoundSku.price
+          console.log('total a rembourser sans frais de livraison', productFoundSku.price);
         }
-      console.log('retrieve weight', weightToReturn);
+      console.log('tot to rembourse', totalOrder);
     }
   }
   //TODO check objet envoyé dans createLabel notamment weightToReturn
@@ -639,8 +641,6 @@ app.post('/returnProduct', async (req, res) => {
       "nonMachinable": false,
       "returnReceipt": false
     };
-    console.log("senderCustomer sent", senderCustomer);
-    console.log('parcel sent', parcel);
     //Create discount code in shopify
     // const priceRules = await createDiscountCode(customerId, totalOrder);
     // const discountCode = priceRules.discountData.discount_code.code;

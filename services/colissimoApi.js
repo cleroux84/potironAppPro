@@ -5,8 +5,6 @@ const colissimoContract = process.env.CBOX_CONTRACT;
 const colissimoPassword = process.env.CBOX_PWD;
  
 const createLabel = async (senderCustomer, parcel) => {
-    console.log('senderCustomer after', senderCustomer);
-    console.log('parcel after', parcel);
     const data = {
         "contractNumber": colissimoContract,
         "password": colissimoPassword,
@@ -69,18 +67,16 @@ const createLabel = async (senderCustomer, parcel) => {
         const buffer = await response.arrayBuffer(); 
         const textResponse = new TextDecoder().decode(buffer); 
         // console.log('text response', textResponse);
-        console.log('response label', response.data);
          if (textResponse.includes('%PDF')) {
             const pdfBase64 = Buffer.from(buffer).toString('base64');
             const parcelNumber = extractParcelNumber(textResponse);
-            console.log('parcelNumber là', parcelNumber )
             return {
                 pdfData: `data:application/pdf;base64,${pdfBase64}`,
                 parcelNumber: parcelNumber,
                 origin_ref: senderCustomer.origin_ref
             }
         } else {
-            console.log('no pdf ?')
+            console.log('no pdf colissimo ?')
         }
         return null; 
     } catch (error) {

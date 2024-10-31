@@ -301,6 +301,7 @@ const getCustomerMetafields = async (clientId) => {
                   id
                   sku
                   weight
+                  price
                   product {
                     id
                     title
