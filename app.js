@@ -615,7 +615,7 @@ app.post('/returnProduct', async (req, res) => {
         const productFoundSku = await getProductWeightBySku(sku);
         if(productFoundSku) {
           weightToReturn += productFoundSku.weight;
-          totalOrder += productFoundSku.price
+          totalOrder += Number(productFoundSku.price);
           console.log('total a rembourser sans frais de livraison', productFoundSku.price);
         }
     }
