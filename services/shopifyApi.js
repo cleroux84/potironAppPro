@@ -324,7 +324,7 @@ const getCustomerMetafields = async (clientId) => {
         return null;
       }
    
-      console.log("Produit trouvé :", productVariant);
+      // console.log("Produit trouvé :", productVariant);
       return productVariant;
     } catch (error) {
       console.error("Erreur lors de la récupération du produit par SKU :", error);

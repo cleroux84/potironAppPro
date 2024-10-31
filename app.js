@@ -616,13 +616,12 @@ app.post('/returnProduct', async (req, res) => {
         if(productFoundSku) {
           weightToReturn += productFoundSku.weight;
           totalOrder += Number(productFoundSku.price);
-          console.log('total a rembourser sans frais de livraison', productFoundSku.price);
+          // console.log('total a rembourser sans frais de livraison', productFoundSku.price);
         }
     }
-    console.log('tot to rembourse', totalOrder);
+    // console.log('tot to rembourse', totalOrder);
 
   }
-  //TODO check objet envoyé dans createLabel notamment weightToReturn
     //create object from initial order for label
     const senderCustomer = {
       'name': warehouseOrder.order.shipping_address.fullname,
@@ -643,12 +642,12 @@ app.post('/returnProduct', async (req, res) => {
       "returnReceipt": false
     };
     //Create discount code in shopify
-    // const priceRules = await createDiscountCode(customerId, totalOrder);
-    // const discountCode = priceRules.discountData.discount_code.code;
-    // const discountAmount = priceRules.discountRule.price_rule.value;
-    // const discountEnd = priceRules.discountRule.price_rule.ends_at;
-    // const discountDate = new Date(discountEnd);
-    // const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
+    const priceRules = await createDiscountCode(customerId, totalOrder);
+    const discountCode = priceRules.discountData.discount_code.code;
+    const discountAmount = priceRules.discountRule.price_rule.value;
+    const discountEnd = priceRules.discountRule.price_rule.ends_at;
+    const discountDate = new Date(discountEnd);
+    const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
 
     //create a return order in shippingbo warehouse
     // const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId);
