@@ -606,7 +606,8 @@ app.post('/returnProduct', async (req, res) => {
     if(returnAll) {
       weightToReturn = warehouseOrder.order.shipments[0].total_weight / 1000;
       totalOrder = req.body.totalOrder;
-      console.log("weight all", weightToReturn);
+      totalOrder = (totalOrder / 100).toFixed(2);
+      console.log("tot order all", totalOrder);
     } else {
       console.log('product sku to return to find weight', productSku);
       //pour chaque sku : getProductWeightBySku("PP-2312008");
@@ -615,11 +616,11 @@ app.post('/returnProduct', async (req, res) => {
         const productFoundSku = await getProductWeightBySku(sku);
         if(productFoundSku) {
           weightToReturn += productFoundSku.weight;
-          totalOrder += Number(productFoundSku.price);
+          totalOrder += Number(productFoundSku.price).toFixed(2);
           // console.log('total a rembourser sans frais de livraison', productFoundSku.price);
         }
     }
-    // console.log('tot to rembourse', totalOrder);
+    console.log('tot to rembourse', totalOrder);
 
   }
     //create object from initial order for label
