@@ -618,8 +618,9 @@ app.post('/returnProduct', async (req, res) => {
           totalOrder += productFoundSku.price
           console.log('total a rembourser sans frais de livraison', productFoundSku.price);
         }
-      console.log('tot to rembourse', totalOrder);
     }
+    console.log('tot to rembourse', totalOrder);
+
   }
   //TODO check objet envoyé dans createLabel notamment weightToReturn
     //create object from initial order for label

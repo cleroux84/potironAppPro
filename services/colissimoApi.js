@@ -62,7 +62,6 @@ const createLabel = async (senderCustomer, parcel) => {
     };
  
     try {
-        console.log('data for label', data);
         const response = await fetch(colissimoUrl, colissimoOptions);
         const buffer = await response.arrayBuffer(); 
         const textResponse = new TextDecoder().decode(buffer); 
