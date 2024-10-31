@@ -5,18 +5,26 @@ const fetch = require('node-fetch');
 const { getshippingDetails } = require('./shippingbo/GMAWarehouseCRUD');
 
 const createReturnOrder = async (accessTokenWarehouse, orderId) => {
-    const originalOrder = await getshippingDetails(accessTokenWarehouse, orderId); 
+    const originalOrder = await getshippingDetails(accessTokenWarehouse, orderId, returnAll, productSku); 
     console.log('originalOrder', originalOrder.id);
     const createReturnUrl = `https://app.shippingbo.com/return_orders`;
-    const orderItem = originalOrder.order.order_items[0];
+    const returnOrderExpectedItemsAttributes = returnAll 
+        ? originalOrder.order.order_items.map(item => ({
+            quantity: item.quantity,
+            user_ref: item.product_ref
+        })) 
+        : originalOrder.order.order_items
+            .filter(item => productSku.includes(item.product_ref)) 
+            .map(item => ({
+                quantity: item.quantity,
+                user_ref: item.product_ref
+            }));
+ 
     const returnOrder = {
         "order_id": orderId,
         "reason" : "Retour en ligne",
         "reason_ref" : "Retour Automatisé",
-        "return_order_expected_items_attributes": originalOrder.order.order_items.map(item => ({
-            quantity: item.quantity,
-            user_ref: item.product_ref
-        })),
+        "return_order_expected_items_attributes": returnOrderExpectedItemsAttributes,
         "return_order_type": "return_order_label",
         "skip_expected_items_creation" : true,
         "source": originalOrder.order.source,
@@ -156,7 +164,7 @@ const createDiscountCode = async (customerId, totalOrder) => {
             "currency": "EUR"
          }
     }
-    console.log('rules', discountRule)
+    // console.log('rules', discountRule)
     const createPriceRuleOptions = {
         method: 'POST',
         headers: {

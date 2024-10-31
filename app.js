@@ -647,15 +647,15 @@ console.log('tot to rembourse', totalOrder);
     };
     //Create discount code in shopify
     const priceRules = await createDiscountCode(customerId, totalOrder);
-    // const discountCode = priceRules.discountData.discount_code.code;
-    // const discountAmount = priceRules.discountRule.price_rule.value;
-    // const discountEnd = priceRules.discountRule.price_rule.ends_at;
-    // const discountDate = new Date(discountEnd);
-    // const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
+    const discountCode = priceRules.discountData.discount_code.code;
+    const discountAmount = priceRules.discountRule.price_rule.value;
+    const discountEnd = priceRules.discountRule.price_rule.ends_at;
+    const discountDate = new Date(discountEnd);
+    const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
 
     //create a return order in shippingbo warehouse
-    // const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId);
-    // const returnOrderId = returnOrderData.return_order.id;
+    const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku);
+    const returnOrderId = returnOrderData.return_order.id;
 
     // create a return label with colissimo API
     const createLabelData = await createLabel(senderCustomer, parcel);
