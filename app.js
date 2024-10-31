@@ -618,11 +618,12 @@ app.post('/returnProduct', async (req, res) => {
         const productFoundSku = await getProductWeightBySku(sku);
         if(productFoundSku) {
           weightToReturn += productFoundSku.weight;
-          totalOrder += (Number(productFoundSku.price)).toFixed(2);
+          totalOrder += (Number(productFoundSku.price));
           // console.log('total a rembourser sans frais de livraison', productFoundSku.price);
         }
     }
-    // console.log('tot to rembourse', totalOrder);
+    totalOrder = totalOrder.toFixed(2);
+console.log('tot to rembourse', totalOrder);
 
   }
     //create object from initial order for label
