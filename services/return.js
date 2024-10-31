@@ -4,8 +4,8 @@ const Shopify = require('shopify-api-node');
 const fetch = require('node-fetch');
 const { getshippingDetails } = require('./shippingbo/GMAWarehouseCRUD');
 
-const createReturnOrder = async (accessTokenWarehouse, orderId) => {
-    const originalOrder = await getshippingDetails(accessTokenWarehouse, orderId, returnAll, productSku); 
+const createReturnOrder = async (accessTokenWarehouse, orderId, returnAll, productSku) => {
+    const originalOrder = await getshippingDetails(accessTokenWarehouse, orderId); 
     console.log('originalOrder', originalOrder.id);
     const createReturnUrl = `https://app.shippingbo.com/return_orders`;
     const returnOrderExpectedItemsAttributes = returnAll 
