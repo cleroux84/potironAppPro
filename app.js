@@ -646,7 +646,7 @@ console.log('tot to rembourse', totalOrder);
       "returnReceipt": false
     };
     //Create discount code in shopify
-    const priceRules = await createDiscountCode("8076398264648", totalOrder);
+    const priceRules = await createDiscountCode(customerId, totalOrder);
     // const discountCode = priceRules.discountData.discount_code.code;
     // const discountAmount = priceRules.discountRule.price_rule.value;
     // const discountEnd = priceRules.discountRule.price_rule.ends_at;
