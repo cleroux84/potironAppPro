@@ -608,6 +608,7 @@ app.post('/returnProduct', async (req, res) => {
     if(returnAll) {
       weightToReturn = warehouseOrder.order.shipments[0].total_weight / 1000;
       totalOrder = req.body.totalOrder;
+      totalOrder = (totalOrder / 100).toFixed(2);
       console.log("tot all", totalOrder);
     } else {
       console.log('product sku to return to find weight', productSku);
@@ -617,7 +618,7 @@ app.post('/returnProduct', async (req, res) => {
         const productFoundSku = await getProductWeightBySku(sku);
         if(productFoundSku) {
           weightToReturn += productFoundSku.weight;
-          totalOrder += Number(productFoundSku.price);
+          totalOrder += (Number(productFoundSku.price)).toFixed(2);
           // console.log('total a rembourser sans frais de livraison', productFoundSku.price);
         }
     }
@@ -645,11 +646,11 @@ app.post('/returnProduct', async (req, res) => {
     };
     //Create discount code in shopify
     const priceRules = await createDiscountCode("8076398264648", totalOrder);
-    const discountCode = priceRules.discountData.discount_code.code;
-    const discountAmount = priceRules.discountRule.price_rule.value;
-    const discountEnd = priceRules.discountRule.price_rule.ends_at;
-    const discountDate = new Date(discountEnd);
-    const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
+    // const discountCode = priceRules.discountData.discount_code.code;
+    // const discountAmount = priceRules.discountRule.price_rule.value;
+    // const discountEnd = priceRules.discountRule.price_rule.ends_at;
+    // const discountDate = new Date(discountEnd);
+    // const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
 
     //create a return order in shippingbo warehouse
     // const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId);

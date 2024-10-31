@@ -148,7 +148,7 @@ const createDiscountCode = async (customerId, totalOrder) => {
             "target_selection": "all",
             "allocation_method": "across",
             "value_type": "fixed_amount",
-            "value": `-${(totalOrder / 100).toFixed(2)}`,
+            "value": `-${totalOrder}`,
             "customer_selection": "prerequisite",
             "prerequisite_customer_ids": [customerId],
             "starts_at": nowDate,
@@ -175,7 +175,7 @@ const createDiscountCode = async (customerId, totalOrder) => {
             console.log('error fetching price rules', response)
         }
         const priceRule = await response.json();
-        console.log("created price rules", data);
+        console.log("created price rules", priceRule);
         const discountCodeUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/price_rules/${priceRule.price_rule.id}/discount_codes.json`
         const discountCode = {
             "discount_code": {
@@ -195,6 +195,7 @@ const createDiscountCode = async (customerId, totalOrder) => {
             console.log('error fetching discount code');
         }
         const discountData = await discountResponse.json();
+        console.log('here', discountData)
         return {
             discountData: discountData,
             discountRule: discountRule
