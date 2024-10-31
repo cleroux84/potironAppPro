@@ -610,7 +610,6 @@ app.post('/returnProduct', async (req, res) => {
       console.log('product sku to return to find weight', productSku);
       //pour chaque sku : getProductWeightBySku("PP-2312008");
       //ajouter le poids et set weightToReturn deja en kg !
-//TODO : extraire le poids de weight avant de l'additionner...
       for (const sku of productSku) {
         const weight = await getProductWeightBySku(sku);
         if(weight) {
@@ -620,6 +619,7 @@ app.post('/returnProduct', async (req, res) => {
       console.log('retrieve weight', weightToReturn);
     }
   }
+  //TODO check objet envoyé dans createLabel notamment weightToReturn
     //create object from initial order for label
     const senderCustomer = {
       'name': warehouseOrder.order.shipping_address.fullname,
@@ -639,6 +639,8 @@ app.post('/returnProduct', async (req, res) => {
       "nonMachinable": false,
       "returnReceipt": false
     };
+    console.log("senderCustomer sent", senderCustomer);
+    console.log('parcel sent', parcel);
     //Create discount code in shopify
     // const priceRules = await createDiscountCode(customerId, totalOrder);
     // const discountCode = priceRules.discountData.discount_code.code;

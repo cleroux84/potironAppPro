@@ -5,6 +5,8 @@ const colissimoContract = process.env.CBOX_CONTRACT;
 const colissimoPassword = process.env.CBOX_PWD;
  
 const createLabel = async (senderCustomer, parcel) => {
+    console.log('senderCustomer after', senderCustomer);
+    console.log('parcel after', parcel);
     const data = {
         "contractNumber": colissimoContract,
         "password": colissimoPassword,
@@ -62,19 +64,24 @@ const createLabel = async (senderCustomer, parcel) => {
     };
  
     try {
+        console.log('data for label', data);
         const response = await fetch(colissimoUrl, colissimoOptions);
         const buffer = await response.arrayBuffer(); 
         const textResponse = new TextDecoder().decode(buffer); 
         // console.log('text response', textResponse);
+        console.log('response label', response.data);
          if (textResponse.includes('%PDF')) {
             const pdfBase64 = Buffer.from(buffer).toString('base64');
             const parcelNumber = extractParcelNumber(textResponse);
+            console.log('parcelNumber là', parcelNumber )
             return {
                 pdfData: `data:application/pdf;base64,${pdfBase64}`,
                 parcelNumber: parcelNumber,
                 origin_ref: senderCustomer.origin_ref
             }
-        } 
+        } else {
+            console.log('no pdf ?')
+        }
         return null; 
     } catch (error) {
         console.error('Erreur lors de la création de l\'étiquette depuis CBox', error);
