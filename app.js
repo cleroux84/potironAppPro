@@ -669,9 +669,9 @@ console.log('tot to rembourse', totalOrder);
       accessTokenMS365 = getAccessTokenMS365();
     }
     //send email to Magalie with parcel number and shopify Id and return order Id
-    // await sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumber, returnOrderId, discountCode, discountAmount, formattedDate)
+    await sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumber, returnOrderId, discountCode, discountAmount, formattedDate)
     //send email to customer with link to dwld label and parcel number
-    // await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, createLabelData.pdfData, parcelNumber, discountCode, discountAmount, formattedDate);
+    await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, createLabelData.pdfData, parcelNumber, discountCode, discountAmount, formattedDate);
 
     return res.status(200).json({
       success: true,

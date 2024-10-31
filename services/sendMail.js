@@ -266,7 +266,7 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
         toRecipients: [
             {
                 emailAddress: {
-                    address: senderCustomer.email
+                    address: "cleroux84@gmail.com"
                 }
             }
         ],
