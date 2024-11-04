@@ -143,13 +143,13 @@ const getReturnOrderDetails = async (accessTokenWarehouse, returnOrderId) => {
     }
 }
 
-const createDiscountCode = async (customerId, orderName, totalOrder) => {
+const createDiscountCode = async (customerId, totalOrder) => {
     const createPriceRuleUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/price_rules.json`
     const nowDate = new Date().toISOString();
     const OneWeekLater = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
     const discountRule = {
         "price_rule": {
-            "title": `Retour auto ${orderName}`,
+            "title": `Retour auto ${customerId}`,
             "target_type": "line_item",
             "target_selection": "all",
             "allocation_method": "across",
@@ -184,14 +184,14 @@ const createDiscountCode = async (customerId, orderName, totalOrder) => {
         const discountCodeUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/price_rules/${priceRule.price_rule.id}/discount_codes.json`
         const discountCode = {
             "discount_code": {
-                "code": `RETURN${orderName}`
+                "code": `RETURN-${customerId}`
             }
         }
         const discountCodeOptions = {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
+            'Content-Type': 'application/json',
+            'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
             },
             body: JSON.stringify(discountCode)
         }
@@ -211,10 +211,9 @@ const createDiscountCode = async (customerId, orderName, totalOrder) => {
     
 }
 
-const checkIfDiscountCodeExists = async (orderName) => {
-    console.log('orderaname', orderName);
-    const checkDiscountCodeUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/discount_codes/lookup.json?code=RETURN${orderName}`
-    const checkDiscountCodeOptions = {
+const checkIfPriceRuleExists = async (orderName) => {
+    const checkPriceRuleUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/price_rules.json`;
+    const checkPriceRuleOptions = {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -222,17 +221,19 @@ const checkIfDiscountCodeExists = async (orderName) => {
         }
     }
     try {
-        const response = await fetch(checkDiscountCodeUrl, checkDiscountCodeOptions);
-        console.log('check exist', response.data);
+        const response = await fetch(checkPriceRuleUrl, checkPriceRuleOptions);
         if(response.ok) {
-            const existingDiscount = await response.json();
-            console.log('discount', existingDiscount);
-            return existingDiscount.code ? true : false;
+            const data = await response.json();
+            const existingRule = data.price_rule.find(
+                rule => rule.title == `Retour auto ${orderName}`
+            );
+            return existingRule ? true : false;
         } else {
-            console.log('Error when checking if discount code exist');
+            console.log('Error checking if price rule exists');
+            return false;
         }
     } catch (error) {
-        console.error('Error checking discount code exist', error);
+        console.error("Error checking price rule exists", error);
         return false;
     }
 }
@@ -242,5 +243,5 @@ module.exports = {
     createReturnOrder,
     getReturnOrderDetails,
     updateReturnOrder,
-    checkIfDiscountCodeExists
+    checkIfPriceRuleExists
 }

@@ -21,7 +21,7 @@ const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft 
 const { getWarehouseOrderDetails, updateWarehouseOrder, getWarehouseOrderToReturn, getshippingDetails } = require('./services/shippingbo/GMAWarehouseCRUD.js');
 const { sendEmailWithKbis, sendWelcomeMailPro, sendReturnDataToCustomer, sendReturnDataToSAV } = require('./services/sendMail.js');
 const { createDraftOrder, updateDraftOrderWithTags, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById, orderById, getProductDetails, getProductWeightBySku } = require('./services/shopifyApi.js');
-const { createDiscountCode, createReturnOrder, getReturnOrderDetails, updateReturnOrder, checkIfDiscountCodeExists } = require('./services/return.js');
+const { createDiscountCode, createReturnOrder, getReturnOrderDetails, updateReturnOrder, checkIfPriceRuleExists } = require('./services/return.js');
 const { refreshMS365AccessToken, getAccessTokenMS365 } = require('./services/microsoftAuth.js');
 const { createLabel } = require('./services/colissimoApi.js');
 
@@ -601,8 +601,6 @@ app.post('/returnProduct', async (req, res) => {
   if (optionChosen === "option1") {
     //Retrieve data from initial order
     const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId);
-    // console.log("warehouse", warehouseOrder); 
-    // console.log("return all", returnAll);
     let weightToReturn = 0;
     let totalOrder = 0;
     
@@ -643,17 +641,19 @@ app.post('/returnProduct', async (req, res) => {
       "nonMachinable": false,
       "returnReceipt": false
     };
+    //Check if price rules exists
+    const ruleExists = await checkIfPriceRuleExists(orderName);
+    console.log('rules Exists ?: ', ruleExists);
     //Create discount code in shopify
-    const isNewCode = await checkIfDiscountCodeExists(orderName);
-    if(!isNewCode) {
-      const priceRules = await createDiscountCode(customerId, orderName, totalOrder);
+    if(!priceRules) {
+      const priceRules = await createDiscountCode(customerId, totalOrder);
       const discountCode = priceRules.discountData.discount_code.code;
       const discountAmount = priceRules.discountRule.price_rule.value;
       const discountEnd = priceRules.discountRule.price_rule.ends_at;
       const discountDate = new Date(discountEnd);
       const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
     } else {
-      console.log('Un code de réduction existe déjà pour cette commande => contacter le SAV')
+      console.log('price rule already exists contact SAV !')
     }
     //create a return order in shippingbo warehouse
     // const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku);
