@@ -645,16 +645,16 @@ app.post('/returnProduct', async (req, res) => {
     const ruleExists = await checkIfPriceRuleExists(orderName);
     console.log('rules Exists ?: ', ruleExists);
     //Create discount code in shopify
-    if(!priceRules) {
+    // if(!priceRules) {
       const priceRules = await createDiscountCode(customerId, orderName, totalOrder);
       const discountCode = priceRules.discountData.discount_code.code;
       const discountAmount = priceRules.discountRule.price_rule.value;
       const discountEnd = priceRules.discountRule.price_rule.ends_at;
       const discountDate = new Date(discountEnd);
       const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
-    } else {
-      console.log('price rule already exists contact SAV !')
-    }
+    // } else {
+    //   console.log('price rule already exists contact SAV !')
+    // }
     //create a return order in shippingbo warehouse
     // const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku);
     // const returnOrderId = returnOrderData.return_order.id;
