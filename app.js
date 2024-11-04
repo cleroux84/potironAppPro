@@ -21,7 +21,7 @@ const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft 
 const { getWarehouseOrderDetails, updateWarehouseOrder, getWarehouseOrderToReturn, getshippingDetails } = require('./services/shippingbo/GMAWarehouseCRUD.js');
 const { sendEmailWithKbis, sendWelcomeMailPro, sendReturnDataToCustomer, sendReturnDataToSAV } = require('./services/sendMail.js');
 const { createDraftOrder, updateDraftOrderWithTags, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById, orderById, getProductDetails, getProductWeightBySku } = require('./services/shopifyApi.js');
-const { createDiscountCode, createReturnOrder, getReturnOrderDetails, updateReturnOrder } = require('./services/return.js');
+const { createDiscountCode, createReturnOrder, getReturnOrderDetails, updateReturnOrder, checkIfDiscountCodeExists } = require('./services/return.js');
 const { refreshMS365AccessToken, getAccessTokenMS365 } = require('./services/microsoftAuth.js');
 const { createLabel } = require('./services/colissimoApi.js');
 
@@ -644,13 +644,17 @@ app.post('/returnProduct', async (req, res) => {
       "returnReceipt": false
     };
     //Create discount code in shopify
-    const priceRules = await createDiscountCode(customerId, orderName, totalOrder);
-    const discountCode = priceRules.discountData.discount_code.code;
-    const discountAmount = priceRules.discountRule.price_rule.value;
-    const discountEnd = priceRules.discountRule.price_rule.ends_at;
-    const discountDate = new Date(discountEnd);
-    const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
-
+    const isNewCode = await checkIfDiscountCodeExists(orderName);
+    if(!isNewCode) {
+      const priceRules = await createDiscountCode(customerId, orderName, totalOrder);
+      const discountCode = priceRules.discountData.discount_code.code;
+      const discountAmount = priceRules.discountRule.price_rule.value;
+      const discountEnd = priceRules.discountRule.price_rule.ends_at;
+      const discountDate = new Date(discountEnd);
+      const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
+    } else {
+      console.log('Un code de réduction existe déjà pour cette commande => contacter le SAV')
+    }
     //create a return order in shippingbo warehouse
     // const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku);
     // const returnOrderId = returnOrderData.return_order.id;

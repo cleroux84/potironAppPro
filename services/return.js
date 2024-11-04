@@ -184,14 +184,14 @@ const createDiscountCode = async (customerId, orderName, totalOrder) => {
         const discountCodeUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/price_rules/${priceRule.price_rule.id}/discount_codes.json`
         const discountCode = {
             "discount_code": {
-                "code": `RETURN-${orderName}`
+                "code": `RETURN${orderName}`
             }
         }
         const discountCodeOptions = {
             method: 'POST',
             headers: {
-            'Content-Type': 'application/json',
-            'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
+                'Content-Type': 'application/json',
+                'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
             },
             body: JSON.stringify(discountCode)
         }
@@ -209,6 +209,29 @@ const createDiscountCode = async (customerId, orderName, totalOrder) => {
         console.error('erreur creation code de reduction');
     }
     
+}
+
+const checkIfDiscountCodeExists = async (orderName) => {
+    const checkDiscountCodeUrl = https://potiron2021.myshopify.com/admin/api/2024-07/discount_codes/lookup.json?code=RETURN${orderName}`
+    const checkDiscountCodeOptions = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
+        }
+    }
+    try {
+        const response = await fetch(checkDiscountCodeUrl, checkDiscountCodeOptions);
+        if(response.ok) {
+            const existingDiscount = await response.json();
+            return existingDiscount.discount_code ? true : false;
+        } else {
+            console.log('Error when checking if discount code exist');
+        }
+    } catch (error) {
+        console.error('Error checking discount code exist', error);
+        return false;
+    }
 }
 
 module.exports = {
