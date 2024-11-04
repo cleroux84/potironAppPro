@@ -179,7 +179,7 @@ const createPriceRule = async (customerId, orderName, totalOrder) => {
             console.log('error fetching price rules', response)
         } else {
             const priceRule = await response.json();
-            await createDiscountCode(customerId, priceRule, discountRule);
+            return await createDiscountCode(customerId, priceRule, discountRule);
         }
     } catch (error) {
         console.error('error creating price rules', error);
