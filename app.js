@@ -507,9 +507,9 @@ app.get('/getOrderById', async (req, res) => {
     // const orderData = await orderById(orderName, orderMail, 8074569285960); //1 colissimo #8058
     // const orderData = await orderById(orderName, orderMail, 8174393917768); //4 articles identiques colissimo #8294
     // const orderData = await orderById(orderName, orderMail, 8045312737608); //3 articles colissimo #7865
-    const orderData = await orderById(orderName, orderMail, 8076398264648); //3 articles colissimo #8102
+    // const orderData = await orderById(orderName, orderMail, 8076398264648); //3 articles colissimo #8102
     
-    // const orderData = await orderById(orderName, orderMail, customerId); //moi livré : #6989
+    const orderData = await orderById(orderName, orderMail, customerId); //moi livré : #6989
     // console.log("orderdata", orderData);
     
     const shopifyOrderId = orderData.id;
