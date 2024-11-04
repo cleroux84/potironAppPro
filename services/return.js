@@ -143,13 +143,13 @@ const getReturnOrderDetails = async (accessTokenWarehouse, returnOrderId) => {
     }
 }
 
-const createDiscountCode = async (customerId, totalOrder) => {
+const createDiscountCode = async (customerId, orderName, totalOrder) => {
     const createPriceRuleUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/price_rules.json`
     const nowDate = new Date().toISOString();
     const OneWeekLater = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
     const discountRule = {
         "price_rule": {
-            "title": `Retour auto ${customerId}`,
+            "title": `Retour auto ${orderName}`,
             "target_type": "line_item",
             "target_selection": "all",
             "allocation_method": "across",
@@ -225,16 +225,15 @@ const checkIfPriceRuleExists = async (orderName) => {
         if(response.ok) {
             const data = await response.json();
             const existingRule = data.price_rule.find(
-                rule => rule.title == `Retour auto ${orderName}`
+                rule => rule.title === `Retour auto ${orderName}`
             );
+            console.log('existinfrule', existingRule);
             return existingRule ? true : false;
         } else {
             console.log('Error checking if price rule exists');
-            return false;
         }
     } catch (error) {
         console.error("Error checking price rule exists", error);
-        return false;
     }
 }
 
