@@ -653,12 +653,30 @@ app.post('/returnProduct', async (req, res) => {
       const discountDate = new Date(discountEnd);
       const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
       
+      //create a return order in shippingbo warehouse
+      const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku);
+      const returnOrderId = returnOrderData.return_order.id;
+
+      // create a return label with colissimo API
+    const createLabelData = await createLabel(senderCustomer, parcel);
+    const parcelNumber = createLabelData.parcelNumber;
+
+    let accessTokenMS365 = getAccessTokenMS365();
+    if(!accessTokenMS365) {
+      await refreshMS365AccessToken();
+      accessTokenMS365 = getAccessTokenMS365();
+    }
+    //send email to Magalie with parcel number and shopify Id and return order Id
+    await sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumber, returnOrderId, discountCode, discountAmount, formattedDate)
+    //send email to customer with link to dwld label and parcel number
+    await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, createLabelData.pdfData, parcelNumber, discountCode, discountAmount, formattedDate);
+
       return res.status(200).json({
         success: true,
         data: priceRules,
-        // getOrder: warehouseOrder,
-        // returnOrder: returnOrderData,
-        // label: createLabelData
+        getOrder: warehouseOrder,
+        returnOrder: returnOrderData,
+        label: createLabelData
       })
     } else {
       console.log('price rule already exists contact SAV !');
@@ -667,26 +685,10 @@ app.post('/returnProduct', async (req, res) => {
         message: 'Contacter le SAV - un price rule existe déjà pour cette commande'
       })      
     }
-    //create a return order in shippingbo warehouse
-    // const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku);
-    // const returnOrderId = returnOrderData.return_order.id;
-
-    // create a return label with colissimo API
-    // const createLabelData = await createLabel(senderCustomer, parcel);
-    // const parcelNumber = createLabelData.parcelNumber;
-
+   
     //update the return order with parcel number (numéro de colis) from colissimo - WIP
     // const updateReturnOrderWithLabel = await updateReturnOrder(accessTokenWarehouse, returnOrderId, parcelNumber)
-    let accessTokenMS365 = getAccessTokenMS365();
-    if(!accessTokenMS365) {
-      await refreshMS365AccessToken();
-      accessTokenMS365 = getAccessTokenMS365();
-    }
-    //send email to Magalie with parcel number and shopify Id and return order Id
-    // await sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumber, returnOrderId, discountCode, discountAmount, formattedDate)
-    //send email to customer with link to dwld label and parcel number
-    // await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, createLabelData.pdfData, parcelNumber, discountCode, discountAmount, formattedDate);
-
+   
   } else if( optionChosen === "option2") {
     console.log("generate label + remboursement ? + mail à  ??")
   }

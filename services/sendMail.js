@@ -220,7 +220,7 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
       toRecipients: [
         {
           emailAddress: {
-            address: MAILRECIPIENT
+            address: "c.leroux@potiron.com"
           }
         }
       ],
@@ -266,7 +266,7 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
         toRecipients: [
             {
                 emailAddress: {
-                    address: senderCustomer.email
+                    address: "c.leroux@potiron.com"
                 }
             }
         ],
