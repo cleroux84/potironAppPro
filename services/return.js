@@ -238,5 +238,6 @@ module.exports = {
     createDiscountCode,
     createReturnOrder,
     getReturnOrderDetails,
-    updateReturnOrder
+    updateReturnOrder,
+    checkIfDiscountCodeExists
 }
