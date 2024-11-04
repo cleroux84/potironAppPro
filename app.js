@@ -645,7 +645,7 @@ app.post('/returnProduct', async (req, res) => {
     const ruleExists = await checkIfPriceRuleExists(orderName);
     console.log('rules Exists ?: ', ruleExists);
     //Create discount code in shopify
-    if(!priceRules) {
+    if(!ruleExists) {
       const priceRules = await createDiscountCode(customerId, orderName, totalOrder);
       const discountCode = priceRules.discountData.discount_code.code;
       const discountAmount = priceRules.discountRule.price_rule.value;
