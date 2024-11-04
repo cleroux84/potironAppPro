@@ -228,7 +228,7 @@ const checkIfPriceRuleExists = async (orderName) => {
             const existingRule = data.price_rules.find(
                 rule => rule.title === `Retour auto ${orderName}`
             );
-            console.log('existinfrule', existingRule);
+            // console.log('existinfrule', existingRule);
             return existingRule ? true : false;
         } else {
             console.log('Error checking if price rule exists');
