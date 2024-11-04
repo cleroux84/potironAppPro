@@ -646,12 +646,20 @@ app.post('/returnProduct', async (req, res) => {
     console.log('rules Exists ?: ', ruleExists);
     //Create discount code in shopify
     if(!ruleExists) {
-      const priceRules = await createPriceRule(customerId, orderName, totalOrder);
+      priceRules = await createPriceRule(customerId, orderName, totalOrder);
       const discountCode = priceRules.discountData.discount_code.code;
       const discountAmount = priceRules.discountRule.price_rule.value;
       const discountEnd = priceRules.discountRule.price_rule.ends_at;
       const discountDate = new Date(discountEnd);
       const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
+      
+      return res.status(200).json({
+        success: true,
+        data: priceRules,
+        // getOrder: warehouseOrder,
+        // returnOrder: returnOrderData,
+        // label: createLabelData
+      })
     } else {
       console.log('price rule already exists contact SAV !');
       return res.status(200).json({
@@ -679,13 +687,6 @@ app.post('/returnProduct', async (req, res) => {
     //send email to customer with link to dwld label and parcel number
     // await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, createLabelData.pdfData, parcelNumber, discountCode, discountAmount, formattedDate);
 
-    return res.status(200).json({
-      success: true,
-      data: priceRules,
-      // getOrder: warehouseOrder,
-      // returnOrder: returnOrderData,
-      // label: createLabelData
-    })
   } else if( optionChosen === "option2") {
     console.log("generate label + remboursement ? + mail à  ??")
   }
