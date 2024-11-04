@@ -212,6 +212,7 @@ const createDiscountCode = async (customerId, orderName, totalOrder) => {
 }
 
 const checkIfDiscountCodeExists = async (orderName) => {
+    console.log('orderaname', orderName);
     const checkDiscountCodeUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/discount_codes/lookup.json?code=RETURN${orderName}`
     const checkDiscountCodeOptions = {
         method: 'GET',
@@ -222,9 +223,11 @@ const checkIfDiscountCodeExists = async (orderName) => {
     }
     try {
         const response = await fetch(checkDiscountCodeUrl, checkDiscountCodeOptions);
+        console.log('check exist', response.data);
         if(response.ok) {
             const existingDiscount = await response.json();
-            return existingDiscount.discount_code ? true : false;
+            console.log('discount', existingDiscount);
+            return existingDiscount.code ? true : false;
         } else {
             console.log('Error when checking if discount code exist');
         }
