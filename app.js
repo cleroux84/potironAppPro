@@ -653,7 +653,11 @@ app.post('/returnProduct', async (req, res) => {
       const discountDate = new Date(discountEnd);
       const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
     } else {
-      console.log('price rule already exists contact SAV !')
+      console.log('price rule already exists contact SAV !');
+      return res.status(200).json({
+        success: false,
+        message: 'Contacter le SAV - un price rule existe déjà pour cette commande'
+      })      
     }
     //create a return order in shippingbo warehouse
     // const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku);
