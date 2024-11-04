@@ -212,7 +212,7 @@ const createDiscountCode = async (customerId, orderName, totalOrder) => {
 }
 
 const checkIfDiscountCodeExists = async (orderName) => {
-    const checkDiscountCodeUrl = https://potiron2021.myshopify.com/admin/api/2024-07/discount_codes/lookup.json?code=RETURN${orderName}`
+    const checkDiscountCodeUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/discount_codes/lookup.json?code=RETURN${orderName}`
     const checkDiscountCodeOptions = {
         method: 'GET',
         headers: {
