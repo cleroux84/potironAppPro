@@ -224,7 +224,8 @@ const checkIfPriceRuleExists = async (orderName) => {
         const response = await fetch(checkPriceRuleUrl, checkPriceRuleOptions);
         if(response.ok) {
             const data = await response.json();
-            const existingRule = data.price_rule.find(
+            console.log('all rules', data);
+            const existingRule = data.price_rules.find(
                 rule => rule.title === `Retour auto ${orderName}`
             );
             console.log('existinfrule', existingRule);
