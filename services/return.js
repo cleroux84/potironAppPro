@@ -143,7 +143,7 @@ const getReturnOrderDetails = async (accessTokenWarehouse, returnOrderId) => {
     }
 }
 
-const createDiscountCode = async (customerId, orderName, totalOrder) => {
+const createPriceRule = async (customerId, orderName, totalOrder) => {
     const createPriceRuleUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/price_rules.json`
     const nowDate = new Date().toISOString();
     const OneWeekLater = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
@@ -164,7 +164,6 @@ const createDiscountCode = async (customerId, orderName, totalOrder) => {
             "currency": "EUR"
          }
     }
-    // console.log('rules', discountRule)
     const createPriceRuleOptions = {
         method: 'POST',
         headers: {
@@ -174,27 +173,36 @@ const createDiscountCode = async (customerId, orderName, totalOrder) => {
         body: JSON.stringify(discountRule)
     };
 
-    // console.log("total", totalOrder);
     try {
         const response = await fetch(createPriceRuleUrl, createPriceRuleOptions);
         if(!response.ok) {
             console.log('error fetching price rules', response)
+        } else {
+            const priceRule = await response.json();
+            await createDiscountCode(customerId, priceRule, discountRule);
         }
-        const priceRule = await response.json();
-        const discountCodeUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/price_rules/${priceRule.price_rule.id}/discount_codes.json`
-        const discountCode = {
-            "discount_code": {
-                "code": `RETURN-${customerId}`
-            }
+    } catch (error) {
+        console.error('error creating price rules', error);
+    }
+    
+}
+
+const createDiscountCode = async (customerId, priceRule, discountRule) => {
+    const discountCodeUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/price_rules/${priceRule.price_rule.id}/discount_codes.json`
+    const discountCode = {
+        "discount_code": {
+            "code": `RETURN-${customerId}`
         }
-        const discountCodeOptions = {
-            method: 'POST',
-            headers: {
-            'Content-Type': 'application/json',
-            'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
-            },
-            body: JSON.stringify(discountCode)
-        }
+    }
+    const discountCodeOptions = {
+        method: 'POST',
+        headers: {
+        'Content-Type': 'application/json',
+        'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
+        },
+        body: JSON.stringify(discountCode)
+    }
+    try {
         const discountResponse = await fetch(discountCodeUrl, discountCodeOptions);
         if(!discountResponse) {
             console.log('error fetching discount code');
@@ -204,11 +212,9 @@ const createDiscountCode = async (customerId, orderName, totalOrder) => {
             discountData: discountData,
             discountRule: discountRule
         }
-
     } catch (error) {
-        console.error('erreur creation code de reduction');
+        console.error('Error creating discount code', error);
     }
-    
 }
 
 const checkIfPriceRuleExists = async (orderName) => {
@@ -237,7 +243,7 @@ const checkIfPriceRuleExists = async (orderName) => {
 }
 
 module.exports = {
-    createDiscountCode,
+    createPriceRule,
     createReturnOrder,
     getReturnOrderDetails,
     updateReturnOrder,

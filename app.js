@@ -21,7 +21,7 @@ const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft 
 const { getWarehouseOrderDetails, updateWarehouseOrder, getWarehouseOrderToReturn, getshippingDetails } = require('./services/shippingbo/GMAWarehouseCRUD.js');
 const { sendEmailWithKbis, sendWelcomeMailPro, sendReturnDataToCustomer, sendReturnDataToSAV } = require('./services/sendMail.js');
 const { createDraftOrder, updateDraftOrderWithTags, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById, orderById, getProductDetails, getProductWeightBySku } = require('./services/shopifyApi.js');
-const { createDiscountCode, createReturnOrder, getReturnOrderDetails, updateReturnOrder, checkIfPriceRuleExists } = require('./services/return.js');
+const { createDiscountCode, createReturnOrder, getReturnOrderDetails, updateReturnOrder, checkIfPriceRuleExists, createPriceRule } = require('./services/return.js');
 const { refreshMS365AccessToken, getAccessTokenMS365 } = require('./services/microsoftAuth.js');
 const { createLabel } = require('./services/colissimoApi.js');
 
@@ -646,7 +646,7 @@ app.post('/returnProduct', async (req, res) => {
     console.log('rules Exists ?: ', ruleExists);
     //Create discount code in shopify
     if(!ruleExists) {
-      const priceRules = await createDiscountCode(customerId, orderName, totalOrder);
+      const priceRules = await createPriceRule(customerId, orderName, totalOrder);
       const discountCode = priceRules.discountData.discount_code.code;
       const discountAmount = priceRules.discountRule.price_rule.value;
       const discountEnd = priceRules.discountRule.price_rule.ends_at;
