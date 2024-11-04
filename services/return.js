@@ -143,13 +143,13 @@ const getReturnOrderDetails = async (accessTokenWarehouse, returnOrderId) => {
     }
 }
 
-const createDiscountCode = async (customerId, totalOrder) => {
+const createDiscountCode = async (customerId, orderName, totalOrder) => {
     const createPriceRuleUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/price_rules.json`
     const nowDate = new Date().toISOString();
     const OneWeekLater = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
     const discountRule = {
         "price_rule": {
-            "title": `Retour auto ${customerId}`,
+            "title": `Retour auto ${orderName}`,
             "target_type": "line_item",
             "target_selection": "all",
             "allocation_method": "across",
@@ -184,7 +184,7 @@ const createDiscountCode = async (customerId, totalOrder) => {
         const discountCodeUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/price_rules/${priceRule.price_rule.id}/discount_codes.json`
         const discountCode = {
             "discount_code": {
-                "code": `RETURN-${customerId}`
+                "code": `RETURN-${orderName}`
             }
         }
         const discountCodeOptions = {

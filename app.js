@@ -590,6 +590,7 @@ app.get('/checkIfsReturnPossible', async (req, res) => {
 app.post('/returnProduct', async (req, res) => {
   console.log('all param', req.body);
   const customerId = req.body.customerId;
+  const orderName = req.body.orderName;
   console.log('customerId', customerId);
   const productRefs = req.body.productRefs.split(',');
   const productSku = req.body.productSku;
@@ -601,7 +602,7 @@ app.post('/returnProduct', async (req, res) => {
     //Retrieve data from initial order
     const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId);
     // console.log("warehouse", warehouseOrder); 
-    console.log("return all", returnAll);
+    // console.log("return all", returnAll);
     let weightToReturn = 0;
     let totalOrder = 0;
     
@@ -612,18 +613,15 @@ app.post('/returnProduct', async (req, res) => {
       console.log("tot all", totalOrder);
     } else {
       console.log('product sku to return to find weight', productSku);
-      //pour chaque sku : getProductWeightBySku("PP-2312008");
-      //ajouter le poids et set weightToReturn deja en kg !
       for (const sku of productSku) {
         const productFoundSku = await getProductWeightBySku(sku);
         if(productFoundSku) {
           weightToReturn += productFoundSku.weight;
           totalOrder += (Number(productFoundSku.price));
-          // console.log('total a rembourser sans frais de livraison', productFoundSku.price);
         }
     }
     totalOrder = totalOrder.toFixed(2);
-console.log('tot to rembourse', totalOrder);
+    console.log('tot to rembourse', totalOrder);
 
   }
     //create object from initial order for label
@@ -646,7 +644,7 @@ console.log('tot to rembourse', totalOrder);
       "returnReceipt": false
     };
     //Create discount code in shopify
-    const priceRules = await createDiscountCode(customerId, totalOrder);
+    const priceRules = await createDiscountCode(customerId, orderName, totalOrder);
     const discountCode = priceRules.discountData.discount_code.code;
     const discountAmount = priceRules.discountRule.price_rule.value;
     const discountEnd = priceRules.discountRule.price_rule.ends_at;
@@ -654,12 +652,12 @@ console.log('tot to rembourse', totalOrder);
     const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
 
     //create a return order in shippingbo warehouse
-    const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku);
-    const returnOrderId = returnOrderData.return_order.id;
+    // const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku);
+    // const returnOrderId = returnOrderData.return_order.id;
 
     // create a return label with colissimo API
-    const createLabelData = await createLabel(senderCustomer, parcel);
-    const parcelNumber = createLabelData.parcelNumber;
+    // const createLabelData = await createLabel(senderCustomer, parcel);
+    // const parcelNumber = createLabelData.parcelNumber;
 
     //update the return order with parcel number (numéro de colis) from colissimo - WIP
     // const updateReturnOrderWithLabel = await updateReturnOrder(accessTokenWarehouse, returnOrderId, parcelNumber)
@@ -676,9 +674,9 @@ console.log('tot to rembourse', totalOrder);
     return res.status(200).json({
       success: true,
       data: priceRules,
-      getOrder: warehouseOrder,
+      // getOrder: warehouseOrder,
       // returnOrder: returnOrderData,
-      label: createLabelData
+      // label: createLabelData
     })
   } else if( optionChosen === "option2") {
     console.log("generate label + remboursement ? + mail à  ??")
