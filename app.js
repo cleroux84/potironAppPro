@@ -646,45 +646,53 @@ app.post('/returnProduct', async (req, res) => {
     const returnOrderExists = await checkIfReturnOrderExist(accessTokenWarehouse, warehouseOrder.order.id);
     console.log('returnOrderExists ?', returnOrderExists);
     // Create discount code in shopify
-    if(!ruleExists || !returnOrderExists) {
-      priceRules = await createPriceRule(customerId, orderName, totalOrder);
-      const discountCode = priceRules.discountData.discount_code.code;
-      const discountAmount = priceRules.discountRule.price_rule.value;
-      const discountEnd = priceRules.discountRule.price_rule.ends_at;
-      const discountDate = new Date(discountEnd);
-      const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
-      
-      //create a return order in shippingbo warehouse
-      //TODO check if a return order exists for that orderId
-      const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku);
-      const returnOrderId = returnOrderData.return_order.id;
+    if(!ruleExists) {
+      if(!returnOrderExists){
+        priceRules = await createPriceRule(customerId, orderName, totalOrder);
+        const discountCode = priceRules.discountData.discount_code.code;
+        const discountAmount = priceRules.discountRule.price_rule.value;
+        const discountEnd = priceRules.discountRule.price_rule.ends_at;
+        const discountDate = new Date(discountEnd);
+        const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
+        
+        //create a return order in shippingbo warehouse
+        //TODO check if a return order exists for that orderId
+        const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku);
+        const returnOrderId = returnOrderData.return_order.id;
 
-      // create a return label with colissimo API
-      const createLabelData = await createLabel(senderCustomer, parcel);
-      const parcelNumber = createLabelData.parcelNumber;
+        // create a return label with colissimo API
+        const createLabelData = await createLabel(senderCustomer, parcel);
+        const parcelNumber = createLabelData.parcelNumber;
 
-    let accessTokenMS365 = getAccessTokenMS365();
-    if(!accessTokenMS365) {
-      await refreshMS365AccessToken();
-      accessTokenMS365 = getAccessTokenMS365();
-    }
-    //send email to Magalie with parcel number and shopify Id and return order Id
-    await sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumber, returnOrderId, discountCode, discountAmount, formattedDate)
-    //send email to customer with link to dwld label and parcel number
-    await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, createLabelData.pdfData, parcelNumber, discountCode, discountAmount, formattedDate);
+      let accessTokenMS365 = getAccessTokenMS365();
+      if(!accessTokenMS365) {
+        await refreshMS365AccessToken();
+        accessTokenMS365 = getAccessTokenMS365();
+      }
+      //send email to Magalie with parcel number and shopify Id and return order Id
+      await sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumber, returnOrderId, discountCode, discountAmount, formattedDate)
+      //send email to customer with link to dwld label and parcel number
+      await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, createLabelData.pdfData, parcelNumber, discountCode, discountAmount, formattedDate);
 
-      return res.status(200).json({
-        success: true,
-        data: priceRules,
-        getOrder: warehouseOrder,
-        returnOrder: returnOrderData,
-        label: createLabelData
-      })
+        return res.status(200).json({
+          success: true,
+          data: priceRules,
+          getOrder: warehouseOrder,
+          returnOrder: returnOrderData,
+          label: createLabelData
+        })
+      } else {
+        console.log('return order already exists : contact SAV !');
+        return res.status(200).json({
+          success: false,
+          message: 'Contacter le SAV - un return order existe déjà pour cette commande'
+        }) 
+      }
     } else {
-      console.log('price rule and/or return order already exists : contact SAV !');
+      console.log('price rule already exists : contact SAV !');
       return res.status(200).json({
         success: false,
-        message: 'Contacter le SAV - un price rule ou une commande retour existe déjà pour cette commande'
+        message: 'Contacter le SAV - un price rule existe déjà pour cette commande'
       })      
     }
    
