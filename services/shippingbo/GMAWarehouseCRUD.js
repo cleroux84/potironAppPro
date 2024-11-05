@@ -128,7 +128,7 @@ const getWarehouseOrderDetails = async (accessTokenWarehouse, shippingboId) => {
 
   const checkIfReturnOrderExist = async (accessTokenWarehouse, originalOrderId) => {
     console.log('original order Id shippingbo', originalOrderId);
-    const checkReturnOrderUrl = `https://app.shippingbo.com/return_orders`;
+    const checkReturnOrderUrl = `https://app.shippingbo.com/return_orders?search[source_ref__eq][]=${originalOrderId}`;
     const checkReturnOrderOptions = {
       method: 'GET',
       headers: {
@@ -144,12 +144,7 @@ const getWarehouseOrderDetails = async (accessTokenWarehouse, shippingboId) => {
       const response = await fetch(checkReturnOrderUrl, checkReturnOrderOptions);
       if(response.ok){
         const data = await response.json();
-        console.log('all return order', data);
-        const existingReturn = data.return_orders.find(
-          order => order.order_id === originalOrderId
-        );
-        return existingReturn ? true : false;
-      } else {
+        console.log('data', data);
         console.log('error checking return order existence');
       }
     } catch (error) {
