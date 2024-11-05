@@ -673,13 +673,14 @@ app.post('/returnProduct', async (req, res) => {
     // //send email to customer with link to dwld label and parcel number
     // await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, createLabelData.pdfData, parcelNumber, discountCode, discountAmount, formattedDate);
 
-    //   return res.status(200).json({
-    //     success: true,
-    //     data: priceRules,
-    //     getOrder: warehouseOrder,
-    //     returnOrder: returnOrderData,
-    //     label: createLabelData
-    //   })
+      return res.status(200).json({
+        // success: true,
+        // data: priceRules,
+        // getOrder: warehouseOrder,
+        // returnOrder: returnOrderData,
+        // label: createLabelData
+        returnExist: returnOrderExists
+      })
     // } else {
     //   console.log('price rule already exists contact SAV !');
     //   return res.status(200).json({
