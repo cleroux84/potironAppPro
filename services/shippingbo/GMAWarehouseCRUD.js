@@ -144,9 +144,9 @@ const getWarehouseOrderDetails = async (accessTokenWarehouse, shippingboId) => {
       const response = await fetch(checkReturnOrderUrl, checkReturnOrderOptions);
       if(response.ok){
         const data = await response.json();
-        console.log("data.length" ,data.length)
+        console.log("data.length", data)
 
-        if(data && data.length > 0) {
+        if(data) {
           console.log('return order already exists')
           return true
         } else {
