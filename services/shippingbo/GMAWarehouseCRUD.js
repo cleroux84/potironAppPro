@@ -144,9 +144,15 @@ const getWarehouseOrderDetails = async (accessTokenWarehouse, shippingboId) => {
       const response = await fetch(checkReturnOrderUrl, checkReturnOrderOptions);
       if(response.ok){
         const data = await response.json();
-        // console.log('data', data);
-        // console.log('error checking return order existence');
-        return data;
+        if(data && data.length > 0) {
+          console.log('return order already exists')
+          return true
+        } else {
+          console.log('return order does not exist');
+          return false
+        }
+      } else {
+        console.log('Failed to check if return order exists')
       }
     } catch (error) {
       console.error('Error checking if return order exists', error);
