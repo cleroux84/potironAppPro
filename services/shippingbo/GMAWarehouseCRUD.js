@@ -126,6 +126,33 @@ const getWarehouseOrderDetails = async (accessTokenWarehouse, shippingboId) => {
         }
   }
 
+  const checkIfReturnOrderExist = async (accessTokenWarehouse, originalOrderId) => {
+    console.log('original order Id shippingbo', originalOrderId);
+    const checkReturnOrderUrl = `https://app.shippingbo.com/return_orders`;
+    const checkReturnOrderOptions = {
+      method: 'GET',
+      headers: {
+        'Content-type': 'application/json',
+        Accept: 'application/json',
+        'X-API-VERSION' : '1',
+        'X-API-APP-ID': API_APP_WAREHOUSE_ID,
+        Authorization: `Bearer ${accessTokenWarehouse}`
+      }
+    }
+
+    try {
+      const response = await fetch(checkReturnOrderUrl, checkReturnOrderOptions);
+      if(response.ok){
+        const data = await response.json();
+        console.log('all return order', data);
+      } else {
+        console.log('error checking return order existence');
+      }
+    } catch (error) {
+      console.error('Error checking if return order exists');
+    }
+  }
+
   module.exports = {
     getWarehouseOrderDetails,
     updateWarehouseOrder,

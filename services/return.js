@@ -90,59 +90,6 @@ const updateReturnOrder = async (accessTokenWarehouse, orderId, parcelNumber) =>
       }
 
 }
-
-const createShipment = async (accessTokenWarehouse, returnId) => {
-    const createShipmentUrl = `https://app.shippingbo.com/shipments`;
-    const shipmentToCreate = {
-        "shipment": {
-            "carrier_id" : 1,
-            "order_id": returnId,
-            "shipping_method_id" : 63,
-            "shipment_type" : "return_label"
-        }
-    }
-    const createShipmentOptions = {
-        method: 'POST',
-        headers: {
-        'Content-type': 'application/json',
-        Accept: 'application/json',
-        'X-API-VERSION' : '1',
-        'X-API-APP-ID': API_APP_WAREHOUSE_ID,
-        Authorization: `Bearer ${accessTokenWarehouse}`
-    },
-    body: JSON.stringify(shipmentToCreate)
-    };
-
-    try {
-        const response = await fetch(createShipmentUrl, createShipmentOptions);
-        const shipmentData = await response.json();
-        console.log('shipment created', shipmentData);
-    } catch (error) {
-        console.error('error creating shipment', error);
-    }
-} 
-
-const getReturnOrderDetails = async (accessTokenWarehouse, returnOrderId) => {
-    const returnOrderUrl = `https://app.shippingbo.com/return_orders/${returnOrderId}`;
-    const returnOrderOptions = {
-        method: 'GET',
-        headers: {
-            'Content-type': 'application/json',
-            Accept: 'application/json',
-            'X-API-VERSION' : '1',
-            'X-API-APP-ID': API_APP_WAREHOUSE_ID,
-            Authorization: `Bearer ${accessTokenWarehouse}`
-          }
-    }
-    try {
-        const response = await fetch(returnOrderUrl, returnOrderOptions);
-        const data = await response.json();
-        console.log('return order:', data);
-    } catch (error) {
-        console.error('error getting return order', error);
-    }
-}
-
 const createPriceRule = async (customerId, orderName, totalOrder) => {
     const createPriceRuleUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/price_rules.json`
     const nowDate = new Date().toISOString();
@@ -245,7 +192,6 @@ const checkIfPriceRuleExists = async (orderName) => {
 module.exports = {
     createPriceRule,
     createReturnOrder,
-    getReturnOrderDetails,
     updateReturnOrder,
     checkIfPriceRuleExists
 }

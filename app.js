@@ -18,10 +18,10 @@ const WAREHOUSE_AUTHORIZATION_CODE = process.env.WAREHOUSE_AUTHORIZATION_CODE;
 const { getToken, refreshAccessToken } = require('./services/shippingbo/potironParisAuth.js');
 const { getTokenWarehouse, refreshAccessTokenWarehouse } = require('./services/shippingbo/gmaWarehouseAuth.js');
 const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft } = require('./services/shippingbo/potironParisCRUD.js');
-const { getWarehouseOrderDetails, updateWarehouseOrder, getWarehouseOrderToReturn, getshippingDetails } = require('./services/shippingbo/GMAWarehouseCRUD.js');
+const { getWarehouseOrderDetails, updateWarehouseOrder, getWarehouseOrderToReturn, getshippingDetails, checkIfReturnOrderExist } = require('./services/shippingbo/GMAWarehouseCRUD.js');
 const { sendEmailWithKbis, sendWelcomeMailPro, sendReturnDataToCustomer, sendReturnDataToSAV } = require('./services/sendMail.js');
-const { createDraftOrder, updateDraftOrderWithTags, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById, orderById, getProductDetails, getProductWeightBySku } = require('./services/shopifyApi.js');
-const { createDiscountCode, createReturnOrder, getReturnOrderDetails, updateReturnOrder, checkIfPriceRuleExists, createPriceRule } = require('./services/return.js');
+const { createDraftOrder, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById, orderById, getProductDetails, getProductWeightBySku } = require('./services/shopifyApi.js');
+const { createReturnOrder, updateReturnOrder, checkIfPriceRuleExists, createPriceRule } = require('./services/return.js');
 const { refreshMS365AccessToken, getAccessTokenMS365 } = require('./services/microsoftAuth.js');
 const { createLabel } = require('./services/colissimoApi.js');
 
@@ -643,48 +643,49 @@ app.post('/returnProduct', async (req, res) => {
     };
     //Check if price rules exists
     const ruleExists = await checkIfPriceRuleExists(orderName);
-    console.log('rules Exists ?: ', ruleExists);
+    await checkIfReturnOrderExist(accessTokenWarehouse, warehouseOrder.order.id);
     //Create discount code in shopify
-    if(!ruleExists) {
-      priceRules = await createPriceRule(customerId, orderName, totalOrder);
-      const discountCode = priceRules.discountData.discount_code.code;
-      const discountAmount = priceRules.discountRule.price_rule.value;
-      const discountEnd = priceRules.discountRule.price_rule.ends_at;
-      const discountDate = new Date(discountEnd);
-      const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
+    // if(!ruleExists) {
+    //   priceRules = await createPriceRule(customerId, orderName, totalOrder);
+    //   const discountCode = priceRules.discountData.discount_code.code;
+    //   const discountAmount = priceRules.discountRule.price_rule.value;
+    //   const discountEnd = priceRules.discountRule.price_rule.ends_at;
+    //   const discountDate = new Date(discountEnd);
+    //   const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
       
-      //create a return order in shippingbo warehouse
-      const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku);
-      const returnOrderId = returnOrderData.return_order.id;
+    //   //create a return order in shippingbo warehouse
+    //   //TODO check if a return order exists for that orderId
+    //   const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku);
+    //   const returnOrderId = returnOrderData.return_order.id;
 
-      // create a return label with colissimo API
-    const createLabelData = await createLabel(senderCustomer, parcel);
-    const parcelNumber = createLabelData.parcelNumber;
+    //   // create a return label with colissimo API
+    //   const createLabelData = await createLabel(senderCustomer, parcel);
+    //   const parcelNumber = createLabelData.parcelNumber;
 
-    let accessTokenMS365 = getAccessTokenMS365();
-    if(!accessTokenMS365) {
-      await refreshMS365AccessToken();
-      accessTokenMS365 = getAccessTokenMS365();
-    }
-    //send email to Magalie with parcel number and shopify Id and return order Id
-    await sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumber, returnOrderId, discountCode, discountAmount, formattedDate)
-    //send email to customer with link to dwld label and parcel number
-    await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, createLabelData.pdfData, parcelNumber, discountCode, discountAmount, formattedDate);
+    // let accessTokenMS365 = getAccessTokenMS365();
+    // if(!accessTokenMS365) {
+    //   await refreshMS365AccessToken();
+    //   accessTokenMS365 = getAccessTokenMS365();
+    // }
+    // //send email to Magalie with parcel number and shopify Id and return order Id
+    // await sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumber, returnOrderId, discountCode, discountAmount, formattedDate)
+    // //send email to customer with link to dwld label and parcel number
+    // await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, createLabelData.pdfData, parcelNumber, discountCode, discountAmount, formattedDate);
 
-      return res.status(200).json({
-        success: true,
-        data: priceRules,
-        getOrder: warehouseOrder,
-        returnOrder: returnOrderData,
-        label: createLabelData
-      })
-    } else {
-      console.log('price rule already exists contact SAV !');
-      return res.status(200).json({
-        success: false,
-        message: 'Contacter le SAV - un price rule existe déjà pour cette commande'
-      })      
-    }
+    //   return res.status(200).json({
+    //     success: true,
+    //     data: priceRules,
+    //     getOrder: warehouseOrder,
+    //     returnOrder: returnOrderData,
+    //     label: createLabelData
+    //   })
+    // } else {
+    //   console.log('price rule already exists contact SAV !');
+    //   return res.status(200).json({
+    //     success: false,
+    //     message: 'Contacter le SAV - un price rule existe déjà pour cette commande'
+    //   })      
+    // }
    
     //update the return order with parcel number (numéro de colis) from colissimo - WIP
     // const updateReturnOrderWithLabel = await updateReturnOrder(accessTokenWarehouse, returnOrderId, parcelNumber)
