@@ -646,7 +646,7 @@ app.post('/returnProduct', async (req, res) => {
     const returnOrderExists = await checkIfReturnOrderExist(accessTokenWarehouse, warehouseOrder.order.id);
     console.log('returnOrderExists ?', returnOrderExists);
     // Create discount code in shopify
-    if(!ruleExists && !returnOrderExists) {
+    if(!ruleExists || !returnOrderExists) {
       priceRules = await createPriceRule(customerId, orderName, totalOrder);
       const discountCode = priceRules.discountData.discount_code.code;
       const discountAmount = priceRules.discountRule.price_rule.value;
