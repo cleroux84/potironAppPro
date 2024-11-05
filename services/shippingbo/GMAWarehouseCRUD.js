@@ -145,6 +145,10 @@ const getWarehouseOrderDetails = async (accessTokenWarehouse, shippingboId) => {
       if(response.ok){
         const data = await response.json();
         console.log('all return order', data);
+        const existingReturn = data.return_order.find(
+          order => order.order_id === originalOrderId
+        );
+        return existingReturn ? true : false;
       } else {
         console.log('error checking return order existence');
       }
@@ -157,5 +161,6 @@ const getWarehouseOrderDetails = async (accessTokenWarehouse, shippingboId) => {
     getWarehouseOrderDetails,
     updateWarehouseOrder,
     getWarehouseOrderToReturn,
-    getshippingDetails
+    getshippingDetails,
+    checkIfReturnOrderExist
   }
