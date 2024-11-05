@@ -128,7 +128,7 @@ const getWarehouseOrderDetails = async (accessTokenWarehouse, shippingboId) => {
 
   const checkIfReturnOrderExist = async (accessTokenWarehouse, originalOrderId) => {
     console.log('original order Id shippingbo', originalOrderId);
-    const checkReturnOrderUrl = `https://app.shippingbo.com/return_orders?search[source_ref__eq][]=${originalOrderId}`;
+    const checkReturnOrderUrl = `https://app.shippingbo.com/return_orders?search[order_id__eq][]=${originalOrderId}`;
     const checkReturnOrderOptions = {
       method: 'GET',
       headers: {
