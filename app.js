@@ -555,7 +555,7 @@ app.get('/checkIfsReturnPossible', async (req, res) => {
  
     itemsToReturn.forEach(ref => {
       const foundItem = shipments.find((shipment, index) => {
-        const quantity = quantities[ref];
+        // const quantity = quantitiesByRefs[ref];
         const item = shipment.order_items_shipments.find(item => item.order_item_id.toString() === ref);
         if (item) {
           const shippingMethod = shipment.shipping_method_name;
