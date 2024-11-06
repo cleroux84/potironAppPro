@@ -539,11 +539,13 @@ app.get('/getOrderById', async (req, res) => {
   }
 })
 
+let quantitiesByRefs;
+
 app.get('/checkIfsReturnPossible', async (req, res) => {
   const orderId = req.query.warehouseOrderId;
   const itemsToReturn = req.query.return_items.split(',');
-  const quantities = JSON.parse(req.query.quantities);
-  console.log('qties', quantities);
+  quantitiesByRefs = JSON.parse(req.query.quantities);
+  console.log('ref & qties to check', quantitiesByRefs);
  
   try {
     const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId);
@@ -593,6 +595,7 @@ app.get('/checkIfsReturnPossible', async (req, res) => {
 
 app.post('/returnProduct', async (req, res) => {
   console.log('all param', req.body);
+  console.log('qté by refs return', quantitiesByRefs);
   const customerId = req.body.customerId;
   const orderName = req.body.orderName;
   console.log('customerId', customerId);
@@ -619,6 +622,8 @@ app.post('/returnProduct', async (req, res) => {
       console.log('product sku to return to find weight', productSku);
       for (const sku of productSku) {
         const productFoundSku = await getProductWeightBySku(sku);
+        console.log('here sku', productFoundSku);
+        console.log('quté here', quantitiesByRefs);
         if(productFoundSku) {
           weightToReturn += productFoundSku.weight;
           totalOrder += (Number(productFoundSku.price));
