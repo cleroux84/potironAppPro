@@ -542,6 +542,8 @@ app.get('/getOrderById', async (req, res) => {
 app.get('/checkIfsReturnPossible', async (req, res) => {
   const orderId = req.query.warehouseOrderId;
   const itemsToReturn = req.query.return_items.split(',');
+  const quantities = JSON.parse(req.query.quantities);
+  console.log('qties', quantities);
  
   try {
     const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId);
@@ -551,6 +553,7 @@ app.get('/checkIfsReturnPossible', async (req, res) => {
  
     itemsToReturn.forEach(ref => {
       const foundItem = shipments.find((shipment, index) => {
+        const quantity = quantities[ref];
         const item = shipment.order_items_shipments.find(item => item.order_item_id.toString() === ref);
         if (item) {
           const shippingMethod = shipment.shipping_method_name;
