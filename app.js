@@ -623,11 +623,9 @@ app.post('/returnProduct', async (req, res) => {
       for (const sku of productSku) {
         console.log('sku', sku)
         const productFoundSku = await getProductWeightBySku(sku.product_user_ref);
-        console.log('qté this sku', sku.quantity);
-        console.log('here sku', productFoundSku);
-        console.log('good weight', productFoundSku.weight * sku.quantity);
+        console.log('price tests', (Number(productFoundSku.price)) * sku.quantity);
         if(productFoundSku) {
-          weightToReturn += productFoundSku.weight;
+          weightToReturn += productFoundSku.weight * sku.quantity;
           totalOrder += (Number(productFoundSku.price));
         }
     }
@@ -673,8 +671,8 @@ app.post('/returnProduct', async (req, res) => {
     //     const returnOrderId = returnOrderData.return_order.id;
 
     //     // create a return label with colissimo API
-    //     const createLabelData = await createLabel(senderCustomer, parcel);
-    //     const parcelNumber = createLabelData.parcelNumber;
+        const createLabelData = await createLabel(senderCustomer, parcel);
+        // const parcelNumber = createLabelData.parcelNumber;
 
     //   let accessTokenMS365 = getAccessTokenMS365();
     //   if(!accessTokenMS365) {
@@ -686,13 +684,13 @@ app.post('/returnProduct', async (req, res) => {
     //   //send email to customer with link to dwld label and parcel number
     //   await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, createLabelData.pdfData, parcelNumber, discountCode, discountAmount, formattedDate);
 
-    //     return res.status(200).json({
-    //       success: true,
-    //       data: priceRules,
-    //       getOrder: warehouseOrder,
-    //       returnOrder: returnOrderData,
-    //       label: createLabelData
-    //     })
+        return res.status(200).json({
+          // success: true,
+          // data: priceRules,
+          // getOrder: warehouseOrder,
+          // returnOrder: returnOrderData,
+          label: createLabelData
+        })
     //   } else {
     //     console.log('return order already exists : contact SAV !');
     //     return res.status(200).json({
