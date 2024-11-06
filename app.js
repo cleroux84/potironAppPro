@@ -621,6 +621,7 @@ app.post('/returnProduct', async (req, res) => {
     } else {
       console.log('product sku to return to find weight', productSku);
       for (const sku of productSku) {
+        console.log('sku', sku)
         const productFoundSku = await getProductWeightBySku(sku);
         console.log('here sku', productFoundSku);
         console.log('quté here', quantitiesByRefs);
@@ -630,7 +631,7 @@ app.post('/returnProduct', async (req, res) => {
         }
     }
     totalOrder = totalOrder.toFixed(2);
-    // console.log('tot to rembourse', totalOrder);
+    console.log('tot to rembourse', totalOrder);
   }
     //create object from initial order for label
     const senderCustomer = {
