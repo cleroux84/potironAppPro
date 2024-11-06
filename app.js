@@ -622,9 +622,10 @@ app.post('/returnProduct', async (req, res) => {
       console.log('product sku to return to find weight', productSku);
       for (const sku of productSku) {
         console.log('sku', sku)
-        const productFoundSku = await getProductWeightBySku(sku);
+        const productFoundSku = await getProductWeightBySku(sku.product_user_ref);
+        console.log('qté this sku', sku.quantity);
         console.log('here sku', productFoundSku);
-        console.log('quté here', quantitiesByRefs);
+        console.log('good weight', productFoundSku.weight * sku.quantity);
         if(productFoundSku) {
           weightToReturn += productFoundSku.weight;
           totalOrder += (Number(productFoundSku.price));
