@@ -601,6 +601,7 @@ app.post('/returnProduct', async (req, res) => {
   const optionChosen = req.body.returnOption;
   const orderId = req.body.orderId;
   const returnAll = req.body.returnAllOrder;
+  console.log('return all', returnAll);
   
   if (optionChosen === "option1") {
     //Retrieve data from initial order
