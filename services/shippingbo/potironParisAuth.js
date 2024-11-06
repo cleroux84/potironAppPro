@@ -84,6 +84,7 @@ const saveRefreshTokenDb = async (token) => {
       const data = await response.json();
       accessToken = data.access_token;
       refreshToken = data.refresh_token;
+      console.log('MORNING BUG REFRESH', data)
       await saveRefreshTokenDb(refreshToken);
       return {
         accessToken,
