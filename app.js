@@ -619,7 +619,7 @@ app.post('/returnProduct', async (req, res) => {
         .reduce((total, shipment) => total + (shipment.total_weight / 1000), 0);
       totalOrder = req.body.totalOrder;
       totalOrder = (totalOrder / 100).toFixed(2);
-      console.log("tot weight", weightToReturn);
+      console.log("tot order", totalOrder);
     } else {
       console.log('product sku to return to find weight', productSku);
       for (const sku of productSku) {
@@ -628,12 +628,14 @@ app.post('/returnProduct', async (req, res) => {
         console.log('price tests', (Number(productFoundSku.price)) * sku.quantity);
         if(productFoundSku) {
           weightToReturn += productFoundSku.weight * sku.quantity;
-          totalOrder += (Number(productFoundSku.price));
+          totalOrder += sku.unit_price * sku.quantity;
         }
     }
     totalOrder = totalOrder.toFixed(2);
     console.log('tot to rembourse', totalOrder);
   }
+  console.log('tot to rembourse', totalOrder);
+
     //create object from initial order for label
     const senderCustomer = {
       'name': warehouseOrder.order.shipping_address.fullname,
