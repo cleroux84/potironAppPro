@@ -615,8 +615,10 @@ app.post('/returnProduct', async (req, res) => {
     //Set values if return all product in order or selected items
     if(returnAll) {
       // weightToReturn = warehouseOrder.order.shipments[0].total_weight / 1000;
-      weightToReturn = warehouseOrder.order.shipments
-        .reduce((total, shipment) => shipment.total_weight, 0) / 1000;
+      console.log('weight1', warehouseOrder.order.shipments[0].total_weight / 1000);
+      console.log('weight1', warehouseOrder.order.shipments[1].total_weight / 1000);
+      console.log('weight1', warehouseOrder.order.shipments[2].total_weight / 1000);
+
       totalOrder = req.body.totalOrder;
       totalOrder = (totalOrder / 100).toFixed(2);
       // console.log("tot all", totalOrder);
@@ -633,8 +635,6 @@ app.post('/returnProduct', async (req, res) => {
     }
     totalOrder = totalOrder.toFixed(2);
     console.log('tot to rembourse', totalOrder);
-    console.log('weighttoreturn', weightToReturn);
-
   }
     //create object from initial order for label
     const senderCustomer = {
