@@ -661,12 +661,12 @@ app.post('/returnProduct', async (req, res) => {
     // Create discount code in shopify
     // if(!ruleExists) {
     //   if(!returnOrderExists){
-        priceRules = await createPriceRule(customerId, orderName, totalOrder);
-        const discountCode = priceRules.discountData.discount_code.code;
-        const discountAmount = priceRules.discountRule.price_rule.value;
-        const discountEnd = priceRules.discountRule.price_rule.ends_at;
-        const discountDate = new Date(discountEnd);
-        const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
+        // priceRules = await createPriceRule(customerId, orderName, totalOrder);
+        // const discountCode = priceRules.discountData.discount_code.code;
+        // const discountAmount = priceRules.discountRule.price_rule.value;
+        // const discountEnd = priceRules.discountRule.price_rule.ends_at;
+        // const discountDate = new Date(discountEnd);
+        // const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
         
     //     //create a return order in shippingbo warehouse
     //     //TODO check if a return order exists for that orderId
@@ -674,7 +674,7 @@ app.post('/returnProduct', async (req, res) => {
         const returnOrderId = returnOrderData.return_order.id;
 
     //     // create a return label with colissimo API
-        const createLabelData = await createLabel(senderCustomer, parcel);
+        // const createLabelData = await createLabel(senderCustomer, parcel);
         // const parcelNumber = createLabelData.parcelNumber;
 
     //   let accessTokenMS365 = getAccessTokenMS365();
@@ -689,10 +689,10 @@ app.post('/returnProduct', async (req, res) => {
 
         return res.status(200).json({
           // success: true,
-          data: priceRules,
+          // data: priceRules,
           // getOrder: warehouseOrder,
           returnOrder: returnOrderData,
-          label: createLabelData
+          // label: createLabelData
         })
     //   } else {
     //     console.log('return order already exists : contact SAV !');
