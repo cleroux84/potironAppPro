@@ -670,8 +670,8 @@ app.post('/returnProduct', async (req, res) => {
         
     //     //create a return order in shippingbo warehouse
     //     //TODO check if a return order exists for that orderId
-    //     const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku);
-    //     const returnOrderId = returnOrderData.return_order.id;
+        const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku);
+        const returnOrderId = returnOrderData.return_order.id;
 
     //     // create a return label with colissimo API
         const createLabelData = await createLabel(senderCustomer, parcel);
@@ -691,7 +691,7 @@ app.post('/returnProduct', async (req, res) => {
           // success: true,
           data: priceRules,
           // getOrder: warehouseOrder,
-          // returnOrder: returnOrderData,
+          returnOrder: returnOrderData,
           label: createLabelData
         })
     //   } else {
