@@ -625,7 +625,6 @@ app.post('/returnProduct', async (req, res) => {
       for (const sku of productSku) {
         console.log('sku', sku)
         const productFoundSku = await getProductWeightBySku(sku.product_user_ref);
-        console.log('price tests', (Number(productFoundSku.price)) * sku.quantity);
         if(productFoundSku) {
           weightToReturn += productFoundSku.weight * sku.quantity;
           totalOrder += sku.unit_price * sku.quantity;
@@ -662,12 +661,12 @@ app.post('/returnProduct', async (req, res) => {
     // Create discount code in shopify
     // if(!ruleExists) {
     //   if(!returnOrderExists){
-    //     priceRules = await createPriceRule(customerId, orderName, totalOrder);
-    //     const discountCode = priceRules.discountData.discount_code.code;
-    //     const discountAmount = priceRules.discountRule.price_rule.value;
-    //     const discountEnd = priceRules.discountRule.price_rule.ends_at;
-    //     const discountDate = new Date(discountEnd);
-    //     const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
+        priceRules = await createPriceRule(customerId, orderName, totalOrder);
+        const discountCode = priceRules.discountData.discount_code.code;
+        const discountAmount = priceRules.discountRule.price_rule.value;
+        const discountEnd = priceRules.discountRule.price_rule.ends_at;
+        const discountDate = new Date(discountEnd);
+        const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
         
     //     //create a return order in shippingbo warehouse
     //     //TODO check if a return order exists for that orderId
@@ -690,7 +689,7 @@ app.post('/returnProduct', async (req, res) => {
 
         return res.status(200).json({
           // success: true,
-          // data: priceRules,
+          data: priceRules,
           // getOrder: warehouseOrder,
           // returnOrder: returnOrderData,
           label: createLabelData
