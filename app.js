@@ -72,8 +72,12 @@ const initializeTokens = async () => {
 }
 //refreshToken every 1h50
     setInterval(async () => {
-      console.log("auto refresh shippingbo Token");
+      // console.log("auto refresh shippingbo Token");
+      console.log('token before refresh initialize', accessToken);
+      console.log('refresh before refresh initialize', refreshToken);
       await refreshAccessToken(); //1h50 
+      console.log('token after refresh initialize', accessToken);
+      console.log('refresh after refresh initialize', refreshToken);
       await refreshAccessTokenWarehouse();
   }, 6600000); //1h50
   //refreshToken every 1h15 for MS365
