@@ -14,7 +14,8 @@ const setupShippingboWebhook = async () => {
     const webhookPayload = {
         object_class: 'ReturnOrder',
         endpoint_url: 'https://potironapppro.onrender.com/returnOrderCancel',
-        activated: true
+        activated: true,
+        field: 'state'
     };
     const webhookOptions = {
         method: 'POST',
