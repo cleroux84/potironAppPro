@@ -3,7 +3,8 @@ const API_APP__WAREHOUSE_ID = process.env.API_APP_WAREHOUSE_ID;
 
 
 const setupShippingboWebhook = async (accessTokenWarehouse) => {
-    const webhookUrl = `https://app.shippingbo.com/update_hooks'`;
+    console.log('passe ici', accessTokenWarehouse);
+    const webhookUrl = `https://app.shippingbo.com/update_hooks`;
     const webhookPayload = {
         object_class: 'ReturnOrder',
         endpoint_url: 'https://potironapppro.onrender.com/returnOrderCancel',

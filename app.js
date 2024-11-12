@@ -94,6 +94,7 @@ setupShippingboWebhook(accessTokenWarehouse);
 
 app.post('/returnOrderCancel', (req, res) => {
   const webhookData = req.body;
+  console.log('webhook ppl', webhookData);
   if(webhookData.field === 'State' && webhookData.new_value === 'canceled') {
     console.log('retourn annulé reçu', webhookData);
   }
