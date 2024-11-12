@@ -1,9 +1,15 @@
 const fetch = require('node-fetch');
+const { getTokenWarehouse } = require('./gmaWarehouseAuth');
 const API_APP__WAREHOUSE_ID = process.env.API_APP_WAREHOUSE_ID;
+let accessTokenWarehouse;
+let refreshTokenWarehouse;
 
-
-const setupShippingboWebhook = async (accessTokenWarehouse) => {
+const setupShippingboWebhook = async () => {
+    const tokensWarehouse = await getTokenWarehouse(WAREHOUSE_AUTHORIZATION_CODE);
+    accessTokenWarehouse = tokensWarehouse.accessTokenWarehouse;
+    refreshTokenWarehouse = tokensWarehouse.refreshTokenWarehouse;
     console.log('passe ici', accessTokenWarehouse);
+
     const webhookUrl = `https://app.shippingbo.com/update_hooks`;
     const webhookPayload = {
         object_class: 'ReturnOrder',
