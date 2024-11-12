@@ -24,6 +24,7 @@ const { createDraftOrder, getCustomerMetafields, updateProCustomer, createProCus
 const { createReturnOrder, updateReturnOrder, checkIfPriceRuleExists, createPriceRule } = require('./services/return.js');
 const { refreshMS365AccessToken, getAccessTokenMS365 } = require('./services/microsoftAuth.js');
 const { createLabel } = require('./services/colissimoApi.js');
+const { setupShippingboWebhook } = require('./services/shippingbo/webhooks.js');
 
 let accessToken = null;
 let refreshToken = null;
@@ -89,6 +90,15 @@ const initializeTokens = async () => {
 };
  
 initializeTokens();
+setupShippingboWebhook(accessTokenWarehouse);
+
+app.post('/returnOrderCancel', (req, res) => {
+  const webhookData = req.body;
+  if(webhookData.field === 'State' && webhookData.new_value === 'canceled') {
+    console.log('retourn annulé reçu', webhookData);
+  }
+  res.status(200).send('webhook reçu')
+})
 
 let uploadedFile = null;
 let originalFileName = null;
