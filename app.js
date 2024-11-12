@@ -94,9 +94,12 @@ setupShippingboWebhook(accessTokenWarehouse);
 
 app.post('/returnOrderCancel', (req, res) => {
   const webhookData = req.body;
-  console.log('webhook ppl', webhookData);
-  if(webhookData.field === 'State' && webhookData.new_value === 'canceled') {
-    console.log('retourn annulé reçu', webhookData);
+  // console.log('webhook ppl', webhookData);
+  if(webhookData.object.reason === 'Retour en ligne' 
+    && webhookData.object.reason_ref === 'Retour Automatisé' 
+    && webhookData.additional_data.from === 'new'
+  && webhookData.additional_data.to ==='canceled') {
+    console.log('create and send mail discount code', webhookData);
   }
   res.status(200).send('webhook reçu')
 })
