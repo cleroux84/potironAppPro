@@ -64,7 +64,11 @@ const saveRefreshTokenDb = async (token) => {
   };
 
   const refreshAccessToken = async () => {
+    console.log('refresh before refresh', refreshToken);
+    console.log('token before refresh', accessToken);
     refreshToken = await getRefreshTokenFromDb();
+    console.log('refresh after refresh', refreshToken);
+    console.log('token after refresh', accessToken);
     const refreshUrl = 'https://oauth.shippingbo.com/oauth/token';
     const refreshOptions = {
       method: 'POST',
