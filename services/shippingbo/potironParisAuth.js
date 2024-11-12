@@ -87,14 +87,20 @@ const saveRefreshTokenDb = async (token) => {
     try {
       const response = await fetch(refreshUrl, refreshOptions);
       const data = await response.json();
-      accessToken = data.access_token;
-      refreshToken = data.refresh_token;
-      console.log('MORNING BUG REFRESH', data)
-      await saveRefreshTokenDb(refreshToken);
-      return {
-        accessToken,
-        refreshToken
-      };
+      if(data.access_token && data.refresh_token) {
+        accessToken = data.access_token;
+        refreshToken = data.refresh_token;
+        console.log('BUG NEW ACCESS', data)
+        await saveRefreshTokenDb(refreshToken);
+      } else {
+        console.error('refresh failed here', data)
+      }
+      
+     
+      // return {
+      //   accessToken,
+      //   refreshToken
+      // };
     } catch (error) {
       console.error('Error refreshing access token:', error);
     }
