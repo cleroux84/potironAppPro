@@ -137,7 +137,7 @@ const getOrderByShopifyId = async (orderId) => {
   try {
     const response = await fetch(getOrderUrl, getOrderOptions);
     const data = await response.json();
-    console.log("attributes ?", data);
+    return data;
   } catch (error) {
     
   }

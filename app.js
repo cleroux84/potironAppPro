@@ -104,8 +104,19 @@ app.post('/returnOrderCancel', async (req, res) => {
     const shopifyIdString = webhookData.object.reason_ref;
     const shopifyId = Number(shopifyIdString);
     const getAttributes = await getOrderByShopifyId(shopifyId);
-    console.log('find attributes', getAttributes);
-
+    console.log('find attributes', getAttributes.order.note_attributes);
+    const noteAttributes = getAttributes.order.note_attributes;
+    const customerIdAttr = noteAttributes.find(attr => attr.name === "customerId");
+    const customerIdForCode = customerIdAttr ? customerIdAttr.value : null;
+    console.log('customerId for discount', customerIdForCode);
+    const orderName = getAttributes.order.name;
+    console.log('ordername for discount', orderName);
+    const warehouseIdAttr = noteAttributes.find(attr => attr.name === 'warehouseId');
+    const warehouseId = warehouseIdAttr ? warehouseIdAttr.value : null;
+    console.log('warehouseId for discount', warehouseId);
+    const totalAmountAttr = noteAttributes.find(attr => attr.name === "totalOrderReturn");
+    const totalAmount = totalAmountAttr ? totalAmountAttr.value : null;
+    console.log('total for discount', totalAmount);
   }
   res.status(200).send('webhook reçu')
 })
