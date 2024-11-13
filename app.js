@@ -626,6 +626,7 @@ app.post('/returnProduct', async (req, res) => {
   const optionChosen = req.body.returnOption;
   const orderId = req.body.orderId;
   const returnAll = req.body.returnAllOrder;
+  const shopifyOrderId = req.data.shopifyOrderId;
   console.log('return all', returnAll);
   /* modifier pour envoyer le code de reduction seulement si retour validé donc dans le webhook 
     mais ici donc créer la commande retour avec id shopify
@@ -697,7 +698,7 @@ app.post('/returnProduct', async (req, res) => {
         
     //     //create a return order in shippingbo warehouse
     //     //TODO check if a return order exists for that orderId
-        const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku);
+        const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku, shopifyOrderId);
         const returnOrderId = returnOrderData.return_order.id;
 
     //     // create a return label with colissimo API
