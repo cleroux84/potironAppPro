@@ -95,60 +95,52 @@ setupShippingboWebhook(accessTokenWarehouse);
 app.post('/returnOrderCancel', async (req, res) => {
   try {
     const webhookData = req.body;
- 
-    // Validation des conditions pour déclencher le webhook
-    if (webhookData.object.reason === 'Retour automatisé en ligne'
-        && webhookData.additional_data.from === 'new'
-        && webhookData.additional_data.to === 'canceled'
-    ) {
-      console.log('Webhook déclenché pour créer un code de réduction');
- 
-      const shopifyIdString = webhookData.object.reason_ref;
-      const shopifyId = Number(shopifyIdString);
-      // Récupération des attributs de la commande Shopify
-      const getAttributes = await getOrderByShopifyId(shopifyId);
- 
-      if (!getAttributes || !getAttributes.order || !getAttributes.order.note_attributes) {
-        console.log('Erreur : Attributs de commande manquants');
-        return res.status(400).send('Erreur : Attributs de commande manquants');
+    // console.log('webhook ppl', webhookData);
+    if(webhookData.object.reason === 'Retour automatisé en ligne'
+      && webhookData.additional_data.from === 'new'
+      && webhookData.additional_data.to ==='canceled' //TODO change for "returned"
+    ) 
+    {
+      try {
+        console.log('create and send mail discount code', webhookData);
+        const shopifyIdString = webhookData.object.reason_ref;
+        const shopifyId = Number(shopifyIdString);
+        const getAttributes = await getOrderByShopifyId(shopifyId);
+        console.log('find attributes', getAttributes.order.note_attributes);
+        const noteAttributes = getAttributes.order.note_attributes;
+        const customerIdAttr = noteAttributes.find(attr => attr.name === "customerId");
+        const customerId = customerIdAttr ? customerIdAttr.value : null;
+        console.log('customerId for discount', customerId);
+        const orderName = getAttributes.order.name;
+        console.log('ordername for discount', orderName);
+        // const warehouseIdAttr = noteAttributes.find(attr => attr.name === 'warehouseId');
+        // const warehouseId = warehouseIdAttr ? warehouseIdAttr.value : null;
+        // console.log('warehouseId for discount', warehouseId);
+        const totalAmountAttr = noteAttributes.find(attr => attr.name === "totalOrderReturn");
+        const totalAmount = totalAmountAttr ? parseFloat(totalAmountAttr.value) : null;
+        console.log('total for discount', totalAmount);
+      } catch (error) {
+        console.error("error webhook discount code", error);
       }
- 
-      const noteAttributes = getAttributes.order.note_attributes;
-      const customerIdAttr = noteAttributes.find(attr => attr.name === "customerId");
-      const totalAmountAttr = noteAttributes.find(attr => attr.name === "totalOrderReturn");
- 
-      if (!customerIdAttr || !totalAmountAttr) {
-        console.log('Erreur : customerId ou totalAmount manquants');
-        return res.status(400).send('Erreur : Informations client ou montant total manquants');
-      }
- 
-      const customerIdForCode = customerIdAttr.value;
-      const orderName = getAttributes.order.name;
-      const totalAmount = parseFloat(totalAmountAttr.value);
- 
-      // Vérifie si la règle de prix existe
-      const ruleExists = await checkIfPriceRuleExists(orderName);
-      if (!ruleExists) {
-        const priceRules = await createPriceRule(customerIdForCode, orderName, totalAmount);
-        const discountCode = priceRules.discountData.discount_code.code;
-        const discountEnd = priceRules.discountRule.price_rule.ends_at;
-        const discountDate = new Date(discountEnd);
-        const formattedDate = discountDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
- 
-        console.log(`Code de réduction créé : ${discountCode}, valable jusqu'au : ${formattedDate}`);
-      } else {
-        console.log('La règle de prix existe déjà pour cette commande');
-      }
-      return res.status(200).send('Webhook traité avec succès');
-    } else {
-      console.log('Conditions du webhook non remplies');
-      return res.status(400).send('Conditions du webhook non remplies');
-    }
-  } catch (error) {
-    console.error('Erreur lors du traitement du webhook :', error);
-    return res.status(500).send('Erreur interne');
+     
+      // const ruleExists = await checkIfPriceRuleExists(orderName);
+      // Create discount code in shopify
+      // if(!ruleExists) {
+      //     priceRules = await createPriceRule(customerId, orderName, totalAmount);
+      //     const discountCode = priceRules.discountData.discount_code.code;
+      //     const discountAmount = priceRules.discountRule.price_rule.value;
+      //     const discountEnd = priceRules.discountRule.price_rule.ends_at;
+      //     const discountDate = new Date(discountEnd);
+      //     const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });  
+      //   console.log('discountcode', discountCode);
+      //   }
   }
-});
+ } catch (error) {
+    console.error('error on webhook', error);
+  }
+
+  res.status(200).send('webhook reçu')
+})
 
 let uploadedFile = null;
 let originalFileName = null;
