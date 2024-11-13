@@ -20,7 +20,7 @@ const { getTokenWarehouse, refreshAccessTokenWarehouse } = require('./services/s
 const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft } = require('./services/shippingbo/potironParisCRUD.js');
 const { getWarehouseOrderDetails, updateWarehouseOrder, getWarehouseOrderToReturn, getshippingDetails, checkIfReturnOrderExist } = require('./services/shippingbo/GMAWarehouseCRUD.js');
 const { sendEmailWithKbis, sendWelcomeMailPro, sendReturnDataToCustomer, sendReturnDataToSAV } = require('./services/sendMail.js');
-const { createDraftOrder, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById, orderById, getProductDetails, getProductWeightBySku } = require('./services/shopifyApi.js');
+const { createDraftOrder, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById, orderById, getProductDetails, getProductWeightBySku, updateOrder, getOrderByShopifyId } = require('./services/shopifyApi.js');
 const { createReturnOrder, updateReturnOrder, checkIfPriceRuleExists, createPriceRule } = require('./services/return.js');
 const { refreshMS365AccessToken, getAccessTokenMS365 } = require('./services/microsoftAuth.js');
 const { createLabel } = require('./services/colissimoApi.js');
@@ -101,6 +101,9 @@ app.post('/returnOrderCancel', (req, res) => {
   ) 
   {
     console.log('create and send mail discount code', webhookData);
+    const shopifyId = webhookData.data.reason_ref;
+    getOrderByShopifyId(shopifyId);
+
   }
   res.status(200).send('webhook reçu')
 })
@@ -699,13 +702,19 @@ app.post('/returnProduct', async (req, res) => {
         const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku, shopifyOrderId);
         const returnOrderId = returnOrderData.return_order.id;
         const shopifyId = returnOrderData.return_order.reason_ref;
-        console.log('FOR DISCOUNT orderName', orderName);
-        console.log('FOR DISCOUNT warehouseId', warehouseOrder.order.id);
-        console.log('FOR DISCOUNT customerId', customerId);
-        console.log('FOR DISCOUNT totalOrder', totalOrder);
-        console.log('FOR DISCOUNT shopify Id to update', shopifyId)
-
-        //UPDATE ORDER SHOPIFY WITH DATA FOR discountCode in notes or tags
+        const attributes = [
+          {name: "orderName", value: orderName},
+          {name: "warehouseId", value: warehouseOrder.order.id},
+          {name: "customerId", value: customerId},
+          {name: "totalOrderReturn", value: totalOrder}
+        ];
+        const updatedAttributes = {
+          order: {
+            id: orderId,
+            note_attributes: attributes
+          }
+        }
+        updateOrder(updatedAttributes ,shopifyId)
 
     //     // create a return label with colissimo API
         // const createLabelData = await createLabel(senderCustomer, parcel);
