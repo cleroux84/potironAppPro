@@ -98,7 +98,9 @@ app.post('/returnOrderCancel', (req, res) => {
   if(webhookData.object.reason === 'Retour en ligne' 
     && webhookData.object.reason_ref === 'Retour Automatisé' 
     && webhookData.additional_data.from === 'new'
-  && webhookData.additional_data.to ==='canceled') {
+    && webhookData.additional_data.to ==='canceled' //TODO change for "returned"
+  ) 
+  {
     console.log('create and send mail discount code', webhookData);
   }
   res.status(200).send('webhook reçu')
@@ -551,7 +553,8 @@ app.get('/getOrderById', async (req, res) => {
     res.status(200).json({
       success: true,
       orderItems: orderItems,
-      orderId: orderWarehouseId
+      orderId: orderWarehouseId,
+      shopifyOrderId: shopifyOrderId
     });
   } catch (error) {
     res.status(500).send('Error retrieving order warehouse by id');
@@ -624,7 +627,12 @@ app.post('/returnProduct', async (req, res) => {
   const orderId = req.body.orderId;
   const returnAll = req.body.returnAllOrder;
   console.log('return all', returnAll);
-  
+  /* modifier pour envoyer le code de reduction seulement si retour validé donc dans le webhook 
+    mais ici donc créer la commande retour avec id shopify
+    et update order shopify avec notes nécessaire à la création du code de reduc
+    donc si retour validé (webhook) on recupere le numéro de commande shopify
+    on créé ou on active le code de reduc et on envoie le mail!
+  */
   if (optionChosen === "option1") {
     //Retrieve data from initial order
     const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId);
