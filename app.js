@@ -92,7 +92,7 @@ const initializeTokens = async () => {
 initializeTokens();
 setupShippingboWebhook(accessTokenWarehouse);
 
-app.post('/returnOrderCancel', (req, res) => {
+app.post('/returnOrderCancel', async (req, res) => {
   const webhookData = req.body;
   // console.log('webhook ppl', webhookData);
   if(webhookData.object.reason === 'Retour automatisé en ligne'
@@ -101,8 +101,10 @@ app.post('/returnOrderCancel', (req, res) => {
   ) 
   {
     console.log('create and send mail discount code', webhookData);
-    const shopifyId = webhookData.data.reason_ref;
-    getOrderByShopifyId(shopifyId);
+    const shopifyIdString = webhookData.object.reason_ref;
+    const shopifyId = Number(shopifyIdString);
+    const getAttributes = getOrderByShopifyId(shopifyId);
+    console.log('find attributes', getAttributes.order.note_attributes);
 
   }
   res.status(200).send('webhook reçu')
