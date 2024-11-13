@@ -103,8 +103,8 @@ app.post('/returnOrderCancel', async (req, res) => {
     console.log('create and send mail discount code', webhookData);
     const shopifyIdString = webhookData.object.reason_ref;
     const shopifyId = Number(shopifyIdString);
-    const getAttributes = getOrderByShopifyId(shopifyId);
-    console.log('find attributes', getAttributes.order.note_attributes);
+    const getAttributes = await getOrderByShopifyId(shopifyId);
+    console.log('find attributes', getAttributes);
 
   }
   res.status(200).send('webhook reçu')
