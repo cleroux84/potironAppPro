@@ -92,10 +92,17 @@ const initializeTokens = async () => {
 initializeTokens();
 setupShippingboWebhook(accessTokenWarehouse);
 
+const processedEvents = {};
 app.post('/returnOrderCancel', async (req, res) => {
   try {
     const webhookData = req.body;
+    const eventId = webhookData.object.reason_ref;
+    const currentTime = Date.now();
     // console.log('webhook ppl', webhookData);
+    if (processedEvents[eventId] && currentTime - processedEvents[eventId] < 30000) {
+      return res.status(200).send('Event already processed recently');
+    }
+    processedEvents[eventId] = currentTime; // Marque cet événement comme traité récemment
     if(webhookData.object.reason === 'Retour automatisé en ligne'
       && webhookData.additional_data.from === 'new'
       && webhookData.additional_data.to ==='canceled' //TODO change for "returned"
