@@ -122,7 +122,7 @@ app.post('/returnOrderCancel', async (req, res) => {
       const ruleExists = await checkIfPriceRuleExists(orderName);
       // Create discount code in shopify
       if(!ruleExists) {
-          priceRules = await createPriceRule(customerId, orderName, totalOrder);
+          priceRules = await createPriceRule(customerId, orderName, totalAmount);
           const discountCode = priceRules.discountData.discount_code.code;
           const discountAmount = priceRules.discountRule.price_rule.value;
           const discountEnd = priceRules.discountRule.price_rule.ends_at;
