@@ -104,7 +104,7 @@ app.post('/returnOrderCancel', async (req, res) => {
     const shopifyIdString = webhookData.object.reason_ref;
     const shopifyId = Number(shopifyIdString);
     const getAttributes = await getOrderByShopifyId(shopifyId);
-    console.log('find attributes', getAttributes.order.note_attributes);
+    // console.log('find attributes', getAttributes.order.note_attributes);
     const noteAttributes = getAttributes.order.note_attributes;
     const customerIdAttr = noteAttributes.find(attr => attr.name === "customerId");
     const customerId = customerIdAttr ? customerIdAttr.value : null;
@@ -115,17 +115,18 @@ app.post('/returnOrderCancel', async (req, res) => {
     const totalAmount = totalAmountAttr ? totalAmountAttr.value : null;
     //Check if price rules exists
     const ruleExists = await checkIfPriceRuleExists(orderName);
+    console.log('ruleExists', ruleExists);
     // Create discount code in shopify
     if(!ruleExists) {
         priceRules = await createPriceRule(customerId, orderName, totalAmount);
-        const discountCode = priceRules.discountData.discount_code.code;
-        const discountAmount = priceRules.discountRule.price_rule.value;
-        const discountEnd = priceRules.discountRule.price_rule.ends_at;
-        const discountDate = new Date(discountEnd);
-        const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
-        console.log('code', discountCode);
-        console.log('value', discountAmount);
-        console.log('date', formattedDate);
+        // const discountCode = priceRules.discountData.discount_code.code;
+        // const discountAmount = priceRules.discountRule.price_rule.value;
+        // const discountEnd = priceRules.discountRule.price_rule.ends_at;
+        // const discountDate = new Date(discountEnd);
+        // const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
+        // console.log('code', discountCode);
+        // console.log('value', discountAmount);
+        // console.log('date', formattedDate);
         }
       }
   res.status(200).send('webhook reçu')
