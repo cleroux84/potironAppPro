@@ -30,6 +30,7 @@ let accessToken = null;
 let refreshToken = null;
 let accessTokenWarehouse = null;
 let refreshTokenWarehouse = null;
+const API_APP_WAREHOUSE_ID = process.env.API_APP_WAREHOUSE_ID;
 
 const corsOptions = {
   origin: "https://potiron.com",
