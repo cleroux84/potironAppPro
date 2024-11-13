@@ -111,9 +111,9 @@ app.post('/returnOrderCancel', async (req, res) => {
     console.log('customerId for discount', customerIdForCode);
     const orderName = getAttributes.order.name;
     console.log('ordername for discount', orderName);
-    const warehouseIdAttr = noteAttributes.find(attr => attr.name === 'warehouseId');
-    const warehouseId = warehouseIdAttr ? warehouseIdAttr.value : null;
-    console.log('warehouseId for discount', warehouseId);
+    // const warehouseIdAttr = noteAttributes.find(attr => attr.name === 'warehouseId');
+    // const warehouseId = warehouseIdAttr ? warehouseIdAttr.value : null;
+    // console.log('warehouseId for discount', warehouseId);
     const totalAmountAttr = noteAttributes.find(attr => attr.name === "totalOrderReturn");
     const totalAmount = totalAmountAttr ? totalAmountAttr.value : null;
     console.log('total for discount', totalAmount);
