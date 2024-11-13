@@ -92,15 +92,43 @@ const initializeTokens = async () => {
 initializeTokens();
 setupShippingboWebhook(accessTokenWarehouse);
 
+async function getWebhooks() {
+  console.log('icicicicici');
+  try {
+    const response = await fetch('https://app.shippingbo.com/update_hooks', {
+      method: 'GET',
+      headers: {
+        'Content-type': 'application/json',
+        Accept: 'application/json',
+        'X-API-VERSION': '1',
+        'X-API-APP-ID': API_APP_WAREHOUSE_ID,
+        Authorization: `Bearer ${accessTokenWarehouse}`
+      }
+    });
+ 
+    if (!response.ok) {
+      console.log('error getwbehooks')
+    }
+ 
+    const data = await response.json();
+    console.log('Liste des webhooks:', data);
+    return data; // retourne les webhooks pour une analyse ultérieure si nécessaire
+ 
+  } catch (error) {
+    console.error('Erreur lors de la récupération des webhooks :', error);
+  }
+}
+
 app.post('/returnOrderCancel', async (req, res) => {
   console.log('PPLLLLLLLLLLL')
+  getWebhooks();
   try {
-    const webhookData = req.body;
-    console.log('webhook ppl', webhookData);
-    if(webhookData.object.reason === 'Retour automatisé en ligne'
-      && webhookData.additional_data.from === 'new'
-      && webhookData.additional_data.to ==='canceled' //TODO change for "returned"
-    ) 
+    // const webhookData = req.body;
+    // console.log('webhook ppl', webhookData);
+    // if(webhookData.object.reason === 'Retour automatisé en ligne'
+    //   && webhookData.additional_data.from === 'new'
+    //   && webhookData.additional_data.to ==='canceled' //TODO change for "returned"
+    // ) 
     {
       try {
         console.log('create and send mail discount code', webhookData);
