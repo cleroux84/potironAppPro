@@ -698,6 +698,12 @@ app.post('/returnProduct', async (req, res) => {
     //     //create a return order in shippingbo warehouse
         const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku, shopifyOrderId);
         const returnOrderId = returnOrderData.return_order.id;
+        const shopifyId = returnOrderData.return_order.reason_ref;
+        console.log('FOR DISCOUNT orderName', orderName);
+        console.log('FOR DISCOUNT warehouseId', warehouseOrder.order.id);
+        console.log('FOR DISCOUNT customerId', customerId);
+        console.log('FOR DISCOUNT totalOrder', totalOrder);
+        console.log('FOR DISCOUNT shopify Id to update', shopifyId)
 
         //UPDATE ORDER SHOPIFY WITH DATA FOR discountCode in notes or tags
 
