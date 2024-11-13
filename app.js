@@ -107,17 +107,27 @@ app.post('/returnOrderCancel', async (req, res) => {
     console.log('find attributes', getAttributes.order.note_attributes);
     const noteAttributes = getAttributes.order.note_attributes;
     const customerIdAttr = noteAttributes.find(attr => attr.name === "customerId");
-    const customerIdForCode = customerIdAttr ? customerIdAttr.value : null;
-    console.log('customerId for discount', customerIdForCode);
+    const customerId = customerIdAttr ? customerIdAttr.value : null;
     const orderName = getAttributes.order.name;
-    console.log('ordername for discount', orderName);
-    const warehouseIdAttr = noteAttributes.find(attr => attr.name === 'warehouseId');
-    const warehouseId = warehouseIdAttr ? warehouseIdAttr.value : null;
-    console.log('warehouseId for discount', warehouseId);
+    // const warehouseIdAttr = noteAttributes.find(attr => attr.name === 'warehouseId');
+    // const warehouseId = warehouseIdAttr ? warehouseIdAttr.value : null;
     const totalAmountAttr = noteAttributes.find(attr => attr.name === "totalOrderReturn");
     const totalAmount = totalAmountAttr ? totalAmountAttr.value : null;
-    console.log('total for discount', totalAmount);
-  }
+    //Check if price rules exists
+    // const ruleExists = await checkIfPriceRuleExists(orderName);
+    // Create discount code in shopify
+    // if(!ruleExists) {
+        priceRules = await createPriceRule(customerId, orderName, totalAmount);
+        const discountCode = priceRules.discountData.discount_code.code;
+        const discountAmount = priceRules.discountRule.price_rule.value;
+        const discountEnd = priceRules.discountRule.price_rule.ends_at;
+        const discountDate = new Date(discountEnd);
+        const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
+        console.log('code', discountCode);
+        console.log('value', discountAmount);
+        console.log('date', formattedDate);
+        // }
+      }
   res.status(200).send('webhook reçu')
 })
 
@@ -716,8 +726,8 @@ app.post('/returnProduct', async (req, res) => {
         const returnOrderId = returnOrderData.return_order.id;
         const shopifyId = returnOrderData.return_order.reason_ref;
         const attributes = [
-          {name: "orderName", value: orderName},
-          {name: "warehouseId", value: warehouseOrder.order.id},
+          // {name: "orderName", value: orderName},
+          // {name: "warehouseId", value: warehouseOrder.order.id},
           {name: "customerId", value: customerId},
           {name: "totalOrderReturn", value: totalOrder}
         ];
