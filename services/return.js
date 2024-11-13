@@ -4,8 +4,10 @@ const Shopify = require('shopify-api-node');
 const fetch = require('node-fetch');
 const { getshippingDetails } = require('./shippingbo/GMAWarehouseCRUD');
 
-const createReturnOrder = async (accessTokenWarehouse, orderId, returnAll, productSku) => {
-    console.log('productSku to create order', productSku);
+const createReturnOrder = async (accessTokenWarehouse, orderId, returnAll, productSku, shopifyOrderId) => {
+    const shopifyIdString = shopifyOrderId.toString();
+    console.log('shopify orderId', shopifyIdString);
+
     const originalOrder = await getshippingDetails(accessTokenWarehouse, orderId); 
     const createReturnUrl = `https://app.shippingbo.com/return_orders`;
  
@@ -30,8 +32,8 @@ const createReturnOrder = async (accessTokenWarehouse, orderId, returnAll, produ
  
     const returnOrder = {
         "order_id": orderId,
-        "reason": "Retour en ligne",
-        "reason_ref": "Retour Automatisé",
+        "reason": "Retour automatisé en ligne",
+        "reason_ref": shopifyIdString,
         "return_order_expected_items_attributes": returnOrderExpectedItemsAttributes,
         "return_order_type": "return_order_label",
         "skip_expected_items_creation": true,

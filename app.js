@@ -95,8 +95,7 @@ setupShippingboWebhook(accessTokenWarehouse);
 app.post('/returnOrderCancel', (req, res) => {
   const webhookData = req.body;
   // console.log('webhook ppl', webhookData);
-  if(webhookData.object.reason === 'Retour en ligne' 
-    && webhookData.object.reason_ref === 'Retour Automatisé' 
+  if(webhookData.object.reason === 'Retour automatisé en ligne'
     && webhookData.additional_data.from === 'new'
     && webhookData.additional_data.to ==='canceled' //TODO change for "returned"
   ) 
@@ -697,7 +696,7 @@ app.post('/returnProduct', async (req, res) => {
         // const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
         
     //     //create a return order in shippingbo warehouse
-        const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku);
+        const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku, shopifyOrderId);
         const returnOrderId = returnOrderData.return_order.id;
 
         //UPDATE ORDER SHOPIFY WITH DATA FOR discountCode in notes or tags
