@@ -95,17 +95,18 @@ setupShippingboWebhook(accessTokenWarehouse);
 app.post('/returnOrderCancel', async (req, res) => {
   try {
     const webhookData = req.body;
- 
-    // Validation des conditions pour déclencher le webhook
+    // Vérification initiale des conditions
     if (webhookData.object.reason === 'Retour automatisé en ligne'
 && webhookData.additional_data.from === 'new'
 && webhookData.additional_data.to === 'canceled'
     ) {
       console.log('Webhook déclenché pour créer un code de réduction');
  
+      // Extraction de l'ID Shopify
       const shopifyIdString = webhookData.object.reason_ref;
       const shopifyId = Number(shopifyIdString);
-      // Récupération des attributs de la commande Shopify
+ 
+      // Récupération des attributs de commande
       const getAttributes = await getOrderByShopifyId(shopifyId);
  
       if (!getAttributes || !getAttributes.order || !getAttributes.order.note_attributes) {
@@ -126,19 +127,28 @@ app.post('/returnOrderCancel', async (req, res) => {
       const orderName = getAttributes.order.name;
       const totalAmount = parseFloat(totalAmountAttr.value);
  
-      // Vérifie si la règle de prix existe
+      // Vérifie si la règle de prix existe AVEC LES DONNÉES DISPONIBLES
       const ruleExists = await checkIfPriceRuleExists(orderName);
-      if (!ruleExists) {
-        const priceRules = await createPriceRule(customerIdForCode, orderName, totalAmount);
-        const discountCode = priceRules.discountData.discount_code.code;
-        const discountEnd = priceRules.discountRule.price_rule.ends_at;
-        const discountDate = new Date(discountEnd);
-        const formattedDate = discountDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
  
-        console.log(`Code de réduction créé : ${discountCode}, valable jusqu'au : ${formattedDate}`);
+      if (!ruleExists) {
+        // Crée la règle de prix si elle n'existe pas encore
+        const priceRules = await createPriceRule(customerIdForCode, orderName, totalAmount);
+        // Vérifiez que la création a été réussie avant de poursuivre
+        if (priceRules && priceRules.discountData && priceRules.discountData.discount_code) {
+          const discountCode = priceRules.discountData.discount_code.code;
+          const discountEnd = priceRules.discountRule.price_rule.ends_at;
+          const discountDate = new Date(discountEnd);
+          const formattedDate = discountDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+ 
+          console.log(`Code de réduction créé : ${discountCode}, valable jusqu'au : ${formattedDate}`);
+        } else {
+          console.log('Erreur : Impossible de récupérer les données du code de réduction');
+          return res.status(500).send('Erreur : Problème lors de la création du code de réduction');
+        }
       } else {
         console.log('La règle de prix existe déjà pour cette commande');
       }
+ 
       return res.status(200).send('Webhook traité avec succès');
     } else {
       console.log('Conditions du webhook non remplies');
