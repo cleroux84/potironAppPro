@@ -114,9 +114,9 @@ app.post('/returnOrderCancel', async (req, res) => {
     const totalAmountAttr = noteAttributes.find(attr => attr.name === "totalOrderReturn");
     const totalAmount = totalAmountAttr ? totalAmountAttr.value : null;
     //Check if price rules exists
-    // const ruleExists = await checkIfPriceRuleExists(orderName);
+    const ruleExists = await checkIfPriceRuleExists(orderName);
     // Create discount code in shopify
-    // if(!ruleExists) {
+    if(!ruleExists) {
         priceRules = await createPriceRule(customerId, orderName, totalAmount);
         const discountCode = priceRules.discountData.discount_code.code;
         const discountAmount = priceRules.discountRule.price_rule.value;
@@ -126,7 +126,7 @@ app.post('/returnOrderCancel', async (req, res) => {
         console.log('code', discountCode);
         console.log('value', discountAmount);
         console.log('date', formattedDate);
-        // }
+        }
       }
   res.status(200).send('webhook reçu')
 })
