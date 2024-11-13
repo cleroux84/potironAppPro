@@ -37,7 +37,7 @@ const createReturnOrder = async (accessTokenWarehouse, orderId, returnAll, produ
         "skip_expected_items_creation": true,
         "source": originalOrder.order.source,
         "source_ref": originalOrder.order.source_ref,
-        "user_email": shopifyOrderId
+        "user_email": shopifyOrderId.toString()
     };
  
     const createReturnOptions = {
