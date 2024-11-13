@@ -93,33 +93,48 @@ initializeTokens();
 setupShippingboWebhook(accessTokenWarehouse);
 
 app.post('/returnOrderCancel', async (req, res) => {
-  const webhookData = req.body;
-  // console.log('webhook ppl', webhookData);
-  if(webhookData.object.reason === 'Retour automatisé en ligne'
-    && webhookData.additional_data.from === 'new'
-    && webhookData.additional_data.to ==='canceled' //TODO change for "returned"
-  ) 
-  {
-    console.log('create and send mail discount code', webhookData);
-    const shopifyIdString = webhookData.object.reason_ref;
-    const shopifyId = Number(shopifyIdString);
-    const getAttributes = await getOrderByShopifyId(shopifyId);
-    console.log('find attributes', getAttributes.order.note_attributes);
-    const noteAttributes = getAttributes.order.note_attributes;
-    const customerIdAttr = noteAttributes.find(attr => attr.name === "customerId");
-    const customerIdForCode = customerIdAttr ? customerIdAttr.value : null;
-    console.log('customerId for discount', customerIdForCode);
-    const orderName = getAttributes.order.name;
-    console.log('ordername for discount', orderName);
-    // const warehouseIdAttr = noteAttributes.find(attr => attr.name === 'warehouseId');
-    // const warehouseId = warehouseIdAttr ? warehouseIdAttr.value : null;
-    // console.log('warehouseId for discount', warehouseId);
-    const totalAmountAttr = noteAttributes.find(attr => attr.name === "totalOrderReturn");
-    const totalAmount = totalAmountAttr ? totalAmountAttr.value : null;
-    console.log('total for discount', totalAmount);
-
-    //si ok : check si discount code existe et le créer
+  try {
+    const webhookData = req.body;
+    // console.log('webhook ppl', webhookData);
+    if(webhookData.object.reason === 'Retour automatisé en ligne'
+      && webhookData.additional_data.from === 'new'
+      && webhookData.additional_data.to ==='canceled' //TODO change for "returned"
+    ) 
+    {
+      console.log('create and send mail discount code', webhookData);
+      const shopifyIdString = webhookData.object.reason_ref;
+      const shopifyId = Number(shopifyIdString);
+      const getAttributes = await getOrderByShopifyId(shopifyId);
+      console.log('find attributes', getAttributes.order.note_attributes);
+      const noteAttributes = getAttributes.order.note_attributes;
+      const customerIdAttr = noteAttributes.find(attr => attr.name === "customerId");
+      const customerIdForCode = customerIdAttr ? customerIdAttr.value : null;
+      console.log('customerId for discount', customerIdForCode);
+      const orderName = getAttributes.order.name;
+      console.log('ordername for discount', orderName);
+      // const warehouseIdAttr = noteAttributes.find(attr => attr.name === 'warehouseId');
+      // const warehouseId = warehouseIdAttr ? warehouseIdAttr.value : null;
+      // console.log('warehouseId for discount', warehouseId);
+      const totalAmountAttr = noteAttributes.find(attr => attr.name === "totalOrderReturn");
+      const totalAmount = totalAmountAttr ? parseFloat(totalAmountAttr.value) : null;
+      console.log('total for discount', totalAmount);
+  
+      const ruleExists = await checkIfPriceRuleExists(orderName);
+      // Create discount code in shopify
+      if(!ruleExists) {
+          priceRules = await createPriceRule(customerId, orderName, totalOrder);
+          const discountCode = priceRules.discountData.discount_code.code;
+          const discountAmount = priceRules.discountRule.price_rule.value;
+          const discountEnd = priceRules.discountRule.price_rule.ends_at;
+          const discountDate = new Date(discountEnd);
+          const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });  
+        console.log('discountcode', discountCode);
+        }
   }
+ } catch (error) {
+    console.error('error on webhook', error);
+  }
+
   res.status(200).send('webhook reçu')
 })
 
