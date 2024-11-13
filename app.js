@@ -697,7 +697,7 @@ app.post('/returnProduct', async (req, res) => {
         // const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
         
     //     //create a return order in shippingbo warehouse
-        const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku, shopifyOrderId);
+        const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku);
         const returnOrderId = returnOrderData.return_order.id;
 
         //UPDATE ORDER SHOPIFY WITH DATA FOR discountCode in notes or tags
