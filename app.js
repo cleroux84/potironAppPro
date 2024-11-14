@@ -565,16 +565,26 @@ app.get('/getOrderById', async (req, res) => {
     // const orderData = await orderById(orderName, orderMail, 8174393917768); //4 articles identiques colissimo #8294
     // const orderData = await orderById(orderName, orderMail, 8045312737608); //3 articles colissimo #7865
     // const orderData = await orderById(orderName, orderMail, 8076398264648); //3 articles colissimo #8102
-    
+    let isReturnable;
     const orderData = await orderById(orderName, orderMail, customerId); //moi livré : #6989
-    console.log("orderdata", orderData);    
     const shopifyOrderId = orderData.id;
     console.log('BUG MORNING PPL token', accessToken)
     const shippingboDataPotiron = await getShippingboOrderDetails(accessToken, shopifyOrderId); 
     const shippingboDataWarehouse = await getWarehouseOrderToReturn(accessTokenWarehouse, shippingboDataPotiron.id);
     console.log('warehouse data', shippingboDataWarehouse);
+    const closeOrderDelivery = shippingboDataWarehouse.closed_at
+    const closeOrderDeliveryDate = new Date(closeOrderDelivery);
+    const currentDate = new Date();
+    console.log('delivery date: ', closeOrderDeliveryDate);
+    const differenceInTime = currentDate - closeOrderDeliveryDate;
+    const differenceInDays = differenceInTime / (1000 * 60 * 60 * 24);
+    if(Math.abs(differenceInDays) <= 15) {
+      isReturnable = true;
+    } else {
+      isReturnable = false;
+    }
+    console.log('is Returnable', isReturnable);
     const orderDetails = await getshippingDetails(accessTokenWarehouse, shippingboDataWarehouse.id);
-    console.log('orderdatails: ', orderDetails);
     const shipmentDetails = orderDetails.order.shipments;
     const orderItems = orderDetails.order.order_items;
     const orderWarehouseId = orderDetails.order.id;
