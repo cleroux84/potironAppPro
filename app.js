@@ -24,7 +24,7 @@ const { createDraftOrder, getCustomerMetafields, updateProCustomer, createProCus
 const { createReturnOrder, updateReturnOrder, checkIfPriceRuleExists, createPriceRule } = require('./services/return.js');
 const { refreshMS365AccessToken, getAccessTokenMS365 } = require('./services/microsoftAuth.js');
 const { createLabel } = require('./services/colissimoApi.js');
-const { setupShippingboWebhook } = require('./services/shippingbo/webhooks.js');
+const { setupShippingboWebhook, deleteAllWebhooks } = require('./services/shippingbo/webhooks.js');
 
 let accessToken = null;
 let refreshToken = null;
@@ -92,33 +92,6 @@ const initializeTokens = async () => {
  
 initializeTokens();
 // setupShippingboWebhook(accessTokenWarehouse);
-
-async function getWebhooks() {
-  console.log('icicicicici');
-  try {
-    const response = await fetch('https://app.shippingbo.com/update_hooks', {
-      method: 'GET',
-      headers: {
-        'Content-type': 'application/json',
-        Accept: 'application/json',
-        'X-API-VERSION': '1',
-        'X-API-APP-ID': API_APP_WAREHOUSE_ID,
-        Authorization: `Bearer ${accessTokenWarehouse}`
-      }
-    });
- 
-    if (!response.ok) {
-      console.log('error getwbehooks')
-    }
- 
-    const data = await response.json();
-    console.log('Liste des webhooks:', data);
-    return data; // retourne les webhooks pour une analyse ultérieure si nécessaire
- 
-  } catch (error) {
-    console.error('Erreur lors de la récupération des webhooks :', error);
-  }
-}
 
 app.post('/returnOrderCancel', async (req, res) => {
   console.log('PPLLLLLLLLLLL')
@@ -597,7 +570,7 @@ app.get('/getOrderById', async (req, res) => {
     
     const orderData = await orderById(orderName, orderMail, customerId); //moi livré : #6989
     // console.log("orderdata", orderData);
-    getWebhooks();
+    deleteAllWebhooks();
     
     const shopifyOrderId = orderData.id;
     console.log('BUG MORNING PPL token', accessToken)
