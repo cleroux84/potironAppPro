@@ -86,7 +86,7 @@ async function getWebhooks() {
       }
    
       const data = await response.json();
-      console.log('nombre de webhooks: ', data.update_hooks.lenght);
+      console.log('nombre de webhooks: ', data.update_hooks.length);
       return data; // retourne les webhooks pour une analyse ultérieure si nécessaire
    
     } catch (error) {
