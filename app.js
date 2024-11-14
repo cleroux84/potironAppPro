@@ -91,7 +91,7 @@ const initializeTokens = async () => {
 };
  
 initializeTokens();
-setupShippingboWebhook(accessTokenWarehouse);
+// setupShippingboWebhook(accessTokenWarehouse);
 
 async function getWebhooks() {
   console.log('icicicicici');
@@ -119,10 +119,10 @@ async function getWebhooks() {
     console.error('Erreur lors de la récupération des webhooks :', error);
   }
 }
+getWebhooks();
 
 app.post('/returnOrderCancel', async (req, res) => {
   console.log('PPLLLLLLLLLLL')
-  getWebhooks();
   try {
     // const webhookData = req.body;
     // console.log('webhook ppl', webhookData);
