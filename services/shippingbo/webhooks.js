@@ -87,7 +87,7 @@ async function getWebhooks() {
       }
    
       const data = await response.json();
-      console.log('Liste des webhooks:', data);
+      console.log('Liste des webhooks ok');
       return data; // retourne les webhooks pour une analyse ultérieure si nécessaire
    
     } catch (error) {
@@ -97,12 +97,14 @@ async function getWebhooks() {
 
 async function deleteAllWebhooks () {
     const allWebhooks = await getWebhooks();
-    if(allWebhooks.length === 0) {
+    console.log('length', allWebhooks.update_hooks.length)
+    if(allWebhooks.update_hooks.length === 0) {
         console.log('Aucun webhook à supprimer');
         return;
     }
 
-    for(const webhook of allWebhooks) {
+    for(const webhook of allWebhooks.update_hooks) {
+        console.log('id webhook', webhook.id)
         await deleteWebhook(webhook.id);
     }
     console.log('Tous les webhooks ont été supprimé')
