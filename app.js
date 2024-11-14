@@ -566,7 +566,7 @@ app.get('/getOrderById', async (req, res) => {
     // const orderData = await orderById(orderName, orderMail, 8076398264648); //3 articles colissimo #8102
     
     const orderData = await orderById(orderName, orderMail, customerId); //moi livré : #6989
-    // console.log("orderdata", orderData);    
+    console.log("orderdata", orderData);    
     const shopifyOrderId = orderData.id;
     console.log('BUG MORNING PPL token', accessToken)
     const shippingboDataPotiron = await getShippingboOrderDetails(accessToken, shopifyOrderId); 
