@@ -21,7 +21,7 @@ const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft 
 const { getWarehouseOrderDetails, updateWarehouseOrder, getWarehouseOrderToReturn, getshippingDetails, checkIfReturnOrderExist } = require('./services/shippingbo/GMAWarehouseCRUD.js');
 const { sendEmailWithKbis, sendWelcomeMailPro, sendReturnDataToCustomer, sendReturnDataToSAV } = require('./services/sendMail.js');
 const { createDraftOrder, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById, orderById, getProductDetails, getProductWeightBySku, updateOrder, getOrderByShopifyId } = require('./services/shopifyApi.js');
-const { createReturnOrder, updateReturnOrder, checkIfPriceRuleExists, createPriceRule } = require('./services/return.js');
+const { createReturnOrder, updateReturnOrder, checkIfPriceRuleExists, createPriceRule, isReturnableDate } = require('./services/return.js');
 const { refreshMS365AccessToken, getAccessTokenMS365 } = require('./services/microsoftAuth.js');
 const { createLabel } = require('./services/colissimoApi.js');
 const { setupShippingboWebhook, deleteAllWebhooks, getWebhooks } = require('./services/shippingbo/webhooks.js');
@@ -565,43 +565,44 @@ app.get('/getOrderById', async (req, res) => {
     // const orderData = await orderById(orderName, orderMail, 8174393917768); //4 articles identiques colissimo #8294
     // const orderData = await orderById(orderName, orderMail, 8045312737608); //3 articles colissimo #7865
     // const orderData = await orderById(orderName, orderMail, 8076398264648); //3 articles colissimo #8102
-    let isReturnable;
     const orderData = await orderById(orderName, orderMail, customerId); //moi livré : #6989
     const shopifyOrderId = orderData.id;
     console.log('BUG MORNING PPL token', accessToken)
     const shippingboDataPotiron = await getShippingboOrderDetails(accessToken, shopifyOrderId); 
     const shippingboDataWarehouse = await getWarehouseOrderToReturn(accessTokenWarehouse, shippingboDataPotiron.id);
     console.log('warehouse data', shippingboDataWarehouse);
-    const closeOrderDelivery = shippingboDataWarehouse.closed_at
-    const closeOrderDeliveryDate = new Date(closeOrderDelivery);
-    const currentDate = new Date();
-    console.log('delivery date: ', closeOrderDeliveryDate);
-    const differenceInTime = currentDate - closeOrderDeliveryDate;
-    const differenceInDays = differenceInTime / (1000 * 60 * 60 * 24);
-    if(Math.abs(differenceInDays) <= 15) {
-      isReturnable = true;
+    
+    const closeOrderDelivery = shippingboDataWarehouse.closed_at;
+    const isReturnable = await isReturnableDate(closeOrderDelivery);
+
+    if(isReturnable) {
+      const orderDetails = await getshippingDetails(accessTokenWarehouse, shippingboDataWarehouse.id);
+      const shipmentDetails = orderDetails.order.shipments;
+      const orderItems = orderDetails.order.order_items;
+      const orderWarehouseId = orderDetails.order.id;
+      if(orderData.tags.includes('Commande PRO')) {
+        return res.status(200).json({
+          success: false,
+          orderItems: orderItems,
+          orderName: orderName,
+          message: 'Contacter le SAV'
+        })
+      }//
+      res.status(200).json({
+        success: true,
+        orderItems: orderItems,
+        orderId: orderWarehouseId,
+        shopifyOrderId: shopifyOrderId
+      });
     } else {
-      isReturnable = false;
-    }
-    console.log('is Returnable', isReturnable);
-    const orderDetails = await getshippingDetails(accessTokenWarehouse, shippingboDataWarehouse.id);
-    const shipmentDetails = orderDetails.order.shipments;
-    const orderItems = orderDetails.order.order_items;
-    const orderWarehouseId = orderDetails.order.id;
-    if(orderData.tags.includes('Commande PRO')) {
       return res.status(200).json({
         success: false,
         orderItems: orderItems,
         orderName: orderName,
-        message: 'Contacter le SAV'
+        message: 'Le délai de rétractation de 15 jours est dépassé'
       })
-    }//
-    res.status(200).json({
-      success: true,
-      orderItems: orderItems,
-      orderId: orderWarehouseId,
-      shopifyOrderId: shopifyOrderId
-    });
+    }
+  
   } catch (error) {
     res.status(500).send('Error retrieving order warehouse by id');
   }

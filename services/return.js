@@ -207,9 +207,25 @@ const checkIfPriceRuleExists = async (orderName) => {
     }
 }
 
+//calcule si le délai de rétractation de 15 jours à compter de la livraison est dépassé
+const isReturnableDate = async (deliveryDate) => {
+    let isReturnable;
+    const closeOrderDeliveryDate = new Date(deliveryDate);
+    const currentDate = new Date();
+    const differenceInTime = currentDate - closeOrderDeliveryDate;
+    const differenceInDays = differenceInTime / (1000 * 60 * 60 * 24);
+    if(Math.abs(differenceInDays) <= 15) {
+      isReturnable = true;
+    } else {
+      isReturnable = false;
+    }
+    return isReturnable;
+}
+
 module.exports = {
     createPriceRule,
     createReturnOrder,
     updateReturnOrder,
-    checkIfPriceRuleExists
+    checkIfPriceRuleExists,
+    isReturnableDate
 }
