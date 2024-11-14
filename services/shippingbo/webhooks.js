@@ -74,7 +74,7 @@ async function getWebhooks() {
           'Content-type': 'application/json',
           Accept: 'application/json',
           'X-API-VERSION': '1',
-          'X-API-APP-ID': API_APP_WAREHOUSE_ID,
+          'X-API-APP-ID': API_APP__WAREHOUSE_ID,
           Authorization: `Bearer ${accessTokenWarehouse}`
         }
       });
