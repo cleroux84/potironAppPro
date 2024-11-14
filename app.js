@@ -119,7 +119,6 @@ async function getWebhooks() {
     console.error('Erreur lors de la récupération des webhooks :', error);
   }
 }
-getWebhooks();
 
 app.post('/returnOrderCancel', async (req, res) => {
   console.log('PPLLLLLLLLLLL')
@@ -598,6 +597,7 @@ app.get('/getOrderById', async (req, res) => {
     
     const orderData = await orderById(orderName, orderMail, customerId); //moi livré : #6989
     // console.log("orderdata", orderData);
+    getWebhooks();
     
     const shopifyOrderId = orderData.id;
     console.log('BUG MORNING PPL token', accessToken)
