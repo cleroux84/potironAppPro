@@ -67,6 +67,9 @@ const deleteWebhook = async (webhookId) => {
 
 async function getWebhooks() {
     console.log('icicicicici');
+    const tokensWarehouse = await refreshAccessTokenWarehouse();
+    accessTokenWarehouse = tokensWarehouse.accessTokenWarehouse;
+    refreshTokenWarehouse = tokensWarehouse.refreshTokenWarehouse;
     try {
       const response = await fetch('https://app.shippingbo.com/update_hooks', {
         method: 'GET',
