@@ -108,7 +108,10 @@ const updateReturnOrder = async (accessTokenWarehouse, orderId, parcelNumber) =>
 const createPriceRule = async (customerId, orderName, totalOrder) => {
     const createPriceRuleUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/price_rules.json`
     const nowDate = new Date().toISOString();
-    const OneWeekLater = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    const currentDate = new Date();
+    // const OneWeekLater = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    currentDate.setMonth(currentDate.getMonth() + 3);
+    const endsDiscountThreeMonths = currentDate.toISOString();
     const discountRule = {
         "price_rule": {
             "title": `Retour auto ${orderName}`,
@@ -120,7 +123,7 @@ const createPriceRule = async (customerId, orderName, totalOrder) => {
             "customer_selection": "prerequisite",
             "prerequisite_customer_ids": [customerId],
             "starts_at": nowDate,
-            "ends_at": OneWeekLater,
+            "ends_at": endsDiscountThreeMonths,
             "once_per_customer": true,
             "usage_limit": 1,
             "currency": "EUR"
@@ -141,7 +144,7 @@ const createPriceRule = async (customerId, orderName, totalOrder) => {
             console.log('error fetching price rules', response)
         } else {
             const priceRule = await response.json();
-            return await createDiscountCode(customerId, priceRule, discountRule);
+            return await createDiscountCode(orderName, priceRule, discountRule);
         }
     } catch (error) {
         console.error('error creating price rules', error);
@@ -149,11 +152,11 @@ const createPriceRule = async (customerId, orderName, totalOrder) => {
     
 }
 
-const createDiscountCode = async (customerId, priceRule, discountRule) => {
+const createDiscountCode = async (orderName, priceRule, discountRule) => {
     const discountCodeUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/price_rules/${priceRule.price_rule.id}/discount_codes.json`
     const discountCode = {
         "discount_code": {
-            "code": `RETURN-${customerId}`
+            "code": `RETURN-${orderName}-${Math.floor(1000 + Math.random() * 9000)}`
         }
     }
     const discountCodeOptions = {
