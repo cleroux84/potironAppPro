@@ -156,7 +156,7 @@ const createDiscountCode = async (orderName, priceRule, discountRule) => {
     const discountCodeUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/price_rules/${priceRule.price_rule.id}/discount_codes.json`
     const discountCode = {
         "discount_code": {
-            "code": `RETURN-${orderName}-${Math.floor(1000 + Math.random() * 9000)}`
+            "code": `RETURN${orderName}-${Math.floor(1000 + Math.random() * 9000)}`
         }
     }
     const discountCodeOptions = {

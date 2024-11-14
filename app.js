@@ -103,7 +103,7 @@ app.post('/returnOrderCancel', async (req, res) => {
   ) 
   {
     try {
-      console.log('automated return order canceled', orderCanceled.id);
+      // console.log('automated return order canceled', orderCanceled.id);
     //   console.log('create and send mail discount code', orderCanceled);
       const shopifyIdString = orderCanceled.object.reason_ref;
       const shopifyId = Number(shopifyIdString);
@@ -567,13 +567,14 @@ app.get('/getOrderById', async (req, res) => {
     // const orderData = await orderById(orderName, orderMail, 8076398264648); //3 articles colissimo #8102
     
     const orderData = await orderById(orderName, orderMail, customerId); //moi livré : #6989
-    // console.log("orderdata", orderData);    
+    console.log("orderdata", orderData);    
     const shopifyOrderId = orderData.id;
     console.log('BUG MORNING PPL token', accessToken)
     const shippingboDataPotiron = await getShippingboOrderDetails(accessToken, shopifyOrderId); 
     const shippingboDataWarehouse = await getWarehouseOrderToReturn(accessTokenWarehouse, shippingboDataPotiron.id);
-    // console.log('warehouse data', shippingboDataWarehouse);
+    console.log('warehouse data', shippingboDataWarehouse);
     const orderDetails = await getshippingDetails(accessTokenWarehouse, shippingboDataWarehouse.id);
+    console.log('orderdatails: ', orderDetails);
     const shipmentDetails = orderDetails.order.shipments;
     const orderItems = orderDetails.order.order_items;
     const orderWarehouseId = orderDetails.order.id;
