@@ -24,7 +24,7 @@ const { createDraftOrder, getCustomerMetafields, updateProCustomer, createProCus
 const { createReturnOrder, updateReturnOrder, checkIfPriceRuleExists, createPriceRule } = require('./services/return.js');
 const { refreshMS365AccessToken, getAccessTokenMS365 } = require('./services/microsoftAuth.js');
 const { createLabel } = require('./services/colissimoApi.js');
-const { setupShippingboWebhook, deleteAllWebhooks } = require('./services/shippingbo/webhooks.js');
+const { setupShippingboWebhook, deleteAllWebhooks, getWebhooks } = require('./services/shippingbo/webhooks.js');
 
 let accessToken = null;
 let refreshToken = null;
@@ -91,7 +91,8 @@ const initializeTokens = async () => {
 };
  
 initializeTokens();
-setupShippingboWebhook();
+// setupShippingboWebhook();
+getWebhooks();
 
 app.post('/returnOrderCancel', async (req, res) => {
   console.log('PPLLLLLLLLLLL')
