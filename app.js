@@ -573,36 +573,33 @@ app.get('/getOrderById', async (req, res) => {
     const shippingboDataWarehouse = await getWarehouseOrderToReturn(accessTokenWarehouse, shippingboDataPotiron.id);
     console.log('warehouse data', shippingboDataWarehouse);
     const closeOrderDelivery = shippingboDataWarehouse.closed_at
-    const isReturnable = isReturnableDate(closeOrderDelivery);
-    // const closeOrderDeliveryDate = new Date(closeOrderDelivery);
-    // const currentDate = new Date();
-    // console.log('delivery date: ', closeOrderDeliveryDate);
-    // const differenceInTime = currentDate - closeOrderDeliveryDate;
-    // const differenceInDays = differenceInTime / (1000 * 60 * 60 * 24);
-    // if(Math.abs(differenceInDays) <= 15) {
-    //   isReturnable = true;
-    // } else {
-    //   isReturnable = false;
-    // }
-    console.log("is returnable ?", isReturnable);
-    const orderDetails = await getshippingDetails(accessTokenWarehouse, shippingboDataWarehouse.id);
-    const shipmentDetails = orderDetails.order.shipments;
-    const orderItems = orderDetails.order.order_items;
-    const orderWarehouseId = orderDetails.order.id;
-    if(orderData.tags.includes('Commande PRO')) {
-      return res.status(200).json({
-        success: false,
+    const isReturnable = await isReturnableDate(closeOrderDelivery);
+    if(isReturnable) {
+      console.log("is returnable ?", isReturnable);
+      const orderDetails = await getshippingDetails(accessTokenWarehouse, shippingboDataWarehouse.id);
+      const shipmentDetails = orderDetails.order.shipments;
+      const orderItems = orderDetails.order.order_items;
+      const orderWarehouseId = orderDetails.order.id;
+      if(orderData.tags.includes('Commande PRO')) {
+        return res.status(200).json({
+          success: false,
+          orderItems: orderItems,
+          orderName: orderName,
+          message: 'Contacter le SAV'
+        })
+      }//
+      res.status(200).json({
+        success: true,
         orderItems: orderItems,
-        orderName: orderName,
-        message: 'Contacter le SAV'
-      })
-    }//
-    res.status(200).json({
-      success: true,
-      orderItems: orderItems,
-      orderId: orderWarehouseId,
-      shopifyOrderId: shopifyOrderId
-    });
+        orderId: orderWarehouseId,
+        shopifyOrderId: shopifyOrderId
+      });
+    } else {
+      res.status(200).json({
+        success: false,
+        message: 'Délai retractation dépassé'
+      });
+    }
   } catch (error) {
     res.status(500).send('Error retrieving order warehouse by id');
   }
