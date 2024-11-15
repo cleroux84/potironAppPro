@@ -585,7 +585,7 @@ app.get('/getOrderById', async (req, res) => {
     //Check if withdrawal period is ok
     const isReturnable = await isReturnableDate(closeOrderDelivery);
     console.log("is returnable ?", isReturnable);
-    if(isReturnable) {
+    // if(isReturnable) {
       const orderDetails = await getshippingDetails(accessTokenWarehouse, shippingboDataWarehouse.id);
       const shipmentDetails = orderDetails.order.shipments;
       const orderItems = orderDetails.order.order_items;
@@ -605,14 +605,14 @@ app.get('/getOrderById', async (req, res) => {
         shopifyOrderId: shopifyOrderId
       });
       //TODO gérer coté front délai dépassé
-    } else {
-      res.status(200).json({
-        success: false,
-        orderItems: orderItems,
-        orderName: orderName,
-        message: 'Délai retractation dépassé'
-      });
-    }
+    // } else {
+    //   res.status(200).json({
+    //     success: false,
+    //     orderItems: orderItems,
+    //     orderName: orderName,
+    //     message: 'Délai retractation dépassé'
+    //   });
+    // }
   } catch (error) {
     res.status(500).send('Error retrieving order warehouse by id');
   }
