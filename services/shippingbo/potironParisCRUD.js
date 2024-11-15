@@ -96,6 +96,7 @@ const getShippingboOrderDetails = async (accessToken, shopifyOrderId) => {
 
   //create draft order in shippingbo when pro draft is created in Shopify
   const createProDraftOrderShippingbo = async (accessToken, shippingBoOrder) => {
+    console.log("token create draft order", accessToken)
     const createOrderUrl = `https://app.shippingbo.com/orders`;
     const createOrderOptions = {
       method: 'POST',
@@ -111,7 +112,7 @@ const getShippingboOrderDetails = async (accessToken, shopifyOrderId) => {
     try { 
         const responseShippingbo = await fetch(createOrderUrl, createOrderOptions);
         const data = await responseShippingbo.json();
-        console.log('draft order created', data.order.id);
+        console.log('draft order created', data);
         // console.log('response from shippingbo', data)
     } catch (error) {
       console.error('error in creation order from draft shopify', error);
