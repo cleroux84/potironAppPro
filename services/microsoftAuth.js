@@ -28,7 +28,7 @@ const getTokenMS365FromDb = async () => {
         const res = await client.query('SELECT token_ms365 FROM tokens LIMIT 1');
         return res.rows[0].token_ms365;
       } catch (error) {
-        console.log('Error retrieving refresh_token_warehouse', error);
+        console.log('Error retrieving token_ms365 from DB', error);
         return null;
       }
 }
