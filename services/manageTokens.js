@@ -6,7 +6,6 @@ const YOUR_AUTHORIZATION_CODE = process.env.YOUR_AUTHORIZATION_CODE;
 const WAREHOUSE_AUTHORIZATION_CODE = process.env.WAREHOUSE_AUTHORIZATION_CODE;
 
 const initializeTokens = async () => {
-    console.log("heeeeeeeeeeere")
     try {
       if(YOUR_AUTHORIZATION_CODE){
         const tokens = await getToken(YOUR_AUTHORIZATION_CODE);

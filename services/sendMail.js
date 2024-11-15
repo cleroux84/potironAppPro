@@ -198,9 +198,9 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
     }
   }
   //Send email to Magalie with parcelNumber when automated return
-  async function sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumber, returnOrderId, totalOrder) {
+  async function sendReturnDataToSAV(accessTokenMS365, senderCustomer, returnOrderId, totalOrder) {
     const client = initiMicrosoftGraphClient(accessTokenMS365);
-    const packageTrack = "https://www.laposte.fr/outils/suivre-vos-envois?code=" + parcelNumber;
+    // const packageTrack = "https://www.laposte.fr/outils/suivre-vos-envois?code=" + parcelNumber;
     const message = {
       subject: 'Nouvelle demande de retour automatisé', 
       body: {

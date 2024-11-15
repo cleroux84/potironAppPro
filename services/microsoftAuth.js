@@ -23,14 +23,26 @@ const setAccessTokenMS365 = (token) => {
     accessTokenMS365 = token;
 }
 
+const getTokenMS365FromDb = async () => {
+    try {
+        const res = await client.query('SELECT token_ms365 FROM tokens LIMIT 1');
+        return res.rows[0].token_ms365;
+      } catch (error) {
+        console.log('Error retrieving refresh_token_warehouse', error);
+        return null;
+      }
+}
+
 const getAccessTokenMS365 = () => {
     return accessTokenMS365;
 }
 
-const saveRefreshTokenMS365 = async (token) => {
+const saveRefreshTokenMS365 = async (token, refreshToken) => {
     try {
-        await client.query('UPDATE tokens SET refresh_token_ms365 =$1 where ID = 1', [token]);
+        await client.query('UPDATE tokens SET refresh_token_ms365 =$1 where ID = 1', [refreshToken]);
         console.log('RefreshToken saved in db for MS365');
+        await client.query('UPDATE tokens SET token_ms365 =$1 where ID = 1', [token]);
+        console.log('token saved in db for MS365');
     } catch (error) {
         console.error('Error saving refreshTokenMS365 in db', error);
     }
@@ -61,7 +73,7 @@ const refreshMS365AccessToken = async () => {
         if(response.ok) {
             accessTokenMS365 = data.access_token;
             refresTokenMS365 = data.refresh_token;
-            await saveRefreshTokenMS365(data.refresh_token);
+            await saveRefreshTokenMS365(data.access_token, data.refresh_token);
             console.log('Access token MS365 refreshed successfully');
         } else {
             console.error('Error refreshing token MS365', data);
@@ -74,5 +86,6 @@ const refreshMS365AccessToken = async () => {
 module.exports = {
     refreshMS365AccessToken,
     setAccessTokenMS365,
-    getAccessTokenMS365
+    getAccessTokenMS365,
+    getTokenMS365FromDb
 }
