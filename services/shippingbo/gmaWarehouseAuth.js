@@ -29,7 +29,7 @@ const saveRefreshTokenWarehouseDb = async (tokenWarehouse, refreshTokenWarehouse
   const getAccessTokenWarehouseFromDb = async () => {
     try {
       const res = await client.query('SELECT token_warehouse FROM tokens LIMIT 1');
-      console.log('tokenfromDb', res.rows[0].token_warehouse);
+      console.log('warehousetokenfromDb', res.rows[0].token_warehouse);
       return res.rows[0].token_warehouse;
     } catch (error) {
       console.log('Error retrieving token from db', error);
