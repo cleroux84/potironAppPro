@@ -9,7 +9,7 @@ const saveRefreshTokenDb = async (token, refreshToken) => {
     try {
       await client.query('UPDATE tokens SET refresh_token = $1 WHERE id = 1', [refreshToken]);
       console.log('RefreshToken saved in db for Potiron Paris', refreshToken);
-      await client.query('UPDATE tokens SET token = $1 WEHERE id = 1', [token]);
+      await client.query('UPDATE tokens SET token = $1 WHERE id = 1', [token]);
       console.log('token saved in db for Potiron Paris', token);
     } catch (error) {
       console.error('Error saving refreshToken in db', error);
