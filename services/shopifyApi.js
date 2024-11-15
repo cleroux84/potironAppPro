@@ -4,7 +4,7 @@ const fetch = require('node-fetch');
 
 const { sendNewDraftOrderMail } = require('./sendMail.js');
 const { createProDraftOrderShippingbo } = require('./shippingbo/potironParisCRUD.js');
-const { refreshMS365AccessToken, getTokenMS365FromDb } = require('./microsoftAuth.js');
+const { getAccessTokenMS365, refreshMS365AccessToken } = require('./microsoftAuth.js');
 
 //Create draft Order in Shopify
 
@@ -62,10 +62,10 @@ const createDraftOrder = async (draftOrder, accessToken) => {
             "Préference(s) de livraison : " + deliveryPref.value
           ]
         }
-        let accessTokenMS365 = getTokenMS365FromDb();
+        let accessTokenMS365 = getAccessTokenMS365();
         if(!accessTokenMS365) {
           refreshMS365AccessToken();
-          accessTokenMS365 = getTokenMS365FromDb();
+          accessTokenMS365 = getAccessTokenMS365();
         }
         await sendNewDraftOrderMail(accessTokenMS365, firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone, shippingAddress, deliveryPref.value, paletteEquipmentValue, appointmentValue, paletteNotesValue);
         

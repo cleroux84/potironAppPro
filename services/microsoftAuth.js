@@ -33,9 +33,9 @@ const getTokenMS365FromDb = async () => {
       }
 }
 
-// const getAccessTokenMS365 = () => {
-//     return accessTokenMS365;
-// }
+const getAccessTokenMS365 = () => {
+    return accessTokenMS365;
+}
 
 const saveRefreshTokenMS365 = async (token, refreshToken) => {
     try {
@@ -86,5 +86,6 @@ const refreshMS365AccessToken = async () => {
 module.exports = {
     refreshMS365AccessToken,
     setAccessTokenMS365,
+    getAccessTokenMS365,
     getTokenMS365FromDb
 }
