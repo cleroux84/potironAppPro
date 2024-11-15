@@ -5,10 +5,12 @@ const CLIENT_SECRET = process.env.CLIENT_SECRET_SHIPPINGBO;
 let accessToken = null;
 let refreshToken = null;
 
-const saveRefreshTokenDb = async (token) => {
+const saveRefreshTokenDb = async (token, refreshToken) => {
     try {
-      await client.query('UPDATE tokens SET refresh_token = $1 WHERE id = 1', [token]);
-      console.log('RefreshToken saved in db for Potiron Paris', token);
+      await client.query('UPDATE tokens SET refresh_token = $1 WHERE id = 1', [refreshToken]);
+      console.log('RefreshToken saved in db for Potiron Paris', refreshToken);
+      await client.query('UPDATE tokens SET token = $1 WEHERE id = 1', [token]);
+      console.log('token saved in db for Potiron Paris', token);
     } catch (error) {
       console.error('Error saving refreshToken in db', error);
     }
@@ -21,6 +23,17 @@ const saveRefreshTokenDb = async (token) => {
       return res.rows[0].refresh_token;
     } catch (error) {
       console.log('Error retrieving refresh token', error);
+      return null;
+    }
+  }
+
+  const getAccessTokenFromDb = async () => {
+    try {
+      const res = await client.query('SELECT token FROM tokens LIMIT 1');
+      console.log('tokenfromDb', res.rows[0].token);
+      return res.rows[0].token;
+    } catch (error) {
+      console.log('Error retrieving token from db', error);
       return null;
     }
   }
@@ -52,7 +65,7 @@ const saveRefreshTokenDb = async (token) => {
         accessToken = data.access_token;
         refreshToken = data.refresh_token;
         console.log("getToken with auhorizationCode");
-        await saveRefreshTokenDb(refreshToken);
+        await saveRefreshTokenDb(accessToken, refreshToken);
       }
       return {
         accessToken,
@@ -91,16 +104,10 @@ const saveRefreshTokenDb = async (token) => {
         accessToken = data.access_token;
         refreshToken = data.refresh_token;
         console.log('BUG NEW ACCESS', data)
-        await saveRefreshTokenDb(refreshToken);
+        await saveRefreshTokenDb(accessToken, refreshToken);
       } else {
         console.error('refresh failed here', data)
       }
-      
-     
-      // return {
-      //   accessToken,
-      //   refreshToken
-      // };
     } catch (error) {
       console.error('Error refreshing access token:', error);
     }
@@ -108,5 +115,6 @@ const saveRefreshTokenDb = async (token) => {
   
   module.exports = {
     getToken,
-    refreshAccessToken
+    refreshAccessToken,
+    getAccessTokenFromDb
   }

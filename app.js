@@ -15,7 +15,7 @@ const app = express();
 const PORT = process.env.PORT || 300;
 const YOUR_AUTHORIZATION_CODE = process.env.YOUR_AUTHORIZATION_CODE;
 const WAREHOUSE_AUTHORIZATION_CODE = process.env.WAREHOUSE_AUTHORIZATION_CODE;
-const { getToken, refreshAccessToken } = require('./services/shippingbo/potironParisAuth.js');
+const { getToken, refreshAccessToken, getAccessTokenFromDb } = require('./services/shippingbo/potironParisAuth.js');
 const { getTokenWarehouse, refreshAccessTokenWarehouse } = require('./services/shippingbo/gmaWarehouseAuth.js');
 const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft } = require('./services/shippingbo/potironParisCRUD.js');
 const { getWarehouseOrderDetails, updateWarehouseOrder, getWarehouseOrderToReturn, getshippingDetails, checkIfReturnOrderExist } = require('./services/shippingbo/GMAWarehouseCRUD.js');
@@ -26,7 +26,7 @@ const { refreshMS365AccessToken, getAccessTokenMS365 } = require('./services/mic
 const { createLabel } = require('./services/colissimoApi.js');
 const { setupShippingboWebhook, deleteAllWebhooks, getWebhooks } = require('./services/shippingbo/webhooks.js');
 
-let accessToken = null;
+// let accessToken = null;
 let refreshToken = null;
 let accessTokenWarehouse = null;
 let refreshTokenWarehouse = null;
@@ -49,6 +49,8 @@ app.get('/', (req, res) => {
 
 // Initialisation des tokens avec YOUR_AUTHORIZATION_CODE
 const initializeTokens = async () => {
+  let getAccessfromDb = await getAccessTokenFromDb();
+  console.log('test access from db initialize', getAccessfromDb)
   try {
     if(YOUR_AUTHORIZATION_CODE){
       const tokens = await getToken(YOUR_AUTHORIZATION_CODE);
@@ -72,6 +74,8 @@ const initializeTokens = async () => {
 } catch (error) {
   console.error('Failed to initialize warehouse tokens', error);
 }
+getAccessfromDb = await getAccessTokenFromDb();
+  console.log('test access from db', getAccessfromDb)
 //refreshToken every 1h50
     setInterval(async () => {
       // console.log("auto refresh shippingbo Token");
@@ -94,6 +98,7 @@ initializeTokens();
 // setupShippingboWebhook();
 getWebhooks();
 
+//trigger on webhook create and send discount code to customer
 app.post('/returnOrderCancel', async (req, res) => {
   const orderCanceled = req.body;
     // console.log('webhook ppl', orderCanceled);
@@ -182,6 +187,7 @@ app.post('/proOrder', async (req, res) => {
   }
   const isCommandePro = tagsArray.includes('Commande PRO');
   const isB2B = tagsArr.includes('PRO validé');
+  let accessToken = await getAccessTokenFromDb();
   if(isB2B && isCommandePro) {
     const draftDetails = await getShippingboOrderDetails(accessToken, draftId);
     const orderDetails = await getShippingboOrderDetails(accessToken, orderId);
@@ -227,6 +233,7 @@ app.post('/create-pro-draft-order', async (req, res) => {
         tags: "Commande PRO"
       }
     };
+    let accessToken = getAccessTokenFromDb();
     const data = await createDraftOrder(draftOrder, accessToken);
     res.status(200).json(data); 
   } catch (error) {
@@ -389,6 +396,7 @@ app.post('/updatedDraftOrder', async (req, res) => {
     const deliveryNotesEncoded = deliveryNotesValue.replace(/,/g, '-');
     deliveryNotesTag = 'Notes : ' + deliveryNotesEncoded;
   }
+  let accessToken = await getAccessTokenFromDb();
     if (isCompleted === true && isCommandePro) {
       try {
         const draftDetails = await getShippingboOrderDetails(accessToken, draftId);
@@ -555,6 +563,7 @@ app.get('/getDraftOrder/:draftOrderId', async (req, res) => {
 })
 
 app.get('/getOrderById', async (req, res) => {
+  let accessToken = await getAccessTokenFromDb();
   const orderName = req.query.getOrder_name;
   const orderMail = req.query.getOrder_mail;
   const customerId = req.query.customer_id;
@@ -573,9 +582,10 @@ app.get('/getOrderById', async (req, res) => {
     const shippingboDataWarehouse = await getWarehouseOrderToReturn(accessTokenWarehouse, shippingboDataPotiron.id);
     console.log('warehouse data', shippingboDataWarehouse);
     const closeOrderDelivery = shippingboDataWarehouse.closed_at
+    //Check if withdrawal period is ok
     const isReturnable = await isReturnableDate(closeOrderDelivery);
+    console.log("is returnable ?", isReturnable);
     if(isReturnable) {
-      console.log("is returnable ?", isReturnable);
       const orderDetails = await getshippingDetails(accessTokenWarehouse, shippingboDataWarehouse.id);
       const shipmentDetails = orderDetails.order.shipments;
       const orderItems = orderDetails.order.order_items;
@@ -594,9 +604,12 @@ app.get('/getOrderById', async (req, res) => {
         orderId: orderWarehouseId,
         shopifyOrderId: shopifyOrderId
       });
+      //TODO gérer coté front délai dépassé
     } else {
       res.status(200).json({
         success: false,
+        orderItems: orderItems,
+        orderName: orderName,
         message: 'Délai retractation dépassé'
       });
     }
@@ -767,9 +780,9 @@ app.post('/returnProduct', async (req, res) => {
     //     accessTokenMS365 = getAccessTokenMS365();
     //   }
     //   //send email to Magalie with parcel number and shopify Id and return order Id
-    //   await sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumber, returnOrderId, discountCode, discountAmount, formattedDate)
+    //   await sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumber, returnOrderId, totalOrder)
     //   //send email to customer with link to dwld label and parcel number
-    //   await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, createLabelData.pdfData, parcelNumber, discountCode, discountAmount, formattedDate);
+      // await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, createLabelData.pdfData, parcelNumber, totalOrder);
 
         return res.status(200).json({
           // success: true,

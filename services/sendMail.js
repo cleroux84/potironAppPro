@@ -198,7 +198,7 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
     }
   }
   //Send email to Magalie with parcelNumber when automated return
-  async function sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumber, returnOrderId, discountCode, discountAmount, discountEnd) {
+  async function sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumber, returnOrderId, totalOrder) {
     const client = initiMicrosoftGraphClient(accessTokenMS365);
     const packageTrack = "https://www.laposte.fr/outils/suivre-vos-envois?code=" + parcelNumber;
     const message = {
@@ -211,7 +211,7 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
           <p style="margin: 0;">Une commande retour a été créée dans Shippingbo GMA : ${returnOrderId}</p>
           <p style="margin: 0;">La commande d'origine Shopify est : ${senderCustomer.origin_ref}</p>
           <p style="margin: 0;">Une étiquette Retour Colissimo a été générée et envoyé au client avec le numéro de suivi : ${parcelNumber}</p>
-          <p style="margin: 0;">Ainsi qu'un code de remboursement sur le site : ${discountCode} d'une valeur de ${discountAmount}€ valable jusqu'au ${discountEnd}</p>
+          <p>A réception de son colis, un code de réduction/remboursement lui sera automatiquement envoyé par mail, d'une valeur de ${totalOrder} </p>
           <p><a href="${packageTrack}">Suivre le colis</a></p>
           <p>Bonne journée ! </p>
           <img src='cid:signature'/>
@@ -243,7 +243,7 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
     }
   }
   //Send email to customer with label colissmo attached
-  async function sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfBase64, parcelNumber, discountCode, discountAmount, discountEnd) {
+  async function sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfBase64, parcelNumber, totalOrder) {
     const client = initiMicrosoftGraphClient(accessTokenMS365);
     const cleanBase64 = pdfBase64.replace(/^data:application\/pdf;base64,/, '');
     const packageTrack = "https://www.laposte.fr/outils/suivre-vos-envois?code=" + parcelNumber;
@@ -257,7 +257,7 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
               <p>Vous trouverez l'étiquette de retour ci-jointe, il suffit de l'imprimer pour votre colis.</p>
               <p>TEXTE A VOIR - Numéro de colis : ${parcelNumber}</p>
               <p><a href="${packageTrack}">Suivre mon colis</a></p>
-              <p>Code de réduction // remboursement : ${discountCode} d'une valeur de ${discountAmount}€ valable jusqu'au ${discountEnd} </p>
+              <p>A réception de votre colis retour, vous recevrez par mail, le code de réduction/remboursement d'une valeur de ${totalOrder} valable 3 mois.
               <p>Très belle journée,</p>
               <p>L'équipe de Potiron Paris</p>
               <img src='cid:signature'/>
@@ -295,6 +295,9 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
         console.error('Error sending return order message', error);
     }
 }
+
+//send mail to customer with discount code after reception of return order
+
   
   module.exports = {
     sendWelcomeMailPro,
