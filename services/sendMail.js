@@ -210,9 +210,7 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
           <p style="margin: 0;">Une nouvelle commande demande de retour a été créée pour le client : ${senderCustomer.name}</p>
           <p style="margin: 0;">Une commande retour a été créée dans Shippingbo GMA : ${returnOrderId}</p>
           <p style="margin: 0;">La commande d'origine Shopify est : ${senderCustomer.origin_ref}</p>
-          <p style="margin: 0;">Une étiquette Retour Colissimo a été générée et envoyé au client avec le numéro de suivi : ${parcelNumber}</p>
           <p>A réception de son colis, un code de réduction/remboursement lui sera automatiquement envoyé par mail, d'une valeur de ${totalOrder} </p>
-          <p><a href="${packageTrack}">Suivre le colis</a></p>
           <p>Bonne journée ! </p>
           <img src='cid:signature'/>
         `
