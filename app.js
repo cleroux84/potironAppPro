@@ -49,8 +49,6 @@ app.get('/', (req, res) => {
 
 // Initialisation des tokens avec YOUR_AUTHORIZATION_CODE
 const initializeTokens = async () => {
-  let getAccessfromDb = await getAccessTokenFromDb();
-  console.log('test access from db initialize', getAccessfromDb)
   try {
     if(YOUR_AUTHORIZATION_CODE){
       const tokens = await getToken(YOUR_AUTHORIZATION_CODE);
@@ -74,16 +72,9 @@ const initializeTokens = async () => {
 } catch (error) {
   console.error('Failed to initialize warehouse tokens', error);
 }
-getAccessfromDb = await getAccessTokenFromDb();
-  console.log('test access from db', getAccessfromDb)
 //refreshToken every 1h50
     setInterval(async () => {
-      // console.log("auto refresh shippingbo Token");
-      console.log('token before refresh initialize', accessToken);
-      console.log('refresh before refresh initialize', refreshToken);
-      await refreshAccessToken(); //1h50 
-      console.log('token after refresh initialize', accessToken);
-      console.log('refresh after refresh initialize', refreshToken);
+      await refreshAccessToken(); 
       await refreshAccessTokenWarehouse();
   }, 6600000); //1h50
   //refreshToken every 1h15 for MS365

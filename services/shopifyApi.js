@@ -91,6 +91,7 @@ const createDraftOrder = async (draftOrder, accessToken) => {
         total_price_currency: 'EUR',
         tags_to_add: dataForShippingboTag
         };
+        console.log('token to create draft order', accessToken);
         await createProDraftOrderShippingbo(accessToken, shippingBoOrder);
         return data;
     } else {
