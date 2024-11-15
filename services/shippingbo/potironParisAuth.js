@@ -19,7 +19,6 @@ const saveRefreshTokenDb = async (token, refreshToken) => {
   const getRefreshTokenFromDb = async () => {
     try {
       const res = await client.query('SELECT refresh_token FROM tokens LIMIT 1');
-      console.log('refreshtokenfromdb', res.rows[0].refresh_token);
       return res.rows[0].refresh_token;
     } catch (error) {
       console.log('Error retrieving refresh token', error);
@@ -30,7 +29,6 @@ const saveRefreshTokenDb = async (token, refreshToken) => {
   const getAccessTokenFromDb = async () => {
     try {
       const res = await client.query('SELECT token FROM tokens LIMIT 1');
-      console.log('tokenfromDb', res.rows[0].token);
       return res.rows[0].token;
     } catch (error) {
       console.log('Error retrieving token from db', error);
