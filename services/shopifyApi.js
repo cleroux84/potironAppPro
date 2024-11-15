@@ -62,12 +62,12 @@ const createDraftOrder = async (draftOrder, accessToken) => {
             "Préference(s) de livraison : " + deliveryPref.value
           ]
         }
-        // let accessTokenMS365 = getAccessTokenMS365();
-        // if(!accessTokenMS365) {
-        //   refreshMS365AccessToken();
-        //   accessTokenMS365 = getAccessTokenMS365();
-        // }
-        // await sendNewDraftOrderMail(accessTokenMS365, firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone, shippingAddress, deliveryPref.value, paletteEquipmentValue, appointmentValue, paletteNotesValue);
+        let accessTokenMS365 = getAccessTokenMS365();
+        if(!accessTokenMS365) {
+          refreshMS365AccessToken();
+          accessTokenMS365 = getAccessTokenMS365();
+        }
+        await sendNewDraftOrderMail(accessTokenMS365, firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone, shippingAddress, deliveryPref.value, paletteEquipmentValue, appointmentValue, paletteNotesValue);
         
         const shippingBoOrder = {
             order_items_attributes: draftOrderLineItems.map(item => ({
@@ -91,7 +91,6 @@ const createDraftOrder = async (draftOrder, accessToken) => {
         total_price_currency: 'EUR',
         tags_to_add: dataForShippingboTag
         };
-        console.log('token to create draft order', accessToken);
         await createProDraftOrderShippingbo(accessToken, shippingBoOrder);
         return data;
     } else {

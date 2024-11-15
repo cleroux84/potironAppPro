@@ -5,10 +5,12 @@ const CLIENT_SECRET_WAREHOUSE = process.env.CLIENT_SECRET_WAREHOUSE;
 let accessTokenWarehouse = null;
 let refreshTokenWarehouse = null;
 
-const saveRefreshTokenWarehouseDb = async (token) => {
+const saveRefreshTokenWarehouseDb = async (tokenWarehouse, refreshTokenWarehouse) => {
     try {
-      await client.query('UPDATE tokens SET refresh_token_warehouse = $1 WHERE id = 1', [token]);
+      await client.query('UPDATE tokens SET refresh_token_warehouse = $1 WHERE id = 1', [refreshTokenWarehouse]);
       console.log('RefreshToken saved in db for GMA Warehouse');
+      await client.query('UPDATE tokens SET token_warehouse = $1 WHERE id = 1', [tokenWarehouse]);
+      console.log('token saved in db for GMA Warehouse');
     } catch (error) {
       console.error('Error saving refreshTokenWarehouse in db', error);
     }
@@ -20,6 +22,17 @@ const saveRefreshTokenWarehouseDb = async (token) => {
       return res.rows[0].refresh_token_warehouse;
     } catch (error) {
       console.log('Error retrieving refresh_token_warehouse', error);
+      return null;
+    }
+  }
+
+  const getAccessTokenWarehouseFromDb = async () => {
+    try {
+      const res = await client.query('SELECT token_warehouse FROM tokens LIMIT 1');
+      console.log('tokenfromDb', res.rows[0].token_warehouse);
+      return res.rows[0].token_warehouse;
+    } catch (error) {
+      console.log('Error retrieving token from db', error);
       return null;
     }
   }
@@ -50,7 +63,7 @@ const saveRefreshTokenWarehouseDb = async (token) => {
       } else {
         accessTokenWarehouse = data.access_token;
         refreshTokenWarehouse = data.refresh_token;
-        await saveRefreshTokenWarehouseDb(refreshTokenWarehouse);
+        await saveRefreshTokenWarehouseDb(accessTokenWarehouse ,refreshTokenWarehouse);
       }
       return {
         accessTokenWarehouse,
@@ -83,7 +96,7 @@ const saveRefreshTokenWarehouseDb = async (token) => {
       const data = await response.json();
       accessTokenWarehouse = data.access_token;
       refreshTokenWarehouse = data.refresh_token;
-      await saveRefreshTokenWarehouseDb(refreshTokenWarehouse);
+      await saveRefreshTokenWarehouseDb(accessTokenWarehouse, refreshTokenWarehouse);
       return {
         accessTokenWarehouse,
         refreshTokenWarehouse
@@ -97,5 +110,6 @@ const saveRefreshTokenWarehouseDb = async (token) => {
 
   module.exports = {
     getTokenWarehouse,
-    refreshAccessTokenWarehouse
+    refreshAccessTokenWarehouse,
+    getAccessTokenWarehouseFromDb
   };

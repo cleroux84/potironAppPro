@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 300;
 const YOUR_AUTHORIZATION_CODE = process.env.YOUR_AUTHORIZATION_CODE;
 const WAREHOUSE_AUTHORIZATION_CODE = process.env.WAREHOUSE_AUTHORIZATION_CODE;
 const { getToken, refreshAccessToken, getAccessTokenFromDb } = require('./services/shippingbo/potironParisAuth.js');
-const { getTokenWarehouse, refreshAccessTokenWarehouse } = require('./services/shippingbo/gmaWarehouseAuth.js');
+const { getTokenWarehouse, refreshAccessTokenWarehouse, getAccessTokenWarehouseFromDb } = require('./services/shippingbo/gmaWarehouseAuth.js');
 const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft } = require('./services/shippingbo/potironParisCRUD.js');
 const { getWarehouseOrderDetails, updateWarehouseOrder, getWarehouseOrderToReturn, getshippingDetails, checkIfReturnOrderExist } = require('./services/shippingbo/GMAWarehouseCRUD.js');
 const { sendEmailWithKbis, sendWelcomeMailPro, sendReturnDataToCustomer, sendReturnDataToSAV } = require('./services/sendMail.js');
@@ -28,7 +28,7 @@ const { setupShippingboWebhook, deleteAllWebhooks, getWebhooks } = require('./se
 
 // let accessToken = null;
 let refreshToken = null;
-let accessTokenWarehouse = null;
+// let accessTokenWarehouse = null;
 let refreshTokenWarehouse = null;
 const API_APP_WAREHOUSE_ID = process.env.API_APP_WAREHOUSE_ID;
 
@@ -52,7 +52,7 @@ const initializeTokens = async () => {
   try {
     if(YOUR_AUTHORIZATION_CODE){
       const tokens = await getToken(YOUR_AUTHORIZATION_CODE);
-      accessToken = tokens.accessToken;
+      let accessToken = tokens.accessToken;
       refreshToken = tokens.refreshToken;
   } else {
     console.log('ppl initialtoken')
@@ -64,7 +64,7 @@ const initializeTokens = async () => {
   try {
     if(WAREHOUSE_AUTHORIZATION_CODE){
       const tokensWarehouse = await getTokenWarehouse(WAREHOUSE_AUTHORIZATION_CODE);
-      accessTokenWarehouse = tokensWarehouse.accessTokenWarehouse;
+      let accessTokenWarehouse = tokensWarehouse.accessTokenWarehouse;
       refreshTokenWarehouse = tokensWarehouse.refreshTokenWarehouse;
   } else {
       await refreshAccessTokenWarehouse();
@@ -179,6 +179,7 @@ app.post('/proOrder', async (req, res) => {
   const isCommandePro = tagsArray.includes('Commande PRO');
   const isB2B = tagsArr.includes('PRO validé');
   let accessToken = await getAccessTokenFromDb();
+  let accessTokenWarehouse = await getAccessTokenWarehouseFromDb();
   if(isB2B && isCommandePro) {
     const draftDetails = await getShippingboOrderDetails(accessToken, draftId);
     const orderDetails = await getShippingboOrderDetails(accessToken, orderId);
@@ -555,6 +556,7 @@ app.get('/getDraftOrder/:draftOrderId', async (req, res) => {
 
 app.get('/getOrderById', async (req, res) => {
   let accessToken = await getAccessTokenFromDb();
+  let accessTokenWarehouse = await getAccessTokenWarehouseFromDb();
   const orderName = req.query.getOrder_name;
   const orderMail = req.query.getOrder_mail;
   const customerId = req.query.customer_id;
@@ -616,7 +618,7 @@ app.get('/checkIfsReturnPossible', async (req, res) => {
   const itemsToReturn = req.query.return_items.split(',');
   quantitiesByRefs = JSON.parse(req.query.quantities);
   console.log('ref & qties to check', quantitiesByRefs);
- 
+  let accessTokenWarehouse = await getAccessTokenWarehouseFromDb();
   try {
     const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId);
     // console.log("warehouseOrder", warehouseOrder);
@@ -664,6 +666,7 @@ app.get('/checkIfsReturnPossible', async (req, res) => {
 });
 
 app.post('/returnProduct', async (req, res) => {
+  let accessTokenWarehouse = await getAccessTokenWarehouseFromDb();
   console.log('all param', req.body);
   console.log('qté by refs return', quantitiesByRefs);
   const customerId = req.body.customerId;
