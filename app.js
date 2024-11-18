@@ -80,8 +80,14 @@ app.post('/returnOrderCancel', async (req, res) => {
         //retrieve data from customer ! check reason_ref if shopify Id ^^
         console.log('order canceled shippingbo warehouse', orderCanceled);
         console.log("shopify id ?", orderCanceled.object.reason_ref);
-        const shopifyOrder = getOrderByShopifyId(orderCanceled.object.reason_ref);
+        const shopifyOrder = await getOrderByShopifyId(orderCanceled.object.reason_ref);
         console.log('shopify order retrieve to send mail', shopifyOrder);
+        let accessTokenMS365 = getTokenMS365FromDb();
+        if(!accessTokenMS365) {
+          await refreshMS365AccessToken();
+          accessTokenMS365 = getTokenMS365FromDb();
+        }
+        
         }
     } catch (error) {
       console.error("error webhook discount code", error);
@@ -727,7 +733,7 @@ app.post('/returnProduct', async (req, res) => {
         accessTokenMS365 = getTokenMS365FromDb();
       }
     //   //send email to Magalie with parcel number and shopify Id and return order Id
-      await sendReturnDataToSAV(accessTokenMS365, senderCustomer, returnOrderId, totalOrder)
+      // await sendReturnDataToSAV(accessTokenMS365, senderCustomer, returnOrderId, totalOrder)
     //   //send email to customer with link to dwld label and parcel number
       // await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, createLabelData.pdfData, parcelNumber, totalOrder);
 
