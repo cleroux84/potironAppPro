@@ -199,9 +199,9 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
     }
   }
   //Send email to Magalie with parcelNumber when automated return
-  async function sendReturnDataToSAV(accessTokenMS365, senderCustomer, returnOrderId, totalOrder) {
+  async function sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumber, returnOrderId, totalOrder) {
     const client = initiMicrosoftGraphClient(accessTokenMS365);
-    // const packageTrack = "https://www.laposte.fr/outils/suivre-vos-envois?code=" + parcelNumber;
+    const packageTrack = "https://www.laposte.fr/outils/suivre-vos-envois?code=" + parcelNumber;
     const message = {
       subject: 'Nouvelle demande de retour automatisé', 
       body: {
@@ -212,6 +212,8 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
           <p style="margin: 0;">Une commande retour a été créée dans Shippingbo GMA : ${returnOrderId}</p>
           <p style="margin: 0;">La commande d'origine Shopify est : ${senderCustomer.origin_ref}</p>
           <p>A réception de son colis, un code de réduction/remboursement lui sera automatiquement envoyé par mail, d'une valeur de ${totalOrder} </p>
+          <p>Numéro de colis : ${parcelNumber}</p>
+          <p>Suivi du colis : ${packageTrack}</p>
           <p>Bonne journée ! </p>
           <img src='cid:signature'/>
         `
