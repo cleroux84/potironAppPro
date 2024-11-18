@@ -67,13 +67,15 @@ app.post('/returnOrderCancel', async (req, res) => {
       const ruleExists = await checkIfPriceRuleExists(orderName);
       // Create discount code in shopify
       if(!ruleExists) {
-          priceRules = await createPriceRule(customerId, orderName, totalAmount);
-          console.log("to find discount id", priceRules);
+          let priceRules = await createPriceRule(customerId, orderName, totalAmount);
+          const priceRuleId = priceRules.discountData.discount_code.price_rule_id;
+          const discountCodeId = priceRules.discountData.discount_code.id;
           const discountCode = priceRules.discountData.discount_code.code;
           const discountAmount = priceRules.discountRule.price_rule.value;
           const discountEnd = priceRules.discountRule.price_rule.ends_at;
           const discountDate = new Date(discountEnd);
           const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });  
+         
           const shopifyOrder = await getOrderByShopifyId(orderCanceled.object.reason_ref);
           let accessTokenMS365 = await getAccessTokenMS365();
           if(!accessTokenMS365) {
@@ -83,7 +85,7 @@ app.post('/returnOrderCancel', async (req, res) => {
           const customerData = shopifyOrder.order.customer;
           // await sendDiscountCodeAfterReturn(accessTokenMS365, customerData, orderName, discountCode, discountAmount, formattedDate);
           //TODO record data in db
-          // await saveDiscountMailData(customerData.email, orderName, discountCode, discountAmount, discountEnd);
+          await saveDiscountMailData(customerData.email, orderName, discountCode, discountAmount, discountEnd, discountCodeId, priceRuleId);
 
         }
     } catch (error) {

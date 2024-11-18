@@ -343,15 +343,15 @@ async function sendDiscountCodeAfterReturn(accessTokenMS365, customerData, order
 }
 
 //Record Data customer and discount code in DB to send scheduled mail
-const saveDiscountMailData = async (email, orderName, discountCode, totalAmount, endDate) => {
+const saveDiscountMailData = async (email, orderName, discountCode, totalAmount, endDate, discountCodeId, PriceRuleId) => {
   const sendDate = new Date(endDate);
   sendDate.setDate(sendDate.getDate() - 15);
 
   const query = `
-    INSERT INTO scheduled_emails (customer_email, order_name, discount_code, total_order, code_end_date, send_date )
-    VALUES ($1, $2, $3, $4, $5, $6)
+    INSERT INTO scheduled_emails (customer_email, order_name, discount_code, total_order, code_end_date, send_date, discount_code_id, price_rule_id )
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
     `
-  const values = [email, orderName, discountCode, totalAmount, endDate, sendDate];
+  const values = [email, orderName, discountCode, totalAmount, endDate, sendDate, discountCodeId, PriceRuleId];
 
   try {
     const result = await client.query(query, values);
@@ -388,7 +388,7 @@ const sendReminderScheduledEmails = async () => {
   }
 
   for (const emailData of scheduledEmails) {
-    const { customer_email, order_name, discount_code, total_order, code_end } = emailData;
+    const { customer_email, order_name, discount_code, total_order, code_end, discount_code_id, price_rule_id } = emailData;
     console.log('emailData', emailData);
   // let discountHasNotBeenUsed;
 
