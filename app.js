@@ -736,7 +736,7 @@ app.post('/returnProduct', async (req, res) => {
         accessTokenMS365 = getTokenMS365FromDb();
       }
     //   //send email to Magalie with parcel number and shopify Id and return order Id
-      // await sendReturnDataToSAV(accessTokenMS365, senderCustomer, returnOrderId, totalOrder)
+      await sendReturnDataToSAV(accessTokenMS365, senderCustomer, returnOrderId, totalOrder)
     //   //send email to customer with link to dwld label and parcel number
       // await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, createLabelData.pdfData, parcelNumber, totalOrder);
 
