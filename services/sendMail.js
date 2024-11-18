@@ -294,7 +294,50 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
     }
 }
 
-//send mail to customer with discount code after reception of return order
+//send mail to customer with discount code after reception of return order + so retrieve customer + trigger sendEmailDiscountReminder with param
+
+
+//Send mail to customer 15days berfore expiration date example to test : exemple
+//const reminderDate = new Date();
+// reminderDate.setDate(reminderDate.getDate() + 15);
+
+// async function sendEmailDiscountReminder(accessTokenMS365, firstnameCustomer, lastnameCustomer, mailCustomer, reminderDate) {
+//   const client = initiMicrosoftGraphClient(accessTokenMS365);
+//    const msg = {
+//     subject: `Rappel : Votre code de réduction expire dans 15 jours`,
+//     body: {
+//       contentType: 'HTML',
+//       content: `
+//     <p>Bonjour ${firstnameCustomer} ${lastnameCustomer},</p>
+//     <p>Nous vous rappelons que votre code de réduction expire dans 15 jours. Profitez-en avant qu'il ne soit trop tard !</p>
+//     <p>Si vous avez des questions, n'hésitez pas à nous contacter.</p>
+//     <p>Cordialement,</p>
+//     <p>L'équipe de support</p>
+//           `
+//     },
+//     toRecipients: [
+//       {
+//         emailAddress: {
+//           address: mailCustomer
+//         }
+//       }
+//     ],
+//     // Propriété étendue pour planifier l'envoi
+//     singleValueExtendedProperties: [
+//       {
+//         id: 'SystemTime 0x3FEF',
+//         value: reminderDate.toISOString() // Convertir la date au format ISO pour l'envoi
+//       }
+//     ]
+//   };
+ 
+//   try {
+//     await client.api('/me/sendMail').post({ message: msg });
+//     console.log('Email de rappel envoyé avec succès !');
+//   } catch (error) {
+//     console.error('Erreur lors de l\'envoi de l\'email de rappel :', error);
+//   }
+// }
 
   
   module.exports = {

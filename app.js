@@ -55,22 +55,15 @@ app.post('/returnOrderCancel', async (req, res) => {
   ) 
   {
     try {
-      // console.log('automated return order canceled', orderCanceled.id);
-    //   console.log('create and send mail discount code', orderCanceled);
       const shopifyIdString = orderCanceled.object.reason_ref;
       const shopifyId = Number(shopifyIdString);
       const getAttributes = await getOrderByShopifyId(shopifyId);
-      // console.log('find attributes', getAttributes.order.note_attributes);
       const noteAttributes = getAttributes.order.note_attributes;
       const customerIdAttr = noteAttributes.find(attr => attr.name === "customerId");
       const customerId = customerIdAttr ? customerIdAttr.value : null;
-      // console.log('customerId for discount', customerId);
       const orderName = getAttributes.order.name;
-      // console.log('ordername for discount', orderName);
       const totalAmountAttr = noteAttributes.find(attr => attr.name === "totalOrderReturn");
       const totalAmount = totalAmountAttr ? parseFloat(totalAmountAttr.value) : null;
-      // console.log('total for discount', totalAmount);
-
       const ruleExists = await checkIfPriceRuleExists(orderName);
       // Create discount code in shopify
       if(!ruleExists) {
@@ -84,7 +77,11 @@ app.post('/returnOrderCancel', async (req, res) => {
         console.log('discount montant', discountAmount);
         console.log('discount date', formattedDate);
         //TODO send mails
-
+        //retrieve data from customer ! check reason_ref if shopify Id ^^
+        console.log('order canceled shippingbo warehouse', orderCanceled);
+        console.log("shopify id ?", orderCanceled.return_order.reason_ref);
+        const shopifyOrder = getOrderByShopifyId(orderCanceled.return_order.reason_ref);
+        console.log('shopify order retrieve to send mail', shopifyOrder);
         }
     } catch (error) {
       console.error("error webhook discount code", error);
