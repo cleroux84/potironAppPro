@@ -349,7 +349,7 @@ const saveDiscountMailData = async (email, orderName, discountCode, totalAmount,
 
   const query = `
     INSERT INTO scheduled_emails (customer_email, order_name, discount_code, total_order, code_end_date, send_date, discount_code_id, price_rule_id )
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+    VALUES ($1, $2, $3, $4, $5, $6, $8, $9)
     `
   const values = [email, orderName, discountCode, totalAmount, endDate, sendDate, discountCodeId, PriceRuleId];
 
@@ -357,7 +357,7 @@ const saveDiscountMailData = async (email, orderName, discountCode, totalAmount,
     const result = await client.query(query, values);
     console.log("Data pour email programmé enregistré en DB");
   } catch (error) {
-    console.error('Error recording discount data in scheduled emails table');
+    console.error('Error recording discount data in scheduled emails table', error);
   }
 }
 

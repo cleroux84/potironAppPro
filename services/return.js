@@ -207,6 +207,8 @@ const checkIfPriceRuleExists = async (orderName) => {
     }
 }
 
+//function to find if a discount code has been used
+
 //calcule si le délai de rétractation de 15 jours à compter de la livraison est dépassé
 const isReturnableDate = async (deliveryDate) => {
     let isReturnable;
