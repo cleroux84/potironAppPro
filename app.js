@@ -88,7 +88,6 @@ app.post('/returnOrderCancel', async (req, res) => {
           accessTokenMS365 = getTokenMS365FromDb();
         }
         const customerData = shopifyOrder.customer;
-        const orderName = shopifyOrder.name;
         console.log('customerData', customerData);
         console.log('ordername', orderName);
         await sendDiscountCodeAfterReturn(accessTokenMS365, customerData, orderName, discountCode, discountAmount, formattedDate);
