@@ -5,7 +5,6 @@ const { ConfidentialClientApplication } = require('@azure/msal-node');
 const { Client } = require('@microsoft/microsoft-graph-client');
 require ('isomorphic-fetch');
 const path = require('path');
-const { getTokenMS365FromDb } = require('./microsoftAuth');
 
 const MAILRECIPIENT = process.env.MAILRECIPIENT;
 const MAILCOTATION = process.env.MAILCOTATION;
@@ -297,9 +296,6 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
 
 //send mail to customer with discount code after reception of return order + so retrieve customer + trigger sendEmailDiscountReminder with param
 async function sendDiscountCodeAfterReturn(accessTokenMS365, customerData, orderName, discountCode, totalOrder, codeEndDate) {
-  console.log('accessms365 from param', accessTokenMS365);
-  const accessms365fromdbhere = await getTokenMS365FromDb();
-  console.log('accessms365here', accessms365fromdbhere);
   const client = initiMicrosoftGraphClient(accessTokenMS365);
   let nameNoStar = customerData.last_name.replace(/⭐/g, '').trim();
 
