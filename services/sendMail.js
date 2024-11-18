@@ -393,6 +393,7 @@ const sendReminderScheduledEmails = async () => {
   // let discountHasNotBeenUsed;
 
 }
+}
 
   
   module.exports = {
