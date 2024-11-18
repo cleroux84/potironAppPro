@@ -153,6 +153,7 @@ const createPriceRule = async (customerId, orderName, totalOrder) => {
 }
 
 const createDiscountCode = async (orderName, priceRule, discountRule) => {
+    console.log('priceRule', priceRule);
     const discountCodeUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/price_rules/${priceRule.price_rule.id}/discount_codes.json`
     const discountCode = {
         "discount_code": {
@@ -173,6 +174,7 @@ const createDiscountCode = async (orderName, priceRule, discountRule) => {
             console.log('error fetching discount code');
         }
         const discountData = await discountResponse.json();
+        console.log('discountData', discountData);
         return {
             discountData: discountData,
             discountRule: discountRule

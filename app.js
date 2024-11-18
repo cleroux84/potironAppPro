@@ -68,6 +68,7 @@ app.post('/returnOrderCancel', async (req, res) => {
       // Create discount code in shopify
       if(!ruleExists) {
           priceRules = await createPriceRule(customerId, orderName, totalAmount);
+          console.log("to find discount id", priceRules);
           const discountCode = priceRules.discountData.discount_code.code;
           const discountAmount = priceRules.discountRule.price_rule.value;
           const discountEnd = priceRules.discountRule.price_rule.ends_at;
@@ -80,9 +81,9 @@ app.post('/returnOrderCancel', async (req, res) => {
             accessTokenMS365 = await getAccessTokenMS365();
           }
           const customerData = shopifyOrder.order.customer;
-          await sendDiscountCodeAfterReturn(accessTokenMS365, customerData, orderName, discountCode, discountAmount, formattedDate);
+          // await sendDiscountCodeAfterReturn(accessTokenMS365, customerData, orderName, discountCode, discountAmount, formattedDate);
           //TODO record data in db
-          await saveDiscountMailData(customerData.email, orderName, discountCode, discountAmount, discountEnd);
+          // await saveDiscountMailData(customerData.email, orderName, discountCode, discountAmount, discountEnd);
 
         }
     } catch (error) {

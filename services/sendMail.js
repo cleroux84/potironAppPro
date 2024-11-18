@@ -342,6 +342,7 @@ async function sendDiscountCodeAfterReturn(accessTokenMS365, customerData, order
   }
 }
 
+//Record Data customer and discount code in DB to send scheduled mail
 const saveDiscountMailData = async (email, orderName, discountCode, totalAmount, endDate) => {
   const sendDate = new Date(endDate);
   sendDate.setDate(sendDate.getDate() - 15);
@@ -354,53 +355,44 @@ const saveDiscountMailData = async (email, orderName, discountCode, totalAmount,
 
   try {
     const result = await client.query(query, values);
-    console.log("Data pour email programmé enregistré en DB", result);
+    console.log("Data pour email programmé enregistré en DB");
   } catch (error) {
     console.error('Error recording discount data in scheduled emails table');
   }
 }
 
-//Send mail to customer 15days berfore expiration date example to test : exemple
-//const reminderDate = new Date();
-// reminderDate.setDate(reminderDate.getDate() + 15);
+//Retrieve Data from DB in scheduled_emails table 
+const getDiscountMailData = async () => {
+  const today = new Date().toISOString().split('T')[0];
+  const query = `
+    SELECT * FROM scheduled_emails WHERE send_date::date = $1 
+  `;
+  const values = [today];
+  try {
+    const result = await client.query(query, values);
+    return result.rows;
+  } catch (error) {
+    console.error("Error retrieving data from scheduled emails table", error);
+    return [];
+  }
+}
 
-// async function sendEmailDiscountReminder(accessTokenMS365, firstnameCustomer, lastnameCustomer, mailCustomer, reminderDate) {
-//   const client = initiMicrosoftGraphClient(accessTokenMS365);
-//    const msg = {
-//     subject: `Rappel : Votre code de réduction expire dans 15 jours`,
-//     body: {
-//       contentType: 'HTML',
-//       content: `
-//     <p>Bonjour ${firstnameCustomer} ${lastnameCustomer},</p>
-//     <p>Nous vous rappelons que votre code de réduction expire dans 15 jours. Profitez-en avant qu'il ne soit trop tard !</p>
-//     <p>Si vous avez des questions, n'hésitez pas à nous contacter.</p>
-//     <p>Cordialement,</p>
-//     <p>L'équipe de support</p>
-//           `
-//     },
-//     toRecipients: [
-//       {
-//         emailAddress: {
-//           address: mailCustomer
-//         }
-//       }
-//     ],
-//     // Propriété étendue pour planifier l'envoi
-//     singleValueExtendedProperties: [
-//       {
-//         id: 'SystemTime 0x3FEF',
-//         value: reminderDate.toISOString() // Convertir la date au format ISO pour l'envoi
-//       }
-//     ]
-//   };
- 
-//   try {
-//     await client.api('/me/sendMail').post({ message: msg });
-//     console.log('Email de rappel envoyé avec succès !');
-//   } catch (error) {
-//     console.error('Erreur lors de l\'envoi de l\'email de rappel :', error);
-//   }
-// }
+
+//Send mail to customer 15days berfore expiration date example to test : exemple
+const sendReminderScheduledEmails = async () => {
+  const scheduledEmails = await getDiscountMailData();
+
+  if(scheduledEmails.length === 0) {
+    console.log("Aucun mail programmé pour aujourd'hui");
+    return;
+  }
+
+  for (const emailData of scheduledEmails) {
+    const { customer_email, order_name, discount_code, total_order, code_end } = emailData;
+    console.log('emailData', emailData);
+  // let discountHasNotBeenUsed;
+
+}
 
   
   module.exports = {
