@@ -346,7 +346,8 @@ const saveDiscountMailData = async (email, orderName, discountCode, totalAmount,
 
   const query = `
     INSERT INTO scheduled_emails (customer_email, order_name, discount_code, total_order, code_end_date, send_date )
-  `
+    VALUES ($1, $2, $3, $4, $5, $6)
+    `
   const values = [email, orderName, discountCode, totalAmount, endDate, sendDate];
 
   try {
