@@ -5,6 +5,7 @@ const { ConfidentialClientApplication } = require('@azure/msal-node');
 const { Client } = require('@microsoft/microsoft-graph-client');
 require ('isomorphic-fetch');
 const path = require('path');
+const client = require('./db.js')
 
 const MAILRECIPIENT = process.env.MAILRECIPIENT;
 const MAILCOTATION = process.env.MAILCOTATION;
@@ -339,6 +340,23 @@ async function sendDiscountCodeAfterReturn(accessTokenMS365, customerData, order
   }
 }
 
+const saveDiscountMailData = async (email, orderName, discountCode, totalAmount, endDate) => {
+  const sendDate = new Date(endDate);
+  sendDate.setDate(sendDate.getDate() - 15);
+
+  const query = `
+    INSERT INTO scheduled_emails (customer_email, order_name, discount_code, total_order, code_end_date, send_date )
+  `
+  const values = [email, orderName, discountCode, totalAmount, endDate, sendDate];
+
+  try {
+    const result = await client.query(query, values);
+    console.log("Data pour email programmé enregistré en DB", result);
+  } catch (error) {
+    console.error('Error recording discount data in scheduled emails table');
+  }
+}
+
 //Send mail to customer 15days berfore expiration date example to test : exemple
 //const reminderDate = new Date();
 // reminderDate.setDate(reminderDate.getDate() + 15);
@@ -388,5 +406,6 @@ async function sendDiscountCodeAfterReturn(accessTokenMS365, customerData, order
     sendEmailWithKbis,
     sendReturnDataToCustomer,
     sendReturnDataToSAV,
-    sendDiscountCodeAfterReturn
+    sendDiscountCodeAfterReturn,
+    saveDiscountMailData
   }

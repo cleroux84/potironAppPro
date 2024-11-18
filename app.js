@@ -17,7 +17,7 @@ const { getToken, refreshAccessToken, getAccessTokenFromDb } = require('./servic
 const { getTokenWarehouse, refreshAccessTokenWarehouse, getAccessTokenWarehouseFromDb } = require('./services/shippingbo/gmaWarehouseAuth.js');
 const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft } = require('./services/shippingbo/potironParisCRUD.js');
 const { getWarehouseOrderDetails, updateWarehouseOrder, getWarehouseOrderToReturn, getshippingDetails, checkIfReturnOrderExist } = require('./services/shippingbo/GMAWarehouseCRUD.js');
-const { sendEmailWithKbis, sendWelcomeMailPro, sendReturnDataToCustomer, sendReturnDataToSAV, sendDiscountCodeAfterReturn } = require('./services/sendMail.js');
+const { sendEmailWithKbis, sendWelcomeMailPro, sendReturnDataToCustomer, sendReturnDataToSAV, sendDiscountCodeAfterReturn, saveDiscountMailData } = require('./services/sendMail.js');
 const { createDraftOrder, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById, orderById, getProductDetails, getProductWeightBySku, updateOrder, getOrderByShopifyId } = require('./services/shopifyApi.js');
 const { createReturnOrder, updateReturnOrder, checkIfPriceRuleExists, createPriceRule, isReturnableDate } = require('./services/return.js');
 const { refreshMS365AccessToken, getAccessTokenMS365 } = require('./services/microsoftAuth.js');
@@ -73,24 +73,17 @@ app.post('/returnOrderCancel', async (req, res) => {
           const discountEnd = priceRules.discountRule.price_rule.ends_at;
           const discountDate = new Date(discountEnd);
           const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });  
-        // console.log('discountcode', discountCode);
-        // console.log('discount montant', discountAmount);
-        // console.log('discount date', formattedDate);
-        //TODO send mails
-        //retrieve data from customer ! check reason_ref if shopify Id ^^
-        // console.log('order canceled shippingbo warehouse', orderCanceled);
-        // console.log("shopify id ?", orderCanceled.object.reason_ref);
-        const shopifyOrder = await getOrderByShopifyId(orderCanceled.object.reason_ref);
-        // console.log('shopify order retrieve to send mail', shopifyOrder);
-        let accessTokenMS365 = await getAccessTokenMS365();
-        if(!accessTokenMS365) {
-          await refreshMS365AccessToken();
-          accessTokenMS365 = await getAccessTokenMS365();
-        }
-        const customerData = shopifyOrder.order.customer;
-        console.log('customerData', customerData);
-        console.log('ordername', orderName);
-        await sendDiscountCodeAfterReturn(accessTokenMS365, customerData, orderName, discountCode, discountAmount, formattedDate);
+          const shopifyOrder = await getOrderByShopifyId(orderCanceled.object.reason_ref);
+          let accessTokenMS365 = await getAccessTokenMS365();
+          if(!accessTokenMS365) {
+            await refreshMS365AccessToken();
+            accessTokenMS365 = await getAccessTokenMS365();
+          }
+          const customerData = shopifyOrder.order.customer;
+          await sendDiscountCodeAfterReturn(accessTokenMS365, customerData, orderName, discountCode, discountAmount, formattedDate);
+          //TODO record data in db
+          await saveDiscountMailData(customerData.email, orderName, discountCode, discountAmount, discountEnd);
+
         }
     } catch (error) {
       console.error("error webhook discount code", error);
