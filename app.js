@@ -20,7 +20,7 @@ const { getWarehouseOrderDetails, updateWarehouseOrder, getWarehouseOrderToRetur
 const { sendEmailWithKbis, sendWelcomeMailPro, sendReturnDataToCustomer, sendReturnDataToSAV, sendDiscountCodeAfterReturn } = require('./services/sendMail.js');
 const { createDraftOrder, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById, orderById, getProductDetails, getProductWeightBySku, updateOrder, getOrderByShopifyId } = require('./services/shopifyApi.js');
 const { createReturnOrder, updateReturnOrder, checkIfPriceRuleExists, createPriceRule, isReturnableDate } = require('./services/return.js');
-const { refreshMS365AccessToken, await getTokenMS365FromDb } = require('./services/microsoftAuth.js');
+const { refreshMS365AccessToken, getTokenMS365FromDb } = require('./services/microsoftAuth.js');
 const { createLabel } = require('./services/colissimoApi.js');
 const { setupShippingboWebhook, deleteAllWebhooks, getWebhooks } = require('./services/shippingbo/webhooks.js');
 const { initializeTokens } = require('./services/manageTokens.js');
