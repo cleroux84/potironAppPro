@@ -295,7 +295,49 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
 }
 
 //send mail to customer with discount code after reception of return order + so retrieve customer + trigger sendEmailDiscountReminder with param
+async function sendDiscountCodeAfterReturn(accessTokenMS365, customerData, orderName, discountCode, totalOrder, codeEndDate) {
+  const client = initiMicrosoftGraphClient(accessTokenMS365);
+  let nameNoStar = customerData.last_name.replace(/⭐/g, '').trim();
 
+  const message = {
+    subject: `Remboursement sur Commande ${orderName}`, 
+    body: {
+      contentType: 'HTML',
+      content: `
+        <p>Bonjour ${customerData.first_name} ${nameNoStar}, </p>
+        <p style="margin: 0;">Suite à la réception de votre colis retour concernant la commande ${orderName}</p>
+        <p style="margin: 0;">Code de réduction: ${discountCode}, d'une valeur de ${totalOrder} valable jusqu'au ${codeEndDate}</p>
+        <p>Très belle journée,</p>
+        <p>L'équipe de Potiron Paris</p>
+        <img src='cid:signature'/>
+      `
+    },
+    //TODO : mail client : customerData.email
+    toRecipients: [
+      {
+        emailAddress: {
+          address: "c.leroux@potiron.com"
+        }
+      }
+    ],
+    bccRecipients: [
+      {
+          emailAddress: {
+              address: MAILDEV
+          }
+      }
+    ],
+    attachments: [
+      signatureAttachement
+    ]
+  };
+  try {
+    await client.api('/me/sendMail').post({ message });
+    console.log("Email discountCode automated return sucessfully sent");
+  } catch (error) {
+    console.error('error sending cotation message', error);
+  }
+}
 
 //Send mail to customer 15days berfore expiration date example to test : exemple
 //const reminderDate = new Date();
@@ -345,5 +387,6 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
     sendNewDraftOrderMail,
     sendEmailWithKbis,
     sendReturnDataToCustomer,
-    sendReturnDataToSAV
+    sendReturnDataToSAV,
+    sendDiscountCodeAfterReturn
   }
