@@ -79,8 +79,8 @@ app.post('/returnOrderCancel', async (req, res) => {
         //TODO send mails
         //retrieve data from customer ! check reason_ref if shopify Id ^^
         console.log('order canceled shippingbo warehouse', orderCanceled);
-        console.log("shopify id ?", orderCanceled.return_order.reason_ref);
-        const shopifyOrder = getOrderByShopifyId(orderCanceled.return_order.reason_ref);
+        console.log("shopify id ?", orderCanceled.object.reason_ref);
+        const shopifyOrder = getOrderByShopifyId(orderCanceled.object.reason_ref);
         console.log('shopify order retrieve to send mail', shopifyOrder);
         }
     } catch (error) {
