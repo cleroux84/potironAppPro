@@ -20,7 +20,7 @@ const { getWarehouseOrderDetails, updateWarehouseOrder, getWarehouseOrderToRetur
 const { sendEmailWithKbis, sendWelcomeMailPro, sendReturnDataToCustomer, sendReturnDataToSAV, sendDiscountCodeAfterReturn } = require('./services/sendMail.js');
 const { createDraftOrder, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById, orderById, getProductDetails, getProductWeightBySku, updateOrder, getOrderByShopifyId } = require('./services/shopifyApi.js');
 const { createReturnOrder, updateReturnOrder, checkIfPriceRuleExists, createPriceRule, isReturnableDate } = require('./services/return.js');
-const { refreshMS365AccessToken, getTokenMS365FromDb } = require('./services/microsoftAuth.js');
+const { refreshMS365AccessToken, await getTokenMS365FromDb } = require('./services/microsoftAuth.js');
 const { createLabel } = require('./services/colissimoApi.js');
 const { setupShippingboWebhook, deleteAllWebhooks, getWebhooks } = require('./services/shippingbo/webhooks.js');
 const { initializeTokens } = require('./services/manageTokens.js');
@@ -82,10 +82,10 @@ app.post('/returnOrderCancel', async (req, res) => {
         // console.log("shopify id ?", orderCanceled.object.reason_ref);
         const shopifyOrder = await getOrderByShopifyId(orderCanceled.object.reason_ref);
         // console.log('shopify order retrieve to send mail', shopifyOrder);
-        let accessTokenMS365 = getTokenMS365FromDb();
+        let accessTokenMS365 = await getTokenMS365FromDb();
         if(!accessTokenMS365) {
           await refreshMS365AccessToken();
-          accessTokenMS365 = getTokenMS365FromDb();
+          accessTokenMS365 = await getTokenMS365FromDb();
         }
         const customerData = shopifyOrder.order.customer;
         console.log('customerData', customerData);
@@ -442,10 +442,10 @@ app.post('/updateKbis', async (req, res) => {
         
         if(kbisState === true && mailProState === false) {
           try {
-            let accessTokenMS365 = getTokenMS365FromDb();
+            let accessTokenMS365 = await getTokenMS365FromDb();
             if(!accessTokenMS365) {
               await refreshMS365AccessToken();
-              accessTokenMS365 = getTokenMS365FromDb();
+              accessTokenMS365 = await getTokenMS365FromDb();
             }
             await sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCustomer, mailCustomer, companyName, deliveryPref, paletteEquipment, paletteAppointment, paletteNotes)
             console.log('Mail de bienvenue après validation du kbis envoyé au client pro', clientUpdated);  
@@ -730,10 +730,10 @@ app.post('/returnProduct', async (req, res) => {
         // const createLabelData = await createLabel(senderCustomer, parcel);
         // const parcelNumber = createLabelData.parcelNumber;
 
-      let accessTokenMS365 = getTokenMS365FromDb();
+      let accessTokenMS365 = await getTokenMS365FromDb();
       if(!accessTokenMS365) {
         await refreshMS365AccessToken();
-        accessTokenMS365 = getTokenMS365FromDb();
+        accessTokenMS365 = await getTokenMS365FromDb();
       }
     //   //send email to Magalie with parcel number and shopify Id and return order Id
       await sendReturnDataToSAV(accessTokenMS365, senderCustomer, returnOrderId, totalOrder)
@@ -813,10 +813,10 @@ app.post('/upgrade-account', async (req, res) => {
           return;
         }
         try {
-          let accessTokenMS365 = getTokenMS365FromDb();
+          let accessTokenMS365 = await getTokenMS365FromDb();
           if(!accessTokenMS365) {
             await refreshMS365AccessToken();
-            accessTokenMS365 = getTokenMS365FromDb();
+            accessTokenMS365 = await getTokenMS365FromDb();
           }
           let isUpgrade = true
           await sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone, isUpgrade);
@@ -970,10 +970,10 @@ app.post('/createProCustomer', async (req, res) => {
           return;
         }
         try {
-            let accessTokenMS365 = getTokenMS365FromDb();
+            let accessTokenMS365 = await getTokenMS365FromDb();
             if(!accessTokenMS365) {
               await refreshMS365AccessToken();
-              accessTokenMS365 = getTokenMS365FromDb();
+              accessTokenMS365 = await getTokenMS365FromDb();
             }
             await sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone);
             fs.unlink(uploadedFile.path, (err) => {
