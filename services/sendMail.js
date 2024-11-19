@@ -381,7 +381,7 @@ const getDiscountMailData = async () => {
 
 
 //check if send mail to remind discount code and delete line in schedule_emails table 
-const sendReminderScheduledEmails = async () => {
+const checkScheduledEmails = async () => {
   const scheduledEmails = await getDiscountMailData();
 
   if(scheduledEmails.length === 0) {
@@ -424,6 +424,8 @@ const sendEmailDiscountReminder = async (discounCode, totalAmount, codeEndDate, 
     await refreshMS365AccessToken();
     accessTokenMS365 = await getAccessTokenMS365();
   }
+  const discountEnd = new Date(codeEndDate);
+  const formattedDate = discountEnd.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
   const client = initiMicrosoftGraphClient(accessTokenMS365);
   const message = {
     subject: `Rappel Code de réduction`, 
@@ -432,7 +434,7 @@ const sendEmailDiscountReminder = async (discounCode, totalAmount, codeEndDate, 
       content: `
         <p>Bonjour, </p>
         <p style="margin: 0;">Suite à la réception de votre colis retour concernant la commande ${orderName}</p>
-        <p style="margin: 0;">Il ne vous reste plus que 15 jours pour utiliser votre code de réduction: ${discounCode}, d'une valeur de ${totalAmount} valable jusqu'au ${codeEndDate}</p>
+        <p style="margin: 0;">Il ne vous reste plus que 15 jours pour utiliser votre code de réduction: ${discounCode}, d'une valeur de ${totalAmount} valable jusqu'au ${formattedDate}</p>
         <p>Très belle journée,</p>
         <p>L'équipe de Potiron Paris</p>
         <img src='cid:signature'/>
@@ -473,5 +475,5 @@ const sendEmailDiscountReminder = async (discounCode, totalAmount, codeEndDate, 
     sendReturnDataToSAV,
     sendDiscountCodeAfterReturn,
     saveDiscountMailData,
-    sendReminderScheduledEmails
+    checkScheduledEmails
   }
