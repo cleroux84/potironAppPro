@@ -220,7 +220,13 @@ const checkDiscountCodeUsage = async (priceRuleId, discountCodeId) => {
     try {
         const response = await fetch(discountUrl, discountOptions);
         const data = await response.json();
-        console.log("discount usage", data);
+        let isUsed;
+        if(data.discount_code.usage_count === 0) {
+            isUsed = false;
+        } else {
+            isUsed = true;
+        }
+        return isUsed;
     } catch (error) {
         
     }

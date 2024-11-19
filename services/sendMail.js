@@ -7,6 +7,7 @@ require ('isomorphic-fetch');
 const path = require('path');
 const client = require('./db.js');
 const { checkDiscountCodeUsage } = require('./return.js');
+const { getAccessTokenMS365, refreshMS365AccessToken } = require('./microsoftAuth.js');
 
 const MAILRECIPIENT = process.env.MAILRECIPIENT;
 const MAILCOTATION = process.env.MAILCOTATION;
@@ -379,7 +380,7 @@ const getDiscountMailData = async () => {
 }
 
 
-//Send mail to customer 15days berfore expiration date example to test : exemple
+//check if send mail to remind discount code and delete line in schedule_emails table 
 const sendReminderScheduledEmails = async () => {
   const scheduledEmails = await getDiscountMailData();
 
@@ -392,10 +393,77 @@ const sendReminderScheduledEmails = async () => {
     const { customer_email, order_name, discount_code, total_order, code_end, discount_code_id, price_rule_id } = emailData;
     console.log('emailData', emailData);
     const isUsedCode = await checkDiscountCodeUsage(emailData.price_rule_id, emailData.discount_code_id);
-    //if usage === 1 => delete emaildata.id if not: send mail and then delete
+    if(!isUsedCode) {
+      console.log('send email to remind discount code and delete line in db');
+      await sendEmailDiscountReminder(emailData.discount_code, emailData.total_order, emailData.code_end, emailData.customer_email, emailData.order_name);
+    } else {
+      console.log('delete discount code already used');
+    }
+    await removeScheduledMail(emailData.id);
+
   }
 }
 
+const removeScheduledMail = async (lineId) => {
+  const query = `DELETE FROM scheduled_emails WHERE id = $1`;
+  const values = [lineId];
+ 
+  try {
+    const result = await client.query(query, values);
+    console.log(`Ligne avec id ${lineId} supprimée`, result.rowCount);
+    return result.rowCount > 0;
+  } catch (error) {
+    console.error("Erreur lors de la suppression de la ligne :", error);
+  }
+};
+
+//Send mail to customer 15days berfore expiration date example to test : exemple
+const sendEmailDiscountReminder = async (discounCode, totalAmount, codeEndDate, customerMail, orderName) => {
+  let accessTokenMS365 = await getAccessTokenMS365();
+  if(!accessTokenMS365) {
+    await refreshMS365AccessToken();
+    accessTokenMS365 = await getAccessTokenMS365();
+  }
+  const client = initiMicrosoftGraphClient(accessTokenMS365);
+  const message = {
+    subject: `Rappel Code de réduction`, 
+    body: {
+      contentType: 'HTML',
+      content: `
+        <p>Bonjour, </p>
+        <p style="margin: 0;">Suite à la réception de votre colis retour concernant la commande ${orderName}</p>
+        <p style="margin: 0;">Il ne vous reste plus que 15 jours pour utiliser votre code de réduction: ${discounCode}, d'une valeur de ${totalAmount} valable jusqu'au ${codeEndDate}</p>
+        <p>Très belle journée,</p>
+        <p>L'équipe de Potiron Paris</p>
+        <img src='cid:signature'/>
+      `
+    },
+    //TODO : mail client : customerMail
+    toRecipients: [
+      {
+        emailAddress: {
+          address: "c.leroux@potiron.com"
+        }
+      }
+    ],
+    bccRecipients: [
+      {
+          emailAddress: {
+              address: MAILDEV
+          }
+      }
+    ],
+    attachments: [
+      signatureAttachement
+    ]
+  };
+  try {
+    await client.api('/me/sendMail').post({ message });
+    console.log("Email Remind discountCode automated return sucessfully sent");
+  } catch (error) {
+    console.error('error sending discountcode message', error);
+  }
+}
   
   module.exports = {
     sendWelcomeMailPro,
