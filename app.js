@@ -17,7 +17,7 @@ const { getToken, refreshAccessToken, getAccessTokenFromDb } = require('./servic
 const { getTokenWarehouse, refreshAccessTokenWarehouse, getAccessTokenWarehouseFromDb } = require('./services/shippingbo/gmaWarehouseAuth.js');
 const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft } = require('./services/shippingbo/potironParisCRUD.js');
 const { getWarehouseOrderDetails, updateWarehouseOrder, getWarehouseOrderToReturn, getshippingDetails, checkIfReturnOrderExist } = require('./services/shippingbo/GMAWarehouseCRUD.js');
-const { sendEmailWithKbis, sendWelcomeMailPro, sendReturnDataToCustomer, sendReturnDataToSAV, sendDiscountCodeAfterReturn, saveDiscountMailData } = require('./services/sendMail.js');
+const { sendEmailWithKbis, sendWelcomeMailPro, sendReturnDataToCustomer, sendReturnDataToSAV, sendDiscountCodeAfterReturn, saveDiscountMailData, sendReminderScheduledEmails } = require('./services/sendMail.js');
 const { createDraftOrder, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById, orderById, getProductDetails, getProductWeightBySku, updateOrder, getOrderByShopifyId } = require('./services/shopifyApi.js');
 const { createReturnOrder, updateReturnOrder, checkIfPriceRuleExists, createPriceRule, isReturnableDate } = require('./services/return.js');
 const { refreshMS365AccessToken, getAccessTokenMS365 } = require('./services/microsoftAuth.js');
@@ -86,7 +86,7 @@ app.post('/returnOrderCancel', async (req, res) => {
           // await sendDiscountCodeAfterReturn(accessTokenMS365, customerData, orderName, discountCode, discountAmount, formattedDate);
           //TODO record data in db
           await saveDiscountMailData(customerData.email, orderName, discountCode, discountAmount, discountEnd, discountCodeId, priceRuleId);
-
+          await sendReminderScheduledEmails();
         }
     } catch (error) {
       console.error("error webhook discount code", error);

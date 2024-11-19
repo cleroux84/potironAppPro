@@ -391,6 +391,7 @@ const sendReminderScheduledEmails = async () => {
     const { customer_email, order_name, discount_code, total_order, code_end, discount_code_id, price_rule_id } = emailData;
     console.log('emailData', emailData);
   // let discountHasNotBeenUsed;
+  //Créer dans return.js fonction pour voir un discount_code si usage_count = 0 
 
 }
 }
@@ -403,5 +404,6 @@ const sendReminderScheduledEmails = async () => {
     sendReturnDataToCustomer,
     sendReturnDataToSAV,
     sendDiscountCodeAfterReturn,
-    saveDiscountMailData
+    saveDiscountMailData,
+    sendReminderScheduledEmails
   }
