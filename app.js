@@ -46,13 +46,10 @@ initializeTokens();
 // setupShippingboWebhook();
 getWebhooks();
 // cron.schedule(('0 9 * * *', () => {
-cron.schedule(('45 10 * * *', () => {
-
-  checkScheduledEmails;
-}, {
+cron.schedule('50 10 * * *', checkScheduledEmails, {
   schedule: true,
   timezone: "Europre/Paris"
-}))
+});
 
 //trigger on webhook create and send discount code to customer
 app.post('/returnOrderCancel', async (req, res) => {
