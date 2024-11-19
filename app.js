@@ -44,6 +44,7 @@ app.use(bodyParser.json());
 initializeTokens();
 // setupShippingboWebhook();
 getWebhooks();
+await sendReminderScheduledEmails();
 
 //trigger on webhook create and send discount code to customer
 app.post('/returnOrderCancel', async (req, res) => {
@@ -86,7 +87,6 @@ app.post('/returnOrderCancel', async (req, res) => {
           // await sendDiscountCodeAfterReturn(accessTokenMS365, customerData, orderName, discountCode, discountAmount, formattedDate);
           //TODO record data in db
           await saveDiscountMailData(customerData.email, orderName, discountCode, discountAmount, discountEnd, discountCodeId, priceRuleId);
-          await sendReminderScheduledEmails();
         }
     } catch (error) {
       console.error("error webhook discount code", error);
