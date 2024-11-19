@@ -1,4 +1,5 @@
 const express = require('express');
+const cron = require('node-cron');
 const multer = require('multer');
 const bodyParser = require('body-parser');
 const fetch = require('node-fetch');
@@ -44,7 +45,14 @@ app.use(bodyParser.json());
 initializeTokens();
 // setupShippingboWebhook();
 getWebhooks();
-checkScheduledEmails();
+// cron.schedule(('0 9 * * *', () => {
+cron.schedule(('40 10 * * *', () => {
+
+  checkScheduledEmails();
+}, {
+  schedule: true,
+  timezone: "Europre/Paris"
+}))
 
 //trigger on webhook create and send discount code to customer
 app.post('/returnOrderCancel', async (req, res) => {
