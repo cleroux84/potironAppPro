@@ -218,7 +218,9 @@ const checkDiscountCodeUsage = async (priceRuleId, discountCodeId) => {
         }
     }
     try {
-        
+        const response = await fetch(discountUrl, discountOptions);
+        const data = await response.json();
+        console.log("discount usage", data);
     } catch (error) {
         
     }
