@@ -45,8 +45,8 @@ app.use(bodyParser.json());
 initializeTokens();
 // setupShippingboWebhook();
 getWebhooks();
-// cron.schedule(('0 9 * * *', () => {
-cron.schedule('50 10 * * *', checkScheduledEmails, {
+cron.schedule('0 9 * * *', checkScheduledEmails, { //9h00
+//cron.schedule('50 10 * * *', checkScheduledEmails, { //10h50
   schedule: true,
   timezone: "Europe/Paris"
 });
@@ -728,7 +728,7 @@ app.post('/returnProduct', async (req, res) => {
         updateOrder(updatedAttributes ,shopifyId)
 
     //     // create a return label with colissimo API
-        // const createLabelData = await createLabel(senderCustomer, parcel);
+        const createLabelData = await createLabel(senderCustomer, parcel);
         // const parcelNumber = createLabelData.parcelNumber;
 
       let accessTokenMS365 = await getAccessTokenMS365();
@@ -746,7 +746,7 @@ app.post('/returnProduct', async (req, res) => {
           // data: priceRules,
           // getOrder: warehouseOrder,
           returnOrder: returnOrderData,
-          // label: createLabelData
+          label: createLabelData
         })
     //   } else {
     //     console.log('return order already exists : contact SAV !');

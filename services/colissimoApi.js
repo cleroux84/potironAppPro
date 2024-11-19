@@ -38,11 +38,9 @@ const createLabel = async (senderCustomer, parcel) => {
             "addressee": {
                 "address": {
                     "companyName": "GMA Potiron PARIS",
-                    "lastName": "Leroux",
-                    "firstName": "Céline",
-                    "line2": "10 avenue des Champs Élysées",
-                    "city": "Paris",
-                    "zipCode": "75008",
+                    "line2": "501 Avenue de la couronne",
+                    "city": "EPONE",
+                    "zipCode": "78680",
                     "countryCode": "FR",
                     "email": "c.leroux@potiron.com",
                     "phoneNumber": "06"
