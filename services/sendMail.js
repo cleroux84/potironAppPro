@@ -380,12 +380,12 @@ const getDiscountMailData = async () => {
 
 //Send mail to customer 15days berfore expiration date example to test : exemple
 const sendReminderScheduledEmails = async () => {
-  const scheduledEmails = await getDiscountMailData();
+  // const scheduledEmails = await getDiscountMailData();
 
-  if(scheduledEmails.length === 0) {
-    console.log("Aucun mail programmé pour aujourd'hui");
-    return;
-  }
+  // if(scheduledEmails.length === 0) {
+  //   console.log("Aucun mail programmé pour aujourd'hui");
+  //   return;
+  // }
 
   for (const emailData of scheduledEmails) {
     const { customer_email, order_name, discount_code, total_order, code_end, discount_code_id, price_rule_id } = emailData;
