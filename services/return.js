@@ -208,6 +208,21 @@ const checkIfPriceRuleExists = async (orderName) => {
 }
 
 //function to find if a discount code has been used
+const checkDiscountCodeUsage = async (priceRuleId, discountCodeId) => {
+    const discountUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/price_rules/${priceRuleId}/discount_codes/${discountCodeId}.json`
+    const discountOptions = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
+        }
+    }
+    try {
+        
+    } catch (error) {
+        
+    }
+}
 
 //calcule si le délai de rétractation de 15 jours à compter de la livraison est dépassé
 const isReturnableDate = async (deliveryDate) => {

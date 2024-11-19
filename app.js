@@ -44,7 +44,7 @@ app.use(bodyParser.json());
 initializeTokens();
 // setupShippingboWebhook();
 getWebhooks();
-await sendReminderScheduledEmails();
+const toto = await sendReminderScheduledEmails();
 
 //trigger on webhook create and send discount code to customer
 app.post('/returnOrderCancel', async (req, res) => {
