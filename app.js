@@ -48,7 +48,7 @@ getWebhooks();
 // cron.schedule(('0 9 * * *', () => {
 cron.schedule('50 10 * * *', checkScheduledEmails, {
   schedule: true,
-  timezone: "Europre/Paris"
+  timezone: "Europe/Paris"
 });
 
 //trigger on webhook create and send discount code to customer
