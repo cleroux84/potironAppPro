@@ -246,5 +246,6 @@ module.exports = {
     createReturnOrder,
     updateReturnOrder,
     checkIfPriceRuleExists,
-    isReturnableDate
+    isReturnableDate,
+    checkDiscountCodeUsage
 }

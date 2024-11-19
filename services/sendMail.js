@@ -5,7 +5,8 @@ const { ConfidentialClientApplication } = require('@azure/msal-node');
 const { Client } = require('@microsoft/microsoft-graph-client');
 require ('isomorphic-fetch');
 const path = require('path');
-const client = require('./db.js')
+const client = require('./db.js');
+const { checkDiscountCodeUsage } = require('./return.js');
 
 const MAILRECIPIENT = process.env.MAILRECIPIENT;
 const MAILCOTATION = process.env.MAILCOTATION;
@@ -390,10 +391,9 @@ const sendReminderScheduledEmails = async () => {
   for (const emailData of scheduledEmails) {
     const { customer_email, order_name, discount_code, total_order, code_end, discount_code_id, price_rule_id } = emailData;
     console.log('emailData', emailData);
-  // let discountHasNotBeenUsed;
-  //Créer dans return.js fonction pour voir un discount_code si usage_count = 0 
-
-}
+    const isUsedCode = await checkDiscountCodeUsage(emailData.price_rule_id, emailData.discount_code_id);
+    //if usage === 1 => delete emaildata.id if not: send mail and then delete
+  }
 }
 
   
