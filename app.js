@@ -46,9 +46,9 @@ initializeTokens();
 // setupShippingboWebhook();
 getWebhooks();
 // cron.schedule(('0 9 * * *', () => {
-cron.schedule(('40 10 * * *', () => {
+cron.schedule(('45 10 * * *', () => {
 
-  checkScheduledEmails();
+  checkScheduledEmails;
 }, {
   schedule: true,
   timezone: "Europre/Paris"
