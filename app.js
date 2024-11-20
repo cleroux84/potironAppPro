@@ -636,35 +636,6 @@ app.post('/returnProduct', async (req, res) => {
   if (optionChosen === "option1") {
     //Retrieve data from initial order
     const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId);
-    let weightToReturn = 0;
-    let totalOrder = 0;
-    const initialNumberOfPackages = warehouseOrder.order.shipments.length;
-    console.log('nombre de colis dans la commande initiale: ', initialNumberOfPackages);
-
-    //Set values if return all product in order or selected items
-    if(returnAll) {
-      if(initialNumberOfPackages === 1) {
-        console.log('1 colis + all return = weight from warehouseorder shipments!');
-      } else {
-        console.log('return all mais plusieurs colis => plusieurs étiquettes à imprimer');
-      }
-      weightToReturn = warehouseOrder.order.shipments
-        .reduce((total, shipment) => total + (shipment.total_weight / 1000), 0);
-      totalOrder = req.body.totalOrder;
-      totalOrder = (totalOrder / 100).toFixed(2);
-    } else {
-      //return weight by weight => problem about number of packages !  
-      for (const sku of productSku) {
-        const productFoundSku = await getProductWeightBySku(sku.product_user_ref);
-        if(productFoundSku) {
-          weightToReturn += productFoundSku.weight * sku.quantity;
-          totalOrder += sku.unit_price * sku.quantity;
-        }
-    }
-    totalOrder = totalOrder.toFixed(2);
-  }
-
-    //create object from initial order for label and weight and totalOrder if returnAll or not
     const senderCustomer = {
       'name': warehouseOrder.order.shipping_address.fullname,
       'address': warehouseOrder.order.shipping_address.street1,
@@ -676,13 +647,85 @@ app.post('/returnProduct', async (req, res) => {
       "phone": warehouseOrder.order.shipping_address.phone1,
       "origin_ref": warehouseOrder.order.origin_ref
     };
-    const parcel = {
+    let weightToReturn = 0;
+    let totalOrder = 0;
+    let parcel;
+    let createLabelData;
+    const initialNumberOfPackages = warehouseOrder.order.shipments.length;
+    console.log('nombre de colis dans la commande initiale: ', initialNumberOfPackages);
+    const shipments = warehouseOrder.order.shipments;
+    //Set values if return all product in order or selected items
+    if(returnAll) {
+      if(initialNumberOfPackages === 1) {
+        weightToReturn = warehouseOrder.order.shipments
+        .reduce((total, shipment) => total + (shipment.total_weight / 1000), 0);
+        parcel = {
+          "weight": weightToReturn,
+          "insuranceAmount": 0,
+          "insuranceValue": 0,
+          "nonMachinable": false,
+          "returnReceipt": false
+        };
+        createLabelData = await createLabel(senderCustomer, parcel);
+
+      } else {
+        const parcels = shipments.map(shipment => ({
+          "weight": shipment.total_weight / 1000,
+          "insuranceAmount": 0,
+          "insuranceValue": 0,
+          "nonMachinable": false,
+          "returnReceipt": false
+        }));
+        const labels = [];
+        for(parcel of parcels) {
+          const labelData = await createLabel(senderCustomer, parcel);
+          if(labelData) {
+            labels.push(labelData);
+          }
+        }
+        console.log('return all mais plusieurs colis => plusieurs étiquettes à imprimer');
+      }
+      
+      totalOrder = req.body.totalOrder;
+      totalOrder = (totalOrder / 100).toFixed(2);
+    } else {
+      //return weight by weight => problem about number of packages !  
+      for (const sku of productSku) {
+        const productFoundSku = await getProductWeightBySku(sku.product_user_ref);
+        if(productFoundSku) {
+          weightToReturn += productFoundSku.weight * sku.quantity;
+          totalOrder += sku.unit_price * sku.quantity;
+        }
+    }
+      parcel = {
       "weight": weightToReturn,
       "insuranceAmount": 0,
       "insuranceValue": 0,
       "nonMachinable": false,
       "returnReceipt": false
     };
+    totalOrder = totalOrder.toFixed(2);
+  }
+
+    //create object from initial order for label and weight and totalOrder if returnAll or not
+    // const senderCustomer = {
+    //   'name': warehouseOrder.order.shipping_address.fullname,
+    //   'address': warehouseOrder.order.shipping_address.street1,
+    //   'address2': warehouseOrder.order.shipping_address.street2,
+    //   'city': warehouseOrder.order.shipping_address.city,
+    //   "postalCode": warehouseOrder.order.shipping_address.zip,
+    //   "country": warehouseOrder.order.shipping_address.country,
+    //   "email": warehouseOrder.order.shipping_address.email,
+    //   "phone": warehouseOrder.order.shipping_address.phone1,
+    //   "origin_ref": warehouseOrder.order.origin_ref
+    // };
+    // const parcel = {
+    //   "weight": weightToReturn,
+    //   "insuranceAmount": 0,
+    //   "insuranceValue": 0,
+    //   "nonMachinable": false,
+    //   "returnReceipt": false
+    // };
     //Check if return order exists in shippingbo warehouse
     // const returnOrderExists = await checkIfReturnOrderExist(accessTokenWarehouse, warehouseOrder.order.id);
     // console.log('returnOrderExists ?', returnOrderExists);
@@ -734,7 +777,7 @@ app.post('/returnProduct', async (req, res) => {
           // data: priceRules,
           // getOrder: warehouseOrder,
           // returnOrder: returnOrderData,
-          // label: createLabelData
+          label: [createLabelData]
         })
     //   } else {
     //     console.log('return order already exists : contact SAV !');
