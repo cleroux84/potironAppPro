@@ -39,6 +39,7 @@ const createLabel = async (senderCustomer, parcel) => {
                 "address": {
                     "companyName": "GMA Potiron PARIS",
                     "line2": "501 Avenue de la couronne",
+                    "line3": "GMA BAT 2",
                     "city": "EPONE",
                     "zipCode": "78680",
                     "countryCode": "FR",

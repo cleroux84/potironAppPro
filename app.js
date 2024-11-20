@@ -533,10 +533,8 @@ app.get('/getOrderById', async (req, res) => {
     
     const orderData = await orderById(orderName, orderMail, customerId); //moi livré : #6989
     const shopifyOrderId = orderData.id;
-    console.log('BUG MORNING PPL token', accessToken)
     const shippingboDataPotiron = await getShippingboOrderDetails(accessToken, shopifyOrderId); 
     const shippingboDataWarehouse = await getWarehouseOrderToReturn(accessTokenWarehouse, shippingboDataPotiron.id);
-    console.log('warehouse data', shippingboDataWarehouse);
     const closeOrderDelivery = shippingboDataWarehouse.closed_at
     //Check if withdrawal period is ok
     const isReturnable = await isReturnableDate(closeOrderDelivery);
@@ -551,24 +549,17 @@ app.get('/getOrderById', async (req, res) => {
           success: false,
           orderItems: orderItems,
           orderName: orderName,
+          orderDetails: orderDetails,
           message: 'Contacter le SAV'
         })
-      }//
+      }
       res.status(200).json({
         success: true,
         orderItems: orderItems,
         orderId: orderWarehouseId,
         shopifyOrderId: shopifyOrderId
       });
-      //TODO gérer coté front délai dépassé
-    // } else {
-    //   res.status(200).json({
-    //     success: false,
-    //     orderItems: orderItems,
-    //     orderName: orderName,
-    //     message: 'Délai retractation dépassé'
-    //   });
-    // }
+      //TODO gérer coté front délai dépassé => !isReturnable
   } catch (error) {
     res.status(500).send('Error retrieving order warehouse by id');
   }
@@ -630,11 +621,8 @@ app.get('/checkIfsReturnPossible', async (req, res) => {
 
 app.post('/returnProduct', async (req, res) => {
   let accessTokenWarehouse = await getAccessTokenWarehouseFromDb();
-  console.log('all param', req.body);
-  console.log('qté by refs return', quantitiesByRefs);
   const customerId = req.body.customerId;
   const orderName = req.body.orderName;
-  console.log('customerId', customerId);
   const productRefs = req.body.productRefs.split(',');
   const productSku = req.body.productSku;
   const optionChosen = req.body.returnOption;
@@ -642,30 +630,31 @@ app.post('/returnProduct', async (req, res) => {
   const returnAll = req.body.returnAllOrder;
   const shopifyOrderId = req.body.shopifyOrderId;
   console.log('return all', returnAll);
-  /* modifier pour envoyer le code de reduction seulement si retour validé donc dans le webhook 
-    mais ici donc créer la commande retour avec id shopify
-    et update order shopify avec notes nécessaire à la création du code de reduc
-    donc si retour validé (webhook) on recupere le numéro de commande shopify
-    on créé ou on active le code de reduc et on envoie le mail!
-  */
+
+  
+
   if (optionChosen === "option1") {
     //Retrieve data from initial order
     const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId);
     let weightToReturn = 0;
     let totalOrder = 0;
-    
+    const initialNumberOfPackages = warehouseOrder.order.shipments.length;
+    console.log('nombre de colis dans la commande initiale: ', initialNumberOfPackages);
+
     //Set values if return all product in order or selected items
     if(returnAll) {
-      // weightToReturn = warehouseOrder.order.shipments[0].total_weight / 1000;
+      if(initialNumberOfPackages === 1) {
+        console.log('1 colis + all return = weight from warehouseorder shipments!');
+      } else {
+        console.log('return all mais plusieurs colis => plusieurs étiquettes à imprimer');
+      }
       weightToReturn = warehouseOrder.order.shipments
         .reduce((total, shipment) => total + (shipment.total_weight / 1000), 0);
       totalOrder = req.body.totalOrder;
       totalOrder = (totalOrder / 100).toFixed(2);
-      console.log("tot order", totalOrder);
     } else {
-      console.log('product sku to return to find weight', productSku);
+      //return weight by weight => problem about number of packages !  
       for (const sku of productSku) {
-        console.log('sku', sku)
         const productFoundSku = await getProductWeightBySku(sku.product_user_ref);
         if(productFoundSku) {
           weightToReturn += productFoundSku.weight * sku.quantity;
@@ -673,11 +662,9 @@ app.post('/returnProduct', async (req, res) => {
         }
     }
     totalOrder = totalOrder.toFixed(2);
-    console.log('tot to rembourse', totalOrder);
   }
-  console.log('tot to rembourse', totalOrder);
 
-    //create object from initial order for label
+    //create object from initial order for label and weight and totalOrder if returnAll or not
     const senderCustomer = {
       'name': warehouseOrder.order.shipping_address.fullname,
       'address': warehouseOrder.order.shipping_address.street1,
@@ -696,10 +683,10 @@ app.post('/returnProduct', async (req, res) => {
       "nonMachinable": false,
       "returnReceipt": false
     };
-    //Check if price rules exists
-    // const ruleExists = await checkIfPriceRuleExists(orderName);
+    //Check if return order exists in shippingbo warehouse
     // const returnOrderExists = await checkIfReturnOrderExist(accessTokenWarehouse, warehouseOrder.order.id);
     // console.log('returnOrderExists ?', returnOrderExists);
+    
     // Create discount code in shopify
     // if(!ruleExists) {
     //   if(!returnOrderExists){
@@ -711,24 +698,25 @@ app.post('/returnProduct', async (req, res) => {
         // const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
         
     //     //create a return order in shippingbo warehouse
-        const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku, shopifyOrderId);
-        const returnOrderId = returnOrderData.return_order.id;
-        const shopifyId = returnOrderData.return_order.reason_ref;
-        const attributes = [
-          // {name: "warehouseId", value: warehouseOrder.order.id},
-          {name: "customerId", value: customerId},
-          {name: "totalOrderReturn", value: totalOrder}
-        ];
-        const updatedAttributes = {
-          order: {
-            id: orderId,
-            note_attributes: attributes
-          }
-        }
-        updateOrder(updatedAttributes ,shopifyId)
+        // const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku, shopifyOrderId);
+        // const returnOrderId = returnOrderData.return_order.id;
+        // const shopifyId = returnOrderData.return_order.reason_ref;
+        // const attributes = [
+        //   // {name: "warehouseId", value: warehouseOrder.order.id},
+        //   {name: "customerId", value: customerId},
+        //   {name: "totalOrderReturn", value: totalOrder}
+        // ];
+        // const updatedAttributes = {
+        //   order: {
+        //     id: orderId,
+        //     note_attributes: attributes
+        //   }
+        // }
+        //update shopify order with attributes to have discount data for future creation
+        // updateOrder(updatedAttributes ,shopifyId)
 
     //     // create a return label with colissimo API
-        const createLabelData = await createLabel(senderCustomer, parcel);
+        // const createLabelData = await createLabel(senderCustomer, parcel);
         // const parcelNumber = createLabelData.parcelNumber;
 
       let accessTokenMS365 = await getAccessTokenMS365();
@@ -746,7 +734,7 @@ app.post('/returnProduct', async (req, res) => {
           // data: priceRules,
           // getOrder: warehouseOrder,
           returnOrder: returnOrderData,
-          label: createLabelData
+          // label: createLabelData
         })
     //   } else {
     //     console.log('return order already exists : contact SAV !');
@@ -767,6 +755,7 @@ app.post('/returnProduct', async (req, res) => {
     // const updateReturnOrderWithLabel = await updateReturnOrder(accessTokenWarehouse, returnOrderId, parcelNumber)
    
   } else if( optionChosen === "option2") {
+
     console.log("generate label + remboursement ? + mail à  ??")
   }
   

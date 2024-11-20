@@ -391,7 +391,7 @@ const checkScheduledEmails = async () => {
 
   for (const emailData of scheduledEmails) {
     const { customer_email, order_name, discount_code, total_order, code_end, discount_code_id, price_rule_id } = emailData;
-    console.log('emailData', emailData);
+    // console.log('emailData', emailData);
     const isUsedCode = await checkDiscountCodeUsage(emailData.price_rule_id, emailData.discount_code_id);
     if(!isUsedCode) {
       console.log('send email to remind discount code and delete line in db');
