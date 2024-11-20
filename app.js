@@ -650,7 +650,7 @@ app.post('/returnProduct', async (req, res) => {
     let weightToReturn = 0;
     let totalOrder = 0;
     let parcel;
-    let createLabelData;
+    let createLabelData = [];
     const initialNumberOfPackages = warehouseOrder.order.shipments.length;
     console.log('nombre de colis dans la commande initiale: ', initialNumberOfPackages);
     const shipments = warehouseOrder.order.shipments;
@@ -666,7 +666,8 @@ app.post('/returnProduct', async (req, res) => {
           "nonMachinable": false,
           "returnReceipt": false
         };
-        createLabelData = await createLabel(senderCustomer, parcel);
+        const labelData = await createLabel(senderCustomer, parcel);
+        if(labelData) createLabelData.push(labelData);
 
       } else {
         const parcels = shipments.map(shipment => ({
@@ -676,12 +677,11 @@ app.post('/returnProduct', async (req, res) => {
           "nonMachinable": false,
           "returnReceipt": false
         }));
-        const labels = [];
+
         for(parcel of parcels) {
           const labelData = await createLabel(senderCustomer, parcel);
-          if(labelData) {
-            labels.push(labelData);
-          }
+          if(labelData) createLabelData.push(labelData);
+          
         }
         console.log('return all mais plusieurs colis => plusieurs étiquettes à imprimer');
       }
@@ -777,7 +777,7 @@ app.post('/returnProduct', async (req, res) => {
           // data: priceRules,
           // getOrder: warehouseOrder,
           // returnOrder: returnOrderData,
-          label: [createLabelData]
+          label: createLabelData
         })
     //   } else {
     //     console.log('return order already exists : contact SAV !');
