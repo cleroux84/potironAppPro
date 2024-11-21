@@ -749,8 +749,8 @@ app.post('/returnProduct', async (req, res) => {
         // const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
         
     //     //create a return order in shippingbo warehouse
-        // const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku, shopifyOrderId);
-        // const returnOrderId = returnOrderData.return_order.id;
+        const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku, shopifyOrderId);
+        const returnOrderId = returnOrderData.return_order.id;
         // const shopifyId = returnOrderData.return_order.reason_ref;
         // const attributes = [
         //   // {name: "warehouseId", value: warehouseOrder.order.id},
