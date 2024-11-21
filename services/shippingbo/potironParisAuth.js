@@ -1,4 +1,4 @@
-const client = require('../db.js');
+const client = require('../database/db.js');
 const fetch = require('node-fetch');
 const CLIENT_ID = process.env.CLIENT_ID_SHIPPINGBO;
 const CLIENT_SECRET = process.env.CLIENT_SECRET_SHIPPINGBO;

@@ -1,3 +1,4 @@
+//connexion to Render DB
 const { Client } = require('pg');
 const DB_USERNAME = process.env.DB_USERNAME;
 const DB_HOST = process.env.DB_HOST;

@@ -1,5 +1,5 @@
 //Requests for scheduled_emails table database
-const client = require('../db.js');
+const client = require('./db.js');
 
 
 //Record Data customer and discount code in DB to send scheduled mail
