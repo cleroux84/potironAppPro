@@ -27,9 +27,7 @@ const getAccessTokenWarehouseFromDb = async () => {
   const saveAccessAndRefreshTokenWarehouseDb = async (tokenWarehouse, refreshTokenWarehouse) => {
     try {
       await client.query('UPDATE tokens SET refresh_token_warehouse = $1 WHERE id = 1', [refreshTokenWarehouse]);
-      console.log('RefreshToken saved in db for GMA Warehouse');
       await client.query('UPDATE tokens SET token_warehouse = $1 WHERE id = 1', [tokenWarehouse]);
-      console.log('token saved in db for GMA Warehouse');
     } catch (error) {
       console.error('Error saving refreshTokenWarehouse in db', error);
     }
