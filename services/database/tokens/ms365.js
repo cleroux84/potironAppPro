@@ -23,6 +23,7 @@ const getRefreshTokenMS365 = async () => {
     }
 }
 
+//save access and refresh token in DB
 const saveAccessAndRefreshTokenMS365 = async (token, refreshToken) => {
     try {
         await client.query('UPDATE tokens SET refresh_token_ms365 =$1 where ID = 1', [refreshToken]);
@@ -33,8 +34,6 @@ const saveAccessAndRefreshTokenMS365 = async (token, refreshToken) => {
         console.error('Error saving refreshTokenMS365 in db', error);
     }
 }
-
-//Save 
 
 module.exports = {
     getTokenMS365FromDb,
