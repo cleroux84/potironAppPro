@@ -18,7 +18,7 @@ const { getAccessTokenFromDb } = require('./services/shippingbo/potironParisAuth
 const { getAccessTokenWarehouseFromDb } = require('./services/shippingbo/gmaWarehouseAuth.js');
 const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft } = require('./services/shippingbo/potironParisCRUD.js');
 const { getWarehouseOrderDetails, updateWarehouseOrder, getWarehouseOrderToReturn, getshippingDetails, checkIfReturnOrderExist } = require('./services/shippingbo/GMAWarehouseCRUD.js');
-const { sendEmailWithKbis, sendWelcomeMailPro, sendReturnDataToCustomer, sendReturnDataToSAV, sendDiscountCodeAfterReturn, checkScheduledEmails } = require('./services/sendMail.js');
+const { sendWelcomeMailPro, sendReturnDataToCustomer, sendDiscountCodeAfterReturn, checkScheduledEmails } = require('./services/sendMail.js');
 const { createDraftOrder, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById, orderById, getProductDetails, getProductWeightBySku, updateOrder, getOrderByShopifyId } = require('./services/shopifyApi.js');
 const { createReturnOrder, updateReturnOrder, checkIfPriceRuleExists, createPriceRule, isReturnableDate } = require('./services/return.js');
 const { refreshMS365AccessToken, getAccessTokenMS365 } = require('./services/microsoftAuth.js');
@@ -26,6 +26,7 @@ const { createLabel } = require('./services/colissimoApi.js');
 const { setupShippingboWebhook, deleteAllWebhooks, getWebhooks } = require('./services/shippingbo/webhooks.js');
 const { initializeTokens } = require('./services/manageTokens.js');
 const { saveDiscountMailData } = require('./services/database/scheduled_emails.js');
+const { sendEmailWithKbis, sendReturnDataToSAV } = require('./services/sendMails/mailForTeam.js');
 
 const corsOptions = {
   origin: "https://potiron.com",
@@ -774,7 +775,7 @@ app.post('/returnProduct', async (req, res) => {
         accessTokenMS365 = await getAccessTokenMS365();
       }
     //   //send email to Magalie with parcel number and shopify Id and return order Id
-      // await sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumbers, returnOrderId, totalOrder)
+      await sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumbers, returnOrderId, totalOrder)
     //   //send email to customer with link to dwld label and parcel number
       // await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfBase64, parcelNumbers, totalOrder);
 

@@ -5,7 +5,6 @@ const { ConfidentialClientApplication } = require('@azure/msal-node');
 const { Client } = require('@microsoft/microsoft-graph-client');
 require ('isomorphic-fetch');
 const path = require('path');
-// const client = require('./db.js');
 const { checkDiscountCodeUsage } = require('./return.js');
 const { getAccessTokenMS365, refreshMS365AccessToken } = require('./microsoftAuth.js');
 const { getDiscountMailData, removeScheduledMail } = require('./database/scheduled_emails.js');
@@ -31,61 +30,61 @@ const initiMicrosoftGraphClient = (accessTokenMS365) => {
   });
 }
 //Send email with kbis to Potiron Team (Magalie) from bonjour@potiron.com to check and validate company
-async function sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone, isUpgrade) {
-  const client = initiMicrosoftGraphClient(accessTokenMS365);
-  let nameNoStar = nameCustomer.replace(/⭐/g, '').trim();
-  let mailObjectkBis = `Nouveau Kbis pour ${companyName} à vérifier et valider`;
-  if(isUpgrade) {
-    mailObjectkBis = `Demande Upgrade Compte professionnel pour ${companyName}`;
-  }
-  const message = {
-      subject: mailObjectkBis,
-      body: {
-          contentType: 'HTML',
-          content: `
-        <p>Bonjour, </p>
-        <p style="margin: 0;">Une nouvelle demande d'inscription pro est arrivée pour <strong>${firstnameCustomer} ${nameNoStar}</strong>.</p>
-        <p style="margin: 0;">Vous trouverez le KBIS de <strong>${companyName}</strong> ci-joint.</p>
-        <p style="margin: 0;">Ce nouveau client est joignable à ${mailCustomer} et au ${phone}.</p>
-        <p style="margin: 0;">Pensez à le valider pour que le client ait accès aux prix destinés aux professionnels.</p>
-        <p>Bonne journée !</p>
-        <img src='cid:signature'/>
-          `
-      },
-      toRecipients: [
-          {
-              emailAddress: {
-                  address: MAILRECIPIENT
-              }
-          }
-      ],
-      bccRecipients: [
-        {
-            emailAddress: {
-                address: MAILDEV
-            }
-        }
-      ],
-      attachments: [
-          {
-              '@odata.type': '#microsoft.graph.fileAttachment',
-              name: `kbis_${companyName}.pdf`,
-              contentBytes: fs.readFileSync(filePath).toString('base64') 
-          },
-          signatureAttachement
-        ]
-    };
-  try {
-      await client.api('/me/sendMail').post({ message });
-      console.log('Email KBIS envoyé avec succès');
-  } catch (error) {
-    if(error.response) {
-      console.log('erreur API', error.response.data);
-    } else {
-      console.log('Erreur lors de l\'envoi de l\'email : ', error);
-      }
-  }
-}
+// async function sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone, isUpgrade) {
+//   const client = initiMicrosoftGraphClient(accessTokenMS365);
+//   let nameNoStar = nameCustomer.replace(/⭐/g, '').trim();
+//   let mailObjectkBis = `Nouveau Kbis pour ${companyName} à vérifier et valider`;
+//   if(isUpgrade) {
+//     mailObjectkBis = `Demande Upgrade Compte professionnel pour ${companyName}`;
+//   }
+//   const message = {
+//       subject: mailObjectkBis,
+//       body: {
+//           contentType: 'HTML',
+//           content: `
+//         <p>Bonjour, </p>
+//         <p style="margin: 0;">Une nouvelle demande d'inscription pro est arrivée pour <strong>${firstnameCustomer} ${nameNoStar}</strong>.</p>
+//         <p style="margin: 0;">Vous trouverez le KBIS de <strong>${companyName}</strong> ci-joint.</p>
+//         <p style="margin: 0;">Ce nouveau client est joignable à ${mailCustomer} et au ${phone}.</p>
+//         <p style="margin: 0;">Pensez à le valider pour que le client ait accès aux prix destinés aux professionnels.</p>
+//         <p>Bonne journée !</p>
+//         <img src='cid:signature'/>
+//           `
+//       },
+//       toRecipients: [
+//           {
+//               emailAddress: {
+//                   address: MAILRECIPIENT
+//               }
+//           }
+//       ],
+//       bccRecipients: [
+//         {
+//             emailAddress: {
+//                 address: MAILDEV
+//             }
+//         }
+//       ],
+//       attachments: [
+//           {
+//               '@odata.type': '#microsoft.graph.fileAttachment',
+//               name: `kbis_${companyName}.pdf`,
+//               contentBytes: fs.readFileSync(filePath).toString('base64') 
+//           },
+//           signatureAttachement
+//         ]
+//     };
+//   try {
+//       await client.api('/me/sendMail').post({ message });
+//       console.log('Email KBIS envoyé avec succès');
+//   } catch (error) {
+//     if(error.response) {
+//       console.log('erreur API', error.response.data);
+//     } else {
+//       console.log('Erreur lors de l\'envoi de l\'email : ', error);
+//       }
+//   }
+// }
 
 //Send email to b2b customer when kBis validate
 async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCustomer, mailCustomer, companyName, deliveryPref, paletteEquipment, paletteAppointment, paletteNotes) {
@@ -149,107 +148,107 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
   }  
 }
 
-//Send mail to Potiron Team to ask delivery quote
-  async function sendNewDraftOrderMail(accessTokenMS365, firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone, shippingAddress, deliveryPrefValue, paletteEquipmentValue, appointmentValue, paletteNotes) {
-    const client = initiMicrosoftGraphClient(accessTokenMS365);
-    let deliveryTextIfPalette = '';
-    if(deliveryPrefValue.includes("palette")) {
-      deliveryTextIfPalette = `<p style="margin: 0;"> Equipement nécessaire : ${paletteEquipmentValue}</p>
-      <p style="margin: 0;">Nécessité de prendre RDV pour la livraison : ${appointmentValue}</p>
-      <p style="margin: 0;">Notes complémentaires concernant la livraison : ${paletteNotes}</p>
-      `
-    }
-    let nameNoStar = nameCustomer.replace(/⭐/g, '').trim();
+// //Send mail to Potiron Team to ask delivery quote
+//   async function sendNewDraftOrderMail(accessTokenMS365, firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone, shippingAddress, deliveryPrefValue, paletteEquipmentValue, appointmentValue, paletteNotes) {
+//     const client = initiMicrosoftGraphClient(accessTokenMS365);
+//     let deliveryTextIfPalette = '';
+//     if(deliveryPrefValue.includes("palette")) {
+//       deliveryTextIfPalette = `<p style="margin: 0;"> Equipement nécessaire : ${paletteEquipmentValue}</p>
+//       <p style="margin: 0;">Nécessité de prendre RDV pour la livraison : ${appointmentValue}</p>
+//       <p style="margin: 0;">Notes complémentaires concernant la livraison : ${paletteNotes}</p>
+//       `
+//     }
+//     let nameNoStar = nameCustomer.replace(/⭐/g, '').trim();
 
-    const message = {
-      subject: 'Nouvelle demande de cotation pour Commande Provisoire ' + draftOrderId, 
-      body: {
-        contentType: 'HTML',
-        content: `
-          <p>Bonjour, </p>
-          <p style="margin: 0;">Une nouvelle commande provisoire a été créée pour le client PRO : ${firstnameCustomer} ${nameNoStar}</p>
-          <p style="margin: 0;">Si besoin, il est joignable à ${customerMail} et au ${customerPhone} </p>
-          <p style="margin: 0;">L'adresse de livraison renseignée est : ${shippingAddress}</p>
-          <p>Préférence(s) de livraison : ${deliveryPrefValue}</p>
-          ${deliveryTextIfPalette}
-          <p>Bonne journée ! </p>
-          <img src='cid:signature'/>
-        `
-      },
-      toRecipients: [
-        {
-          emailAddress: {
-            address: MAILCOTATION
-          }
-        }
-      ],
-      bccRecipients: [
-        {
-            emailAddress: {
-                address: MAILDEV
-            }
-        }
-      ],
-      attachments: [
-        signatureAttachement
-      ]
-    };
-    try {
-      await client.api('/me/sendMail').post({ message });
-      console.log("Email for cotation sucessfully sent");
-    } catch (error) {
-      console.error('error sending cotation message', error);
-    }
-  }
-  //Send email to Magalie with parcelNumber when automated return
-  async function sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumbers, returnOrderId, totalOrder) {
-    const client = initiMicrosoftGraphClient(accessTokenMS365);
-    let trackingLinks = '';
-    for (const number of parcelNumbers) {
-      const packageTrack = `https://www.laposte.fr/outils/suivre-vos-envois?code=${number}`
-      trackingLinks += `<p>Numéro de colis : ${number} - <a href="${packageTrack}">Suivi du colis</a></p>`; 
-    }
+//     const message = {
+//       subject: 'Nouvelle demande de cotation pour Commande Provisoire ' + draftOrderId, 
+//       body: {
+//         contentType: 'HTML',
+//         content: `
+//           <p>Bonjour, </p>
+//           <p style="margin: 0;">Une nouvelle commande provisoire a été créée pour le client PRO : ${firstnameCustomer} ${nameNoStar}</p>
+//           <p style="margin: 0;">Si besoin, il est joignable à ${customerMail} et au ${customerPhone} </p>
+//           <p style="margin: 0;">L'adresse de livraison renseignée est : ${shippingAddress}</p>
+//           <p>Préférence(s) de livraison : ${deliveryPrefValue}</p>
+//           ${deliveryTextIfPalette}
+//           <p>Bonne journée ! </p>
+//           <img src='cid:signature'/>
+//         `
+//       },
+//       toRecipients: [
+//         {
+//           emailAddress: {
+//             address: MAILCOTATION
+//           }
+//         }
+//       ],
+//       bccRecipients: [
+//         {
+//             emailAddress: {
+//                 address: MAILDEV
+//             }
+//         }
+//       ],
+//       attachments: [
+//         signatureAttachement
+//       ]
+//     };
+//     try {
+//       await client.api('/me/sendMail').post({ message });
+//       console.log("Email for cotation sucessfully sent");
+//     } catch (error) {
+//       console.error('error sending cotation message', error);
+//     }
+//   }
+  // //Send email to Magalie with parcelNumber when automated return
+  // async function sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumbers, returnOrderId, totalOrder) {
+  //   const client = initiMicrosoftGraphClient(accessTokenMS365);
+  //   let trackingLinks = '';
+  //   for (const number of parcelNumbers) {
+  //     const packageTrack = `https://www.laposte.fr/outils/suivre-vos-envois?code=${number}`
+  //     trackingLinks += `<p>Numéro de colis : ${number} - <a href="${packageTrack}">Suivi du colis</a></p>`; 
+  //   }
     
-    const message = {
-      subject: 'Nouvelle demande de retour automatisé', 
-      body: {
-        contentType: 'HTML',
-        content: `
-          <p>Bonjour, </p>
-          <p style="margin: 0;">Une nouvelle commande demande de retour a été créée pour le client : ${senderCustomer.name}</p>
-          <p style="margin: 0;">Une commande retour a été créée dans Shippingbo GMA : ${returnOrderId}</p>
-          <p style="margin: 0;">La commande d'origine Shopify est : ${senderCustomer.origin_ref}</p>
-          <p>A réception de son colis, un code de réduction/remboursement lui sera automatiquement envoyé par mail, d'une valeur de ${totalOrder} </p>
-          ${trackingLinks}
-          <p>Bonne journée ! </p>
-          <img src='cid:signature'/>
-        `
-      },
-      toRecipients: [
-        {
-          emailAddress: {
-            address: "c.leroux@potiron.com"
-          }
-        }
-      ],
-      bccRecipients: [
-        {
-            emailAddress: {
-                address: MAILDEV
-            }
-        }
-      ],
-      attachments: [
-        signatureAttachement
-      ]
-    };
-    try {
-      await client.api('/me/sendMail').post({ message });
-      console.log("Email SAv after automated return sucessfully sent");
-    } catch (error) {
-      console.error('error sending cotation message', error);
-    }
-  }
+  //   const message = {
+  //     subject: 'Nouvelle demande de retour automatisé', 
+  //     body: {
+  //       contentType: 'HTML',
+  //       content: `
+  //         <p>Bonjour, </p>
+  //         <p style="margin: 0;">Une nouvelle commande demande de retour a été créée pour le client : ${senderCustomer.name}</p>
+  //         <p style="margin: 0;">Une commande retour a été créée dans Shippingbo GMA : ${returnOrderId}</p>
+  //         <p style="margin: 0;">La commande d'origine Shopify est : ${senderCustomer.origin_ref}</p>
+  //         <p>A réception de son colis, un code de réduction/remboursement lui sera automatiquement envoyé par mail, d'une valeur de ${totalOrder} </p>
+  //         ${trackingLinks}
+  //         <p>Bonne journée ! </p>
+  //         <img src='cid:signature'/>
+  //       `
+  //     },
+  //     toRecipients: [
+  //       {
+  //         emailAddress: {
+  //           address: "c.leroux@potiron.com"
+  //         }
+  //       }
+  //     ],
+  //     bccRecipients: [
+  //       {
+  //           emailAddress: {
+  //               address: MAILDEV
+  //           }
+  //       }
+  //     ],
+  //     attachments: [
+  //       signatureAttachement
+  //     ]
+  //   };
+  //   try {
+  //     await client.api('/me/sendMail').post({ message });
+  //     console.log("Email SAv after automated return sucessfully sent");
+  //   } catch (error) {
+  //     console.error('error sending cotation message', error);
+  //   }
+  // }
 
   //Send email to customer with label colissmo attached
   async function sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfBase64Array, parcelNumbers, totalOrder) {
@@ -356,42 +355,6 @@ async function sendDiscountCodeAfterReturn(accessTokenMS365, customerData, order
   }
 }
 
-//Record Data customer and discount code in DB to send scheduled mail
-// const saveDiscountMailData = async (email, orderName, discountCode, totalAmount, endDate, discountCodeId, PriceRuleId) => {
-//   const sendDate = new Date(endDate);
-//   sendDate.setDate(sendDate.getDate() - 15);
-
-//   const query = `
-//     INSERT INTO scheduled_emails (customer_email, order_name, discount_code, total_order, code_end_date, send_date, discount_code_id, price_rule_id )
-//     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-//     `
-//   const values = [email, orderName, discountCode, totalAmount, endDate, sendDate, discountCodeId, PriceRuleId];
-
-//   try {
-//     const result = await client.query(query, values);
-//     console.log("Data pour email programmé enregistré en DB");
-//   } catch (error) {
-//     console.error('Error recording discount data in scheduled emails table', error);
-//   }
-// }
-
-//Retrieve Data from DB in scheduled_emails table 
-// const getDiscountMailData = async () => {
-//   const today = new Date().toISOString().split('T')[0];
-//   const query = `
-//     SELECT * FROM scheduled_emails WHERE send_date::date = $1 
-//   `;
-//   const values = [today];
-//   try {
-//     const result = await client.query(query, values);
-//     return result.rows;
-//   } catch (error) {
-//     console.error("Error retrieving data from scheduled emails table", error);
-//     return [];
-//   }
-// }
-
-
 //check if send mail to remind discount code and delete line in schedule_emails table 
 const checkScheduledEmails = async () => {
   const scheduledEmails = await getDiscountMailData();
@@ -415,19 +378,6 @@ const checkScheduledEmails = async () => {
 
   }
 }
-
-// const removeScheduledMail = async (lineId) => {
-//   const query = `DELETE FROM scheduled_emails WHERE id = $1`;
-//   const values = [lineId];
- 
-//   try {
-//     const result = await client.query(query, values);
-//     console.log(`Ligne avec id ${lineId} supprimée`, result.rowCount);
-//     return result.rowCount > 0;
-//   } catch (error) {
-//     console.error("Erreur lors de la suppression de la ligne :", error);
-//   }
-// };
 
 //Send mail to customer 15days berfore expiration date example to test : exemple
 const sendEmailDiscountReminder = async (discounCode, totalAmount, codeEndDate, customerMail, orderName) => {
@@ -481,11 +431,10 @@ const sendEmailDiscountReminder = async (discounCode, totalAmount, codeEndDate, 
   
   module.exports = {
     sendWelcomeMailPro,
-    sendNewDraftOrderMail,
-    sendEmailWithKbis,
+    // sendNewDraftOrderMail,
+    // sendEmailWithKbis,
     sendReturnDataToCustomer,
-    sendReturnDataToSAV,
+    // sendReturnDataToSAV,
     sendDiscountCodeAfterReturn,
-    // saveDiscountMailData,
     checkScheduledEmails
   }

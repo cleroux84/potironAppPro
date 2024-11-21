@@ -2,9 +2,9 @@ const SHOPIFYAPPTOKEN = process.env.SHOPIFYAPPTOKEN;
 const Shopify = require('shopify-api-node');
 const fetch = require('node-fetch');
 
-const { sendNewDraftOrderMail } = require('./sendMail.js');
 const { createProDraftOrderShippingbo } = require('./shippingbo/potironParisCRUD.js');
 const { getAccessTokenMS365, refreshMS365AccessToken, getTokenMS365FromDb } = require('./microsoftAuth.js');
+const { sendNewDraftOrderMail } = require('./sendMails/mailForTeam.js');
 
 //Create draft Order in Shopify
 
