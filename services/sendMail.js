@@ -251,7 +251,7 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
   }
 
   //Send email to customer with label colissmo attached
-  async function sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfBase64, parcelNumbers, totalOrder) {
+  async function sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfBase64Array, parcelNumbers, totalOrder) {
     const client = initiMicrosoftGraphClient(accessTokenMS365);
     let trackingLinks = '';
     for (const number of parcelNumbers) {
