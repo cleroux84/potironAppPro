@@ -1,5 +1,5 @@
 //Requests for tokens table concerning microsoft auth MS365
-const client = require('./database/db.js');
+const client = require('../db.js');
 
 //get token from DB
 const getTokenMS365FromDb = async () => {
