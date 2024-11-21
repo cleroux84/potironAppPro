@@ -672,7 +672,7 @@ app.post('/returnProduct', async (req, res) => {
         if(labelData) {
           createLabelData.push(labelData);
           parcelNumbers = createLabelData.map(data => data.parcelNumber);
-          pdfBase64 = createLabelData.map(data => createLabelData.pdfData);
+          pdfBase64 = createLabelData.map(data => data.pdfData);
         }
 
       } else {
@@ -689,7 +689,7 @@ app.post('/returnProduct', async (req, res) => {
           if(labelData) { 
             createLabelData.push(labelData);
             parcelNumbers = createLabelData.map(data => data.parcelNumber);
-            pdfBase64 = createLabelData.map(data => createLabelData.pdfData);
+            pdfBase64 = createLabelData.map(data => data.pdfData);
           }
         }
         console.log('return all mais plusieurs colis => plusieurs étiquettes à imprimer');
