@@ -19,7 +19,7 @@ const getRefreshTokenFromDb = async () => {
       const res = await client.query('SELECT refresh_token FROM tokens LIMIT 1');
       return res.rows[0].refresh_token;
     } catch (error) {
-      console.log('Error retrieving refresh token', error);
+      console.error('Error retrieving refresh token', error);
       return null;
     }
   }
@@ -27,9 +27,7 @@ const getRefreshTokenFromDb = async () => {
   const saveAccessAndRefreshTokenDb = async (token, refreshToken) => {
     try {
       await client.query('UPDATE tokens SET refresh_token = $1 WHERE id = 1', [refreshToken]);
-      console.log('RefreshToken saved in db for Potiron Paris', refreshToken);
       await client.query('UPDATE tokens SET token = $1 WHERE id = 1', [token]);
-      console.log('token saved in db for Potiron Paris', token);
     } catch (error) {
       console.error('Error saving refreshToken in db', error);
     }

@@ -14,7 +14,6 @@ const cors = require('cors');
 require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 300;
-const { getAccessTokenWarehouseFromDb } = require('./services/shippingbo/gmaWarehouseAuth.js');
 const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft } = require('./services/shippingbo/potironParisCRUD.js');
 const { getWarehouseOrderDetails, updateWarehouseOrder, getWarehouseOrderToReturn, getshippingDetails, checkIfReturnOrderExist } = require('./services/shippingbo/GMAWarehouseCRUD.js');
 const { createDraftOrder, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById, orderById, getProductDetails, getProductWeightBySku, updateOrder, getOrderByShopifyId } = require('./services/shopifyApi.js');
@@ -27,6 +26,7 @@ const { saveDiscountMailData } = require('./services/database/scheduled_emails.j
 const { sendEmailWithKbis, sendReturnDataToSAV } = require('./services/sendMails/mailForTeam.js');
 const { sendWelcomeMailPro, sendReturnDataToCustomer, sendDiscountCodeAfterReturn, checkScheduledEmails } = require('./services/sendMails/mailForCustomers.js');
 const { getAccessTokenFromDb } = require('./services/database/tokens/potiron_shippingbo.js');
+const { getAccessTokenWarehouseFromDb } = require('./services/database/tokens/gma_shippingbo.js');
 
 const corsOptions = {
   origin: "https://potiron.com",

@@ -6,37 +6,7 @@ const CLIENT_SECRET = process.env.CLIENT_SECRET_SHIPPINGBO;
 let accessToken = null;
 let refreshToken = null;
 
-// const saveRefreshTokenDb = async (token, refreshToken) => {
-//     try {
-//       await client.query('UPDATE tokens SET refresh_token = $1 WHERE id = 1', [refreshToken]);
-//       console.log('RefreshToken saved in db for Potiron Paris', refreshToken);
-//       await client.query('UPDATE tokens SET token = $1 WHERE id = 1', [token]);
-//       console.log('token saved in db for Potiron Paris', token);
-//     } catch (error) {
-//       console.error('Error saving refreshToken in db', error);
-//     }
-//   }
-
-  // const getRefreshTokenFromDb = async () => {
-  //   try {
-  //     const res = await client.query('SELECT refresh_token FROM tokens LIMIT 1');
-  //     return res.rows[0].refresh_token;
-  //   } catch (error) {
-  //     console.log('Error retrieving refresh token', error);
-  //     return null;
-  //   }
-  // }
-
-  // const getAccessTokenFromDb = async () => {
-  //   try {
-  //     const res = await client.query('SELECT token FROM tokens LIMIT 1');
-  //     return res.rows[0].token;
-  //   } catch (error) {
-  //     console.log('Error retrieving token from db', error);
-  //     return null;
-  //   }
-  // }
-
+//Get Token from Shippingbo API 
   const getToken = async (authorizationCode) => {
     const tokenUrl = 'https://oauth.shippingbo.com/oauth/token';
     const tokenOptions = {
@@ -75,6 +45,7 @@ let refreshToken = null;
     }
   };
 
+  //Refresh Token with Shippingbo API
   const refreshAccessToken = async () => {
     refreshToken = await getRefreshTokenFromDb();
     const refreshUrl = 'https://oauth.shippingbo.com/oauth/token';
