@@ -203,12 +203,12 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
   //Send email to Magalie with parcelNumber when automated return
   async function sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumbers, returnOrderId, totalOrder) {
     const client = initiMicrosoftGraphClient(accessTokenMS365);
-    console.log('parcelNumberLength', parcelNumbers.length);
     let trackingLinks = '';
     for (const number of parcelNumbers) {
       const packageTrack = `https://www.laposte.fr/outils/suivre-vos-envois?code=${number}`
-      trackingLinks += `<p>Numéro de colis : ${number} - <a href="${packageTrack}">Suivi du colis</a></p>`; }
+      trackingLinks += `<p>Numéro de colis : ${number} - <a href="${packageTrack}">Suivi du colis</a></p>`; 
     }
+    
     // const packageTrack = "https://www.laposte.fr/outils/suivre-vos-envois?code=" + parcelNumber;
     const message = {
       subject: 'Nouvelle demande de retour automatisé', 
