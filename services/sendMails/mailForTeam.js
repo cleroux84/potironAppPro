@@ -1,3 +1,5 @@
+//Mail for Team Potiron
+
 const fs = require('fs');
 require('dotenv').config();
 const {Client} = require('@microsoft/microsoft-graph-client');
@@ -188,5 +190,7 @@ async function sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileEx
   module.exports = {
     sendEmailWithKbis,
     sendNewDraftOrderMail,
-    sendReturnDataToSAV
+    sendReturnDataToSAV,
+    signatureAttachement,
+    initiMicrosoftGraphClient
   }
