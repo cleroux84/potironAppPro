@@ -1,8 +1,7 @@
 const fetch = require('node-fetch');
 const { refreshMS365AccessToken } = require('./microsoftAuth');
-// const { refreshAccessToken, getToken } = require('./shippingbo/potironParisAuth');
-const { refreshAccessTokenWarehouse, getTokenWarehouse } = require('./shippingbo/gmaWarehouseAuth');
 const { getToken, refreshAccessToken } = require('./API/Shippingbo/Potiron/auth');
+const { getTokenWarehouse, refreshAccessTokenWarehouse } = require('./API/Shippingbo/Gma/auth');
 const YOUR_AUTHORIZATION_CODE = process.env.YOUR_AUTHORIZATION_CODE;
 const WAREHOUSE_AUTHORIZATION_CODE = process.env.WAREHOUSE_AUTHORIZATION_CODE;
 

@@ -1,8 +1,9 @@
 const fetch = require('node-fetch');
-const { getTokenWarehouse, refreshAccessTokenWarehouse } = require('./gmaWarehouseAuth');
+const { getTokenWarehouse, refreshAccessTokenWarehouse } = require('../API/Shippingbo/Gma/auth');
 const API_APP__WAREHOUSE_ID = process.env.API_APP_WAREHOUSE_ID;
 let accessTokenWarehouse;
 let refreshTokenWarehouse;
+
 
 // const setupShippingboWebhook = async () => {
 //     const tokensWarehouse = await refreshAccessTokenWarehouse();
