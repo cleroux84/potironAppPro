@@ -276,7 +276,6 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
               <p>Vous trouverez l'étiquette de retour ci-jointe, il suffit de l'imprimer pour votre colis.</p>
               <p>TEXTE A VOIR</p>
               ${trackingLinks}
-              <p><a href="${packageTrack}">Suivre mon colis</a></p>
               <p>A réception de votre colis retour, vous recevrez par mail, le code de réduction/remboursement d'une valeur de ${totalOrder} valable 3 mois.
               <p>Très belle journée,</p>
               <p>L'équipe de Potiron Paris</p>
