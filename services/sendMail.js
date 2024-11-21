@@ -258,9 +258,9 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
       const packageTrack = `https://www.laposte.fr/outils/suivre-vos-envois?code=${number}`
       trackingLinks += `<p>Numéro de colis : ${number} - <a href="${packageTrack}">Suivi du colis</a></p>`; 
     }
-    const pdfAttachments = pdfBase64.map((pdfBase64, index) => ({
-      '@odata.type': '#microsoft.graph.fileAttachment',
-      name: 'etiquette_retour_colissimo.pdf',
+    const pdfAttachments = pdfBase64Array.map((pdfBase64, index) => ({  
+      '@odata.type': '#microsoft.graph.fileAttachment',   
+      name: `etiquette_retour_colissimo_${index + 1}.pdf`,
       contentType: 'application/pdf',
       contentBytes: pdfBase64.replace(/^data:application\/pdf;base64,/, '')
     }))
