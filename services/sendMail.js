@@ -209,7 +209,6 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
       trackingLinks += `<p>Numéro de colis : ${number} - <a href="${packageTrack}">Suivi du colis</a></p>`; 
     }
     
-    // const packageTrack = "https://www.laposte.fr/outils/suivre-vos-envois?code=" + parcelNumber;
     const message = {
       subject: 'Nouvelle demande de retour automatisé', 
       body: {
@@ -250,11 +249,23 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
       console.error('error sending cotation message', error);
     }
   }
+
   //Send email to customer with label colissmo attached
-  async function sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfBase64, parcelNumber, totalOrder) {
+  async function sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfBase64, parcelNumbers, totalOrder) {
     const client = initiMicrosoftGraphClient(accessTokenMS365);
-    const cleanBase64 = pdfBase64.replace(/^data:application\/pdf;base64,/, '');
-    const packageTrack = "https://www.laposte.fr/outils/suivre-vos-envois?code=" + parcelNumber;
+    let trackingLinks = '';
+    for (const number of parcelNumbers) {
+      const packageTrack = `https://www.laposte.fr/outils/suivre-vos-envois?code=${number}`
+      trackingLinks += `<p>Numéro de colis : ${number} - <a href="${packageTrack}">Suivi du colis</a></p>`; 
+    }
+    const pdfAttachments = pdfBase64.map((pdfBase64, index) => ({
+      '@odata.type': '#microsoft.graph.fileAttachment',
+      name: 'etiquette_retour_colissimo.pdf',
+      contentType: 'application/pdf',
+      contentBytes: pdfBase64.replace(/^data:application\/pdf;base64,/, '')
+    }))
+    // const cleanBase64 = pdfBase64.replace(/^data:application\/pdf;base64,/, '');
+    // const packageTrack = "https://www.laposte.fr/outils/suivre-vos-envois?code=" + parcelNumber;
     const message = {
         subject: 'Votre demande de retour Potiron Paris', 
         body: {
@@ -263,7 +274,8 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
               <p>Bonjour ${senderCustomer.name},</p>
               <p>Votre demande de retour a bien été prise en compte.</p>
               <p>Vous trouverez l'étiquette de retour ci-jointe, il suffit de l'imprimer pour votre colis.</p>
-              <p>TEXTE A VOIR - Numéro de colis : ${parcelNumber}</p>
+              <p>TEXTE A VOIR</p>
+              ${trackingLinks}
               <p><a href="${packageTrack}">Suivre mon colis</a></p>
               <p>A réception de votre colis retour, vous recevrez par mail, le code de réduction/remboursement d'une valeur de ${totalOrder} valable 3 mois.
               <p>Très belle journée,</p>
@@ -286,12 +298,7 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
             }
         ],
         attachments: [
-            {
-                '@odata.type': '#microsoft.graph.fileAttachment',
-                name: 'etiquette_retour_colissimo.pdf',
-                contentType: 'application/pdf',
-                contentBytes: cleanBase64
-            },
+            ...pdfAttachments,
             signatureAttachement
         ]
     };
