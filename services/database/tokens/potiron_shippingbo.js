@@ -12,6 +12,7 @@ const getAccessTokenFromDb = async () => {
     }
   }
 
+  
 //Get refresh token from DB
 const getRefreshTokenFromDb = async () => {
     try {

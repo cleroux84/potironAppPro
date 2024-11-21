@@ -1,6 +1,6 @@
 const client = require('../database/db.js');
 const fetch = require('node-fetch');
-const { saveAccessAndRefreshTokenDb } = require('../database/tokens/potiron_shippingbo.js');
+const { saveAccessAndRefreshTokenDb, getRefreshTokenFromDb } = require('../database/tokens/potiron_shippingbo.js');
 const CLIENT_ID = process.env.CLIENT_ID_SHIPPINGBO;
 const CLIENT_SECRET = process.env.CLIENT_SECRET_SHIPPINGBO;
 let accessToken = null;
