@@ -651,6 +651,7 @@ app.post('/returnProduct', async (req, res) => {
     let totalOrder = 0;
     let parcel;
     let createLabelData = [];
+    let parcelNumbers = [];
     const initialNumberOfPackages = warehouseOrder.order.shipments.length;
     console.log('nombre de colis dans la commande initiale: ', initialNumberOfPackages);
     const shipments = warehouseOrder.order.shipments;
@@ -667,7 +668,11 @@ app.post('/returnProduct', async (req, res) => {
           "returnReceipt": false
         };
         const labelData = await createLabel(senderCustomer, parcel);
-        if(labelData) createLabelData.push(labelData);
+        if(labelData) {
+          createLabelData.push(labelData);
+          parcelNumbers = createLabelData.map(data => data.parcelNumber);
+          console.log('parcelNumber', parcelNumbers);
+        }
 
       } else {
         const parcels = shipments.map(shipment => ({
@@ -680,9 +685,12 @@ app.post('/returnProduct', async (req, res) => {
 
         for(parcel of parcels) {
           const labelData = await createLabel(senderCustomer, parcel);
-          if(labelData) createLabelData.push(labelData);
-          
+          if(labelData) { 
+            createLabelData.push(labelData);
+            parcelNumbers = createLabelData.map(data => data.parcelNumber);
+          }
         }
+          console.log('parcelNumber', parcelNumbers);
         console.log('return all mais plusieurs colis => plusieurs étiquettes à imprimer');
       }
       
@@ -768,7 +776,7 @@ app.post('/returnProduct', async (req, res) => {
         accessTokenMS365 = await getAccessTokenMS365();
       }
     //   //send email to Magalie with parcel number and shopify Id and return order Id
-      // await sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumber, returnOrderId, totalOrder)
+      await sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumbers, returnOrderId, totalOrder)
     //   //send email to customer with link to dwld label and parcel number
       // await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, createLabelData.pdfData, parcelNumber, totalOrder);
 
