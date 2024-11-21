@@ -5,9 +5,10 @@ const { ConfidentialClientApplication } = require('@azure/msal-node');
 const { Client } = require('@microsoft/microsoft-graph-client');
 require ('isomorphic-fetch');
 const path = require('path');
-const client = require('./db.js');
+// const client = require('./db.js');
 const { checkDiscountCodeUsage } = require('./return.js');
 const { getAccessTokenMS365, refreshMS365AccessToken } = require('./microsoftAuth.js');
+const { getDiscountMailData, removeScheduledMail } = require('./database/scheduled_emails.js');
 
 const MAILRECIPIENT = process.env.MAILRECIPIENT;
 const MAILCOTATION = process.env.MAILCOTATION;
@@ -356,39 +357,39 @@ async function sendDiscountCodeAfterReturn(accessTokenMS365, customerData, order
 }
 
 //Record Data customer and discount code in DB to send scheduled mail
-const saveDiscountMailData = async (email, orderName, discountCode, totalAmount, endDate, discountCodeId, PriceRuleId) => {
-  const sendDate = new Date(endDate);
-  sendDate.setDate(sendDate.getDate() - 15);
+// const saveDiscountMailData = async (email, orderName, discountCode, totalAmount, endDate, discountCodeId, PriceRuleId) => {
+//   const sendDate = new Date(endDate);
+//   sendDate.setDate(sendDate.getDate() - 15);
 
-  const query = `
-    INSERT INTO scheduled_emails (customer_email, order_name, discount_code, total_order, code_end_date, send_date, discount_code_id, price_rule_id )
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-    `
-  const values = [email, orderName, discountCode, totalAmount, endDate, sendDate, discountCodeId, PriceRuleId];
+//   const query = `
+//     INSERT INTO scheduled_emails (customer_email, order_name, discount_code, total_order, code_end_date, send_date, discount_code_id, price_rule_id )
+//     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+//     `
+//   const values = [email, orderName, discountCode, totalAmount, endDate, sendDate, discountCodeId, PriceRuleId];
 
-  try {
-    const result = await client.query(query, values);
-    console.log("Data pour email programmé enregistré en DB");
-  } catch (error) {
-    console.error('Error recording discount data in scheduled emails table', error);
-  }
-}
+//   try {
+//     const result = await client.query(query, values);
+//     console.log("Data pour email programmé enregistré en DB");
+//   } catch (error) {
+//     console.error('Error recording discount data in scheduled emails table', error);
+//   }
+// }
 
 //Retrieve Data from DB in scheduled_emails table 
-const getDiscountMailData = async () => {
-  const today = new Date().toISOString().split('T')[0];
-  const query = `
-    SELECT * FROM scheduled_emails WHERE send_date::date = $1 
-  `;
-  const values = [today];
-  try {
-    const result = await client.query(query, values);
-    return result.rows;
-  } catch (error) {
-    console.error("Error retrieving data from scheduled emails table", error);
-    return [];
-  }
-}
+// const getDiscountMailData = async () => {
+//   const today = new Date().toISOString().split('T')[0];
+//   const query = `
+//     SELECT * FROM scheduled_emails WHERE send_date::date = $1 
+//   `;
+//   const values = [today];
+//   try {
+//     const result = await client.query(query, values);
+//     return result.rows;
+//   } catch (error) {
+//     console.error("Error retrieving data from scheduled emails table", error);
+//     return [];
+//   }
+// }
 
 
 //check if send mail to remind discount code and delete line in schedule_emails table 
@@ -415,18 +416,18 @@ const checkScheduledEmails = async () => {
   }
 }
 
-const removeScheduledMail = async (lineId) => {
-  const query = `DELETE FROM scheduled_emails WHERE id = $1`;
-  const values = [lineId];
+// const removeScheduledMail = async (lineId) => {
+//   const query = `DELETE FROM scheduled_emails WHERE id = $1`;
+//   const values = [lineId];
  
-  try {
-    const result = await client.query(query, values);
-    console.log(`Ligne avec id ${lineId} supprimée`, result.rowCount);
-    return result.rowCount > 0;
-  } catch (error) {
-    console.error("Erreur lors de la suppression de la ligne :", error);
-  }
-};
+//   try {
+//     const result = await client.query(query, values);
+//     console.log(`Ligne avec id ${lineId} supprimée`, result.rowCount);
+//     return result.rowCount > 0;
+//   } catch (error) {
+//     console.error("Erreur lors de la suppression de la ligne :", error);
+//   }
+// };
 
 //Send mail to customer 15days berfore expiration date example to test : exemple
 const sendEmailDiscountReminder = async (discounCode, totalAmount, codeEndDate, customerMail, orderName) => {
@@ -485,6 +486,6 @@ const sendEmailDiscountReminder = async (discounCode, totalAmount, codeEndDate, 
     sendReturnDataToCustomer,
     sendReturnDataToSAV,
     sendDiscountCodeAfterReturn,
-    saveDiscountMailData,
+    // saveDiscountMailData,
     checkScheduledEmails
   }

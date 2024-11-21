@@ -14,17 +14,18 @@ const cors = require('cors');
 require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 300;
-const { getToken, refreshAccessToken, getAccessTokenFromDb } = require('./services/shippingbo/potironParisAuth.js');
-const { getTokenWarehouse, refreshAccessTokenWarehouse, getAccessTokenWarehouseFromDb } = require('./services/shippingbo/gmaWarehouseAuth.js');
+const { getAccessTokenFromDb } = require('./services/shippingbo/potironParisAuth.js');
+const { getAccessTokenWarehouseFromDb } = require('./services/shippingbo/gmaWarehouseAuth.js');
 const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft } = require('./services/shippingbo/potironParisCRUD.js');
 const { getWarehouseOrderDetails, updateWarehouseOrder, getWarehouseOrderToReturn, getshippingDetails, checkIfReturnOrderExist } = require('./services/shippingbo/GMAWarehouseCRUD.js');
-const { sendEmailWithKbis, sendWelcomeMailPro, sendReturnDataToCustomer, sendReturnDataToSAV, sendDiscountCodeAfterReturn, saveDiscountMailData, checkScheduledEmails } = require('./services/sendMail.js');
+const { sendEmailWithKbis, sendWelcomeMailPro, sendReturnDataToCustomer, sendReturnDataToSAV, sendDiscountCodeAfterReturn, checkScheduledEmails } = require('./services/sendMail.js');
 const { createDraftOrder, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById, orderById, getProductDetails, getProductWeightBySku, updateOrder, getOrderByShopifyId } = require('./services/shopifyApi.js');
 const { createReturnOrder, updateReturnOrder, checkIfPriceRuleExists, createPriceRule, isReturnableDate } = require('./services/return.js');
 const { refreshMS365AccessToken, getAccessTokenMS365 } = require('./services/microsoftAuth.js');
 const { createLabel } = require('./services/colissimoApi.js');
 const { setupShippingboWebhook, deleteAllWebhooks, getWebhooks } = require('./services/shippingbo/webhooks.js');
 const { initializeTokens } = require('./services/manageTokens.js');
+const { saveDiscountMailData } = require('./services/database/scheduled_emails.js');
 
 const corsOptions = {
   origin: "https://potiron.com",
@@ -37,27 +38,24 @@ app.set('appName', 'potironAppPro');
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
 
-// app.get('/', (req, res) => {
-//     res.send('Bienvenue sur potironAppPro !');
-// });
-
 // Initialisation des tokens 
 initializeTokens();
 // setupShippingboWebhook();
 getWebhooks();
+
+//CHECK Scheduled emails in DB every day
 cron.schedule('0 9 * * *', checkScheduledEmails, { //9h00
 //cron.schedule('50 10 * * *', checkScheduledEmails, { //10h50
   schedule: true,
   timezone: "Europe/Paris"
 });
 
-//trigger on webhook create and send discount code to customer
+//trigger on webhook created and send discount code to customer
 app.post('/returnOrderCancel', async (req, res) => {
   const orderCanceled = req.body;
-    // console.log('webhook ppl', orderCanceled);
   if(orderCanceled.object.reason === 'Retour automatisé en ligne'
     && orderCanceled.additional_data.from === 'new'
-    && orderCanceled.additional_data.to ==='canceled' //TODO change for "returned"
+    && orderCanceled.additional_data.to ==='canceled' //TODO change for "returned" with a new webhook
   ) 
   {
     try {
@@ -71,7 +69,7 @@ app.post('/returnOrderCancel', async (req, res) => {
       const totalAmountAttr = noteAttributes.find(attr => attr.name === "totalOrderReturn");
       const totalAmount = totalAmountAttr ? parseFloat(totalAmountAttr.value) : null;
       const ruleExists = await checkIfPriceRuleExists(orderName);
-      // Create discount code in shopify
+      // Create discount code in shopify if price rule does not exist
       if(!ruleExists) {
           let priceRules = await createPriceRule(customerId, orderName, totalAmount);
           const priceRuleId = priceRules.discountData.discount_code.price_rule_id;
@@ -89,8 +87,7 @@ app.post('/returnOrderCancel', async (req, res) => {
             accessTokenMS365 = await getAccessTokenMS365();
           }
           const customerData = shopifyOrder.order.customer;
-          // await sendDiscountCodeAfterReturn(accessTokenMS365, customerData, orderName, discountCode, discountAmount, formattedDate);
-          //TODO record data in db
+          await sendDiscountCodeAfterReturn(accessTokenMS365, customerData, orderName, discountCode, discountAmount, formattedDate);
           await saveDiscountMailData(customerData.email, orderName, discountCode, discountAmount, discountEnd, discountCodeId, priceRuleId);
         }
     } catch (error) {
@@ -752,20 +749,20 @@ app.post('/returnProduct', async (req, res) => {
     //     //create a return order in shippingbo warehouse
         const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku, shopifyOrderId);
         const returnOrderId = returnOrderData.return_order.id;
-        // const shopifyId = returnOrderData.return_order.reason_ref;
-        // const attributes = [
-        //   // {name: "warehouseId", value: warehouseOrder.order.id},
-        //   {name: "customerId", value: customerId},
-        //   {name: "totalOrderReturn", value: totalOrder}
-        // ];
-        // const updatedAttributes = {
-        //   order: {
-        //     id: orderId,
-        //     note_attributes: attributes
-        //   }
-        // }
+        const shopifyId = returnOrderData.return_order.reason_ref;
+        const attributes = [
+          // {name: "warehouseId", value: warehouseOrder.order.id},
+          {name: "customerId", value: customerId},
+          {name: "totalOrderReturn", value: totalOrder}
+        ];
+        const updatedAttributes = {
+          order: {
+            id: orderId,
+            note_attributes: attributes
+          }
+        }
         //update shopify order with attributes to have discount data for future creation
-        // updateOrder(updatedAttributes ,shopifyId)
+        updateOrder(updatedAttributes ,shopifyId)
 
     //     // create a return label with colissimo API
         // const createLabelData = await createLabel(senderCustomer, parcel);
@@ -779,7 +776,7 @@ app.post('/returnProduct', async (req, res) => {
     //   //send email to Magalie with parcel number and shopify Id and return order Id
       // await sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumbers, returnOrderId, totalOrder)
     //   //send email to customer with link to dwld label and parcel number
-      await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfBase64, parcelNumbers, totalOrder);
+      // await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfBase64, parcelNumbers, totalOrder);
 
         return res.status(200).json({
           // success: true,
