@@ -11,7 +11,6 @@ const setupShippingboWebhook = async () => {
     const tokensWarehouse = await refreshAccessTokenWarehouse();
     accessTokenWarehouse = tokensWarehouse.accessTokenWarehouse;
     refreshTokenWarehouse = tokensWarehouse.refreshTokenWarehouse;
-    console.log('passe ici', accessTokenWarehouse);
 
     const webhookUrl = `https://app.shippingbo.com/update_hooks`;
     const webhookPayload = {
@@ -46,7 +45,6 @@ const deleteWebhook = async (webhookId) => {
     const tokensWarehouse = await refreshAccessTokenWarehouse();
     accessTokenWarehouse = tokensWarehouse.accessTokenWarehouse;
     refreshTokenWarehouse = tokensWarehouse.refreshTokenWarehouse;
-    console.log('passe ici', accessTokenWarehouse);
 
     const deleteWebhookUrl = `https://app.shippingbo.com/update_hooks/${webhookId}`;
     const deleteWebhookOptions = {
