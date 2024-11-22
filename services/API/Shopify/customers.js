@@ -1,8 +1,9 @@
-// Requests with Shopify API for customers
+// Requests with Shopify API for customers and their metafileds
 const SHOPIFYAPPTOKEN = process.env.SHOPIFYAPPTOKEN;
 const Shopify = require('shopify-api-node');
 const fetch = require('node-fetch');
 
+//CUSTOMERS
 //Get order to return with customers Id 
 const orderById = async (orderName, orderMail, customerId) => {
     console.log("commande recherchée", orderName);
