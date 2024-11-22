@@ -1,4 +1,6 @@
+// Create Label from CBox API
 const fetch = require('node-fetch');
+require('dotenv').config();
  
 const colissimoApiKey = process.env.CBOX_API_KEY;
 const colissimoContract = process.env.CBOX_CONTRACT;
