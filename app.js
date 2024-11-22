@@ -749,8 +749,8 @@ app.post('/returnProduct', async (req, res) => {
         // const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
         
     //     //create a return order in shippingbo warehouse
-        // const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku, shopifyOrderId);
-        // const returnOrderId = returnOrderData.return_order.id;
+        const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku, shopifyOrderId);
+        const returnOrderId = returnOrderData.return_order.id;
         // const shopifyId = returnOrderData.return_order.reason_ref;
         // const attributes = [
         //   // {name: "warehouseId", value: warehouseOrder.order.id},
@@ -778,7 +778,7 @@ app.post('/returnProduct', async (req, res) => {
     //   //send email to Magalie with parcel number and shopify Id and return order Id
       // await sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumbers, returnOrderId, totalOrder)
     //   //send email to customer with link to dwld label and parcel number
-      // await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfBase64, parcelNumbers, totalOrder);
+      await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfBase64, parcelNumbers, totalOrder);
 
         return res.status(200).json({
           // success: true,
