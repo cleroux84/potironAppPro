@@ -12,7 +12,6 @@ const initializeTokens = async () => {
         let accessToken = tokens.accessToken;
         let refreshToken = tokens.refreshToken;
     } else {
-      console.log('ppl initialtoken')
         await refreshAccessToken();
     }   
   } catch (error) {

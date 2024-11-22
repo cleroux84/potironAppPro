@@ -1,9 +1,10 @@
+//Requests to shippingbo Potiron API
+
 const fetch = require('node-fetch');
 const API_APP_ID = process.env.API_APP_ID;
 
 //Get shippingbo order from Shopify Order Id
 const getShippingboOrderDetails = async (accessToken, shopifyOrderId) => {
-    console.log('accesstoken for order details', accessToken);
     console.log("id for shippingbo", shopifyOrderId);
       const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=${shopifyOrderId}`;
       const getOrderOptions = {

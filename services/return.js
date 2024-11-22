@@ -2,7 +2,7 @@ const SHOPIFYAPPTOKEN = process.env.SHOPIFYAPPTOKEN;
 const API_APP_WAREHOUSE_ID = process.env.API_APP_WAREHOUSE_ID;
 const Shopify = require('shopify-api-node');
 const fetch = require('node-fetch');
-const { getshippingDetails } = require('./shippingbo/GMAWarehouseCRUD');
+const { getshippingDetails } = require('./API/Shippingbo/Gma/ordersCRUD');
 
 const createReturnOrder = async (accessTokenWarehouse, orderId, returnAll, productSku, shopifyOrderId) => {
     const shopifyIdString = shopifyOrderId.toString();

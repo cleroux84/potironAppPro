@@ -14,7 +14,7 @@ const cors = require('cors');
 require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 300;
-const { getWarehouseOrderDetails, updateWarehouseOrder, getWarehouseOrderToReturn, getshippingDetails, checkIfReturnOrderExist } = require('./services/shippingbo/GMAWarehouseCRUD.js');
+const { checkIfReturnOrderExist } = require('./services/shippingbo/GMAWarehouseCRUD.js');
 const { createDraftOrder, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById, orderById, getProductDetails, getProductWeightBySku, updateOrder, getOrderByShopifyId } = require('./services/shopifyApi.js');
 const { createReturnOrder, updateReturnOrder, checkIfPriceRuleExists, createPriceRule, isReturnableDate } = require('./services/return.js');
 const { refreshMS365AccessToken, getAccessTokenMS365 } = require('./services/microsoftAuth.js');
@@ -27,6 +27,7 @@ const { sendWelcomeMailPro, sendReturnDataToCustomer, sendDiscountCodeAfterRetur
 const { getAccessTokenFromDb } = require('./services/database/tokens/potiron_shippingbo.js');
 const { getAccessTokenWarehouseFromDb } = require('./services/database/tokens/gma_shippingbo.js');
 const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft } = require('./services/API/Shippingbo/Potiron/ordersCRUD.js');
+const { getWarehouseOrderDetails, updateWarehouseOrder, getWarehouseOrderToReturn, getshippingDetails } = require('./services/API/Shippingbo/Gma/ordersCRUD.js');
 
 const corsOptions = {
   origin: "https://potiron.com",
@@ -748,8 +749,8 @@ app.post('/returnProduct', async (req, res) => {
         // const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
         
     //     //create a return order in shippingbo warehouse
-        // const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku, shopifyOrderId);
-        // const returnOrderId = returnOrderData.return_order.id;
+        const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku, shopifyOrderId);
+        const returnOrderId = returnOrderData.return_order.id;
         // const shopifyId = returnOrderData.return_order.reason_ref;
         // const attributes = [
         //   // {name: "warehouseId", value: warehouseOrder.order.id},
