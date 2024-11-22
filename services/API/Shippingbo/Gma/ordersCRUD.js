@@ -1,4 +1,4 @@
-//Requests to shippingbo GMA API (warehouse)
+//Requests to shippingbo GMA ORDERS API (warehouse)
 
 const { response } = require('express');
 const fetch = require('node-fetch');
