@@ -42,6 +42,15 @@ const corsOptions = {
 app.set('appName', 'potironAppPro');
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
+app.use(cors({
+  origin: "https://potiron.com",
+  methods: 'GET, HEAD, PUT, PATCH, POS, DELETE',
+  credentials: true,
+  optionsSuccessStatus: 204
+}))
+
+const returnOrderCancelRoute = require('./routes/returnOrder.js');
+app.use('/api', returnOrderCancelRoute);
 
 // Initialisation des tokens 
 initializeTokens();
@@ -56,52 +65,52 @@ cron.schedule('0 9 * * *', checkScheduledEmails, { //9h00
 });
 
 //trigger on webhook created and send discount code to customer
-app.post('/returnOrderCancel', async (req, res) => {
-  const orderCanceled = req.body;
-  if(orderCanceled.object.reason === 'Retour automatisé en ligne'
-    && orderCanceled.additional_data.from === 'new'
-    && orderCanceled.additional_data.to ==='canceled' //TODO change for "returned" with a new webhook
-  ) 
-  {
-    try {
-      const shopifyIdString = orderCanceled.object.reason_ref;
-      const shopifyId = Number(shopifyIdString);
-      const getAttributes = await getOrderByShopifyId(shopifyId);
-      const noteAttributes = getAttributes.order.note_attributes;
-      const customerIdAttr = noteAttributes.find(attr => attr.name === "customerId");
-      const customerId = customerIdAttr ? customerIdAttr.value : null;
-      const orderName = getAttributes.order.name;
-      const totalAmountAttr = noteAttributes.find(attr => attr.name === "totalOrderReturn");
-      const totalAmount = totalAmountAttr ? parseFloat(totalAmountAttr.value) : null;
-      const ruleExists = await checkIfPriceRuleExists(orderName);
-      // Create discount code in shopify if price rule does not exist
-      if(!ruleExists) {
-          let priceRules = await createPriceRule(customerId, orderName, totalAmount);
-          const priceRuleId = priceRules.discountData.discount_code.price_rule_id;
-          const discountCodeId = priceRules.discountData.discount_code.id;
-          const discountCode = priceRules.discountData.discount_code.code;
-          const discountAmount = priceRules.discountRule.price_rule.value;
-          const discountEnd = priceRules.discountRule.price_rule.ends_at;
-          const discountDate = new Date(discountEnd);
-          const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });  
+// app.post('/returnOrderCancel', async (req, res) => {
+//   const orderCanceled = req.body;
+//   if(orderCanceled.object.reason === 'Retour automatisé en ligne'
+//     && orderCanceled.additional_data.from === 'new'
+//     && orderCanceled.additional_data.to ==='canceled' //TODO change for "returned" with a new webhook
+//   ) 
+//   {
+//     try {
+//       const shopifyIdString = orderCanceled.object.reason_ref;
+//       const shopifyId = Number(shopifyIdString);
+//       const getAttributes = await getOrderByShopifyId(shopifyId);
+//       const noteAttributes = getAttributes.order.note_attributes;
+//       const customerIdAttr = noteAttributes.find(attr => attr.name === "customerId");
+//       const customerId = customerIdAttr ? customerIdAttr.value : null;
+//       const orderName = getAttributes.order.name;
+//       const totalAmountAttr = noteAttributes.find(attr => attr.name === "totalOrderReturn");
+//       const totalAmount = totalAmountAttr ? parseFloat(totalAmountAttr.value) : null;
+//       const ruleExists = await checkIfPriceRuleExists(orderName);
+//       // Create discount code in shopify if price rule does not exist
+//       if(!ruleExists) {
+//           let priceRules = await createPriceRule(customerId, orderName, totalAmount);
+//           const priceRuleId = priceRules.discountData.discount_code.price_rule_id;
+//           const discountCodeId = priceRules.discountData.discount_code.id;
+//           const discountCode = priceRules.discountData.discount_code.code;
+//           const discountAmount = priceRules.discountRule.price_rule.value;
+//           const discountEnd = priceRules.discountRule.price_rule.ends_at;
+//           const discountDate = new Date(discountEnd);
+//           const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });  
          
-          const shopifyOrder = await getOrderByShopifyId(orderCanceled.object.reason_ref);
-          let accessTokenMS365 = await getAccessTokenMS365();
-          if(!accessTokenMS365) {
-            await refreshMS365AccessToken();
-            accessTokenMS365 = await getAccessTokenMS365();
-          }
-          const customerData = shopifyOrder.order.customer;
-          await sendDiscountCodeAfterReturn(accessTokenMS365, customerData, orderName, discountCode, discountAmount, formattedDate);
-          await saveDiscountMailData(customerData.email, orderName, discountCode, discountAmount, discountEnd, discountCodeId, priceRuleId);
-        }
-    } catch (error) {
-      console.error("error webhook discount code", error);
-    }
-  }
+//           const shopifyOrder = await getOrderByShopifyId(orderCanceled.object.reason_ref);
+//           let accessTokenMS365 = await getAccessTokenMS365();
+//           if(!accessTokenMS365) {
+//             await refreshMS365AccessToken();
+//             accessTokenMS365 = await getAccessTokenMS365();
+//           }
+//           const customerData = shopifyOrder.order.customer;
+//           await sendDiscountCodeAfterReturn(accessTokenMS365, customerData, orderName, discountCode, discountAmount, formattedDate);
+//           await saveDiscountMailData(customerData.email, orderName, discountCode, discountAmount, discountEnd, discountCodeId, priceRuleId);
+//         }
+//     } catch (error) {
+//       console.error("error webhook discount code", error);
+//     }
+//   }
 
-  res.status(200).send('webhook reçu')
-})
+//   res.status(200).send('webhook reçu')
+// })
 
 let uploadedFile = null;
 let originalFileName = null;
