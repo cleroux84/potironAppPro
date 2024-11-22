@@ -50,7 +50,7 @@ app.use(cors({
 }))
 
 const returnOrderCancelRoute = require('./routes/returnOrder.js');
-app.use('/api', returnOrderCancelRoute);
+app.use(returnOrderCancelRoute);
 
 // Initialisation des tokens 
 initializeTokens();
