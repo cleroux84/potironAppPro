@@ -14,7 +14,7 @@ const cors = require('cors');
 require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 300;
-const { createDraftOrder, getCustomerMetafields, updateProCustomer, createProCustomer, deleteMetafield, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById, orderById, getProductDetails, getProductWeightBySku, updateOrder, getOrderByShopifyId } = require('./services/shopifyApi.js');
+const { createDraftOrder, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById, getProductWeightBySku, updateOrder, getOrderByShopifyId } = require('./services/shopifyApi.js');
 const { checkIfPriceRuleExists, createPriceRule, isReturnableDate } = require('./services/return.js');
 const { refreshMS365AccessToken, getAccessTokenMS365 } = require('./services/API/microsoft.js');
 const { createLabel } = require('./services/API/colissimo.js');
@@ -28,6 +28,7 @@ const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft 
 const { getWarehouseOrderDetails, updateWarehouseOrder, getWarehouseOrderToReturn, getshippingDetails } = require('./services/API/Shippingbo/Gma/ordersCRUD.js');
 const { checkIfReturnOrderExist, createReturnOrder, updateReturnOrder } = require('./services/API/Shippingbo/Gma/returnOrdersCRUD.js');
 const { setupShippingboWebhook, deleteWebhook, deleteAllWebhooks, getWebhooks } = require('./services/API/Shippingbo/webhook.js');
+const { orderById, createProCustomer, updateProCustomer, getCustomerMetafields, deleteMetafield } = require('./services/API/Shopify/customers.js');
 
 const corsOptions = {
   origin: "https://potiron.com",
