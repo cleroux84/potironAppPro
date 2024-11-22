@@ -1,9 +1,12 @@
+// Requests with Shopify API for price_rules and discount codes
+
 const SHOPIFYAPPTOKEN = process.env.SHOPIFYAPPTOKEN;
 const API_APP_WAREHOUSE_ID = process.env.API_APP_WAREHOUSE_ID;
 const Shopify = require('shopify-api-node');
 const fetch = require('node-fetch');
-const { getshippingDetails } = require('./API/Shippingbo/Gma/ordersCRUD');
 
+// PRICE RULES
+//Create Price Rule
 const createPriceRule = async (customerId, orderName, totalOrder) => {
     const createPriceRuleUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/price_rules.json`
     const nowDate = new Date().toISOString();
@@ -51,6 +54,34 @@ const createPriceRule = async (customerId, orderName, totalOrder) => {
     
 }
 
+//Check if price rule for a initial order already exists
+const checkIfPriceRuleExists = async (orderName) => {
+    const checkPriceRuleUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/price_rules.json`;
+    const checkPriceRuleOptions = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
+        }
+    }
+    try {
+        const response = await fetch(checkPriceRuleUrl, checkPriceRuleOptions);
+        if(response.ok) {
+            const data = await response.json();
+            const existingRule = data.price_rules.find(
+                rule => rule.title === `Retour auto ${orderName}`
+            );
+            return existingRule ? true : false;
+        } else {
+            console.log('Error checking if price rule exists');
+        }
+    } catch (error) {
+        console.error("Error checking price rule exists", error);
+    }
+}
+
+// DISCOUNT CODE
+// create a discount code
 const createDiscountCode = async (orderName, priceRule, discountRule) => {
     const discountCodeUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/price_rules/${priceRule.price_rule.id}/discount_codes.json`
     const discountCode = {
@@ -81,32 +112,7 @@ const createDiscountCode = async (orderName, priceRule, discountRule) => {
     }
 }
 
-const checkIfPriceRuleExists = async (orderName) => {
-    const checkPriceRuleUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/price_rules.json`;
-    const checkPriceRuleOptions = {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
-        }
-    }
-    try {
-        const response = await fetch(checkPriceRuleUrl, checkPriceRuleOptions);
-        if(response.ok) {
-            const data = await response.json();
-            const existingRule = data.price_rules.find(
-                rule => rule.title === `Retour auto ${orderName}`
-            );
-            return existingRule ? true : false;
-        } else {
-            console.log('Error checking if price rule exists');
-        }
-    } catch (error) {
-        console.error("Error checking price rule exists", error);
-    }
-}
-
-//function to find if a discount code has been used
+//Check if a discount code had already been used
 const checkDiscountCodeUsage = async (priceRuleId, discountCodeId) => {
     const discountUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/price_rules/${priceRuleId}/discount_codes/${discountCodeId}.json`
     const discountOptions = {
@@ -131,7 +137,7 @@ const checkDiscountCodeUsage = async (priceRuleId, discountCodeId) => {
     }
 }
 
-//calcule si le délai de rétractation de 15 jours à compter de la livraison est dépassé
+//Check if withdrawal period is less than 15 days
 const isReturnableDate = async (deliveryDate) => {
     let isReturnable;
     const closeOrderDeliveryDate = new Date(deliveryDate);
@@ -149,6 +155,6 @@ const isReturnableDate = async (deliveryDate) => {
 module.exports = {
     createPriceRule,
     checkIfPriceRuleExists,
-    isReturnableDate,
-    checkDiscountCodeUsage
+    checkDiscountCodeUsage,
+    isReturnableDate
 }
