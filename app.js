@@ -14,7 +14,7 @@ const cors = require('cors');
 require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 300;
-const { createDraftOrder, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById, getProductWeightBySku } = require('./services/shopifyApi.js');
+const { getProductWeightBySku } = require('./services/shopifyApi.js');
 const { checkIfPriceRuleExists, createPriceRule, isReturnableDate } = require('./services/return.js');
 const { refreshMS365AccessToken, getAccessTokenMS365 } = require('./services/API/microsoft.js');
 const { createLabel } = require('./services/API/colissimo.js');
@@ -30,6 +30,7 @@ const { checkIfReturnOrderExist, createReturnOrder, updateReturnOrder } = requir
 const { setupShippingboWebhook, deleteWebhook, deleteAllWebhooks, getWebhooks } = require('./services/API/Shippingbo/webhook.js');
 const { orderById, createProCustomer, updateProCustomer, getCustomerMetafields, deleteMetafield } = require('./services/API/Shopify/customers.js');
 const { getOrderByShopifyId, updateOrder } = require('./services/API/Shopify/orders.js');
+const { createDraftOrder, draftOrderById, lastDraftOrder, updateDraftOrderWithDraftId } = require('./services/API/Shopify/draftOrders.js');
 
 const corsOptions = {
   origin: "https://potiron.com",
