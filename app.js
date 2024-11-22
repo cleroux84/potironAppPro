@@ -50,11 +50,12 @@ app.use(cors({
 }))
 
 const returnOrderCancelRoute = require('./routes/returnOrder.js');
-app.use(returnOrderCancelRoute);
+app.use('/returnOrder', returnOrderCancelRoute);
 
 // Initialisation des tokens 
 initializeTokens();
-// setupShippingboWebhook();
+deleteAllWebhooks();
+setupShippingboWebhook();
 getWebhooks();
 
 //CHECK Scheduled emails in DB every day

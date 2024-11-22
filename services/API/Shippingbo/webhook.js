@@ -16,7 +16,7 @@ const setupShippingboWebhook = async () => {
     const webhookUrl = `https://app.shippingbo.com/update_hooks`;
     const webhookPayload = {
         object_class: 'ReturnOrder',
-        endpoint_url: 'https://potironapppro.onrender.com/returnOrderCancel',
+        endpoint_url: 'https://potironapppro.onrender.com/returnOrder/returnOrderCancel',
         activated: true,
         field: 'state'
     };

@@ -10,7 +10,6 @@ const router = express.Router();
 
 //trigger on shippingbo webhook (cancel order / will become returned ?) to create and send discount code to customer
 router.post('/returnOrderCancel', async (req, res) => {
-    console.log('passe par la route')
     const orderCanceled = req.body;
     if(orderCanceled.object.reason === 'Retour automatisé en ligne'
       && orderCanceled.additional_data.from === 'new'
