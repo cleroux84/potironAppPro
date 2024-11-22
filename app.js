@@ -55,7 +55,7 @@ app.use('/returnOrder', returnOrderCancelRoute);
 // Initialisation des tokens 
 initializeTokens();
 // deleteAllWebhooks();
-setupShippingboWebhook();
+// setupShippingboWebhook();
 getWebhooks();
 
 //CHECK Scheduled emails in DB every day
