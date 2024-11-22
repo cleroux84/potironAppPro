@@ -5,7 +5,7 @@ const { Client } = require('@microsoft/microsoft-graph-client');
 const { signatureAttachement, initiMicrosoftGraphClient } = require('./mailForTeam');
 const { getDiscountMailData, removeScheduledMail } = require('../database/scheduled_emails');
 const { checkDiscountCodeUsage } = require('../return');
-const { getAccessTokenMS365, refreshMS365AccessToken } = require('../microsoftAuth');
+const { getAccessTokenMS365, refreshMS365AccessToken } = require('../API/microsoft');
 require('dotenv').config();
 require ('isomorphic-fetch');
 const MAILDEV = process.env.MAILDEV;

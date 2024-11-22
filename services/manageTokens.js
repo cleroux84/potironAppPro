@@ -1,5 +1,5 @@
 const fetch = require('node-fetch');
-const { refreshMS365AccessToken } = require('./microsoftAuth');
+const { refreshMS365AccessToken } = require('./API/microsoft');
 const { getToken, refreshAccessToken } = require('./API/Shippingbo/Potiron/auth');
 const { getTokenWarehouse, refreshAccessTokenWarehouse } = require('./API/Shippingbo/Gma/auth');
 const YOUR_AUTHORIZATION_CODE = process.env.YOUR_AUTHORIZATION_CODE;

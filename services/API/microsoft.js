@@ -1,6 +1,8 @@
-const client = require('./database/db.js');
+//Token gestion for MS365 API
+
+const client = require('../database/db.js');
 const fetch = require('node-fetch');
-const { getRefreshTokenMS365, saveAccessAndRefreshTokenMS365 } = require('./database/tokens/ms365.js');
+const { getRefreshTokenMS365, saveAccessAndRefreshTokenMS365 } = require('../database/tokens/ms365.js');
 require('dotenv').config();
 
 const MS365CLIENTID = process.env.MS365_CLIENT_ID;
