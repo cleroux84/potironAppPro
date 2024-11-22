@@ -18,7 +18,6 @@ const { createDraftOrder, getCustomerMetafields, updateProCustomer, createProCus
 const { checkIfPriceRuleExists, createPriceRule, isReturnableDate } = require('./services/return.js');
 const { refreshMS365AccessToken, getAccessTokenMS365 } = require('./services/microsoftAuth.js');
 const { createLabel } = require('./services/colissimoApi.js');
-const { setupShippingboWebhook, deleteAllWebhooks, getWebhooks } = require('./services/shippingbo/webhooks.js');
 const { initializeTokens } = require('./services/manageTokens.js');
 const { saveDiscountMailData } = require('./services/database/scheduled_emails.js');
 const { sendEmailWithKbis, sendReturnDataToSAV } = require('./services/sendMails/mailForTeam.js');
@@ -27,7 +26,8 @@ const { getAccessTokenFromDb } = require('./services/database/tokens/potiron_shi
 const { getAccessTokenWarehouseFromDb } = require('./services/database/tokens/gma_shippingbo.js');
 const { getShippingboOrderDetails, updateShippingboOrder, cancelShippingboDraft } = require('./services/API/Shippingbo/Potiron/ordersCRUD.js');
 const { getWarehouseOrderDetails, updateWarehouseOrder, getWarehouseOrderToReturn, getshippingDetails } = require('./services/API/Shippingbo/Gma/ordersCRUD.js');
-const { checkIfReturnOrderExist, createReturnOrder } = require('./services/API/Shippingbo/Gma/returnOrdersCRUD.js');
+const { checkIfReturnOrderExist, createReturnOrder, updateReturnOrder } = require('./services/API/Shippingbo/Gma/returnOrdersCRUD.js');
+const { setupShippingboWebhook, deleteWebhook, deleteAllWebhooks, getWebhooks } = require('./services/API/Shippingbo/webhook.js');
 
 const corsOptions = {
   origin: "https://potiron.com",
@@ -803,7 +803,7 @@ app.post('/returnProduct', async (req, res) => {
     // }
    
     //update the return order with parcel number (numéro de colis) from colissimo - WIP
-    // const updateReturnOrderWithLabel = await updateReturnOrder(accessTokenWarehouse, returnOrderId, parcelNumber)
+    const updateReturnOrderWithLabel = await updateReturnOrder(accessTokenWarehouse, returnOrderId, parcelNumber)
    
   } else if( optionChosen === "option2") {
 
