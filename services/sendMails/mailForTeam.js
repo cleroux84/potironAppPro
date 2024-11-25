@@ -52,7 +52,7 @@ async function sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileEx
         toRecipients: [
             {
                 emailAddress: {
-                    address: MAILRECIPIENT
+                    address: 'c.leroux@potiron.com'
                 }
             }
         ],
