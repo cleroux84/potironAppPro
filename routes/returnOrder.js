@@ -1,7 +1,7 @@
 //Routes concerning automated return order 
 
 const express = require('express');
-const { getOrderByShopifyId, updateOrder } = require('../services/API/Shopify/orders');
+const { getOrderByShopifyId, updateOrder, orderByMail } = require('../services/API/Shopify/orders');
 const { checkIfPriceRuleExists, createPriceRule, isReturnableDate } = require('../services/API/Shopify/priceRules');
 const { getAccessTokenMS365, refreshMS365AccessToken } = require('../services/API/microsoft');
 const { sendDiscountCodeAfterReturn, sendReturnDataToCustomer } = require('../services/sendMails/mailForCustomers');
@@ -83,8 +83,8 @@ router.get('/getOrderById', async (req, res) => {
     if(customerId) {
       orderData = await orderById(orderName, orderMail, customerId); //moi livré : #6989
     } else {
-      // orderData = 
-      console.log('orderByMail to create');
+      orderData = orderByMail(orderName, orderMail);
+      console.log('orderByMail to create', orderData);
     }
     const shopifyOrderId = orderData.id;
     const shippingboDataPotiron = await getShippingboOrderDetails(accessToken, shopifyOrderId); 

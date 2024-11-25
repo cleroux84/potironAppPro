@@ -42,7 +42,36 @@ const updateOrder =  async (tagsToAdd, orderId) => {
       console.error('error updating order with tags for future discount code', orderId);
     }
   }
+
+  //Get order to return with customers Id 
+const orderByMail = async (orderName, orderMail) => {
+  console.log("commande recherchée", orderName);
+  const orderMailUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/orders.json?email=${orderMail}&status=any`;
+  const orderMailOptions = {
+    method: 'GET',
+    headers: {             
+      'Content-Type': 'application/json',             
+      'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
+    }
+  }
+  try {
+    const response = await fetch(orderMailUrl, orderMailOptions);
+    let myOrderData;
+    if(!response.ok) {
+      console.log(`Error fetching order by name : ${response.statusText}`);
+    }
+    const ordersData = await response.json();
+    if (ordersData) {
+      myOrderData = ordersData.orders.find(order => order.name === orderName);
+    }
+    return myOrderData;
+  } catch (error) {
+    console.error('Error tor retrieve order by name', error);
+  }
+}
+
   module.exports = {
     getOrderByShopifyId,
-    updateOrder
+    updateOrder,
+    orderByMail
   }
