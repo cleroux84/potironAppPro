@@ -199,7 +199,7 @@ function extractInfoFromNote(note, infoLabel) {
   }
 
  //update delivery preferences from pages/account-update-delivery
- app.post('/update-delivery-pref', async (req, res) => {
+ router.post('/update-delivery-pref', async (req, res) => {
   try {
     const deliveryData = req.body;
     const deliveryPackage = deliveryData.package;
