@@ -112,7 +112,8 @@ router.get('/getOrderById', async (req, res) => {
         success: true,
         orderItems: orderItems,
         orderId: orderWarehouseId,
-        shopifyOrderId: shopifyOrderId
+        shopifyOrderId: shopifyOrderId,
+        productObject: productObject
       });
       //TODO gérer coté front délai dépassé => !isReturnable
   } catch (error) {
