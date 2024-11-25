@@ -99,20 +99,7 @@ router.get('/getOrderById', async (req, res) => {
       const orderItems = orderDetails.order.order_items;
       const orderWarehouseId = orderDetails.order.id;
       //find images and prices from shopify 
-      const linItemsMap = new Map(
-        originalOrder.line_items.map(item => [
-          item.id,
-          {price: item.price, title: item.title }
-        ])
-      );
-      const updatedOrderItems = orderItems.map(item => {
-        const shopifyItem = linItemsMap.get(item.shopify_line_item_id);
-        return {
-          ...item,
-          price: shopifyItem ? shopifyItem.price : null,
-          title: shopifyItem ? shopifyItem.title: item?title
-        }
-      })
+    
 
       if(orderData.tags.includes('Commande PRO')) {
         return res.status(200).json({
@@ -129,7 +116,7 @@ router.get('/getOrderById', async (req, res) => {
         orderId: orderWarehouseId,
         orderDetails: orderDetails,
         shopifyOrderId: shopifyOrderId,
-        originalOrder: shopifyItem
+        originalOrder: originalOrder
       });
       //TODO gérer coté front délai dépassé => !isReturnable
   } catch (error) {
