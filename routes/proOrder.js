@@ -3,10 +3,11 @@ const express = require('express');
 const router = express.Router();
 
 const { getAccessTokenFromDb } = require('../services/database/tokens/potiron_shippingbo');
-const { createDraftOrder } = require('../services/API/Shopify/draftOrders');
+const { createDraftOrder, updateDraftOrderWithDraftId } = require('../services/API/Shopify/draftOrders');
 const { getAccessTokenWarehouseFromDb } = require('../services/database/tokens/gma_shippingbo');
 const { getShippingboOrderDetails, cancelShippingboDraft, updateShippingboOrder } = require('../services/API/Shippingbo/Potiron/ordersCRUD');
 const { getWarehouseOrderDetails, updateWarehouseOrder } = require('../services/API/Shippingbo/Gma/ordersCRUD');
+const { getCustomerMetafields } = require('../services/API/Shopify/customers');
 
 //create draft order from cart page if b2B is connected
 router.post('/create-pro-draft-order', async (req, res) => {
@@ -78,5 +79,169 @@ router.post('/proOrder', async (req, res) => {
       console.log('update order pour client non pro');
     }
   });
+
+  //webhook on update draft order : https://potironapppro.onrender.com/updatedDraftOrder
+app.post('/updatedDraftOrder', async (req, res) => {
+  const updatedDraftData= req.body;
+  const draftTagString = updatedDraftData.tags || '';
+  const draftTagArray = draftTagString.split(',').map(tag => tag.trim());
+  const draftTagExists = draftTagArray.some(tag => tag.startsWith("draft"));
+  const isCommandePro = draftTagArray.includes('Commande PRO');
+  const isCompleted = updatedDraftData.status;
+  const draftName = updatedDraftData.name;
+  const draftId = "draft" + draftName.replace('#','');
+  const orderId = updatedDraftData.id;
+  const metafields = await getCustomerMetafields(updatedDraftData.customer.id);
+  let deliveryPref;
+  let deliveryPrefTag;
+  let deliveryPrefValue;
+  if(metafields) {
+    deliveryPref = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'delivery_pref');
+    if(deliveryPref) {  
+      deliveryPrefValue = deliveryPref.value;
+      deliveryPrefTag = "Livraison : " + deliveryPrefValue;
+    }
+  }
+  let deliveryEquipment;
+  let deliveryEquipmentValue;
+  let deliveryEquipmentTag;
+  let deliveryAppointment;
+  let deliveryAppointmentValue;
+  let deliveryAppointmentTag;
+  let deliveryNotes;
+  let deliveryNotesValue;
+  let deliveryNotesTag;
+  if( deliveryPref && deliveryPrefValue.includes('palette')) {
+    deliveryEquipment = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_equipment');
+    deliveryAppointment = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_appointment');
+    deliveryEquipmentValue = deliveryEquipment ? deliveryEquipment.value : '';
+    deliveryEquipmentTag = "Equipement : " + deliveryEquipmentValue;
+    deliveryAppointmentValue = deliveryAppointment ? (deliveryAppointment.value === true ? "Oui": deliveryAppointment.value === false ? "Non" : deliveryAppointment.value): null;
+    deliveryAppointmentTag = "Rendez-vous : " + deliveryAppointmentValue;
+    deliveryNotes = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_notes');
+    deliveryNotesValue = deliveryNotes ? deliveryNotes.value : '';
+    const deliveryNotesEncoded = deliveryNotesValue.replace(/,/g, '-');
+    deliveryNotesTag = 'Notes : ' + deliveryNotesEncoded;
+  }
+  let accessToken = await getAccessTokenFromDb();
+    if (isCompleted === true && isCommandePro) {
+      try {
+        const draftDetails = await getShippingboOrderDetails(accessToken, draftId);
+        if(draftDetails) {
+          const {id: shippingboDraftId} = draftDetails;
+          await cancelShippingboDraft(accessToken, shippingboDraftId);
+        }
+      } catch(err) {
+        console.log('error shippingboId', err);
+      }
+  } else if(isCommandePro && !draftTagExists) {
+    try {
+      draftTagArray.push(draftId);
+      draftTagArray.push(deliveryPrefTag);
+      if(deliveryEquipment && deliveryEquipmentValue !== '') {
+        draftTagArray.push(deliveryEquipmentTag);
+      }
+      if(deliveryAppointment && deliveryAppointmentValue !== null) {
+        draftTagArray.push(deliveryAppointmentTag);
+      }
+      if(deliveryNotes && deliveryNotesValue !== '') {
+        draftTagArray.push(deliveryNotesTag)
+      }
+      const updatedOrder = {
+        draft_order: {
+          id: orderId,
+          tags: draftTagArray.join(', ')
+        }
+       };
+      await updateDraftOrderWithDraftId(updatedOrder, orderId);
+      res.status(200).send('Order updated');
+    } catch(err) {
+      console.log('error shippingboId', err);
+    }
+  }
+})
+
+
+//webhook on update draft order : https://potironapppro.onrender.com/proOrder/updatedDraftOrder
+router.post('/updatedDraftOrder', async (req, res) => {
+    const updatedDraftData= req.body;
+    const draftTagString = updatedDraftData.tags || '';
+    const draftTagArray = draftTagString.split(',').map(tag => tag.trim());
+    const draftTagExists = draftTagArray.some(tag => tag.startsWith("draft"));
+    const isCommandePro = draftTagArray.includes('Commande PRO');
+    const isCompleted = updatedDraftData.status;
+    const draftName = updatedDraftData.name;
+    const draftId = "draft" + draftName.replace('#','');
+    const orderId = updatedDraftData.id;
+    const metafields = await getCustomerMetafields(updatedDraftData.customer.id);
+    let deliveryPref;
+    let deliveryPrefTag;
+    let deliveryPrefValue;
+    if(metafields) {
+      deliveryPref = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'delivery_pref');
+      if(deliveryPref) {  
+        deliveryPrefValue = deliveryPref.value;
+        deliveryPrefTag = "Livraison : " + deliveryPrefValue;
+      }
+    }
+    let deliveryEquipment;
+    let deliveryEquipmentValue;
+    let deliveryEquipmentTag;
+    let deliveryAppointment;
+    let deliveryAppointmentValue;
+    let deliveryAppointmentTag;
+    let deliveryNotes;
+    let deliveryNotesValue;
+    let deliveryNotesTag;
+    if( deliveryPref && deliveryPrefValue.includes('palette')) {
+      deliveryEquipment = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_equipment');
+      deliveryAppointment = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_appointment');
+      deliveryEquipmentValue = deliveryEquipment ? deliveryEquipment.value : '';
+      deliveryEquipmentTag = "Equipement : " + deliveryEquipmentValue;
+      deliveryAppointmentValue = deliveryAppointment ? (deliveryAppointment.value === true ? "Oui": deliveryAppointment.value === false ? "Non" : deliveryAppointment.value): null;
+      deliveryAppointmentTag = "Rendez-vous : " + deliveryAppointmentValue;
+      deliveryNotes = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_notes');
+      deliveryNotesValue = deliveryNotes ? deliveryNotes.value : '';
+      const deliveryNotesEncoded = deliveryNotesValue.replace(/,/g, '-');
+      deliveryNotesTag = 'Notes : ' + deliveryNotesEncoded;
+    }
+    let accessToken = await getAccessTokenFromDb();
+      if (isCompleted === true && isCommandePro) {
+        try {
+          const draftDetails = await getShippingboOrderDetails(accessToken, draftId);
+          if(draftDetails) {
+            const {id: shippingboDraftId} = draftDetails;
+            await cancelShippingboDraft(accessToken, shippingboDraftId);
+          }
+        } catch(err) {
+          console.log('error shippingboId', err);
+        }
+    } else if(isCommandePro && !draftTagExists) {
+      try {
+        draftTagArray.push(draftId);
+        draftTagArray.push(deliveryPrefTag);
+        if(deliveryEquipment && deliveryEquipmentValue !== '') {
+          draftTagArray.push(deliveryEquipmentTag);
+        }
+        if(deliveryAppointment && deliveryAppointmentValue !== null) {
+          draftTagArray.push(deliveryAppointmentTag);
+        }
+        if(deliveryNotes && deliveryNotesValue !== '') {
+          draftTagArray.push(deliveryNotesTag)
+        }
+        const updatedOrder = {
+          draft_order: {
+            id: orderId,
+            tags: draftTagArray.join(', ')
+          }
+         };
+        await updateDraftOrderWithDraftId(updatedOrder, orderId);
+        res.status(200).send('Order updated');
+      } catch(err) {
+        console.log('error shippingboId', err);
+      }
+    }
+  })
+  
 
   module.exports = router;
