@@ -219,111 +219,6 @@ app.post('/updatedDraftOrder', async (req, res) => {
   }
 })
 
-//webhook on customer update : https://potironapppro.onrender.com/updatekBis
-//send mail to b2B client to confirm his activation and update his account with tags
-// app.post('/updateKbis', async (req, res) => {
-//   var updatedData = req.body;
-//   const clientUpdated = updatedData.id;
-//   let checkedKbisField;
-//   let mailProSentField;
-//   let companyNameField;
-//   let deliveryPrefField;
-//   let deliveryPref;
-
-//   try {
-//     const metafields = await getCustomerMetafields(clientUpdated);
-//     if(metafields) {
-//       checkedKbisField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'checkedkbis');
-//       mailProSentField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'mailProSent');
-//       companyNameField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'company');
-//       deliveryPrefField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'delivery_pref');
-//       deliveryPref = deliveryPrefField && deliveryPrefField.value ? deliveryPrefField.value : null;
-//     }
-//     // console.log("deliverypref updatekbis", deliveryPref)
-//     let paletteEquipment;
-//     let paletteAppointment;
-//     let paletteNotes;
-
-//     if(deliveryPrefField && deliveryPref.includes('palette')) {
-//       const paletteEquipmentField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_equipment'); 
-//       const paletteAppointmentField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_appointment'); 
-//       const paletteNotesField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_notes'); 
-
-//       if(paletteEquipmentField && paletteEquipmentField.value !== "") {
-//         paletteEquipment = paletteEquipmentField.value;
-//       }
-//       if(paletteAppointmentField && paletteAppointmentField.value !== null) {
-//         if(paletteAppointmentField.value === true) {
-//           paletteAppointment = "Oui";
-//         } else {
-//           paletteAppointment = "Non";
-//         }
-//       }
-//       if(paletteNotesField && paletteNotesField.value !== '') {
-//         paletteNotes = paletteNotesField.value;
-//       }
-//     }
-//       if(checkedKbisField && mailProSentField) {
-//         var firstnameCustomer = updatedData.first_name;
-//         var nameCustomer = updatedData.last_name;
-//         var mailCustomer = updatedData.email;
-//         var companyName = companyNameField.value;
-//         var kbisState = checkedKbisField.value;
-//         var mailProState = mailProSentField.value;
-        
-//         if(kbisState === true && mailProState === false) {
-//           try {
-//             let accessTokenMS365 = await getAccessTokenMS365();
-//             if(!accessTokenMS365) {
-//               await refreshMS365AccessToken();
-//               accessTokenMS365 = await getAccessTokenMS365();
-//             }
-//             await sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCustomer, mailCustomer, companyName, deliveryPref, paletteEquipment, paletteAppointment, paletteNotes)
-//             console.log('Mail de bienvenue après validation du kbis envoyé au client pro', clientUpdated);  
-//             const updatedCustomerKbis = {
-//                     customer: {
-//                       id: clientUpdated,
-//                       tags: "VIP, PRO validé",
-//                       metafields: [
-//                         {
-//                           id: mailProSentField.id,
-//                           key: 'mailProSent',
-//                           value: true,
-//                           type: 'boolean',
-//                           namespace: 'custom'
-//                         }
-//                       ]
-//                     }
-//                   };  
-//                   await updateProCustomer(clientUpdated, updatedCustomerKbis);
-//                   console.log('mise à jour fiche client suite envoie du mail acces PRO')
-//                 } catch (error) {
-//                   console.error('Erreur lors de la mise à jour du client kbis')
-//                 }
-//         } else if(kbisState === false && mailProState === false) {
-//             console.log("Kbis à valider");
-//           } else {
-//             console.log("mail déjà envoyé");
-//           }
-
-//     }
-//   } catch (error) {
-//     console.error('erreur lors de la récuperation des metafields ou de la maj du client')
-//     console.error('Détail', error);
-//   }
-// });
-
-// function extractInfoFromNote(note, infoLabel) {
-//   if(note) {
-//     const lines = note.split('\n');
-//     for (const line of lines) {
-//         if (line.startsWith(`${infoLabel}: `)) {
-//             return line.substring(infoLabel.length + 2);
-//         }
-//     }
-//     return null;
-//   }
-// }
 
 //get last draft order with customer id
 app.get('/last-draft-order/:customer_id', async (req, res) => {
@@ -643,161 +538,161 @@ app.post('/returnProduct', async (req, res) => {
   
 })
 
-app.post('/upgrade-account', async (req, res) => {
-  var customerData = req.body;
-  var b2BState = customerData['customer[tags]'];
-  console.log("b2bstate", b2BState)
-  if (b2BState && b2BState.includes("VIP")) {
-        const clientToUpdate = customerData['customer[id]'];
-        const siret = customerData['customer[note][siret]'];
-        const companyName = customerData['customer[note][company_name]'];
-        const tva = customerData['customer[note][tva]'];
-        const phone = customerData['customer[note][phone]'];
-        const sector = customerData['customer[note][sector]'];
-        const mailCustomer = customerData['customer[email]'];
-        const nameCustomer = customerData['customer[last_name]']
-        const firstnameCustomer = customerData['customer[first_name]']
-        const address1 = customerData['customer[note][address1]'];
-        const address2 = customerData['customer[note][address2]'];
-        const zip = customerData['customer[note][zip]']
-        const city = customerData['customer[note][city]'];
-        const deliveryPackage = customerData['customer[note][package]'];
-        const deliveryPalette = customerData['customer[note][palette]'];
-        let paletteEquipment = null;
-        let paletteAppointment = null;
-        let paletteNotes = '';
+// app.post('/upgrade-account', async (req, res) => {
+//   var customerData = req.body;
+//   var b2BState = customerData['customer[tags]'];
+//   console.log("b2bstate", b2BState)
+//   if (b2BState && b2BState.includes("VIP")) {
+//         const clientToUpdate = customerData['customer[id]'];
+//         const siret = customerData['customer[note][siret]'];
+//         const companyName = customerData['customer[note][company_name]'];
+//         const tva = customerData['customer[note][tva]'];
+//         const phone = customerData['customer[note][phone]'];
+//         const sector = customerData['customer[note][sector]'];
+//         const mailCustomer = customerData['customer[email]'];
+//         const nameCustomer = customerData['customer[last_name]']
+//         const firstnameCustomer = customerData['customer[first_name]']
+//         const address1 = customerData['customer[note][address1]'];
+//         const address2 = customerData['customer[note][address2]'];
+//         const zip = customerData['customer[note][zip]']
+//         const city = customerData['customer[note][city]'];
+//         const deliveryPackage = customerData['customer[note][package]'];
+//         const deliveryPalette = customerData['customer[note][palette]'];
+//         let paletteEquipment = null;
+//         let paletteAppointment = null;
+//         let paletteNotes = '';
 
-        if(deliveryPalette === 'on') {
-          paletteEquipment = customerData['customer[note][palette_equipment]'];
-          paletteAppointment = customerData['customer[note][palette_appointment]']; //bool
-          paletteNotes = customerData['customer[note][palette_added_notes]']; //textarea
-        }
-        let deliveryPref = '';
-        if(deliveryPackage === 'on' && deliveryPalette === 'on') {
-          deliveryPref = "Au colis et en palette";
-        } else if(deliveryPackage === 'on' && (deliveryPalette === null || deliveryPalette === undefined)) {
-          deliveryPref = "Au colis uniquement";
-        } else if(deliveryPackage === null && deliveryPalette === 'on') {
-          deliveryPref = "En palette uniquement"
-        }
-        if (!uploadedFile) {
-          res.status(400).send('Aucun fichier téléchargé.');
-          return;
-        }
-        try {
-          let accessTokenMS365 = await getAccessTokenMS365();
-          if(!accessTokenMS365) {
-            await refreshMS365AccessToken();
-            accessTokenMS365 = await getAccessTokenMS365();
-          }
-          let isUpgrade = true
-          await sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone, isUpgrade);
-          fs.unlink(uploadedFile.path, (err) => {
-                  if (err) {
-                      console.error('Erreur lors de la suppression du fichier :', err);
-                  }
-              });
-      } catch (error) {
-        console.error('Erreur lors de l\'envoi de l\'e-mail :', error);
-      }
+//         if(deliveryPalette === 'on') {
+//           paletteEquipment = customerData['customer[note][palette_equipment]'];
+//           paletteAppointment = customerData['customer[note][palette_appointment]']; //bool
+//           paletteNotes = customerData['customer[note][palette_added_notes]']; //textarea
+//         }
+//         let deliveryPref = '';
+//         if(deliveryPackage === 'on' && deliveryPalette === 'on') {
+//           deliveryPref = "Au colis et en palette";
+//         } else if(deliveryPackage === 'on' && (deliveryPalette === null || deliveryPalette === undefined)) {
+//           deliveryPref = "Au colis uniquement";
+//         } else if(deliveryPackage === null && deliveryPalette === 'on') {
+//           deliveryPref = "En palette uniquement"
+//         }
+//         if (!uploadedFile) {
+//           res.status(400).send('Aucun fichier téléchargé.');
+//           return;
+//         }
+//         try {
+//           let accessTokenMS365 = await getAccessTokenMS365();
+//           if(!accessTokenMS365) {
+//             await refreshMS365AccessToken();
+//             accessTokenMS365 = await getAccessTokenMS365();
+//           }
+//           let isUpgrade = true
+//           await sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone, isUpgrade);
+//           fs.unlink(uploadedFile.path, (err) => {
+//                   if (err) {
+//                       console.error('Erreur lors de la suppression du fichier :', err);
+//                   }
+//               });
+//       } catch (error) {
+//         console.error('Erreur lors de l\'envoi de l\'e-mail :', error);
+//       }
 
-      const upgradedCustomer = {
-        customer: {
-          id: clientToUpdate,
-          last_name: nameCustomer + " ⭐ ",
-          phone: phone,
-          note: '', 
-          tags: 'VIP',
-          addresses: [
-            {
-              customer_id: clientToUpdate,
-              address1: address1,
-              address2: address2,
-              city: city,
-              zip: zip,
-              country: 'France',
-              first_name: firstnameCustomer,
-              last_name: nameCustomer,
-              default: true
-            }
-          ],
+//       const upgradedCustomer = {
+//         customer: {
+//           id: clientToUpdate,
+//           last_name: nameCustomer + " ⭐ ",
+//           phone: phone,
+//           note: '', 
+//           tags: 'VIP',
+//           addresses: [
+//             {
+//               customer_id: clientToUpdate,
+//               address1: address1,
+//               address2: address2,
+//               city: city,
+//               zip: zip,
+//               country: 'France',
+//               first_name: firstnameCustomer,
+//               last_name: nameCustomer,
+//               default: true
+//             }
+//           ],
           
-          metafields: [
-            {
-              key: 'company',
-              value: companyName,
-              type: 'single_line_text_field',
-              namespace: 'custom'
-            },
-            {
-              key: 'sector',
-              value: sector,
-              type: 'single_line_text_field',
-              namespace: 'custom'
-            },
-            {
-              key: 'siret',
-              value: Number(siret),
-              type: 'number_integer',
-              namespace: 'custom'
-            },
-            {
-              key: 'tva',
-              value: tva,
-              type: 'single_line_text_field',
-              namespace: 'custom'
-            },
-            {
-              key: 'checkedkbis',
-              value: false,
-              type: 'boolean',
-              namespace: 'custom'
-            },
-            {
-              key: 'mailProSent',
-              value: false,
-              type: 'boolean',
-              namespace: 'custom'
-            },
-            {
-              key: 'delivery_pref',
-              value: deliveryPref,
-              type: 'single_line_text_field',
-              namespace: 'custom'
-            },
-            {
-              key: 'palette_equipment',
-              value: paletteEquipment,
-              type: 'single_line_text_field',
-              namespace: 'custom'
-            },
-            {
-              key: 'palette_appointment',
-              value: paletteAppointment,
-              type: 'boolean',
-              namespace: 'custom'
-            },
-            {
-              key: 'palette_notes',
-              value: paletteNotes,
-              type: 'single_line_text_field',
-              namespace: 'custom'
-            }
-          ]
-        }
-      }
-      try {
-        const updatedCustomer = await createProCustomer(clientToUpdate, upgradedCustomer);
-        console.log("Update for Pro account", clientToUpdate);
-        res.status(200).json(updatedCustomer);
-      } catch (error) {
-        console.error('erreur upgraded customer', error);
-      }
+//           metafields: [
+//             {
+//               key: 'company',
+//               value: companyName,
+//               type: 'single_line_text_field',
+//               namespace: 'custom'
+//             },
+//             {
+//               key: 'sector',
+//               value: sector,
+//               type: 'single_line_text_field',
+//               namespace: 'custom'
+//             },
+//             {
+//               key: 'siret',
+//               value: Number(siret),
+//               type: 'number_integer',
+//               namespace: 'custom'
+//             },
+//             {
+//               key: 'tva',
+//               value: tva,
+//               type: 'single_line_text_field',
+//               namespace: 'custom'
+//             },
+//             {
+//               key: 'checkedkbis',
+//               value: false,
+//               type: 'boolean',
+//               namespace: 'custom'
+//             },
+//             {
+//               key: 'mailProSent',
+//               value: false,
+//               type: 'boolean',
+//               namespace: 'custom'
+//             },
+//             {
+//               key: 'delivery_pref',
+//               value: deliveryPref,
+//               type: 'single_line_text_field',
+//               namespace: 'custom'
+//             },
+//             {
+//               key: 'palette_equipment',
+//               value: paletteEquipment,
+//               type: 'single_line_text_field',
+//               namespace: 'custom'
+//             },
+//             {
+//               key: 'palette_appointment',
+//               value: paletteAppointment,
+//               type: 'boolean',
+//               namespace: 'custom'
+//             },
+//             {
+//               key: 'palette_notes',
+//               value: paletteNotes,
+//               type: 'single_line_text_field',
+//               namespace: 'custom'
+//             }
+//           ]
+//         }
+//       }
+//       try {
+//         const updatedCustomer = await createProCustomer(clientToUpdate, upgradedCustomer);
+//         console.log("Update for Pro account", clientToUpdate);
+//         res.status(200).json(updatedCustomer);
+//       } catch (error) {
+//         console.error('erreur upgraded customer', error);
+//       }
      
 
-  }
+//   }
 
-})
+// })
 
 app.listen(PORT, () => {
   console.log(`Serveur en cours d'écoute sur le port ${PORT}`);
