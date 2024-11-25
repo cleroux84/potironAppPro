@@ -50,9 +50,11 @@ app.use(cors({
 }))
 
 const returnOrderRoute = require('./routes/returnOrder.js');
-const proCustomerRoute = require('./routes/proCustomer.js')
+const proCustomerRoute = require('./routes/proCustomer.js');
+const proOrderRoute = require('./routes/proOrder.js');
 app.use('/returnOrder', returnOrderRoute);
 app.use('/proCustomer', proCustomerRoute);
+app.use('/proOrder', proOrderRoute);
 
 // Initialisation des tokens 
 initializeTokens();
@@ -67,76 +69,76 @@ cron.schedule('0 9 * * *', checkScheduledEmails, { //9h00
   timezone: "Europe/Paris"
 });
 
-//webhook on order update : https://potironapppro.onrender.com/proOrder
-//Check if a tag starts with "draft" to update shippingbo Potiron Paris AND GMA Entrepôt order and cancel shippingbo draft order 
-app.post('/proOrder', async (req, res) => {
-  var orderData = req.body;
-  var orderId = orderData.id;
-  var orderTags = orderData.tags;
-  const tagsArr = orderData.customer.tags.split(', ');
-  const tagsArray = orderTags.split(', ').map(tag => tag.trim());
-  const draftTagExists = tagsArray.some(tag => tag.startsWith('draft'));
-  let draftId = '';
-  if(draftTagExists) {
-    draftId = tagsArray.find(tag => tag.startsWith('draft'));
-  }
-  const isCommandePro = tagsArray.includes('Commande PRO');
-  const isB2B = tagsArr.includes('PRO validé');
-  let accessToken = await getAccessTokenFromDb();
-  let accessTokenWarehouse = await getAccessTokenWarehouseFromDb();
-  if(isB2B && isCommandePro) {
-    const draftDetails = await getShippingboOrderDetails(accessToken, draftId);
-    const orderDetails = await getShippingboOrderDetails(accessToken, orderId);
-    if(draftDetails) {
-      const {id: shippingboDraftId} = draftDetails;
-      await cancelShippingboDraft(accessToken, shippingboDraftId);
-    }
-    if(orderDetails) {
-      const {id: shippingboId, origin_ref: shippingboOriginRef} = orderDetails
-      await updateShippingboOrder(accessToken, shippingboId, shippingboOriginRef);
-      const warehouseDetails = await getWarehouseOrderDetails(accessTokenWarehouse, shippingboId);
-      if(warehouseDetails) {
-        const {id: shippingboIdwarehouse, origin_ref: shippingboWarehouseOriginRef} = warehouseDetails
-        await updateWarehouseOrder(accessTokenWarehouse, shippingboIdwarehouse, shippingboWarehouseOriginRef);
-        } else {
-          console.log("empty warehouse details")
-        }
-    }
-  } else {
-    console.log('update order pour client non pro');
-  }
-});
+// //webhook on order update : https://potironapppro.onrender.com/proOrder
+// //Check if a tag starts with "draft" to update shippingbo Potiron Paris AND GMA Entrepôt order and cancel shippingbo draft order 
+// app.post('/proOrder', async (req, res) => {
+//   var orderData = req.body;
+//   var orderId = orderData.id;
+//   var orderTags = orderData.tags;
+//   const tagsArr = orderData.customer.tags.split(', ');
+//   const tagsArray = orderTags.split(', ').map(tag => tag.trim());
+//   const draftTagExists = tagsArray.some(tag => tag.startsWith('draft'));
+//   let draftId = '';
+//   if(draftTagExists) {
+//     draftId = tagsArray.find(tag => tag.startsWith('draft'));
+//   }
+//   const isCommandePro = tagsArray.includes('Commande PRO');
+//   const isB2B = tagsArr.includes('PRO validé');
+//   let accessToken = await getAccessTokenFromDb();
+//   let accessTokenWarehouse = await getAccessTokenWarehouseFromDb();
+//   if(isB2B && isCommandePro) {
+//     const draftDetails = await getShippingboOrderDetails(accessToken, draftId);
+//     const orderDetails = await getShippingboOrderDetails(accessToken, orderId);
+//     if(draftDetails) {
+//       const {id: shippingboDraftId} = draftDetails;
+//       await cancelShippingboDraft(accessToken, shippingboDraftId);
+//     }
+//     if(orderDetails) {
+//       const {id: shippingboId, origin_ref: shippingboOriginRef} = orderDetails
+//       await updateShippingboOrder(accessToken, shippingboId, shippingboOriginRef);
+//       const warehouseDetails = await getWarehouseOrderDetails(accessTokenWarehouse, shippingboId);
+//       if(warehouseDetails) {
+//         const {id: shippingboIdwarehouse, origin_ref: shippingboWarehouseOriginRef} = warehouseDetails
+//         await updateWarehouseOrder(accessTokenWarehouse, shippingboIdwarehouse, shippingboWarehouseOriginRef);
+//         } else {
+//           console.log("empty warehouse details")
+//         }
+//     }
+//   } else {
+//     console.log('update order pour client non pro');
+//   }
+// });
 
-//create draft order from cart page if b2B is connected
-app.post('/create-pro-draft-order', async (req, res) => {
-  try {
-    const orderData = req.body; 
-    const items = orderData.items;
-    const lineItems = items.map(item => ({
-      title: item.title,
-      price: (item.price / 100).toFixed(2),
-      quantity: item.quantity,
-      variant_id: item.variant_id,
-    }));
+// //create draft order from cart page if b2B is connected
+// app.post('/create-pro-draft-order', async (req, res) => {
+//   try {
+//     const orderData = req.body; 
+//     const items = orderData.items;
+//     const lineItems = items.map(item => ({
+//       title: item.title,
+//       price: (item.price / 100).toFixed(2),
+//       quantity: item.quantity,
+//       variant_id: item.variant_id,
+//     }));
 
-    const draftOrder = {
-      draft_order: {
-        line_items: lineItems,
-        customer: {
-          id: orderData.customer_id 
-        },
-        use_customer_default_address: true,
-        tags: "Commande PRO"
-      }
-    };
-    let accessToken = await getAccessTokenFromDb();
-    const data = await createDraftOrder(draftOrder, accessToken);
-    res.status(200).json(data); 
-  } catch (error) {
-    console.error('Erreur lors de la création du brouillon de commande :', error);
-    res.status(500).json({ error: 'Erreur lors de la création du brouillon de commande.' });
-  }
-});
+//     const draftOrder = {
+//       draft_order: {
+//         line_items: lineItems,
+//         customer: {
+//           id: orderData.customer_id 
+//         },
+//         use_customer_default_address: true,
+//         tags: "Commande PRO"
+//       }
+//     };
+//     let accessToken = await getAccessTokenFromDb();
+//     const data = await createDraftOrder(draftOrder, accessToken);
+//     res.status(200).json(data); 
+//   } catch (error) {
+//     console.error('Erreur lors de la création du brouillon de commande :', error);
+//     res.status(500).json({ error: 'Erreur lors de la création du brouillon de commande.' });
+//   }
+// });
 
 //webhook on update draft order : https://potironapppro.onrender.com/updatedDraftOrder
 app.post('/updatedDraftOrder', async (req, res) => {
@@ -537,162 +539,6 @@ app.post('/returnProduct', async (req, res) => {
   }
   
 })
-
-// app.post('/upgrade-account', async (req, res) => {
-//   var customerData = req.body;
-//   var b2BState = customerData['customer[tags]'];
-//   console.log("b2bstate", b2BState)
-//   if (b2BState && b2BState.includes("VIP")) {
-//         const clientToUpdate = customerData['customer[id]'];
-//         const siret = customerData['customer[note][siret]'];
-//         const companyName = customerData['customer[note][company_name]'];
-//         const tva = customerData['customer[note][tva]'];
-//         const phone = customerData['customer[note][phone]'];
-//         const sector = customerData['customer[note][sector]'];
-//         const mailCustomer = customerData['customer[email]'];
-//         const nameCustomer = customerData['customer[last_name]']
-//         const firstnameCustomer = customerData['customer[first_name]']
-//         const address1 = customerData['customer[note][address1]'];
-//         const address2 = customerData['customer[note][address2]'];
-//         const zip = customerData['customer[note][zip]']
-//         const city = customerData['customer[note][city]'];
-//         const deliveryPackage = customerData['customer[note][package]'];
-//         const deliveryPalette = customerData['customer[note][palette]'];
-//         let paletteEquipment = null;
-//         let paletteAppointment = null;
-//         let paletteNotes = '';
-
-//         if(deliveryPalette === 'on') {
-//           paletteEquipment = customerData['customer[note][palette_equipment]'];
-//           paletteAppointment = customerData['customer[note][palette_appointment]']; //bool
-//           paletteNotes = customerData['customer[note][palette_added_notes]']; //textarea
-//         }
-//         let deliveryPref = '';
-//         if(deliveryPackage === 'on' && deliveryPalette === 'on') {
-//           deliveryPref = "Au colis et en palette";
-//         } else if(deliveryPackage === 'on' && (deliveryPalette === null || deliveryPalette === undefined)) {
-//           deliveryPref = "Au colis uniquement";
-//         } else if(deliveryPackage === null && deliveryPalette === 'on') {
-//           deliveryPref = "En palette uniquement"
-//         }
-//         if (!uploadedFile) {
-//           res.status(400).send('Aucun fichier téléchargé.');
-//           return;
-//         }
-//         try {
-//           let accessTokenMS365 = await getAccessTokenMS365();
-//           if(!accessTokenMS365) {
-//             await refreshMS365AccessToken();
-//             accessTokenMS365 = await getAccessTokenMS365();
-//           }
-//           let isUpgrade = true
-//           await sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone, isUpgrade);
-//           fs.unlink(uploadedFile.path, (err) => {
-//                   if (err) {
-//                       console.error('Erreur lors de la suppression du fichier :', err);
-//                   }
-//               });
-//       } catch (error) {
-//         console.error('Erreur lors de l\'envoi de l\'e-mail :', error);
-//       }
-
-//       const upgradedCustomer = {
-//         customer: {
-//           id: clientToUpdate,
-//           last_name: nameCustomer + " ⭐ ",
-//           phone: phone,
-//           note: '', 
-//           tags: 'VIP',
-//           addresses: [
-//             {
-//               customer_id: clientToUpdate,
-//               address1: address1,
-//               address2: address2,
-//               city: city,
-//               zip: zip,
-//               country: 'France',
-//               first_name: firstnameCustomer,
-//               last_name: nameCustomer,
-//               default: true
-//             }
-//           ],
-          
-//           metafields: [
-//             {
-//               key: 'company',
-//               value: companyName,
-//               type: 'single_line_text_field',
-//               namespace: 'custom'
-//             },
-//             {
-//               key: 'sector',
-//               value: sector,
-//               type: 'single_line_text_field',
-//               namespace: 'custom'
-//             },
-//             {
-//               key: 'siret',
-//               value: Number(siret),
-//               type: 'number_integer',
-//               namespace: 'custom'
-//             },
-//             {
-//               key: 'tva',
-//               value: tva,
-//               type: 'single_line_text_field',
-//               namespace: 'custom'
-//             },
-//             {
-//               key: 'checkedkbis',
-//               value: false,
-//               type: 'boolean',
-//               namespace: 'custom'
-//             },
-//             {
-//               key: 'mailProSent',
-//               value: false,
-//               type: 'boolean',
-//               namespace: 'custom'
-//             },
-//             {
-//               key: 'delivery_pref',
-//               value: deliveryPref,
-//               type: 'single_line_text_field',
-//               namespace: 'custom'
-//             },
-//             {
-//               key: 'palette_equipment',
-//               value: paletteEquipment,
-//               type: 'single_line_text_field',
-//               namespace: 'custom'
-//             },
-//             {
-//               key: 'palette_appointment',
-//               value: paletteAppointment,
-//               type: 'boolean',
-//               namespace: 'custom'
-//             },
-//             {
-//               key: 'palette_notes',
-//               value: paletteNotes,
-//               type: 'single_line_text_field',
-//               namespace: 'custom'
-//             }
-//           ]
-//         }
-//       }
-//       try {
-//         const updatedCustomer = await createProCustomer(clientToUpdate, upgradedCustomer);
-//         console.log("Update for Pro account", clientToUpdate);
-//         res.status(200).json(updatedCustomer);
-//       } catch (error) {
-//         console.error('erreur upgraded customer', error);
-//       }
-     
-
-//   }
-
-// })
 
 app.listen(PORT, () => {
   console.log(`Serveur en cours d'écoute sur le port ${PORT}`);
