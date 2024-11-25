@@ -84,11 +84,12 @@ router.get('/getOrderById', async (req, res) => {
       orderData = await orderById(orderName, orderMail, customerId); //moi livré : #6989
     } else {
       orderData = await orderByMail(orderName, orderMail);
-      console.log('orderByMail to create', orderData);
+      // console.log('orderByMail to create', orderData);
     }
     const shopifyOrderId = orderData.id;
     const shippingboDataPotiron = await getShippingboOrderDetails(accessToken, shopifyOrderId); 
     const shippingboDataWarehouse = await getWarehouseOrderDetails(accessTokenWarehouse, shippingboDataPotiron.id);
+    const originalOrder = await getOrderByShopifyId(shopifyOrderId);
     const closeOrderDelivery = shippingboDataWarehouse.closed_at
     //Check if withdrawal period is ok
     const isReturnable = await isReturnableDate(closeOrderDelivery);
@@ -98,6 +99,7 @@ router.get('/getOrderById', async (req, res) => {
       const shipmentDetails = orderDetails.order.shipments;
       const orderItems = orderDetails.order.order_items;
       const orderWarehouseId = orderDetails.order.id;
+      //find images from shopify 
       if(orderData.tags.includes('Commande PRO')) {
         return res.status(200).json({
           success: false,
@@ -112,7 +114,8 @@ router.get('/getOrderById', async (req, res) => {
         orderItems: orderItems,
         orderId: orderWarehouseId,
         orderDetails: orderDetails,
-        shopifyOrderId: shopifyOrderId
+        shopifyOrderId: shopifyOrderId,
+        originalOrder: originalOrder
       });
       //TODO gérer coté front délai dépassé => !isReturnable
   } catch (error) {
@@ -176,7 +179,8 @@ router.get('/checkIfsReturnPossible', async (req, res) => {
 
 router.post('/returnProduct', async (req, res) => {
   let accessTokenWarehouse = await getAccessTokenWarehouseFromDb();
-  const customerId = req.body.customerId;
+  let customerId;
+ 
   const orderName = req.body.orderName;
   const productRefs = req.body.productRefs.split(',');
   const productSku = req.body.productSku;
@@ -185,7 +189,12 @@ router.post('/returnProduct', async (req, res) => {
   const returnAll = req.body.returnAllOrder;
   const shopifyOrderId = req.body.shopifyOrderId;
   console.log('return all', returnAll);
-
+ //TODO retrieve and set customerId if not here
+  if(!customerId) {
+    customerId = await getOrderByShopifyId(shopifyOrderId).customer.id;
+  } else {
+    customerId = req.body.customerId;
+  }
   if (optionChosen === "option1") {
     //Retrieve data from initial order
     const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId);
@@ -253,6 +262,7 @@ router.post('/returnProduct', async (req, res) => {
     } else {
       //TODO
       //return weight by weight => problem about number of packages !  
+      console.log('productPrice sku', productSku );
       for (const sku of productSku) {
         const productFoundSku = await getProductWeightBySku(sku.product_user_ref);
         if(productFoundSku) {
