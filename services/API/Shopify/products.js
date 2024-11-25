@@ -57,24 +57,26 @@ const getProductWeightBySku = async (sku) => {
     }
   };
 
-  const getProductDataForOrderItems = async (orderItems) => {
-    const resultArray = [];
+  const enrichOrderItems= async (orderItems) => {
+    const itemsArray = [];
  
     for (const item of orderItems) {
         try {
-            const productData = await getProductWeightBySku(item.product_ref);
-            if (productData) {
-                resultArray.push(productData);
-            }
+            const productData = await getProductWeightBySku(item.product_ref); // Appeler la fonction avec le SKU
+            itemsArray.push({
+                ...item, 
+                productData, 
+            });
+            console.log('items', item)
         } catch (error) {
             console.error(`Erreur lors de la récupération des données pour le SKU : ${item.product_ref}`, error);
         }
- 
-    return resultArray; 
-  };
-}
+    }
+    console.log('itemarray', itemsArray)
+    return itemsArray;
+};
  
   module.exports = {
     getProductWeightBySku,
-    getProductDataForOrderItems
+    enrichOrderItems
   }

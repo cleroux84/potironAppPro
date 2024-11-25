@@ -12,7 +12,7 @@ const { orderById } = require('../services/API/Shopify/customers');
 const { getShippingboOrderDetails } = require('../services/API/Shippingbo/Potiron/ordersCRUD');
 const { getWarehouseOrderDetails, getshippingDetails } = require('../services/API/Shippingbo/Gma/ordersCRUD');
 const { createLabel } = require('../services/API/colissimo');
-const { getProductWeightBySku, getProductDataForOrderItems } = require('../services/API/Shopify/products');
+const { getProductWeightBySku, enrichOrderItems } = require('../services/API/Shopify/products');
 const { checkIfReturnOrderExist, createReturnOrder } = require('../services/API/Shippingbo/Gma/returnOrdersCRUD');
 const { sendReturnDataToSAV } = require('../services/sendMails/mailForTeam');
 const router = express.Router();
@@ -84,7 +84,6 @@ router.get('/getOrderById', async (req, res) => {
       orderData = await orderById(orderName, orderMail, customerId); //moi livré : #6989
     } else {
       orderData = await orderByMail(orderName, orderMail);
-      console.log('orderByMail to create', orderData);
     }
     const shopifyOrderId = orderData.id;
     const shippingboDataPotiron = await getShippingboOrderDetails(accessToken, shopifyOrderId); 
@@ -97,7 +96,7 @@ router.get('/getOrderById', async (req, res) => {
       const orderDetails = await getshippingDetails(accessTokenWarehouse, shippingboDataWarehouse.id);
       const shipmentDetails = orderDetails.order.shipments;
       const orderItems = orderDetails.order.order_items;
-      const productObject = await getProductDataForOrderItems(orderItems);
+      const productObject = await enrichOrderItems(orderItems);
       const orderWarehouseId = orderDetails.order.id;
       if(orderData.tags.includes('Commande PRO')) {
         return res.status(200).json({
