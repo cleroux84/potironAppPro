@@ -7,7 +7,7 @@ const fs = require('fs');
 
 const { getAccessTokenMS365, refreshMS365AccessToken } = require('../services/API/microsoft');
 const { sendEmailWithKbis } = require('../services/sendMails/mailForTeam');
-const { createProCustomer } = require('../services/API/Shopify/customers');
+const { createProCustomer, getCustomerMetafields, deleteMetafield, updateProCustomer } = require('../services/API/Shopify/customers');
 const router = express.Router();
 
 let uploadedFile = null;
@@ -35,7 +35,7 @@ router.post('/upload', upload.single('uploadFile'), (req, res) => {
   res.status(200).send('Fichier téléchargé avec succès.');
 });
 
-//webhook on customer creation : https://potironapppro.onrender.com/createProCustomer
+//webhook on customer creation : https://potironapppro.onrender.com/proCustomer/createProCustomer
 //Send email to potiron team with kbis and create metafields in customer account
 router.post('/createProCustomer', async (req, res) => {
     var myData = req.body;
@@ -197,5 +197,116 @@ function extractInfoFromNote(note, infoLabel) {
       return null;
     }
   }
+
+ //update delivery preferences from pages/account-update-delivery
+ app.post('/update-delivery-pref', async (req, res) => {
+  try {
+    const deliveryData = req.body;
+    const deliveryPackage = deliveryData.package;
+    const deliveryPalette = deliveryData.palette;
+    let paletteEquipment = null;
+    let paletteAppointment = null;
+    let paletteNotes = '';
+    let deliveryPref = '';
+ 
+    if (deliveryPalette === 'on') {
+      paletteEquipment = deliveryData.palette_equipment;
+      paletteAppointment = deliveryData.palette_appointment; // bool
+      paletteNotes = deliveryData.palette_notes; // textarea
+    }
+    if (deliveryPackage === 'on' && deliveryPalette === 'on') {
+      deliveryPref = "Au colis et en palette";
+    } else if (deliveryPackage === 'on' && deliveryPalette === undefined) {
+      deliveryPref = "Au colis uniquement";
+    } else if (deliveryPackage === undefined && deliveryPalette === 'on') {
+      deliveryPref = "En palette uniquement"
+    }
+    const clientToUpdate = deliveryData.customer_id;
+    const metafields = await getCustomerMetafields(clientToUpdate);
+    const deliveryPrefField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'delivery_pref');
+    const paletteEquipmentField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_equipment');
+    const paletteAppointmentField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_appointment');
+    const paletteNotesField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_notes');
+ 
+    let updatedDeliveryData;
+    if (deliveryPalette !== 'on') {
+      if (paletteEquipmentField) await deleteMetafield(clientToUpdate, paletteEquipmentField.id);
+      if (paletteAppointmentField) await deleteMetafield(clientToUpdate, paletteAppointmentField.id);
+      if (paletteNotesField) await deleteMetafield(clientToUpdate, paletteNotesField.id);
+
+      updatedDeliveryData = {
+        customer: {
+          id: clientToUpdate,
+          metafields: [
+            {
+              id: deliveryPrefField.id,
+              key: 'delivery_pref',
+              value: deliveryPref,
+              type: 'single_line_text_field',
+              namespace: 'custom'
+            }
+          ]
+        }
+      };
+    } else {
+      updatedDeliveryData = {
+        customer: {
+          id: clientToUpdate,
+          metafields: [
+            {
+              id: deliveryPrefField.id,
+              key: 'delivery_pref',
+              value: deliveryPref,
+              type: 'single_line_text_field',
+              namespace: 'custom'
+            },
+            paletteEquipmentField ? {
+              id: paletteEquipmentField.id,
+              key: 'palette_equipment',
+              value: paletteEquipment,
+              type: 'single_line_text_field',
+              namespace: 'custom'
+            } : {
+              key: 'palette_equipment',
+              value: paletteEquipment,
+              type: 'single_line_text_field',
+              namespace: 'custom'
+            },
+            paletteAppointmentField ? {
+              id: paletteAppointmentField.id,
+              key: 'palette_appointment',
+              value: paletteAppointment,
+              type: 'boolean',
+              namespace: 'custom'
+            } : {
+              key: 'palette_appointment',
+              value: paletteAppointment,
+              type: 'boolean',
+              namespace: 'custom'
+            },
+            paletteNotesField ? {
+              id: paletteNotesField.id,
+              key: 'palette_notes',
+              value: paletteNotes,
+              type: 'single_line_text_field',
+              namespace: 'custom'
+            } : {
+              key: 'palette_notes',
+              value: paletteNotes,
+              type: 'single_line_text_field',
+              namespace: 'custom'
+            }
+          ]
+        }
+      };
+    }
+    await updateProCustomer(clientToUpdate, updatedDeliveryData);
+    console.log('update delivery pref for customer toto: ', clientToUpdate);
+    res.status(200).json({ message: "Préférences de livraison mises à jour avec succès" });
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour des préférences de livraison", error);
+    res.status(500).json({ error: "Erreur lors de la mise à jour des préférences de livraison" });
+  }
+});
   
 module.exports = router;
