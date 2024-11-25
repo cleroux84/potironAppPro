@@ -84,7 +84,6 @@ router.get('/getOrderById', async (req, res) => {
       orderData = await orderById(orderName, orderMail, customerId); //moi livré : #6989
     } else {
       orderData = await orderByMail(orderName, orderMail);
-      // console.log('orderByMail to create', orderData);
     }
     const shopifyOrderId = orderData.id;
     const shippingboDataPotiron = await getShippingboOrderDetails(accessToken, shopifyOrderId); 
@@ -99,7 +98,22 @@ router.get('/getOrderById', async (req, res) => {
       const shipmentDetails = orderDetails.order.shipments;
       const orderItems = orderDetails.order.order_items;
       const orderWarehouseId = orderDetails.order.id;
-      //find images from shopify 
+      //find images and prices from shopify 
+      const linItemsMap = new Map(
+        originalOrder.line_items.map(item => [
+          item.id,
+          {price: item.price, title: item.title }
+        ])
+      );
+      const updatedOrderItems = orderItems.map(item => {
+        const shopifyItem = linItemsMap.get(item.shopify_line_item_id);
+        return {
+          ...item,
+          price: shopifyItem ? shopifyItem.price : null,
+          title: shopifyItem ? shopifyItem.title: item?title
+        }
+      })
+
       if(orderData.tags.includes('Commande PRO')) {
         return res.status(200).json({
           success: false,
@@ -115,7 +129,7 @@ router.get('/getOrderById', async (req, res) => {
         orderId: orderWarehouseId,
         orderDetails: orderDetails,
         shopifyOrderId: shopifyOrderId,
-        originalOrder: originalOrder
+        originalOrder: shopifyItem
       });
       //TODO gérer coté front délai dépassé => !isReturnable
   } catch (error) {
