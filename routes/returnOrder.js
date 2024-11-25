@@ -84,7 +84,6 @@ router.get('/getOrderById', async (req, res) => {
       orderData = await orderById(orderName, orderMail, customerId); //moi livré : #6989
     } else {
       orderData = await orderByMail(orderName, orderMail);
-      console.log('orderByMail to create', orderData);
     }
     const shopifyOrderId = orderData.id;
     const shippingboDataPotiron = await getShippingboOrderDetails(accessToken, shopifyOrderId); 
@@ -97,6 +96,7 @@ router.get('/getOrderById', async (req, res) => {
       const orderDetails = await getshippingDetails(accessTokenWarehouse, shippingboDataWarehouse.id);
       const shipmentDetails = orderDetails.order.shipments;
       const orderItems = orderDetails.order.order_items;
+      
       const productObject = await enrichOrderItems(orderItems);
       const orderWarehouseId = orderDetails.order.id;
       if(orderData.tags.includes('Commande PRO')) {

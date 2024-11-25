@@ -58,7 +58,7 @@ const getProductWeightBySku = async (sku) => {
   };
 
   const enrichOrderItems= async (orderItems) => {
-    const itemsArray = []; // Créer un tableau pour stocker les résultats
+    const itemsArray = [];
  
     for (const item of orderItems) {
         try {
@@ -67,11 +67,12 @@ const getProductWeightBySku = async (sku) => {
                 ...item, 
                 productData, 
             });
+            console.log('items', item)
         } catch (error) {
             console.error(`Erreur lors de la récupération des données pour le SKU : ${item.product_ref}`, error);
         }
     }
- 
+    console.log('itemarray', itemsArray)
     return itemsArray;
 };
  
