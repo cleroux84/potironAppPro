@@ -7,6 +7,7 @@ const app = express();
 const PORT = process.env.PORT || 300;
 const { initializeTokens } = require('./services/API/manageTokens.js');
 const { setupShippingboWebhook, deleteWebhook, deleteAllWebhooks, getWebhooks } = require('./services/API/Shippingbo/webhook.js');
+const { checkScheduledEmails } = require('./services/sendMails/mailForCustomers.js');
 
 const corsOptions = {
   origin: "https://potiron.com",
