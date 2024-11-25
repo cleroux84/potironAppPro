@@ -191,8 +191,7 @@ router.post('/returnProduct', async (req, res) => {
   console.log('return all', returnAll);
  //TODO retrieve and set customerId if not here
   if(!customerId) {
-    let toto = await getOrderByShopifyId(shopifyOrderId);
-    console.log('toto', toto);
+    customerId = await getOrderByShopifyId(shopifyOrderId).order.customer.id;
   } else {
     customerId = req.body.customerId;
   }
