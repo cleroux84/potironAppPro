@@ -83,7 +83,7 @@ router.get('/getOrderById', async (req, res) => {
     if(customerId) {
       orderData = await orderById(orderName, orderMail, customerId); //moi livré : #6989
     } else {
-      orderData = orderByMail(orderName, orderMail);
+      orderData = await orderByMail(orderName, orderMail);
       console.log('orderByMail to create', orderData);
     }
     const shopifyOrderId = orderData.id;
