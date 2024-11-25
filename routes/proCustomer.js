@@ -8,6 +8,7 @@ const fs = require('fs');
 const { getAccessTokenMS365, refreshMS365AccessToken } = require('../services/API/microsoft');
 const { sendEmailWithKbis } = require('../services/sendMails/mailForTeam');
 const { createProCustomer, getCustomerMetafields, deleteMetafield, updateProCustomer } = require('../services/API/Shopify/customers');
+const { sendWelcomeMailPro } = require('../services/sendMails/mailForCustomers');
 const router = express.Router();
 
 let uploadedFile = null;
@@ -301,12 +302,107 @@ function extractInfoFromNote(note, infoLabel) {
       };
     }
     await updateProCustomer(clientToUpdate, updatedDeliveryData);
-    console.log('update delivery pref for customer toto: ', clientToUpdate);
+    console.log('update delivery pref for customer: ', clientToUpdate);
     res.status(200).json({ message: "Préférences de livraison mises à jour avec succès" });
   } catch (error) {
     console.error("Erreur lors de la mise à jour des préférences de livraison", error);
     res.status(500).json({ error: "Erreur lors de la mise à jour des préférences de livraison" });
   }
 });
+
+//webhook on customer update : https://potironapppro.onrender.com/updatekBis
+//send mail to b2B client to confirm his activation and update his account with tags
+router.post('/updateKbis', async (req, res) => {
+  var updatedData = req.body;
+  const clientUpdated = updatedData.id;
+  let checkedKbisField;
+  let mailProSentField;
+  let companyNameField;
+  let deliveryPrefField;
+  let deliveryPref;
+
+  try {
+    const metafields = await getCustomerMetafields(clientUpdated);
+    if(metafields) {
+      checkedKbisField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'checkedkbis');
+      mailProSentField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'mailProSent');
+      companyNameField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'company');
+      deliveryPrefField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'delivery_pref');
+      deliveryPref = deliveryPrefField && deliveryPrefField.value ? deliveryPrefField.value : null;
+    }
+    // console.log("deliverypref updatekbis", deliveryPref)
+    let paletteEquipment;
+    let paletteAppointment;
+    let paletteNotes;
+
+    if(deliveryPrefField && deliveryPref.includes('palette')) {
+      const paletteEquipmentField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_equipment'); 
+      const paletteAppointmentField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_appointment'); 
+      const paletteNotesField = metafields.find(mf => mf.namespace === 'custom' && mf.key === 'palette_notes'); 
+
+      if(paletteEquipmentField && paletteEquipmentField.value !== "") {
+        paletteEquipment = paletteEquipmentField.value;
+      }
+      if(paletteAppointmentField && paletteAppointmentField.value !== null) {
+        if(paletteAppointmentField.value === true) {
+          paletteAppointment = "Oui";
+        } else {
+          paletteAppointment = "Non";
+        }
+      }
+      if(paletteNotesField && paletteNotesField.value !== '') {
+        paletteNotes = paletteNotesField.value;
+      }
+    }
+      if(checkedKbisField && mailProSentField) {
+        var firstnameCustomer = updatedData.first_name;
+        var nameCustomer = updatedData.last_name;
+        var mailCustomer = updatedData.email;
+        var companyName = companyNameField.value;
+        var kbisState = checkedKbisField.value;
+        var mailProState = mailProSentField.value;
+        
+        if(kbisState === true && mailProState === false) {
+          try {
+            let accessTokenMS365 = await getAccessTokenMS365();
+            if(!accessTokenMS365) {
+              await refreshMS365AccessToken();
+              accessTokenMS365 = await getAccessTokenMS365();
+            }
+            await sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCustomer, mailCustomer, companyName, deliveryPref, paletteEquipment, paletteAppointment, paletteNotes)
+            console.log('Mail de bienvenue après validation du kbis envoyé au client pro', clientUpdated);  
+            const updatedCustomerKbis = {
+                    customer: {
+                      id: clientUpdated,
+                      tags: "VIP, PRO validé",
+                      metafields: [
+                        {
+                          id: mailProSentField.id,
+                          key: 'mailProSent',
+                          value: true,
+                          type: 'boolean',
+                          namespace: 'custom'
+                        }
+                      ]
+                    }
+                  };  
+                  await updateProCustomer(clientUpdated, updatedCustomerKbis);
+                  console.log('mise à jour fiche client suite envoie du mail acces PRO')
+                } catch (error) {
+                  console.error('Erreur lors de la mise à jour du client kbis')
+                }
+        } else if(kbisState === false && mailProState === false) {
+            console.log("Kbis à valider");
+          } else {
+            console.log("mail déjà envoyé");
+          }
+
+    }
+  } catch (error) {
+    console.error('erreur lors de la récuperation des metafields ou de la maj du client')
+    console.error('Détail', error);
+  }
+});
+
   
 module.exports = router;
