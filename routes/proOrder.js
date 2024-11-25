@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 
 const { getAccessTokenFromDb } = require('../services/database/tokens/potiron_shippingbo');
-const { createDraftOrder, updateDraftOrderWithDraftId } = require('../services/API/Shopify/draftOrders');
+const { createDraftOrder, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById } = require('../services/API/Shopify/draftOrders');
 const { getAccessTokenWarehouseFromDb } = require('../services/database/tokens/gma_shippingbo');
 const { getShippingboOrderDetails, cancelShippingboDraft, updateShippingboOrder } = require('../services/API/Shippingbo/Potiron/ordersCRUD');
 const { getWarehouseOrderDetails, updateWarehouseOrder } = require('../services/API/Shippingbo/Gma/ordersCRUD');
@@ -161,5 +161,26 @@ router.post('/updatedDraftOrder', async (req, res) => {
     }
   })
   
+//get last draft order with customer id
+router.get('/last-draft-order/:customer_id', async (req, res) => {
+    const customerId = req.params.customer_id;
+    try {
+      const lastDraft = await lastDraftOrder(customerId);
+      res.json(lastDraft);
+    } catch (error) {
+      res.status(500).send('Error retrieving last draft order by customer id');
+    }
+  })
+  
+//get draft order by order id
+  router.get('/getDraftOrder/:draftOrderId', async (req, res) => {
+    const draftOrderId = req.params.draftOrderId;
+    try {
+      const draftOrderData = await draftOrderById(draftOrderId); 
+      res.json(draftOrderData);
+    } catch (error) {
+      res.status(500).send('Error retrieving draft order by id');
+    }
+  })
 
   module.exports = router;
