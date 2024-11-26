@@ -157,9 +157,11 @@ router.post('/checkIfsReturnPossible', async (req, res) => {
   const {orderId, itemsToReturn, quantities, reasons} = req.body;
   
   console.log("reasons", reasons);
+  console.log("qties", quantities);
 
-  quantitiesByRefs = JSON.parse(quantities);
-  console.log('ref & qties to check', quantitiesByRefs);
+
+  // quantitiesByRefs = JSON.parse(quantities);
+  // console.log('ref & qties to check', quantitiesByRefs);
   let accessTokenWarehouse = await getAccessTokenWarehouseFromDb();
   try {
     const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId);
@@ -199,7 +201,7 @@ router.post('/checkIfsReturnPossible', async (req, res) => {
       success: true,
       message: 'Articles colissimo !',
       order: warehouseOrder,
-      productRefs: req.query.return_items
+      productRefs: itemsToReturn
     });
   } catch (error) {
     console.error('Erreur lors de la vérification des expéditions:', error);
