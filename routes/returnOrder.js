@@ -90,17 +90,14 @@ router.get('/getOrderById', async (req, res) => {
       const originalOrder = await getOrderByShopifyId(shopifyOrderId);
       const closeOrderDelivery = shippingboDataWarehouse.closed_at;
    
-      // Vérifier si le délai de retour est respecté
       const isReturnable = await isReturnableDate(closeOrderDelivery);
       console.log("is returnable ?", isReturnable);
    
-      // Récupérer les détails de la commande
       const orderDetails = await getshippingDetails(accessTokenWarehouse, shippingboDataWarehouse.id);
       const shipmentDetails = orderDetails.order.shipments;
       const orderItems = orderDetails.order.order_items;
       const orderWarehouseId = orderDetails.order.id;
    
-      // Récupérer les prix de Shopify pour chaque item
       const lineItemsForPrice = originalOrder.order.line_items;
       const lineItemsMapping = lineItemsForPrice.reduce((acc, item) => {
         acc[item.sku] = {
@@ -110,28 +107,23 @@ router.get('/getOrderById', async (req, res) => {
         return acc;
       }, {});
    
-      // Fonction pour enrichir les items avec les prix et les images
       const enrichOrderItems = async (orderItems) => {
         const enrichedItems = await Promise.all(orderItems.map(async (item) => {
-          const sku = item.product_ref; // SKU de l'item
+          const sku = item.product_ref; 
           const priceData = lineItemsMapping[sku] || { price: null };
    
-          // Récupérer les détails du produit (incluant l'image)
           const productVariant = await getProductWeightBySku(sku);
    
           return {
             ...item,
             price: priceData.price,
-            imageUrl: productVariant?.product?.featuredImage?.url || null, // Ajouter l'URL de l'image
+            imageUrl: productVariant?.product?.featuredImage?.url || null, 
           };
         }));
         return enrichedItems;
       };
+         const enrichedOrderItems = await enrichOrderItems(orderItems);
    
-      // Enrichir les orderItems avec les prix et les images
-      const enrichedOrderItems = await enrichOrderItems(orderItems);
-   
-      // Vérifier si la commande est une commande PRO
       if (orderData.tags.includes('Commande PRO')) {
         return res.status(200).json({
           success: false,
@@ -142,7 +134,6 @@ router.get('/getOrderById', async (req, res) => {
         });
       }
    
-      // Retourner la réponse avec les données enrichies
       res.status(200).json({
         success: true,
         orderItems: enrichedOrderItems,
@@ -160,9 +151,14 @@ router.get('/getOrderById', async (req, res) => {
 let quantitiesByRefs;
 
 router.get('/checkIfsReturnPossible', async (req, res) => {
-  const orderId = req.query.warehouseOrderId;
-  const itemsToReturn = req.query.return_items.split(',');
-  quantitiesByRefs = JSON.parse(req.query.quantities);
+  // const orderId = req.query.warehouseOrderId;
+  // const itemsToReturn = req.query.return_items.split(',');
+
+  const {orderId, itemsToReturn, quantities, reasons} = req.body;
+  
+  console.log("reasons", reasons);
+
+  quantitiesByRefs = JSON.parse(quantities);
   console.log('ref & qties to check', quantitiesByRefs);
   let accessTokenWarehouse = await getAccessTokenWarehouseFromDb();
   try {
@@ -223,7 +219,6 @@ router.post('/returnProduct', async (req, res) => {
   const returnAll = req.body.returnAllOrder;
   const shopifyOrderId = req.body.shopifyOrderId;
   console.log('return all', returnAll);
- //TODO retrieve and set customerId if not here
   if(!customerId) {
     let initialiOrder = await getOrderByShopifyId(shopifyOrderId);
     customerId = initialiOrder.order.customer.id;
