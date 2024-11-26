@@ -150,7 +150,7 @@ router.get('/getOrderById', async (req, res) => {
 
 let quantitiesByRefs;
 
-router.get('/checkIfsReturnPossible', async (req, res) => {
+router.post('/checkIfsReturnPossible', async (req, res) => {
   // const orderId = req.query.warehouseOrderId;
   // const itemsToReturn = req.query.return_items.split(',');
 
