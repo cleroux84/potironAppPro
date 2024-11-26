@@ -99,21 +99,7 @@ router.get('/getOrderById', async (req, res) => {
       const orderItems = orderDetails.order.order_items;
       const orderWarehouseId = orderDetails.order.id;
       //find images and prices from shopify 
-      const lineItemsMap = new Map(
-      originalOrder.line_items.map(item => [
-        item.id,
-        { price: item.price, title: item.title }
-      ])
-        );
-
-    const updatedOrderItems = orderItems.map(item => {
-      const shopifyItem = lineItemsMap.get(item.shopify_line_item_id);
-      return {
-        ...item,
-        price: shopifyItem ? shopifyItem.price : null, // Ajout du prix
-        title: shopifyItem ? shopifyItem.title : item.title // Vérification du titre
-      };
-    });
+    
 
       if(orderData.tags.includes('Commande PRO')) {
         return res.status(200).json({
