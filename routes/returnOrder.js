@@ -108,20 +108,29 @@ router.get('/getOrderById', async (req, res) => {
         return acc;
       }, {});
   
-      // 2. Parcours les `orderItems` et enrichis-les avec les prix correspondants
       const enrichedOrderItems = orderItems.map((item) => {
-        const sku = item.product_ref; // Assure-toi que `product_ref` correspond à `sku` dans `line_items`
-        const priceData = lineItemsMapping[sku] || { price: null }; // Par défaut null si non trouvé
+        const sku = item.product_ref; 
+        const priceData = lineItemsMapping[sku] || { price: null }; 
         return {
-          ...item, // Copie tous les champs existants
+          ...item,
           price: priceData.price
         };
       });
+
+      const orderItemsWithImages = async(enrichedOrderItems) => {
+        const enrichedItemms = await Promise.all(enrichedOrderItems.map(async (item) => {
+          const productVariant = await getProductWeightBySku(item.product_ref);
+          return {
+            ...item,
+            imageUrl: productVariant?.product?.featuredImage?.url || null
+          }
+        }))
+      }
    
       if(orderData.tags.includes('Commande PRO')) {
         return res.status(200).json({
           success: false,
-          orderItems: enrichedOrderItems,
+          orderItems: orderItemsWithImages,
           orderName: orderName,
           orderDetails: orderDetails,
           message: 'Contacter le SAV'

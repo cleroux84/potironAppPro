@@ -27,6 +27,9 @@ const getProductWeightBySku = async (sku) => {
                   product {
                     id
                     title
+                    featuredImage {
+                      url
+                    }
                   }
                 }
               }
