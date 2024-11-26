@@ -99,12 +99,29 @@ router.get('/getOrderById', async (req, res) => {
       const orderItems = orderDetails.order.order_items;
       const orderWarehouseId = orderDetails.order.id;
       //find images and prices from shopify 
-    
-
+      const lineItemsForPrice = originalOrder.order.line_items;
+      const lineItemsMapping = lineItemsForPrice.reduce((acc, item) => {
+        acc[item.sku] = {
+          price: parseFloat(item.price),
+          currency: item.price_set.shop_money.currency_code,
+        };
+        return acc;
+      }, {});
+  
+      // 2. Parcours les `orderItems` et enrichis-les avec les prix correspondants
+      const enrichedOrderItems = orderItems.map((item) => {
+        const sku = item.product_ref; // Assure-toi que `product_ref` correspond à `sku` dans `line_items`
+        const priceData = lineItemsMapping[sku] || { price: null }; // Par défaut null si non trouvé
+        return {
+          ...item, // Copie tous les champs existants
+          price: priceData.price
+        };
+      });
+   
       if(orderData.tags.includes('Commande PRO')) {
         return res.status(200).json({
           success: false,
-          orderItems: orderItems,
+          orderItems: enrichedOrderItems,
           orderName: orderName,
           orderDetails: orderDetails,
           message: 'Contacter le SAV'
@@ -112,7 +129,7 @@ router.get('/getOrderById', async (req, res) => {
       }
       res.status(200).json({
         success: true,
-        orderItems: orderItems,
+        orderItems: enrichedOrderItems,
         orderId: orderWarehouseId,
         orderDetails: orderDetails,
         shopifyOrderId: shopifyOrderId,
