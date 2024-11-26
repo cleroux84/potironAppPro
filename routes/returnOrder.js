@@ -78,27 +78,29 @@ router.get('/getOrderById', async (req, res) => {
     // const orderData = await orderById(orderName, orderMail, 8174393917768); //4 articles identiques colissimo #8294
     // const orderData = await orderById(orderName, orderMail, 8045312737608); //3 articles colissimo #7865
     // const orderData = await orderById(orderName, orderMail, 8076398264648); //3 articles colissimo #8102
-    console.log("customerId", customerId);
-    let orderData;
-    if(customerId) {
-      orderData = await orderById(orderName, orderMail, customerId); //moi livré : #6989
-    } else {
-      orderData = await orderByMail(orderName, orderMail);
-    }
-    const shopifyOrderId = orderData.id;
-    const shippingboDataPotiron = await getShippingboOrderDetails(accessToken, shopifyOrderId); 
-    const shippingboDataWarehouse = await getWarehouseOrderDetails(accessTokenWarehouse, shippingboDataPotiron.id);
-    const originalOrder = await getOrderByShopifyId(shopifyOrderId);
-    const closeOrderDelivery = shippingboDataWarehouse.closed_at
-    //Check if withdrawal period is ok
-    const isReturnable = await isReturnableDate(closeOrderDelivery);
-    console.log("is returnable ?", isReturnable);
-    // if(isReturnable) {
+      let orderData;
+      if (customerId) {
+        orderData = await orderById(orderName, orderMail, customerId); //moi livré : #6989
+      } else {
+        orderData = await orderByMail(orderName, orderMail);
+      }
+      const shopifyOrderId = orderData.id;
+      const shippingboDataPotiron = await getShippingboOrderDetails(accessToken, shopifyOrderId); 
+      const shippingboDataWarehouse = await getWarehouseOrderDetails(accessTokenWarehouse, shippingboDataPotiron.id);
+      const originalOrder = await getOrderByShopifyId(shopifyOrderId);
+      const closeOrderDelivery = shippingboDataWarehouse.closed_at;
+   
+      // Vérifier si le délai de retour est respecté
+      const isReturnable = await isReturnableDate(closeOrderDelivery);
+      console.log("is returnable ?", isReturnable);
+   
+      // Récupérer les détails de la commande
       const orderDetails = await getshippingDetails(accessTokenWarehouse, shippingboDataWarehouse.id);
       const shipmentDetails = orderDetails.order.shipments;
       const orderItems = orderDetails.order.order_items;
       const orderWarehouseId = orderDetails.order.id;
-      //find images and prices from shopify 
+   
+      // Récupérer les prix de Shopify pour chaque item
       const lineItemsForPrice = originalOrder.order.line_items;
       const lineItemsMapping = lineItemsForPrice.reduce((acc, item) => {
         acc[item.sku] = {
@@ -107,35 +109,40 @@ router.get('/getOrderById', async (req, res) => {
         };
         return acc;
       }, {});
-  
-      const enrichedOrderItems = orderItems.map((item) => {
-        const sku = item.product_ref; 
-        const priceData = lineItemsMapping[sku] || { price: null }; 
-        return {
-          ...item,
-          price: priceData.price
-        };
-      });
-
-      const orderItemsWithImages = async(enrichedOrderItems) => {
-        const enrichedItemms = await Promise.all(enrichedOrderItems.map(async (item) => {
-          const productVariant = await getProductWeightBySku(item.product_ref);
+   
+      // Fonction pour enrichir les items avec les prix et les images
+      const enrichOrderItems = async (orderItems) => {
+        const enrichedItems = await Promise.all(orderItems.map(async (item) => {
+          const sku = item.product_ref; // SKU de l'item
+          const priceData = lineItemsMapping[sku] || { price: null };
+   
+          // Récupérer les détails du produit (incluant l'image)
+          const productVariant = await getProductWeightBySku(sku);
+   
           return {
             ...item,
-            imageUrl: productVariant?.product?.featuredImage?.url || null
-          }
-        }))
-      }
+            price: priceData.price,
+            imageUrl: productVariant?.product?.featuredImage?.url || null, // Ajouter l'URL de l'image
+          };
+        }));
+        return enrichedItems;
+      };
    
-      if(orderData.tags.includes('Commande PRO')) {
+      // Enrichir les orderItems avec les prix et les images
+      const enrichedOrderItems = await enrichOrderItems(orderItems);
+   
+      // Vérifier si la commande est une commande PRO
+      if (orderData.tags.includes('Commande PRO')) {
         return res.status(200).json({
           success: false,
-          orderItems: orderItemsWithImages,
+          orderItems: enrichedOrderItems,
           orderName: orderName,
           orderDetails: orderDetails,
           message: 'Contacter le SAV'
-        })
+        });
       }
+   
+      // Retourner la réponse avec les données enrichies
       res.status(200).json({
         success: true,
         orderItems: enrichedOrderItems,
@@ -144,11 +151,11 @@ router.get('/getOrderById', async (req, res) => {
         shopifyOrderId: shopifyOrderId,
         originalOrder: originalOrder
       });
-      //TODO gérer coté front délai dépassé => !isReturnable
-  } catch (error) {
-    res.status(500).send('Error retrieving order warehouse by id');
-  }
-})
+   
+    } catch (error) {
+      res.status(500).send('Error retrieving order warehouse by id');
+    }
+  });
 
 let quantitiesByRefs;
 
