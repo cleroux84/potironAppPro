@@ -150,31 +150,32 @@ router.get('/getOrderById', async (req, res) => {
 
 let quantitiesByRefs;
 
-router.get('/checkIfsReturnPossible', async (req, res) => {
-  const orderId = req.query.warehouseOrderId;
-  const itemsToReturn = req.query.return_items.split(',');
-  quantitiesByRefs = JSON.parse(req.query.quantities);
-  const reasonsByRefs = JSON.parse(req.query.reasons);
-  // const shopifyOrderId = req.query.orderId;
-  const filteredItems = JSON.parse(req.query.filteredItems);
-
-  // const originalOrder = await getOrderByShopifyId(shopifyOrderId);
-  console.log('ref & reasons', reasonsByRefs);
+router.post('/checkIfsReturnPossible', async (req, res) => {  // Changement de 'get' à 'post'
+  const { warehouseOrderId, return_items, quantities, reasons, filteredItems } = req.body;  // On récupère les données envoyées dans le body
+ 
+  // Parse les données nécessaires
+  const itemsToReturn = return_items.split(',');  // Assurez-vous que return_items est bien un tableau
+  const quantitiesByRefs = JSON.parse(quantities);  // On suppose que quantities et reasons sont envoyés comme JSON
+  const reasonsByRefs = JSON.parse(reasons);  // Convertir les raisons depuis JSON
+  // const filteredItems = JSON.parse(filteredItems); // Déjà passé comme un tableau d'objets
+ 
+  console.log('Ref & raisons', reasonsByRefs);
+ 
   let accessTokenWarehouse = await getAccessTokenWarehouseFromDb();
+ 
   try {
-    const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId);
-    // console.log("warehouseOrder", warehouseOrder);
+    const warehouseOrder = await getshippingDetails(accessTokenWarehouse, warehouseOrderId);
     const shipments = warehouseOrder.order.shipments;
     let allItemsHaveColissimo = true;
  
     itemsToReturn.forEach(ref => {
       const foundItem = shipments.find((shipment, index) => {
-        // const quantity = quantitiesByRefs[ref];
         const item = shipment.order_items_shipments.find(item => item.order_item_id.toString() === ref);
         if (item) {
           const shippingMethod = shipment.shipping_method_name;
           const reason = reasonsByRefs[ref];
           console.log(`Ref ${ref} - Raison : "${reason}"`);
+ 
           if (shippingMethod && shippingMethod.includes("Colissimo")) {
             console.log(`Référence ${ref} trouvée dans l'expédition ${index} avec la méthode d'expédition : ${shippingMethod}`);
           } else {
@@ -191,21 +192,22 @@ router.get('/checkIfsReturnPossible', async (req, res) => {
         allItemsHaveColissimo = false;
       }
     });
-    if(!allItemsHaveColissimo) {
+ 
+    if (!allItemsHaveColissimo) {
       return res.status(200).json({
         success: false,
         message: 'Contacter le SAV'
-      })
+      });
     }
+ 
     res.json({
       success: true,
       message: 'Articles colissimo !',
       order: warehouseOrder,
-      productRefs: req.query.return_items,
-      // reasons: reasonsByRefs,
+      productRefs: return_items,
       filteredItems: filteredItems
-      // originalOrder: originalOrder
     });
+ 
   } catch (error) {
     console.error('Erreur lors de la vérification des expéditions:', error);
     res.status(500).send('Erreur lors de la vérification des expéditions');
