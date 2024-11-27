@@ -155,9 +155,10 @@ router.get('/checkIfsReturnPossible', async (req, res) => {
   const itemsToReturn = req.query.return_items.split(',');
   quantitiesByRefs = JSON.parse(req.query.quantities);
   const reasonsByRefs = JSON.parse(req.query.reasons);
-  const shopifyOrderId = req.query.orderId;
+  // const shopifyOrderId = req.query.orderId;
+  const filteredItems = JSON.parse(req.query.filteredItems);
 
-  const originalOrder = await getOrderByShopifyId(shopifyOrderId);
+  // const originalOrder = await getOrderByShopifyId(shopifyOrderId);
   console.log('ref & reasons', reasonsByRefs);
   let accessTokenWarehouse = await getAccessTokenWarehouseFromDb();
   try {
@@ -201,8 +202,9 @@ router.get('/checkIfsReturnPossible', async (req, res) => {
       message: 'Articles colissimo !',
       order: warehouseOrder,
       productRefs: req.query.return_items,
-      reasons: reasonsByRefs,
-      originalOrder: originalOrder
+      // reasons: reasonsByRefs,
+      filteredItems: filteredItems
+      // originalOrder: originalOrder
     });
   } catch (error) {
     console.error('Erreur lors de la vérification des expéditions:', error);
