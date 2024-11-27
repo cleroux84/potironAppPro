@@ -154,7 +154,9 @@ router.get('/checkIfsReturnPossible', async (req, res) => {
   const orderId = req.query.warehouseOrderId;
   const itemsToReturn = req.query.return_items.split(',');
   quantitiesByRefs = JSON.parse(req.query.quantities);
-  console.log('ref & qties to check', quantitiesByRefs);
+  const reasonsByRefs = JSON.parse(req.query.reasons);
+
+  console.log('ref & reasons', reasonsByRefs);
   let accessTokenWarehouse = await getAccessTokenWarehouseFromDb();
   try {
     const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId);
@@ -168,6 +170,8 @@ router.get('/checkIfsReturnPossible', async (req, res) => {
         const item = shipment.order_items_shipments.find(item => item.order_item_id.toString() === ref);
         if (item) {
           const shippingMethod = shipment.shipping_method_name;
+          const reason = reasonsByRefs[ref];
+          console.log(`Ref ${ref} - Raison : "${reason}"`);
           if (shippingMethod && shippingMethod.includes("Colissimo")) {
             console.log(`Référence ${ref} trouvée dans l'expédition ${index} avec la méthode d'expédition : ${shippingMethod}`);
           } else {
@@ -194,7 +198,8 @@ router.get('/checkIfsReturnPossible', async (req, res) => {
       success: true,
       message: 'Articles colissimo !',
       order: warehouseOrder,
-      productRefs: req.query.return_items
+      productRefs: req.query.return_items,
+      reasons: reasonsByRefs
     });
   } catch (error) {
     console.error('Erreur lors de la vérification des expéditions:', error);
