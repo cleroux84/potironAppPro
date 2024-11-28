@@ -151,13 +151,10 @@ router.get('/getOrderById', async (req, res) => {
 let quantitiesByRefs;
 
 router.post('/checkIfsReturnPossible', async (req, res) => {  // Changement de 'get' à 'post'
-  const { warehouseOrderId, return_items, quantities, reasons, filteredItems } = req.body;  // On récupère les données envoyées dans le body
- 
-  // Parse les données nécessaires
+  const { warehouseOrderId, return_items, quantities, reasons, filteredItems, returnAllOrder } = req.body;  // On récupère les données envoyées dans le body
   const itemsToReturn = return_items.split(',');  // Assurez-vous que return_items est bien un tableau
   const quantitiesByRefs = JSON.parse(quantities);  // On suppose que quantities et reasons sont envoyés comme JSON
   const reasonsByRefs = JSON.parse(reasons);  // Convertir les raisons depuis JSON
-  // const filteredItems = JSON.parse(filteredItems); // Déjà passé comme un tableau d'objets
  
   console.log('Ref & raisons', reasonsByRefs);
  
@@ -167,6 +164,15 @@ router.post('/checkIfsReturnPossible', async (req, res) => {  // Changement de '
     const warehouseOrder = await getshippingDetails(accessTokenWarehouse, warehouseOrderId);
     const shipments = warehouseOrder.order.shipments;
     let allItemsHaveColissimo = true;
+
+    let totalAsset = 0;
+    let totalRefund = 0;
+    if(returnAllOrder) {
+      totalOrderToRepay = (warehouseOrder.order.total_price_cents / 100).toFixed(2);
+      console.log("option 1 : ", totalAsset);
+    } else {
+      console.log('calcul du montant à retourner total Asset');
+    }
  
     itemsToReturn.forEach(ref => {
       const foundItem = shipments.find((shipment, index) => {
@@ -205,7 +211,9 @@ router.post('/checkIfsReturnPossible', async (req, res) => {  // Changement de '
       message: 'Articles colissimo !',
       order: warehouseOrder,
       productRefs: return_items,
-      filteredItems: filteredItems
+      filteredItems: filteredItems,
+      totalAsset: totalAsset,
+      totalRefund: totalRefund
     });
  
   } catch (error) {
