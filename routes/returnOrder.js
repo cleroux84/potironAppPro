@@ -167,14 +167,18 @@ router.post('/checkIfsReturnPossible', async (req, res) => {  // Changement de '
 
     let totalAsset = 0;
     let totalRefund = 0;
+    let totalWeight = 0;
     if(returnAllOrder) {
       totalAsset = (warehouseOrder.order.total_price_cents / 100).toFixed(2);
+      const shipmentsForWeight = warehouseOrder.order.shipments;
+      totalWeight = shipments.reduce((sum, shipment) => sum + (shipment.total_weight || 0), 0) / 1000;
       console.log("option 1 : ", totalAsset);
     } else {
       for(const sku of productSkuCalc) {
         const productFound = await getProductWeightBySku(sku.product_user_ref);
         if(productFound) {
           totalAsset += sku.unit_price * sku.quantity;
+          totalWeight += productFound.weight * sku.quantity;
         }
       }
     }
@@ -218,7 +222,8 @@ router.post('/checkIfsReturnPossible', async (req, res) => {  // Changement de '
       productRefs: return_items,
       filteredItems: filteredItems,
       totalAsset: totalAsset,
-      totalRefund: totalRefund
+      totalRefund: totalRefund,
+      totalWeight: totalWeight
     });
  
   } catch (error) {
