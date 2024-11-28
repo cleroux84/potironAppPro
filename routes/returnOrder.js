@@ -168,7 +168,7 @@ router.post('/checkIfsReturnPossible', async (req, res) => {  // Changement de '
     let totalAsset = 0;
     let totalRefund = 0;
     if(returnAllOrder) {
-      totalOrderToRepay = (warehouseOrder.order.total_price_cents / 100).toFixed(2);
+      totalAsset = (warehouseOrder.order.total_price_cents / 100).toFixed(2);
       console.log("option 1 : ", totalAsset);
     } else {
       console.log('calcul du montant à retourner total Asset');
