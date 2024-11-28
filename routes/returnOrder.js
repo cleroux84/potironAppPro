@@ -151,10 +151,10 @@ router.get('/getOrderById', async (req, res) => {
 let quantitiesByRefs;
 
 router.post('/checkIfsReturnPossible', async (req, res) => {  // Changement de 'get' à 'post'
-  const { warehouseOrderId, return_items, quantities, reasons, filteredItems, returnAllOrder } = req.body;  // On récupère les données envoyées dans le body
-  const itemsToReturn = return_items.split(',');  // Assurez-vous que return_items est bien un tableau
-  const quantitiesByRefs = JSON.parse(quantities);  // On suppose que quantities et reasons sont envoyés comme JSON
-  const reasonsByRefs = JSON.parse(reasons);  // Convertir les raisons depuis JSON
+  const { warehouseOrderId, return_items, quantities, reasons, filteredItems, returnAllOrder, productSkuCalc } = req.body;  // On récupère les données envoyées dans le body
+  const itemsToReturn = return_items.split(','); 
+  const quantitiesByRefs = JSON.parse(quantities);
+  const reasonsByRefs = JSON.parse(reasons);  
  
   console.log('Ref & raisons', reasonsByRefs);
  
@@ -171,7 +171,12 @@ router.post('/checkIfsReturnPossible', async (req, res) => {  // Changement de '
       totalAsset = (warehouseOrder.order.total_price_cents / 100).toFixed(2);
       console.log("option 1 : ", totalAsset);
     } else {
-      console.log('calcul du montant à retourner total Asset');
+      for(const sku of productSkuCalc) {
+        const productFound = await getProductWeightBySku(sku.product_user_ref);
+        if(productFound) {
+          totalAsset += sku.unit_price * ski.quantity;
+        }
+      }
     }
  
     itemsToReturn.forEach(ref => {
