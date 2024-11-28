@@ -174,7 +174,7 @@ router.post('/checkIfsReturnPossible', async (req, res) => {  // Changement de '
       for(const sku of productSkuCalc) {
         const productFound = await getProductWeightBySku(sku.product_user_ref);
         if(productFound) {
-          totalAsset += sku.unit_price * ski.quantity;
+          totalAsset += sku.unit_price * sku.quantity;
         }
       }
     }
