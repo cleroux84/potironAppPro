@@ -181,6 +181,7 @@ router.post('/checkIfsReturnPossible', async (req, res) => {  // Changement de '
       } else {
         priceByWeight = await calculateTotalShippingCost(shipments, filteredItems);
         console.log('il faut calculer le prix avec le poids de chaque colis', priceByWeight);
+        totalRefund = totalAsset - priceByWeight;
       }
       console.log('option 2: ', totalRefund);
     } else {

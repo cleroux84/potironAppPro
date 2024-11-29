@@ -92,13 +92,9 @@ const extractParcelNumber = (textResponse) => {
 }
 
 const getShippingPrice = async (weight) => {
-    console.log('weight received', weight);
-    const roundedWeight = Math.round(weight * 100) / 100;
-    console.log('rounded', roundedWeight);
-
     let priceByWeight;
 
-    if (roundedWeight < 2) {
+    if (weight < 2) {
         priceByWeight = 6.9;
     } else if (weight >= 2 && weight < 10) {
         console.log('passe bien là!');
@@ -123,7 +119,7 @@ const calculateTotalShippingCost = async (shipments, filteredItems) => {
             if (matchedItem) {
                 const productRef = matchedItem.product_ref;
                 const productWeight = await getProductWeightBySku(productRef);
-                const shippingPrice = await getShippingPrice(productWeight);
+                const shippingPrice = await getShippingPrice(productWeight.weight);
                 console.log(productRef, shippingPrice);
                 totalShippingCost += parseFloat(shippingPrice);
             }
