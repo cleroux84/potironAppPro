@@ -281,7 +281,8 @@ router.post('/returnProduct', async (req, res) => {
     const initialNumberOfPackages = warehouseOrder.order.shipments.length;
     console.log('nombre de colis dans la commande initiale: ', initialNumberOfPackages);
     const shipments = warehouseOrder.order.shipments;
-    //Set values if return all product in order or selected items
+
+    //Customer wants to return all initial order
     if(returnAll) {
       if(initialNumberOfPackages === 1) {
         weightToReturn = warehouseOrder.order.shipments
@@ -300,7 +301,7 @@ router.post('/returnProduct', async (req, res) => {
           pdfBase64 = createLabelData.map(data => data.pdfData);
         }
 
-      } else {
+      } else { //several packages in initial orders to return
         const parcels = shipments.map(shipment => ({
           "weight": shipment.total_weight / 1000,
           "insuranceAmount": 0,
@@ -326,6 +327,7 @@ router.post('/returnProduct', async (req, res) => {
       //TODO
       //return weight by weight => problem about number of packages !  
       console.log('productPrice sku', productSku );
+      console.log("shipments", shipments);
       for (const sku of productSku) {
         const productFoundSku = await getProductWeightBySku(sku.product_user_ref);
         if(productFoundSku) {
