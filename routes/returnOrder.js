@@ -169,12 +169,19 @@ router.post('/checkIfsReturnPossible', async (req, res) => {  // Changement de '
     let totalRefund = 0;
     let totalWeight = 0;
     let priceByWeight;
+    //TODO : si plusieurs colis => plusieurs colissimo donc plusieurs priceByWeight à ajouter
     if(returnAllOrder) {
       totalAsset = (warehouseOrder.order.total_price_cents / 100).toFixed(2);
       totalWeight = shipments.reduce((sum, shipment) => sum + (shipment.total_weight || 0), 0) / 1000;
       console.log("option 1 : ", totalAsset);
-      priceByWeight = await getShippingPrice(totalWeight);
-      totalRefund = totalAsset - priceByWeight;
+      console.log("shipments here", shipments);
+
+      if(shipments.length === 1) {
+        priceByWeight = await getShippingPrice(totalWeight);
+        totalRefund = totalAsset - priceByWeight;
+      } else {
+        console.log('il faut calculer le prix avec le poids de chaque colis');
+      }
       console.log('option 2: ', totalRefund);
     } else {
       for(const sku of productSkuCalc) {
