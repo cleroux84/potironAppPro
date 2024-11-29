@@ -89,7 +89,17 @@ const extractParcelNumber = (textResponse) => {
     const match = textResponse.match(regex);
     return match ? match[1]: null;
 }
+
+const getShippingPrice = async (weight) => {
+    //TODO A voir si plusieurs colis
+    const priceByWeight =
+        weight < 2 ? 6.9 :
+        weight < 10 ? 9 :
+        weight < 15 ? 29 : 49;
+    return priceByWeight.toFixed(2);
+}
  
 module.exports = {
-    createLabel
+    createLabel,
+    getShippingPrice
 };

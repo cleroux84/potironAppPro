@@ -11,7 +11,7 @@ const { getAccessTokenWarehouseFromDb } = require('../services/database/tokens/g
 const { orderById } = require('../services/API/Shopify/customers');
 const { getShippingboOrderDetails } = require('../services/API/Shippingbo/Potiron/ordersCRUD');
 const { getWarehouseOrderDetails, getshippingDetails } = require('../services/API/Shippingbo/Gma/ordersCRUD');
-const { createLabel } = require('../services/API/colissimo');
+const { createLabel, getShippingPrice } = require('../services/API/colissimo');
 const { getProductWeightBySku } = require('../services/API/Shopify/products');
 const { checkIfReturnOrderExist, createReturnOrder } = require('../services/API/Shippingbo/Gma/returnOrdersCRUD');
 const { sendReturnDataToSAV } = require('../services/sendMails/mailForTeam');
@@ -168,17 +168,23 @@ router.post('/checkIfsReturnPossible', async (req, res) => {  // Changement de '
     let totalAsset = 0;
     let totalRefund = 0;
     let totalWeight = 0;
+    let priceByWeight;
     if(returnAllOrder) {
       totalAsset = (warehouseOrder.order.total_price_cents / 100).toFixed(2);
-      const shipmentsForWeight = warehouseOrder.order.shipments;
       totalWeight = shipments.reduce((sum, shipment) => sum + (shipment.total_weight || 0), 0) / 1000;
       console.log("option 1 : ", totalAsset);
+      priceByWeight = await getShippingPrice(totalWeight);
+      totalRefund = totalAsset - priceByWeight;
+      console.log('option 2: ', totalRefund);
     } else {
       for(const sku of productSkuCalc) {
         const productFound = await getProductWeightBySku(sku.product_user_ref);
         if(productFound) {
           totalAsset += sku.unit_price * sku.quantity;
           totalWeight += productFound.weight * sku.quantity;
+          priceByWeight = await getShippingPrice(totalWeight);
+          totalRefund = totalAsset - priceByWeight;
+          console.log('option 2: ', totalRefund);
         }
       }
     }
