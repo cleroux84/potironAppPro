@@ -92,11 +92,16 @@ const extractParcelNumber = (textResponse) => {
 }
 
 const getShippingPrice = async (weight) => {
+    console.log('weight received', weight);
+    const roundedWeight = Math.round(weight * 100) / 100;
+    console.log('rounded', roundedWeight);
+
     let priceByWeight;
 
-    if (weight < 2) {
+    if (roundedWeight < 2) {
         priceByWeight = 6.9;
     } else if (weight >= 2 && weight < 10) {
+        console.log('passe bien là!');
         priceByWeight = 9;
     } else if (weight >= 10 && weight < 15) {
         priceByWeight = 29;
