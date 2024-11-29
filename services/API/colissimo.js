@@ -92,13 +92,21 @@ const extractParcelNumber = (textResponse) => {
 }
 
 const getShippingPrice = async (weight) => {
-    //TODO A voir si plusieurs colis
-    const priceByWeight =
-        weight < 2 ? 6.9 :
-        weight < 10 ? 9 :
-        weight < 15 ? 29 : 49;
-    return priceByWeight.toFixed(2);
-}
+    let priceByWeight;
+
+    if (weight < 2) {
+        priceByWeight = 6.9;
+    } else if (weight >= 2 && weight < 10) {
+        priceByWeight = 9;
+    } else if (weight >= 10 && weight < 15) {
+        priceByWeight = 29;
+    } else {
+        priceByWeight = 49;
+    }
+
+    return parseFloat(priceByWeight.toFixed(2));
+};
+
 
 const calculateTotalShippingCost = async (shipments, filteredItems) => {
     let totalShippingCost = 0;
@@ -107,12 +115,10 @@ const calculateTotalShippingCost = async (shipments, filteredItems) => {
         for (const orderItem of shipment.order_items_shipments) {
             const orderItemId = orderItem.order_item_id;
             const matchedItem = filteredItems.find(item => item.id === orderItemId);
-            console.log('length', matchedItem.length);
             if (matchedItem) {
                 const productRef = matchedItem.product_ref;
                 const productWeight = await getProductWeightBySku(productRef);
                 const shippingPrice = await getShippingPrice(productWeight);
-                console.log(productRef, productWeight);
                 console.log(productRef, shippingPrice);
                 totalShippingCost += parseFloat(shippingPrice);
             }
