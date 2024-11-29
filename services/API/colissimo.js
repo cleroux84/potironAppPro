@@ -1,5 +1,6 @@
 // Create Label from CBox API
 const fetch = require('node-fetch');
+const { getProductWeightBySku } = require('./Shopify/products');
 require('dotenv').config();
  
 const colissimoApiKey = process.env.CBOX_API_KEY;
@@ -98,8 +99,29 @@ const getShippingPrice = async (weight) => {
         weight < 15 ? 29 : 49;
     return priceByWeight.toFixed(2);
 }
+
+const calculateTotalShippingCost = async (shipments, filteredItems) => {
+    let totalShippingCost = 0;
+
+    for (const shipment of shipments) {
+        for (const orderItem of shipment.order_items_shipments) {
+            const orderItemId = orderItem.order_item_id;
+            const matchedItem = filteredItems.find(item => item.id === orderItemId);
+
+            if (matchedItem) {
+                const productRef = matchedItem.product_ref;
+                const productWeight = await getProductWeightBySku(productRef);
+                const shippingPrice = await getShippingPrice(productWeight);
+                totalShippingCost += parseFloat(shippingPrice);
+            }
+        }
+    }
+
+    return totalShippingCost.toFixed(2);
+};
  
 module.exports = {
     createLabel,
-    getShippingPrice
+    getShippingPrice,
+    calculateTotalShippingCost
 };
