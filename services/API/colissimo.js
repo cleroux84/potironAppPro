@@ -107,11 +107,13 @@ const calculateTotalShippingCost = async (shipments, filteredItems) => {
         for (const orderItem of shipment.order_items_shipments) {
             const orderItemId = orderItem.order_item_id;
             const matchedItem = filteredItems.find(item => item.id === orderItemId);
-
+            console.log('length', matchedItem.length);
             if (matchedItem) {
                 const productRef = matchedItem.product_ref;
                 const productWeight = await getProductWeightBySku(productRef);
                 const shippingPrice = await getShippingPrice(productWeight);
+                console.log(productRef, productWeight);
+                console.log(productRef, shippingPrice);
                 totalShippingCost += parseFloat(shippingPrice);
             }
         }
