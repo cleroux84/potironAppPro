@@ -151,7 +151,7 @@ router.get('/getOrderById', async (req, res) => {
 let quantitiesByRefs;
 
 router.post('/checkIfsReturnPossible', async (req, res) => {  // Changement de 'get' à 'post'
-  const { warehouseOrderId, return_items, quantities, reasons, filteredItems, returnAllOrder, productSkuCalc } = req.body;  // On récupère les données envoyées dans le body
+  const { warehouseOrderId, return_items, quantities, reasons, filteredItems, returnAllOrder, productSkuCalc, orderName, createdOrder } = req.body;
   const itemsToReturn = return_items.split(','); 
   const quantitiesByRefs = JSON.parse(quantities);
   const reasonsByRefs = JSON.parse(reasons);  
@@ -229,7 +229,9 @@ router.post('/checkIfsReturnPossible', async (req, res) => {  // Changement de '
       filteredItems: filteredItems,
       totalAsset: totalAsset,
       totalRefund: totalRefund,
-      totalWeight: totalWeight
+      totalWeight: totalWeight,
+      orderName: orderName,
+      createdOrder: createdOrder
     });
  
   } catch (error) {
@@ -406,11 +408,11 @@ router.post('/returnProduct', async (req, res) => {
       await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfBase64, parcelNumbers, totalOrder);
 
         return res.status(200).json({
-          // success: true,
+          success: true,
           // data: priceRules,
-          // getOrder: warehouseOrder,
-          // returnOrder: returnOrderData,
-          // label: createLabelData
+          getOrder: warehouseOrder,
+          returnOrder: returnOrderData,
+          label: createLabelData
         })
     //   } else {
     //     console.log('return order already exists : contact SAV !');
