@@ -128,48 +128,60 @@ const calculateTotalShippingCost = async (shipments, filteredItems) => {
     return totalShippingCost.toFixed(2);
 };
 
-const calculateShippingCostForReturns = async (shipments, itemsToReturn, filteredItems, reasonsByRefs) => {
+const groupReturnedItemsByShipment = (shipments, itemsToReturn) => {
+    const itemsGroupedByShipment = {};
+
+    shipments.forEach(shipment => {
+        const shipmentId = shipment.id;
+
+        const returnedItemsInShipment = shipment.order_items_shipments.filter(item => 
+            itemsToReturn.includes(item.order_item_id.toString())
+        );
+
+        if (returnedItemsInShipment.length > 0) {
+            itemsGroupedByShipment[shipmentId] = returnedItemsInShipment.map(item => ({
+                orderItemId: item.order_item_id,
+                quantity: item.quantity,
+            }));
+        }
+    });
+
+    return itemsGroupedByShipment;
+};
+ 
+const calculateShippingCostForGroupedItems = async (itemsGroupedByShipment, shipments, filteredItems) => {
     let totalRefundTest = 0;
-    let totalWeightByColis = {};
 
-    for (const shipment of shipments) {
-        const shipmentId = shipment.id; // Identifiant unique du colis
-        totalWeightByColis[shipmentId] = 0;
+    for (const [shipmentId, returnedItems] of Object.entries(itemsGroupedByShipment)) {
+        const shipment = shipments.find(s => s.id === parseInt(shipmentId));
+        let totalWeight = 0;
 
-        for (const orderItem of shipment.order_items_shipments) {
-            const orderItemId = orderItem.order_item_id.toString();
-
-            if (itemsToReturn.includes(orderItemId)) {
-                const matchedItem = filteredItems.find(item => item.id === orderItemId);
-                if (matchedItem) {
-                    const productRef = matchedItem.product_ref;
-                    const productWeight = await getProductWeightBySku(productRef);
-                    if (productWeight) {
-                        const weight = productWeight.weight * orderItem.quantity; // Poids total pour ce produit
-                        totalWeightByColis[shipmentId] += weight;
-                        console.log(`Produit ${productRef} dans colis ${shipmentId} avec poids ${weight}kg.`);
-                    }
+        for (const item of returnedItems) {
+            const matchedItem = filteredItems.find(filtered => filtered.id === item.orderItemId);
+            if (matchedItem) {
+                const productRef = matchedItem.product_ref;
+                const productWeight = await getProductWeightBySku(productRef);
+                if (productWeight) {
+                    totalWeight += productWeight.weight * item.quantity;
                 }
             }
         }
-    }
 
-    for (const [shipmentId, weight] of Object.entries(totalWeightByColis)) {
-        if (weight > 0) {
-            const shippingPrice = await getShippingPrice(weight);
-            console.log(`Colis ${shipmentId} - Poids total: ${weight}kg, Frais: ${shippingPrice}€`);
-            totalRefundTest += shippingPrice;
+        if (totalWeight > 0) {
+            const shippingCost = await getShippingPrice(totalWeight / 1000); // Convertir en kg
+            console.log(`Colis ${shipmentId}: Poids total = ${totalWeight}g, Frais de retour = ${shippingCost}€`);
+            totalRefundTest += shippingCost;
         }
     }
 
     return totalRefundTest;
 };
- 
 
  
 module.exports = {
     createLabel,
     getShippingPrice,
     calculateTotalShippingCost,
-    calculateShippingCostForReturns
+    calculateShippingCostForGroupedItems,
+    groupReturnedItemsByShipment
 };

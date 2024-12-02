@@ -11,7 +11,7 @@ const { getAccessTokenWarehouseFromDb } = require('../services/database/tokens/g
 const { orderById } = require('../services/API/Shopify/customers');
 const { getShippingboOrderDetails } = require('../services/API/Shippingbo/Potiron/ordersCRUD');
 const { getWarehouseOrderDetails, getshippingDetails } = require('../services/API/Shippingbo/Gma/ordersCRUD');
-const { createLabel, getShippingPrice, calculateTotalShippingCost, calculateShippingCostForReturns } = require('../services/API/colissimo');
+const { createLabel, getShippingPrice, calculateTotalShippingCost, groupReturnedItemsByShipment, calculateShippingCostForGroupedItems } = require('../services/API/colissimo');
 const { getProductWeightBySku } = require('../services/API/Shopify/products');
 const { checkIfReturnOrderExist, createReturnOrder } = require('../services/API/Shippingbo/Gma/returnOrdersCRUD');
 const { sendReturnDataToSAV } = require('../services/sendMails/mailForTeam');
@@ -198,9 +198,10 @@ router.post('/checkIfsReturnPossible', async (req, res) => {  // Changement de '
           }
         }
       } else {
-        console.log('1 produit plusieurs quantités ')
-        const test = await calculateShippingCostForReturns(shipments, itemsToReturn, filteredItems, reasonsByRefs)
-        console.log('here we are', test);
+        console.log('1 produit plusieurs quantités ');
+        const itemsGrouped = groupReturnedItemsByShipment(shipments, itemsToReturn);
+        const testouille = await calculateShippingCostForGroupedItems(itemsGrouped, shipments, filteredItems);
+        console.log('testouille', testouille);
       }
     }
  
