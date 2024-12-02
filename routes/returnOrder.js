@@ -74,7 +74,7 @@ router.get('/getOrderById', async (req, res) => {
   try {
     // const orderData = await orderById(orderName, orderMail, 6406535905430); // pas colissimo #8021
     // const orderData = await orderById(orderName, orderMail, 8063057985864); //4 colissimo #8012
-    // const orderData = await orderById(orderName, orderMail, 8074569285960); //1 colissimo #8058
+    // const orderData = await orderById(orderName, orderMail, 8074569285960); //2 colissimo #8058
     // const orderData = await orderById(orderName, orderMail, 8174393917768); //4 articles identiques colissimo #8294
     // const orderData = await orderById(orderName, orderMail, 8045312737608); //3 articles colissimo #7865
     // const orderData = await orderById(orderName, orderMail, 8076398264648); //3 articles colissimo #8102
@@ -151,7 +151,7 @@ router.get('/getOrderById', async (req, res) => {
 let quantitiesByRefs;
 
 router.post('/checkIfsReturnPossible', async (req, res) => {  // Changement de 'get' à 'post'
-  const { warehouseOrderId, return_items, quantities, reasons, filteredItems, returnAllOrder, productSkuCalc, orderName, createdOrder } = req.body;
+  const { warehouseOrderId, return_items, quantities, reasons, filteredItems, returnAllOrder, productSkuCalc, orderName, createdOrder, originalDiscounts } = req.body;
   const itemsToReturn = return_items.split(','); 
   const quantitiesByRefs = JSON.parse(quantities);
   const reasonsByRefs = JSON.parse(reasons);  
@@ -169,7 +169,6 @@ router.post('/checkIfsReturnPossible', async (req, res) => {  // Changement de '
     let totalRefund = 0;
     let totalWeight = 0;
     let priceByWeight;
-    //TODO : si plusieurs colis => plusieurs colissimo donc plusieurs priceByWeight à ajouter
     if(returnAllOrder) {
       totalAsset = (warehouseOrder.order.total_price_cents / 100).toFixed(2);
       totalWeight = shipments.reduce((sum, shipment) => sum + (shipment.total_weight || 0), 0) / 1000;
@@ -180,11 +179,12 @@ router.post('/checkIfsReturnPossible', async (req, res) => {  // Changement de '
         totalRefund = totalAsset - priceByWeight;
       } else {
         priceByWeight = await calculateTotalShippingCost(shipments, filteredItems);
-        console.log('il faut calculer le prix avec le poids de chaque colis', priceByWeight);
+        console.log('il faut calculer le prix avec le poids de chaque produit', priceByWeight);
         totalRefund = totalAsset - priceByWeight;
       }
       console.log('option 2: ', totalRefund);
     } else {
+      //TODO si plusieurs colis ?
       for(const sku of productSkuCalc) {
         const productFound = await getProductWeightBySku(sku.product_user_ref);
         if(productFound) {
@@ -239,7 +239,8 @@ router.post('/checkIfsReturnPossible', async (req, res) => {  // Changement de '
       totalRefund: totalRefund,
       totalWeight: totalWeight,
       orderName: orderName,
-      createdOrder: createdOrder
+      createdOrder: createdOrder,
+      originalDiscounts: originalDiscounts
     });
  
   } catch (error) {
