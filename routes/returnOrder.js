@@ -336,7 +336,7 @@ router.post('/returnProduct', async (req, res) => {
     } else {
       if(productSku.length === 1) {
         const productFoundSku = await getProductWeightBySku(productSku[0].product_user_ref);
-        weightToReturn += productFoundSku[0].weight * productSku[0].quantity;
+        weightToReturn += productFoundSku.weight * productSku[0].quantity;
         totalOrder += productSku[0].unit_price * productSku[0].quantity;
         console.log("return 1 product", weightToReturn);
         console.log('total return 1 product', totalOrder);
