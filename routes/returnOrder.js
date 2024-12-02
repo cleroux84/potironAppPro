@@ -186,9 +186,14 @@ router.post('/checkIfsReturnPossible', async (req, res) => {  // Changement de '
     } else {
       //TODO si plusieurs colis ?
       for(const sku of productSkuCalc) {
+        console.log("productSku", productSkuCalc);
         const productFound = await getProductWeightBySku(sku.product_user_ref);
         if(productFound) {
+          console.log('unit price', sku.unit_price);
+          console.log('quantity', sku.quantity);
           totalAsset += sku.unit_price * sku.quantity;
+          console.log('option 1', totalAsset);
+
           totalWeight += productFound.weight * sku.quantity;
           priceByWeight = await getShippingPrice(totalWeight);
           totalRefund = totalAsset - priceByWeight;
