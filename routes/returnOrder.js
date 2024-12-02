@@ -184,17 +184,21 @@ router.post('/checkIfsReturnPossible', async (req, res) => {  // Changement de '
       }
       console.log('option 2: ', totalRefund);
     } else {
-      for(const sku of productSkuCalc) {
-        console.log("productSku", productSkuCalc);
-        const productFound = await getProductWeightBySku(sku.product_user_ref);
-        if(productFound) {
-          totalAsset += sku.unit_price * sku.quantity;
-          console.log('option 1', totalAsset);
-          totalWeight += productFound.weight * sku.quantity;
-          priceByWeight = await getShippingPrice(totalWeight);
-          totalRefund = totalAsset - priceByWeight;
-          console.log('option 2: ', totalRefund);
+      if(productSkuCalc.length === 1 && productSkuCalc[0].quantity === 1)  {
+        for(const sku of productSkuCalc) {
+          console.log("productSku", productSkuCalc);
+          const productFound = await getProductWeightBySku(sku.product_user_ref);
+          if(productFound) {
+            totalAsset += sku.unit_price * sku.quantity;
+            console.log('option 1', totalAsset);
+            totalWeight += productFound.weight * sku.quantity;
+            priceByWeight = await getShippingPrice(totalWeight);
+            totalRefund = totalAsset - priceByWeight;
+            console.log('option 2: ', totalRefund);
+          }
         }
+      } else {
+        console.log('1 produit plusieurs quantités ')
       }
     }
  
