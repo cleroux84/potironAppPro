@@ -134,20 +134,23 @@ const groupReturnedItemsByShipment = (shipments, filteredItems) => {
     shipments.forEach(shipment => {
         const shipmentId = shipment.id;
  
-        // Filtrer les articles retournés présents dans ce colis
-        const returnedItemsInShipment = shipment.order_items_shipments
-            .map(orderItem => {
-                const matchedItem = filteredItems.find(filtered => filtered.id === orderItem.order_item_id);
-                if (matchedItem) {
-                    return {
-                        orderItemId: matchedItem.id,
-                        quantity: matchedItem.quantity, // Quantité exacte à retourner
-                        productRef: matchedItem.product_ref, // Référence produit
-                    };
-                }
-                return null;
-            })
-            .filter(Boolean); // Supprimer les nulls
+        // Initialisation de l'objet pour contenir les articles retournés pour ce colis
+        const returnedItemsInShipment = [];
+ 
+        shipment.order_items_shipments.forEach(orderItem => {
+            const matchedItem = filteredItems.find(filtered => filtered.id === orderItem.order_item_id);
+ 
+            if (matchedItem) {
+                // On vérifie combien de ce produit sont dans le colis et combien le client souhaite retourner
+                const quantityToReturn = Math.min(matchedItem.quantity, orderItem.quantity);
+                // Ajouter à l'array avec la quantité retournée
+                returnedItemsInShipment.push({
+                    orderItemId: matchedItem.id,
+                    quantity: quantityToReturn, // La quantité retournée pour ce produit dans ce colis
+                    productRef: matchedItem.product_ref
+                });
+            }
+        });
  
         if (returnedItemsInShipment.length > 0) {
             itemsGroupedByShipment[shipmentId] = returnedItemsInShipment;
@@ -164,15 +167,16 @@ const calculateShippingCostForGroupedItems = async (itemsGroupedByShipment, ship
         const shipment = shipments.find(s => s.id === parseInt(shipmentId));
         let totalWeight = 0;
  
+        // Calcul du poids total des articles retournés dans ce colis
         for (const item of returnedItems) {
-            // Obtenez le poids par produit
             const productWeight = await getProductWeightBySku(item.productRef);
             if (productWeight) {
-                // Ajouter le poids de l'article retourné (en tenant compte de la quantité)
+                // Ajouter le poids du produit retourné dans ce colis en tenant compte de la quantité
                 totalWeight += productWeight.weight * item.quantity;
             }
         }
  
+        // Calculer le coût de retour basé sur le poids total du colis
         if (totalWeight > 0) {
             const shippingCost = await getShippingPrice(totalWeight / 1000); // Convertir en kg
             console.log(`Colis ${shipmentId}: Poids total = ${totalWeight}g, Frais de retour = ${shippingCost}€`);
@@ -182,7 +186,6 @@ const calculateShippingCostForGroupedItems = async (itemsGroupedByShipment, ship
  
     return totalRefund;
 };
-
  
 module.exports = {
     createLabel,
