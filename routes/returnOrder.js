@@ -328,33 +328,36 @@ router.post('/returnProduct', async (req, res) => {
             pdfBase64 = createLabelData.map(data => data.pdfData);
           }
         }
-        console.log('return all mais plusieurs colis => plusieurs étiquettes à imprimer');
       }
       
       totalOrder = req.body.totalOrder;
       totalOrder = (totalOrder / 100).toFixed(2);
     } else {
       if(productSku.length === 1) {
-        const productFoundSku = await getProductWeightBySku(productSku[0].product_user_ref);
-        weightToReturn += productFoundSku.weight * productSku[0].quantity;
-        totalOrder += productSku[0].unit_price * productSku[0].quantity;
-        console.log("return 1 product", weightToReturn);
-        console.log('total return 1 product', totalOrder);
-        parcel = {
-          "weight": weightToReturn,
-          "insuranceAmount": 0,
-          "insuranceValue": 0,
-          "nonMachinable": false,
-          "returnReceipt": false
-        };
-        const labelData = await createLabel(senderCustomer, parcel);
-        if(labelData) {
-          createLabelData.push(labelData);
-          parcelNumbers = createLabelData.map(data => data.parcelNumber);
-          pdfBase64 = createLabelData.map(data => data.pdfData);
+        if(productSku[0].quantity === 1) {
+          const productFoundSku = await getProductWeightBySku(productSku[0].product_user_ref);
+          weightToReturn += productFoundSku.weight * productSku[0].quantity;
+          totalOrder += productSku[0].unit_price * productSku[0].quantity;
+          console.log("return 1 product", weightToReturn);
+          console.log('total return 1 product', totalOrder);
+          parcel = {
+            "weight": weightToReturn,
+            "insuranceAmount": 0,
+            "insuranceValue": 0,
+            "nonMachinable": false,
+            "returnReceipt": false
+          };
+          const labelData = await createLabel(senderCustomer, parcel);
+          if(labelData) {
+            createLabelData.push(labelData);
+            parcelNumbers = createLabelData.map(data => data.parcelNumber);
+            pdfBase64 = createLabelData.map(data => data.pdfData);
+          }
+        } else {
+          console.log("si 1 produit mais plusieurs quantité")
         }
       } else {
-        
+        console.log('si plusieurs produits et plusieurs colis')
       }
       //TODO
       //return weight by weight => problem about number of packages !  
@@ -410,22 +413,22 @@ router.post('/returnProduct', async (req, res) => {
         // const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
         
     //     //create a return order in shippingbo warehouse
-        const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku, shopifyOrderId);
-        const returnOrderId = returnOrderData.return_order.id;
-        const shopifyId = returnOrderData.return_order.reason_ref;
-        const attributes = [
-          // {name: "warehouseId", value: warehouseOrder.order.id},
-          {name: "customerId", value: customerId},
-          {name: "totalOrderReturn", value: totalOrder}
-        ];
-        const updatedAttributes = {
-          order: {
-            id: orderId,
-            note_attributes: attributes
-          }
-        }
-        //update shopify order with attributes to have discount data for future creation
-        updateOrder(updatedAttributes ,shopifyId)
+        // const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku, shopifyOrderId);
+        // const returnOrderId = returnOrderData.return_order.id;
+        // const shopifyId = returnOrderData.return_order.reason_ref;
+        // const attributes = [
+        //   // {name: "warehouseId", value: warehouseOrder.order.id},
+        //   {name: "customerId", value: customerId},
+        //   {name: "totalOrderReturn", value: totalOrder}
+        // ];
+        // const updatedAttributes = {
+        //   order: {
+        //     id: orderId,
+        //     note_attributes: attributes
+        //   }
+        // }
+        // //update shopify order with attributes to have discount data for future creation
+        // updateOrder(updatedAttributes ,shopifyId)
 
     //     // create a return label with colissimo API
         // const createLabelData = await createLabel(senderCustomer, parcel);
@@ -437,15 +440,15 @@ router.post('/returnProduct', async (req, res) => {
         accessTokenMS365 = await getAccessTokenMS365();
       }
     //   //send email to Magalie with parcel number and shopify Id and return order Id
-      await sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumbers, returnOrderId, totalOrder)
+      // await sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumbers, returnOrderId, totalOrder)
     //   //send email to customer with link to dwld label and parcel number
-      await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfBase64, parcelNumbers, totalOrder);
+      // await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfBase64, parcelNumbers, totalOrder);
 
         return res.status(200).json({
-          success: true,
+          // success: true,
           // data: priceRules,
-          getOrder: warehouseOrder,
-          returnOrder: returnOrderData,
+          // getOrder: warehouseOrder,
+          // returnOrder: returnOrderData,
           label: createLabelData
         })
     //   } else {
