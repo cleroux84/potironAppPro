@@ -128,61 +128,59 @@ const calculateTotalShippingCost = async (shipments, filteredItems) => {
     return totalShippingCost.toFixed(2);
 };
 
-const groupReturnedItemsByShipment = (shipments, itemsToReturn, quantitiesByRefs) => {
+const groupReturnedItemsByShipment = (shipments, filteredItems) => {
     const itemsGroupedByShipment = {};
-console.log('qté by refs', quantitiesByRefs);
-console.log('items to return', itemsToReturn);
+ 
     shipments.forEach(shipment => {
         const shipmentId = shipment.id;
-
-        // Filtrer les articles retournés et ajuster la quantité
+ 
+        // Filtrer les articles retournés présents dans ce colis
         const returnedItemsInShipment = shipment.order_items_shipments
-            .filter(item => itemsToReturn.includes(item.order_item_id.toString()))
-            .map(item => {
-                const orderItemId = item.order_item_id.toString();
-                const quantityReturned = quantitiesByRefs[orderItemId] || 0; // Quantité demandée pour retour
-                return {
-                    orderItemId: item.order_item_id,
-                    quantity: Math.min(quantityReturned, item.quantity), // Prendre le minimum
-                };
+            .map(orderItem => {
+                const matchedItem = filteredItems.find(filtered => filtered.id === orderItem.order_item_id);
+                if (matchedItem) {
+                    return {
+                        orderItemId: matchedItem.id,
+                        quantity: matchedItem.quantity, // Quantité exacte à retourner
+                        productRef: matchedItem.product_ref, // Référence produit
+                    };
+                }
+                return null;
             })
-            .filter(item => item.quantity > 0); // Ignorer si aucune quantité n'est demandée
-
+            .filter(Boolean); // Supprimer les nulls
+ 
         if (returnedItemsInShipment.length > 0) {
             itemsGroupedByShipment[shipmentId] = returnedItemsInShipment;
         }
     });
-
+ 
     return itemsGroupedByShipment;
 };
  
-const calculateShippingCostForGroupedItems = async (itemsGroupedByShipment, shipments, filteredItems) => {
-    let totalRefundTest = 0;
-    console.log('filtered items', filteredItems)
+const calculateShippingCostForGroupedItems = async (itemsGroupedByShipment, shipments) => {
+    let totalRefund = 0;
+ 
     for (const [shipmentId, returnedItems] of Object.entries(itemsGroupedByShipment)) {
         const shipment = shipments.find(s => s.id === parseInt(shipmentId));
         let totalWeight = 0;
-
+ 
         for (const item of returnedItems) {
-            const matchedItem = filteredItems.find(filtered => filtered.id === item.orderItemId);
-            if (matchedItem) {
-                const productRef = matchedItem.product_ref;
-                const productWeight = await getProductWeightBySku(productRef);
-                if (productWeight) {
-                    // Calculer le poids pour la quantité retournée
-                    totalWeight += productWeight.weight * item.quantity;
-                }
+            // Obtenez le poids par produit
+            const productWeight = await getProductWeightBySku(item.productRef);
+            if (productWeight) {
+                // Ajouter le poids de l'article retourné (en tenant compte de la quantité)
+                totalWeight += productWeight.weight * item.quantity;
             }
         }
-
+ 
         if (totalWeight > 0) {
             const shippingCost = await getShippingPrice(totalWeight / 1000); // Convertir en kg
             console.log(`Colis ${shipmentId}: Poids total = ${totalWeight}g, Frais de retour = ${shippingCost}€`);
-            totalRefundTest += shippingCost;
+            totalRefund += shippingCost;
         }
     }
-
-    return totalRefundTest;
+ 
+    return totalRefund;
 };
 
  
