@@ -128,16 +128,16 @@ const calculateTotalShippingCost = async (shipments, filteredItems) => {
     return totalShippingCost.toFixed(2);
 };
 
-const groupReturnedItemsByShipment = (shipments, filteredItems, quantitiesByRefs) => {
+const groupReturnedItemsByShipment = (shipments, itemsToReturn, quantitiesByRefs) => {
     const itemsGroupedByShipment = {};
 console.log('qté by refs', quantitiesByRefs);
-
+console.log('items to return', itemsToReturn);
     shipments.forEach(shipment => {
         const shipmentId = shipment.id;
 
         // Filtrer les articles retournés et ajuster la quantité
         const returnedItemsInShipment = shipment.order_items_shipments
-            .filter(item => filteredItems.includes(item.order_item_id.toString()))
+            .filter(item => itemsToReturn.includes(item.order_item_id.toString()))
             .map(item => {
                 const orderItemId = item.order_item_id.toString();
                 const quantityReturned = quantitiesByRefs[orderItemId] || 0; // Quantité demandée pour retour
@@ -158,7 +158,7 @@ console.log('qté by refs', quantitiesByRefs);
  
 const calculateShippingCostForGroupedItems = async (itemsGroupedByShipment, shipments, filteredItems) => {
     let totalRefundTest = 0;
-
+    console.log('filtered items', filteredItems)
     for (const [shipmentId, returnedItems] of Object.entries(itemsGroupedByShipment)) {
         const shipment = shipments.find(s => s.id === parseInt(shipmentId));
         let totalWeight = 0;
