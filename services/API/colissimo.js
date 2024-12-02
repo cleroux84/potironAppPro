@@ -97,7 +97,6 @@ const getShippingPrice = async (weight) => {
     if (weight < 2) {
         priceByWeight = 6.9;
     } else if (weight >= 2 && weight < 10) {
-        console.log('passe bien là!');
         priceByWeight = 9;
     } else if (weight >= 10 && weight < 15) {
         priceByWeight = 29;
