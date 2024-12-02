@@ -199,7 +199,7 @@ router.post('/checkIfsReturnPossible', async (req, res) => {  // Changement de '
         }
       } else {
         console.log('1 produit plusieurs quantités ');
-        const itemsGrouped = groupReturnedItemsByShipment(shipments, itemsToReturn, quantitiesByRefs);
+        const itemsGrouped = groupReturnedItemsByShipment(shipments, filteredItems, quantitiesByRefs);
         const testouille = await calculateShippingCostForGroupedItems(itemsGrouped, shipments, filteredItems);
         console.log('testouille', testouille);
       }

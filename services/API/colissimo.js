@@ -128,15 +128,16 @@ const calculateTotalShippingCost = async (shipments, filteredItems) => {
     return totalShippingCost.toFixed(2);
 };
 
-const groupReturnedItemsByShipment = (shipments, itemsToReturn, quantitiesByRefs) => {
+const groupReturnedItemsByShipment = (shipments, filteredItems, quantitiesByRefs) => {
     const itemsGroupedByShipment = {};
+console.log('qté by refs', quantitiesByRefs);
 
     shipments.forEach(shipment => {
         const shipmentId = shipment.id;
 
         // Filtrer les articles retournés et ajuster la quantité
         const returnedItemsInShipment = shipment.order_items_shipments
-            .filter(item => itemsToReturn.includes(item.order_item_id.toString()))
+            .filter(item => filteredItems.includes(item.order_item_id.toString()))
             .map(item => {
                 const orderItemId = item.order_item_id.toString();
                 const quantityReturned = quantitiesByRefs[orderItemId] || 0; // Quantité demandée pour retour
