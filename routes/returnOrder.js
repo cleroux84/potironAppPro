@@ -364,29 +364,29 @@ router.post('/returnProduct', async (req, res) => {
           const groupedItemsByShipment = groupReturnedItemsByShipment2(shipments, filteredItems, returnQuantities);
            
           for (const shipmentId in groupedItemsByShipment) {
-              const itemsInShipment = groupedItemsByShipment[shipmentId];
-              const weightPromises = itemsInShipment.map(async (item) => {
-                  const productWeight = await getProductWeightBySku(item.product_ref);
-                  return productWeight.weight * item.quantity;
-              });
-           
-              const weights = await Promise.all(weightPromises);
-              const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
-           
-              const parcel = {
-                  "weight": totalWeight,
-                  "insuranceAmount": 0,
-                  "insuranceValue": 0,
-                  "nonMachinable": false,
-                  "returnReceipt": false
-              };
-           
-              const labelData = await createLabel(senderCustomer, parcel);
-              if (labelData) {
-                  createLabelData.push(labelData);
-                  parcelNumbers = createLabelData.map(data => data.parcelNumber);
-                  pdfBase64 = createLabelData.map(data => data.pdfData);
-              }
+            const itemsInShipment = groupedItemsByShipment[shipmentId];
+         
+            for (const item of itemsInShipment) {
+                const productWeight = await getProductWeightBySku(item.product_ref);
+                const weightPerUnit = productWeight.weight;
+         
+                for (let i = 0; i < item.quantity; i++) {
+                    const parcel = {
+                        "weight": weightPerUnit,
+                        "insuranceAmount": 0,
+                        "insuranceValue": 0,
+                        "nonMachinable": false,
+                        "returnReceipt": false
+                    };
+         
+                    const labelData = await createLabel(senderCustomer, parcel);
+                    if (labelData) {
+                        createLabelData.push(labelData);
+                        parcelNumbers = createLabelData.map(data => data.parcelNumber);
+                        pdfBase64 = createLabelData.map(data => data.pdfData);
+                    }
+                }
+            }
           }
         }
       } else {
@@ -398,29 +398,30 @@ router.post('/returnProduct', async (req, res) => {
         
         const groupedItemsByShipment = groupReturnedItemsByShipment2(shipments, filteredItems, returnQuantities);
         for (const shipmentId in groupedItemsByShipment) {
-            const itemsInShipment = groupedItemsByShipment[shipmentId];
-            const weightPromises = itemsInShipment.map(async (item) => {
-                const productWeight = await getProductWeightBySku(item.product_ref);
-                return productWeight.weight * item.quantity;
-            });
-        
-            const weights = await Promise.all(weightPromises); 
-            const totalWeight = weights.reduce((sum, weight) => sum + weight, 0); 
-        
-            const parcel = {
-                "weight": totalWeight, 
-                "insuranceAmount": 0,
-                "insuranceValue": 0,
-                "nonMachinable": false,
-                "returnReceipt": false
-            };
-        
-            const labelData = await createLabel(senderCustomer, parcel);
-            if (labelData) {
-                createLabelData.push(labelData);
-                parcelNumbers = createLabelData.map(data => data.parcelNumber);
-                pdfBase64 = createLabelData.map(data => data.pdfData);
-            }
+          const itemsInShipment = groupedItemsByShipment[shipmentId];
+      
+          for (const item of itemsInShipment) {
+              const productWeight = await getProductWeightBySku(item.product_ref);
+              const weightPerUnit = productWeight.weight;
+      
+              for (let i = 0; i < item.quantity; i++) {
+                  const parcel = {
+                      "weight": weightPerUnit / 1000, // Poids par unité
+                      "insuranceAmount": 0,
+                      "insuranceValue": 0,
+                      "nonMachinable": false,
+                      "returnReceipt": false
+                  };
+      
+                  // Création d'une étiquette par unité
+                  const labelData = await createLabel(senderCustomer, parcel);
+                  if (labelData) {
+                      createLabelData.push(labelData);
+                      parcelNumbers = createLabelData.map(data => data.parcelNumber);
+                      pdfBase64 = createLabelData.map(data => data.pdfData);
+                  }
+              }
+          }
         }
       }
      
