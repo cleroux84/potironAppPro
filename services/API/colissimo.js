@@ -128,41 +128,58 @@ const calculateTotalShippingCost = async (shipments, filteredItems) => {
     return totalShippingCost.toFixed(2);
 };
 
-const groupReturnedItemsByShipment = (shipments, filteredItems) => {
+const groupReturnedItemsByShipment = (shipments, filteredItems, returnQuantities) => {
     const groupedItems = {};
-
+ 
     for (const shipment of shipments) {
         const shipmentId = shipment.id;
+ 
         for (const orderItem of shipment.order_items_shipments) {
             const matchedItem = filteredItems.find(item => item.id === orderItem.order_item_id);
+ 
             if (matchedItem) {
-                if (!groupedItems[shipmentId]) {
-                    groupedItems[shipmentId] = [];
+                // Vérifie si cet article a encore des unités à retourner
+                const remainingQuantity = returnQuantities[matchedItem.id] || 0;
+                if (remainingQuantity > 0) {
+                    if (!groupedItems[shipmentId]) {
+                        groupedItems[shipmentId] = [];
+                    }
+ 
+                    // Ajoute cet article avec une quantité limitée
+                    const quantityToReturn = Math.min(orderItem.quantity, remainingQuantity);
+                    groupedItems[shipmentId].push({
+                        ...matchedItem,
+                        returnQuantity: quantityToReturn
+                    });
+ 
+                    // Réduit la quantité restante à retourner
+                    returnQuantities[matchedItem.id] -= quantityToReturn;
                 }
-                groupedItems[shipmentId].push(matchedItem);
             }
         }
     }
-    console.log('groupedItems', groupedItems)
+    console.log("groupedItems", groupedItems);
     return groupedItems;
 };
 
 const calculateShippingCostForGroupedItems = async (itemsGrouped, shipments) => {
     let totalShippingCost = 0;
-
+ 
     for (const [shipmentId, items] of Object.entries(itemsGrouped)) {
         let shipmentWeight = 0;
+ 
         for (const item of items) {
             const productWeight = await getProductWeightBySku(item.product_ref);
-            shipmentWeight += productWeight.weight;
+            shipmentWeight += productWeight.weight * item.returnQuantity;
         }
+ 
         const shipmentDetails = shipments.find(shipment => shipment.id === parseInt(shipmentId, 10));
         if (shipmentDetails) {
             const shippingPrice = await getShippingPrice(shipmentWeight);
             totalShippingCost += shippingPrice;
         }
     }
-    // console.log("total shippingcosts", totalShippingCost);
+ 
     return totalShippingCost.toFixed(2);
 };
  

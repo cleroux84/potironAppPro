@@ -156,7 +156,7 @@ router.post('/checkIfsReturnPossible', async (req, res) => {
   const quantitiesByRefs = JSON.parse(quantities);
   const reasonsByRefs = JSON.parse(reasons);  
  
-  console.log('Ref & raisons', reasonsByRefs);
+  console.log('qties & refs', reasonsByRefs);
  
   let accessTokenWarehouse = await getAccessTokenWarehouseFromDb();
  
@@ -199,7 +199,7 @@ router.post('/checkIfsReturnPossible', async (req, res) => {
         for(const sku of productSkuCalc) {
           totalAsset += sku.unit_price * sku.quantity;
         }
-        const groupedItems = groupReturnedItemsByShipment(shipments, filteredItems);
+        const groupedItems = groupReturnedItemsByShipment(shipments, filteredItems, quantitiesByRefs);
         priceByWeight = await calculateShippingCostForGroupedItems(groupedItems, shipments);
         totalRefund = totalAsset - priceByWeight;
       }
