@@ -374,7 +374,7 @@ router.post('/returnProduct', async (req, res) => {
               const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
            
               const parcel = {
-                  "weight": totalWeight / 1000,
+                  "weight": totalWeight,
                   "insuranceAmount": 0,
                   "insuranceValue": 0,
                   "nonMachinable": false,
@@ -408,7 +408,7 @@ router.post('/returnProduct', async (req, res) => {
             const totalWeight = weights.reduce((sum, weight) => sum + weight, 0); 
         
             const parcel = {
-                "weight": totalWeight / 1000, 
+                "weight": totalWeight, 
                 "insuranceAmount": 0,
                 "insuranceValue": 0,
                 "nonMachinable": false,
