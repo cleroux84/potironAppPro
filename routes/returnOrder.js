@@ -150,7 +150,7 @@ router.get('/getOrderById', async (req, res) => {
 
 let quantitiesByRefs;
 
-router.post('/checkIfsReturnPossible', async (req, res) => {  // Changement de 'get' à 'post'
+router.post('/checkIfsReturnPossible', async (req, res) => { 
   const { warehouseOrderId, return_items, quantities, reasons, filteredItems, returnAllOrder, productSkuCalc, orderName, createdOrder, originalDiscounts } = req.body;
   const itemsToReturn = return_items.split(','); 
   const quantitiesByRefs = JSON.parse(quantities);
@@ -164,7 +164,6 @@ router.post('/checkIfsReturnPossible', async (req, res) => {  // Changement de '
     const warehouseOrder = await getshippingDetails(accessTokenWarehouse, warehouseOrderId);
     const shipments = warehouseOrder.order.shipments;
     let allItemsHaveColissimo = true;
-
     let totalAsset = 0;
     let totalRefund = 0;
     let totalWeight = 0;
@@ -198,9 +197,9 @@ router.post('/checkIfsReturnPossible', async (req, res) => {  // Changement de '
           }
         }
       } else {
-        console.log('1 produit plusieurs quantités ');
-        const itemsGrouped = groupReturnedItemsByShipment(shipments, filteredItems);
-        const testouille = await calculateShippingCostForGroupedItems(itemsGrouped, shipments);
+        console.log('1 produit plusieurs quantités '); 
+        const groupedItems = groupReturnedItemsByShipment(shipments, filteredItems);
+        const testouille = await calculateShippingCostForGroupedItems(groupedItems, shipments);
         console.log('testouille', testouille);
       }
     }
