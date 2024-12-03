@@ -178,7 +178,6 @@ router.post('/checkIfsReturnPossible', async (req, res) => {
         totalRefund = totalAsset - priceByWeight;
       } else {
         priceByWeight = await calculateTotalShippingCost(shipments, filteredItems);
-        console.log('il faut calculer le prix avec le poids de chaque produit', priceByWeight);
         totalRefund = totalAsset - priceByWeight;
       }
       console.log('option 2: ', totalRefund);
@@ -197,10 +196,12 @@ router.post('/checkIfsReturnPossible', async (req, res) => {
           }
         }
       } else {
-        console.log('1 produit plusieurs quantités '); 
+        for(const sku of productSkuCalc) {
+          totalAsset += sku.unit_price * sku.quantity;
+        }
         const groupedItems = groupReturnedItemsByShipment(shipments, filteredItems);
-        const testouille = await calculateShippingCostForGroupedItems(groupedItems, shipments);
-        console.log('testouille', testouille);
+        priceByWeight = await calculateShippingCostForGroupedItems(groupedItems, shipments);
+        totalRefund = totalAsset - priceByWeight;
       }
     }
  

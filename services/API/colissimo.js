@@ -143,7 +143,7 @@ const groupReturnedItemsByShipment = (shipments, filteredItems) => {
             }
         }
     }
-    console.log('groupedItems', groupedItems)
+    // console.log('groupedItems', groupedItems)
     return groupedItems;
 };
 
@@ -162,7 +162,7 @@ const calculateShippingCostForGroupedItems = async (itemsGrouped, shipments) => 
             totalShippingCost += shippingPrice;
         }
     }
-    console.log("total shippingcosts", totalShippingCost);
+    // console.log("total shippingcosts", totalShippingCost);
     return totalShippingCost.toFixed(2);
 };
  
