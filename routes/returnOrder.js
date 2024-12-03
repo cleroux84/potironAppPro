@@ -171,7 +171,6 @@ router.post('/checkIfsReturnPossible', async (req, res) => {
     if(returnAllOrder) {
       totalAsset = (warehouseOrder.order.total_price_cents / 100).toFixed(2);
       totalWeight = shipments.reduce((sum, shipment) => sum + (shipment.total_weight || 0), 0) / 1000;
-      console.log("option 1 : ", totalAsset);
 
       if(shipments.length === 1) {
         priceByWeight = await getShippingPrice(totalWeight);
@@ -180,19 +179,15 @@ router.post('/checkIfsReturnPossible', async (req, res) => {
         priceByWeight = await calculateTotalShippingCost(shipments, filteredItems);
         totalRefund = totalAsset - priceByWeight;
       }
-      console.log('option 2: ', totalRefund);
     } else {
       if(productSkuCalc.length === 1 && productSkuCalc[0].quantity === 1)  {
         for(const sku of productSkuCalc) {
-          console.log("productSku", productSkuCalc);
           const productFound = await getProductWeightBySku(sku.product_user_ref);
           if(productFound) {
             totalAsset += sku.unit_price * sku.quantity;
-            console.log('option 1', totalAsset);
             totalWeight += productFound.weight * sku.quantity;
             priceByWeight = await getShippingPrice(totalWeight);
             totalRefund = totalAsset - priceByWeight;
-            console.log('option 2: ', totalRefund);
           }
         }
       } else {
@@ -268,6 +263,7 @@ router.post('/returnProduct', async (req, res) => {
   const orderId = req.body.orderId;
   const returnAll = req.body.returnAllOrder;
   const shopifyOrderId = req.body.shopifyOrderId;
+  const filteredItems = req.body.filteredItems;
   console.log('return all', returnAll);
   if(!customerId) {
     let initialiOrder = await getOrderByShopifyId(shopifyOrderId);
@@ -345,8 +341,8 @@ router.post('/returnProduct', async (req, res) => {
           const productFoundSku = await getProductWeightBySku(productSku[0].product_user_ref);
           weightToReturn += productFoundSku.weight * productSku[0].quantity;
           totalOrder += productSku[0].unit_price * productSku[0].quantity;
-          console.log("return 1 product", weightToReturn);
-          console.log('total return 1 product', totalOrder);
+          // console.log("return 1 product", weightToReturn);
+          // console.log('total return 1 product', totalOrder);
           parcel = {
             "weight": weightToReturn,
             "insuranceAmount": 0,
@@ -362,28 +358,72 @@ router.post('/returnProduct', async (req, res) => {
           }
         } else {
           console.log("si 1 produit mais plusieurs quantité")
+          console.log("Retour d'un produit avec plusieurs quantités");
+ 
+          const returnQuantities = { [productSku[0].product_user_ref]: productSku[0].quantity };
+          const groupedItemsByShipment = groupReturnedItemsByShipment(shipments, filteredItems, returnQuantities);
+           
+          for (const shipmentId in groupedItemsByShipment) {
+              const itemsInShipment = groupedItemsByShipment[shipmentId];
+              const weightPromises = itemsInShipment.map(async (item) => {
+                  const productWeight = await getProductWeightBySku(item.product_ref);
+                  return productWeight.weight * item.quantity;
+              });
+           
+              const weights = await Promise.all(weightPromises);
+              const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+           
+              const parcel = {
+                  "weight": totalWeight / 1000,
+                  "insuranceAmount": 0,
+                  "insuranceValue": 0,
+                  "nonMachinable": false,
+                  "returnReceipt": false
+              };
+           
+              const labelData = await createLabel(senderCustomer, parcel);
+              if (labelData) {
+                  createLabelData.push(labelData);
+                  parcelNumbers = createLabelData.map(data => data.parcelNumber);
+                  pdfBase64 = createLabelData.map(data => data.pdfData);
+              }
+          }
         }
       } else {
-        console.log('si plusieurs produits et plusieurs colis')
+        console.log('Retour de plusieurs produits répartis sur plusieurs colis');
+        const returnQuantities = productSku.reduce((acc, sku) => {
+            acc[sku.product_user_ref] = sku.quantity;
+            return acc;
+        }, {});
+        
+        const groupedItemsByShipment = groupReturnedItemsByShipment(shipments, filteredItems, returnQuantities);
+        for (const shipmentId in groupedItemsByShipment) {
+            const itemsInShipment = groupedItemsByShipment[shipmentId];
+            const weightPromises = itemsInShipment.map(async (item) => {
+                const productWeight = await getProductWeightBySku(item.product_ref);
+                return productWeight.weight * item.quantity;
+            });
+        
+            const weights = await Promise.all(weightPromises); 
+            const totalWeight = weights.reduce((sum, weight) => sum + weight, 0); 
+        
+            const parcel = {
+                "weight": totalWeight / 1000, 
+                "insuranceAmount": 0,
+                "insuranceValue": 0,
+                "nonMachinable": false,
+                "returnReceipt": false
+            };
+        
+            const labelData = await createLabel(senderCustomer, parcel);
+            if (labelData) {
+                createLabelData.push(labelData);
+                parcelNumbers = createLabelData.map(data => data.parcelNumber);
+                pdfBase64 = createLabelData.map(data => data.pdfData);
+            }
+        }
       }
-      //TODO
-      //return weight by weight => problem about number of packages !  
-    //   console.log('productPrice sku', productSku );
-    //   console.log("shipments", shipments);
-    //   for (const sku of productSku) {
-    //     const productFoundSku = await getProductWeightBySku(sku.product_user_ref);
-    //     if(productFoundSku) {
-    //       weightToReturn += productFoundSku.weight * sku.quantity;
-    //       totalOrder += sku.unit_price * sku.quantity;
-    //     }
-    // }
-    //   parcel = {
-    //   "weight": weightToReturn,
-    //   "insuranceAmount": 0,
-    //   "insuranceValue": 0,
-    //   "nonMachinable": false,
-    //   "returnReceipt": false
-    // };
+     
     totalOrder = totalOrder.toFixed(2);
   }
     //create object from initial order for label and weight and totalOrder if returnAll or not

@@ -119,7 +119,7 @@ const calculateTotalShippingCost = async (shipments, filteredItems) => {
                 const productRef = matchedItem.product_ref;
                 const productWeight = await getProductWeightBySku(productRef);
                 const shippingPrice = await getShippingPrice(productWeight.weight);
-                console.log(productRef, shippingPrice);
+                // console.log(productRef, shippingPrice);
                 totalShippingCost += parseFloat(shippingPrice);
             }
         }
@@ -138,27 +138,24 @@ const groupReturnedItemsByShipment = (shipments, filteredItems, returnQuantities
             const matchedItem = filteredItems.find(item => item.id === orderItem.order_item_id);
  
             if (matchedItem) {
-                // Vérifie si cet article a encore des unités à retourner
                 const remainingQuantity = returnQuantities[matchedItem.id] || 0;
                 if (remainingQuantity > 0) {
                     if (!groupedItems[shipmentId]) {
                         groupedItems[shipmentId] = [];
                     }
  
-                    // Ajoute cet article avec une quantité limitée
                     const quantityToReturn = Math.min(orderItem.quantity, remainingQuantity);
                     groupedItems[shipmentId].push({
                         ...matchedItem,
                         returnQuantity: quantityToReturn
                     });
  
-                    // Réduit la quantité restante à retourner
                     returnQuantities[matchedItem.id] -= quantityToReturn;
                 }
             }
         }
     }
-    console.log("groupedItems", groupedItems);
+    // console.log("groupedItems", groupedItems);
     return groupedItems;
 };
 
@@ -182,11 +179,40 @@ const calculateShippingCostForGroupedItems = async (itemsGrouped, shipments) => 
  
     return totalShippingCost.toFixed(2);
 };
+
+function groupReturnedItemsByShipment(shipments, filteredItems, returnQuantities) {
+    const groupedItems = {};
+ 
+    shipments.forEach(shipment => {
+        const shipmentId = shipment.id;
+ 
+        shipment.order_items_shipments.forEach(orderItem => {
+            const itemId = orderItem.order_item_id;
+            const matchedItem = filteredItems.find(item => item.id === itemId);
+ 
+            if (matchedItem && returnQuantities[matchedItem.product_ref]) {
+                if (!groupedItems[shipmentId]) groupedItems[shipmentId] = [];
+ 
+                const quantityToReturn = Math.min(returnQuantities[matchedItem.product_ref], matchedItem.quantity);
+ 
+                groupedItems[shipmentId].push({
+                    ...matchedItem,
+                    quantity: quantityToReturn
+                });
+ 
+                returnQuantities[matchedItem.product_ref] -= quantityToReturn;
+            }
+        });
+    });
+    console.log("groupedItems", groupedItems);
+    return groupedItems;
+}
  
 module.exports = {
     createLabel,
     getShippingPrice,
     calculateTotalShippingCost,
     groupReturnedItemsByShipment,
-    calculateShippingCostForGroupedItems
+    calculateShippingCostForGroupedItems,
+    groupReturnedItemsByShipment
 };
