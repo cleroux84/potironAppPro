@@ -143,7 +143,7 @@ const groupReturnedItemsByShipment = (shipments, filteredItems) => {
             }
         }
     }
-    // console.log('groupedItems', groupedItems)
+    console.log('groupedItems', groupedItems)
     return groupedItems;
 };
 
