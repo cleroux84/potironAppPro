@@ -180,7 +180,7 @@ const calculateShippingCostForGroupedItems = async (itemsGrouped, shipments) => 
     return totalShippingCost.toFixed(2);
 };
 
-function groupReturnedItemsByShipment(shipments, filteredItems, returnQuantities) {
+function groupReturnedItemsByShipment2(shipments, filteredItems, returnQuantities) {
     const groupedItems = {};
  
     shipments.forEach(shipment => {
@@ -214,5 +214,5 @@ module.exports = {
     calculateTotalShippingCost,
     groupReturnedItemsByShipment,
     calculateShippingCostForGroupedItems,
-    groupReturnedItemsByShipment
+    groupReturnedItemsByShipment2
 };
