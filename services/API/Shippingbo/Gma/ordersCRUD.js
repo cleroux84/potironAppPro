@@ -140,9 +140,12 @@ const getWarehouseOrderDetails = async (accessTokenWarehouse, shippingboId) => {
         const responseShippingbo = await fetch(createOrderUrl, createOrderOptions);
         const data = await responseShippingbo.json();
         console.log('draft order created GMA', data);
+      console.log('Draft order creation status: ', responseShippingbo.status, responseShippingbo.statusText);
+
         // console.log('response from shippingbo', data)
     } catch (error) {
       console.error('error in creation order from draft shopify', error);
+
     }
   }
 
