@@ -6,15 +6,18 @@ const { getAccessTokenFromDb } = require('../services/database/tokens/potiron_sh
 const { createDraftOrder, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById } = require('../services/API/Shopify/draftOrders');
 const { getAccessTokenWarehouseFromDb } = require('../services/database/tokens/gma_shippingbo');
 const { getShippingboOrderDetails, cancelShippingboDraft, updateShippingboOrder } = require('../services/API/Shippingbo/Potiron/ordersCRUD');
-const { getWarehouseOrderDetails, updateWarehouseOrder } = require('../services/API/Shippingbo/Gma/ordersCRUD');
+const { getWarehouseOrderDetails, updateWarehouseOrder, updateWarehouseOrderPayments } = require('../services/API/Shippingbo/Gma/ordersCRUD');
 const { getCustomerMetafields } = require('../services/API/Shopify/customers');
 
 
 //trigger on shippingbo webhook (create order)
 router.post('/updateDraftOrder', async (req, res) => {
   const createdOrder= req.body;
+  let accessTokenWarehouse = getAccessTokenWarehouseFromDb();
   if(createdOrder.object.origin === 'Potironpro' && (createdOrder.object.origin_ref).includes('provisoire')) {
     console.log('order to update with waiting_for_payment', createdOrder.object.id);
+    const updatedDraftOrderWarehouse = await updateWarehouseOrderPayments(accessTokenWarehouse, createDraftOrder.object.id)
+    console.log('hre updated draft warehouse with waiting for payment: ', updatedDraftOrderWarehouse);
   }
 })
 

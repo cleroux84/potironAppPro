@@ -89,7 +89,34 @@ const getWarehouseOrderDetails = async (accessTokenWarehouse, shippingboId) => {
         return null;
       }
   }
-
+  // update warehouse draft order with state waiting for payments 
+  const updateWarehouseOrderPayments = async (accessTokenWarehouse, shippingboOrderId) => {
+    const updatedOrder= {
+      id: shippingboOrderId,
+      state: 'waiting_for_payment'
+  }
+    const updateOrderUrl = `https://app.shippingbo.com/orders/${shippingboOrderId}`;
+    const updateOrderOptions = {
+      method: 'PATCH',
+      headers: {
+        'Content-type': 'application/json',
+        Accept: 'application/json',
+        'X-API-VERSION' : '1',
+        'X-API-APP-ID': API_APP_WAREHOUSE_ID,
+        Authorization: `Bearer ${accessTokenWarehouse}`
+      },
+      body: JSON.stringify(updatedOrder)
+    };
+    try{
+          const response = await fetch(updateOrderUrl, updateOrderOptions);
+          const data = await response.json();
+          if(response.ok) {
+            console.log('pro order updated in shippingbo warehouse: ', shippingboOrderId);
+          }
+        } catch (error) {
+           console.error('Error updating shippingbo order', error);
+        }
+  }
 //update orders origin and origin ref ("Commande PRO" and "PRO-")
   const updateWarehouseOrder = async (accessTokenWarehouse, shippingboOrderId, originRef) => {
     if(originRef.includes('PRO-') === false)  {
@@ -128,5 +155,6 @@ const getWarehouseOrderDetails = async (accessTokenWarehouse, shippingboId) => {
     getWarehouseOrderDetails,
     updateWarehouseOrder,
     getWarehouseOrderToReturn,
-    getshippingDetails
+    getshippingDetails,
+    updateWarehouseOrderPayments
   }
