@@ -124,6 +124,7 @@ const getWarehouseOrderDetails = async (accessTokenWarehouse, shippingboId) => {
   }
 
   const createProDraftForStock = async (accessTokenWarehouse, shippingboOrder) => {
+    console.log('access warehouse', accessTokenWarehouse);
     const createOrderUrl = `https://app.shippingbo.com/orders`;
     const createOrderOptions = {
       method: 'POST',

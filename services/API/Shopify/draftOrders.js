@@ -95,6 +95,7 @@ const createDraftOrder = async (draftOrder, accessToken, accessTokenWarehouse) =
         tags_to_add: dataForShippingboTag
         };
         await createProDraftOrderShippingbo(accessToken, shippingBoOrder);
+        console.log("token ware", accessTokenWarehouse)
         await createProDraftForStock(accessTokenWarehouse, shippingBoOrder);
         return data;
     } else {
