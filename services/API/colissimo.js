@@ -119,7 +119,6 @@ const calculateTotalShippingCost = async (shipments, filteredItems) => {
                 const productRef = matchedItem.product_ref;
                 const productWeight = await getProductWeightBySku(productRef);
                 const shippingPrice = await getShippingPrice(productWeight.weight);
-                // console.log(productRef, shippingPrice);
                 totalShippingCost += parseFloat(shippingPrice);
             }
         }
@@ -128,38 +127,38 @@ const calculateTotalShippingCost = async (shipments, filteredItems) => {
     return totalShippingCost.toFixed(2);
 };
 
-const groupReturnedItemsByShipment = (shipments, filteredItems, returnQuantities) => {
-    const groupedItems = {};
+// const groupReturnedItemsByShipment = (shipments, filteredItems, returnQuantities) => {
+//     const groupedItems = {};
  
-    for (const shipment of shipments) {
-        const shipmentId = shipment.id;
+//     for (const shipment of shipments) {
+//         const shipmentId = shipment.id;
  
-        for (const orderItem of shipment.order_items_shipments) {
-            const matchedItem = filteredItems.find(item => item.id === orderItem.order_item_id);
+//         for (const orderItem of shipment.order_items_shipments) {
+//             const matchedItem = filteredItems.find(item => item.id === orderItem.order_item_id);
  
-            if (matchedItem) {
-                const remainingQuantity = returnQuantities[matchedItem.id] || 0;
-                if (remainingQuantity > 0) {
-                    if (!groupedItems[shipmentId]) {
-                        groupedItems[shipmentId] = [];
-                    }
+//             if (matchedItem) {
+//                 const remainingQuantity = returnQuantities[matchedItem.id] || 0;
+//                 if (remainingQuantity > 0) {
+//                     if (!groupedItems[shipmentId]) {
+//                         groupedItems[shipmentId] = [];
+//                     }
  
-                    const quantityToReturn = Math.min(orderItem.quantity, remainingQuantity);
-                    groupedItems[shipmentId].push({
-                        ...matchedItem,
-                        returnQuantity: quantityToReturn
-                    });
+//                     const quantityToReturn = Math.min(orderItem.quantity, remainingQuantity);
+//                     groupedItems[shipmentId].push({
+//                         ...matchedItem,
+//                         returnQuantity: quantityToReturn
+//                     });
  
-                    returnQuantities[matchedItem.id] -= quantityToReturn;
-                }
-            }
-        }
-    }
-    // console.log("groupedItems", groupedItems);
-    return groupedItems;
-};
+//                     returnQuantities[matchedItem.id] -= quantityToReturn;
+//                 }
+//             }
+//         }
+//     }
+//     // console.log("groupedItems", groupedItems);
+//     return groupedItems;
+// };
 
-const calculateShippingCostForGroupedItems = async (itemsGrouped, shipments) => {
+const getDeliveryCostsPackages = async (itemsGrouped, shipments) => {
     let totalShippingCost = 0;
  
     for (const [shipmentId, items] of Object.entries(itemsGrouped)) {
@@ -180,7 +179,7 @@ const calculateShippingCostForGroupedItems = async (itemsGrouped, shipments) => 
     return totalShippingCost.toFixed(2);
 };
 
-function groupReturnedItemsByShipment2(shipments, filteredItems, returnQuantities) {
+function returnedItemsByShipment(shipments, filteredItems, returnQuantities) {
     const groupedItems = {};
  
     shipments.forEach(shipment => {
@@ -212,7 +211,8 @@ module.exports = {
     createLabel,
     getShippingPrice,
     calculateTotalShippingCost,
-    groupReturnedItemsByShipment,
-    calculateShippingCostForGroupedItems,
-    groupReturnedItemsByShipment2
+    // groupReturnedItemsByShipment,
+    getDeliveryCostsPackages,
+    // groupReturnedItemsByShipment2,
+    returnedItemsByShipment
 };
