@@ -139,6 +139,9 @@ const getWarehouseOrderDetails = async (accessTokenWarehouse, shippingboId) => {
     };
     try { 
         const responseShippingbo = await fetch(createOrderUrl, createOrderOptions);
+        if(!responseShippingbo.ok) {
+          console.error(`Error ${responseShippingbo.status} + ${responseShippingbo.statusText}`)
+        }
         const data = await responseShippingbo.json();
         console.log('draft order created', data);
         // console.log('response from shippingbo', data)
