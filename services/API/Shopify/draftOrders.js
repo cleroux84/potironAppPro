@@ -8,10 +8,9 @@ const { getCustomerMetafields } = require('./customers');
 const { getAccessTokenMS365, refreshMS365AccessToken } = require('../microsoft');
 const { sendNewDraftOrderMail } = require('../../sendMails/mailForTeam');
 const { createProDraftOrderShippingbo } = require('../Shippingbo/Potiron/ordersCRUD');
-const { createProDraftForStock } = require('../Shippingbo/Gma/ordersCRUD');
 
 //Create draft order
-const createDraftOrder = async (draftOrder, accessToken, accessTokenWarehouse) => {
+const createDraftOrder = async (draftOrder, accessToken) => {
     const draftOrderUrl = `https://potiron2021.myshopify.com/admin/api/2024-07/draft_orders.json`;
     const draftOrderOptions = {
     method: 'POST',
@@ -95,8 +94,6 @@ const createDraftOrder = async (draftOrder, accessToken, accessTokenWarehouse) =
         tags_to_add: dataForShippingboTag
         };
         await createProDraftOrderShippingbo(accessToken, shippingBoOrder);
-        console.log("token ware", accessTokenWarehouse)
-        await createProDraftForStock(accessTokenWarehouse, shippingBoOrder);
         return data;
     } else {
         console.error('Invalid response structure from Shopify to create draft order for PRO')

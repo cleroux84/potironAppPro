@@ -123,38 +123,10 @@ const getWarehouseOrderDetails = async (accessTokenWarehouse, shippingboId) => {
         }
   }
 
-  const createProDraftForStock = async (accessTokenWarehouse, shippingboOrder) => {
-    console.log('access warehouse', accessTokenWarehouse);
-    const createOrderUrl = `https://app.shippingbo.com/orders`;
-    const createOrderOptions = {
-      method: 'POST',
-      headers: {
-        'Content-type': 'application/json',
-        Accept: 'application/json',
-        'X-API-VERSION' : '1',
-        'X-API-APP-ID': API_APP_WAREHOUSE_ID,
-        Authorization: `Bearer ${accessTokenWarehouse}`
-      },
-      body: JSON.stringify(shippingboOrder)
-    };
-    try { 
-        const responseShippingbo = await fetch(createOrderUrl, createOrderOptions);
-        const data = await responseShippingbo.json();
-        console.log('draft order created GMA', data);
-      console.log('Draft order creation status: ', responseShippingbo.status, responseShippingbo.statusText);
-
-        // console.log('response from shippingbo', data)
-    } catch (error) {
-      console.error('error in creation order from draft shopify', error);
-
-    }
-  }
-
 
   module.exports = {
     getWarehouseOrderDetails,
     updateWarehouseOrder,
     getWarehouseOrderToReturn,
-    getshippingDetails,
-    createProDraftForStock
+    getshippingDetails
   }
