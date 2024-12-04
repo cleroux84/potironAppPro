@@ -12,8 +12,10 @@ const { getCustomerMetafields } = require('../services/API/Shopify/customers');
 
 //trigger on shippingbo webhook (create order)
 router.post('/updateDraftOrder', async (req, res) => {
-  console.log("creation draft order", req.body);
-  console.log("si Commande Pro et ref d'origine contient provisoire -> update state for waiting_for_payments")
+  const createdOrder= req.body;
+  if(createdOrder.object.origin === 'Potironpro' && (createdOrder.object.origin_ref).includes('provisoire')) {
+    console.log('order to update with waiting_for_payment', createdOrder.object.id);
+  }
 })
 
 //create draft order from cart page if b2B is connected
