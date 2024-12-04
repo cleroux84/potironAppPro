@@ -341,8 +341,6 @@ router.post('/returnProduct', async (req, res) => {
           const productFoundSku = await getProductWeightBySku(productSku[0].product_user_ref);
           weightToReturn += productFoundSku.weight * productSku[0].quantity;
           totalOrder += productSku[0].unit_price * productSku[0].quantity;
-          // console.log("return 1 product", weightToReturn);
-          // console.log('total return 1 product', totalOrder);
           parcel = {
             "weight": weightToReturn,
             "insuranceAmount": 0,
@@ -357,9 +355,7 @@ router.post('/returnProduct', async (req, res) => {
             pdfBase64 = createLabelData.map(data => data.pdfData);
           }
         } else {
-          console.log("si 1 produit mais plusieurs quantité")
-          console.log("Retour d'un produit avec plusieurs quantités");
- 
+          console.log("si 1 produit mais plusieurs quantité") 
           const returnQuantities = { [productSku[0].product_user_ref]: productSku[0].quantity };
           const groupedItemsByShipment = getGroupedItemsForLabels(shipments, filteredItems, returnQuantities);
            
@@ -406,14 +402,13 @@ router.post('/returnProduct', async (req, res) => {
       
               for (let i = 0; i < item.quantity; i++) {
                   const parcel = {
-                      "weight": weightPerUnit / 1000, // Poids par unité
+                      "weight": weightPerUnit,
                       "insuranceAmount": 0,
                       "insuranceValue": 0,
                       "nonMachinable": false,
                       "returnReceipt": false
                   };
       
-                  // Création d'une étiquette par unité
                   const labelData = await createLabel(senderCustomer, parcel);
                   if (labelData) {
                       createLabelData.push(labelData);
