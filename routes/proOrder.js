@@ -32,7 +32,8 @@ router.post('/create-pro-draft-order', async (req, res) => {
         }
       };
       let accessToken = await getAccessTokenFromDb();
-      const data = await createDraftOrder(draftOrder, accessToken);
+      let accessTokenWarehouse = await getAccessTokenWarehouseFromDb();
+      const data = await createDraftOrder(draftOrder, accessToken, accessTokenWarehouse);
       res.status(200).json(data); 
     } catch (error) {
       console.error('Erreur lors de la création du brouillon de commande :', error);
