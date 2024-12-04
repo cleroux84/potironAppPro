@@ -17,7 +17,7 @@ router.post('/updateDraftOrder', async (req, res) => {
   if(createdOrder.object.origin === 'Potironpro' && (createdOrder.object.origin_ref).includes('provisoire')) {
     console.log('order to update with waiting_for_payment', createdOrder.object.id);
     let shippingboId = createdOrder.object.id; 
-    const updatedDraftOrderWarehouse = await updateWarehouseOrderPayments(accessTokenWarehouse, shippingboId)
+    setTimeout (await updateWarehouseOrderPayments(accessTokenWarehouse, shippingboId), 2000);
     console.log('là', updatedDraftOrderWarehouse);
   }
 })
