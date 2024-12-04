@@ -295,7 +295,7 @@ router.post('/returnProduct', async (req, res) => {
     console.log('nombre de colis dans la commande initiale: ', initialNumberOfPackages);
     const shipments = warehouseOrder.order.shipments;
 
-    //Customer wants to return all initial order
+    // Create label(s) colissimo
     if(returnAll) {
       if(initialNumberOfPackages === 1) {
         weightToReturn = warehouseOrder.order.shipments
@@ -422,98 +422,56 @@ router.post('/returnProduct', async (req, res) => {
      
     totalOrder = totalOrder.toFixed(2);
   }
-    //create object from initial order for label and weight and totalOrder if returnAll or not
-    // const senderCustomer = {
-    //   'name': warehouseOrder.order.shipping_address.fullname,
-    //   'address': warehouseOrder.order.shipping_address.street1,
-    //   'address2': warehouseOrder.order.shipping_address.street2,
-    //   'city': warehouseOrder.order.shipping_address.city,
-    //   "postalCode": warehouseOrder.order.shipping_address.zip,
-    //   "country": warehouseOrder.order.shipping_address.country,
-    //   "email": warehouseOrder.order.shipping_address.email,
-    //   "phone": warehouseOrder.order.shipping_address.phone1,
-    //   "origin_ref": warehouseOrder.order.origin_ref
-    // };
-    // const parcel = {
-    //   "weight": weightToReturn,
-    //   "insuranceAmount": 0,
-    //   "insuranceValue": 0,
-    //   "nonMachinable": false,
-    //   "returnReceipt": false
-    // };
-    //Check if return order exists in shippingbo warehouse
-    const returnOrderExists = await checkIfReturnOrderExist(accessTokenWarehouse, warehouseOrder.order.id);
-    console.log('returnOrderExists ?', returnOrderExists);
-    
-    // Create discount code in shopify
-    // if(!ruleExists) {
-    //   if(!returnOrderExists){
-        // priceRules = await createPriceRule(customerId, orderName, totalOrder);
-        // const discountCode = priceRules.discountData.discount_code.code;
-        // const discountAmount = priceRules.discountRule.price_rule.value;
-        // const discountEnd = priceRules.discountRule.price_rule.ends_at;
-        // const discountDate = new Date(discountEnd);
-        // const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
-        
-    //     //create a return order in shippingbo warehouse
-        // const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku, shopifyOrderId);
-        // const returnOrderId = returnOrderData.return_order.id;
-        // const shopifyId = returnOrderData.return_order.reason_ref;
-        // const attributes = [
-        //   // {name: "warehouseId", value: warehouseOrder.order.id},
-        //   {name: "customerId", value: customerId},
-        //   {name: "totalOrderReturn", value: totalOrder}
-        // ];
-        // const updatedAttributes = {
-        //   order: {
-        //     id: orderId,
-        //     note_attributes: attributes
-        //   }
-        // }
-        // //update shopify order with attributes to have discount data for future creation
-        // updateOrder(updatedAttributes ,shopifyId)
 
-    //     // create a return label with colissimo API
-        // const createLabelData = await createLabel(senderCustomer, parcel);
-        // const parcelNumber = createLabelData.parcelNumber;
+  //Check if return order exists in shippingbo warehouse
+  const returnOrderExists = await checkIfReturnOrderExist(accessTokenWarehouse, warehouseOrder.order.id);
+  console.log('returnOrderExists ?', returnOrderExists);
+  
+  //Create Return Order in shippingbo warehouse
+  // if(!returnOrderExists) {
+      const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku, shopifyOrderId);
+      const returnOrderId = returnOrderData.return_order.id;
+      const shopifyId = returnOrderData.return_order.reason_ref;
+      const attributes = [
+        {name: "customerId", value: customerId},
+        {name: "totalOrderReturn", value: totalOrder}
+      ];
+      const updatedAttributes = {
+        order: {
+          id: orderId,
+          note_attributes: attributes
+        }
+      }
+    //update shopify order with attributes to have discount data for future creation
+    //TODO Check if totalOrder is enough
+      updateOrder(updatedAttributes ,shopifyId)
 
       let accessTokenMS365 = await getAccessTokenMS365();
       if(!accessTokenMS365) {
         await refreshMS365AccessToken();
         accessTokenMS365 = await getAccessTokenMS365();
       }
-    //   //send email to Magalie with parcel number and shopify Id and return order Id
-      // await sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumbers, returnOrderId, totalOrder)
-    //   //send email to customer with link to dwld label and parcel number
-      // await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfBase64, parcelNumbers, totalOrder);
+    //send email to Magalie with parcel number and shopify Id and return order Id
+    await sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumbers, returnOrderId, totalOrder)
+    //send email to customer with link to dwld label and parcel number
+    await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfBase64, parcelNumbers, totalOrder);
 
-        return res.status(200).json({
-          // success: true,
-          // data: priceRules,
-          // getOrder: warehouseOrder,
-          // returnOrder: returnOrderData,
-          label: createLabelData
-        })
-    //   } else {
-    //     console.log('return order already exists : contact SAV !');
-    //     return res.status(200).json({
-    //       success: false,
-    //       message: 'Contacter le SAV - un return order existe déjà pour cette commande'
-    //     }) 
-    //   }
-    // } else {
-    //   console.log('price rule already exists : contact SAV !');
-    //   return res.status(200).json({
-    //     success: false,
-    //     message: 'Contacter le SAV - un price rule existe déjà pour cette commande'
-    //   })      
-    // }
+      return res.status(200).json({
+        success: true,
+        getOrder: warehouseOrder,
+        returnOrder: returnOrderData,
+        label: createLabelData
+      })
+  // } else {
+  //     console.log('return order already exists : contact SAV !');
+  //     return res.status(200).json({
+  //       success: false,
+  //       message: 'Contacter le SAV - un return order existe déjà pour cette commande'
+  //     })    
+  // }
    
-    //update the return order with parcel number (numéro de colis) from colissimo - WIP
-    // const updateReturnOrderWithLabel = await updateReturnOrderWithLabel(accessTokenWarehouse, returnOrderId, parcelNumber)
-   
+ 
   } else if( optionChosen === "option2") {
-
     console.log("generate label + remboursement ? + mail à  ??")
   }
   
