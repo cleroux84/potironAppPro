@@ -147,15 +147,15 @@ async function sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileEx
     }
     
     const message = {
-      subject: 'Nouvelle demande de retour automatisé', 
+      subject: 'Nouvelle demande de retour automatisé avec code de réduction', 
       body: {
         contentType: 'HTML',
         content: `
           <p>Bonjour, </p>
-          <p style="margin: 0;">Une nouvelle commande demande de retour a été créée pour le client : ${senderCustomer.name}</p>
+          <p style="margin: 0;">Une nouvelle demande de retour a été créée pour le client : ${senderCustomer.name}</p>
           <p style="margin: 0;">Une commande retour a été créée dans Shippingbo GMA : ${returnOrderId}</p>
-          <p style="margin: 0;">La commande d'origine Shopify est : ${senderCustomer.origin_ref}</p>
-          <p>A réception de son colis, un code de réduction/remboursement lui sera automatiquement envoyé par mail, d'une valeur de ${totalOrder} </p>
+          <p style="margin: 0;">La commande d'origine Shopify est : ${senderCustomer.origin_ref}.</p>
+          <p>A réception de son colis, un code de réduction/remboursement lui sera automatiquement envoyé par mail, d'une valeur de ${totalOrder}€.</p>
           ${trackingLinks}
           <p>Bonne journée ! </p>
           <img src='cid:signature'/>
