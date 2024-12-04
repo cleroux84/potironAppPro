@@ -11,7 +11,7 @@ const { getAccessTokenWarehouseFromDb } = require('../services/database/tokens/g
 const { orderById } = require('../services/API/Shopify/customers');
 const { getShippingboOrderDetails } = require('../services/API/Shippingbo/Potiron/ordersCRUD');
 const { getWarehouseOrderDetails, getshippingDetails } = require('../services/API/Shippingbo/Gma/ordersCRUD');
-const { createLabel, getShippingPrice, calculateTotalShippingCost, groupReturnedItemsByShipment, calculateShippingCostForGroupedItems, groupReturnedItemsByShipment2 } = require('../services/API/colissimo');
+const { createLabel, getShippingPrice, calculateTotalShippingCost, getGroupedItemsForRefund, calculateShippingCostForGroupedItems, getGroupedItemsForLabels, getGroupedItemsForLabels } = require('../services/API/colissimo');
 const { getProductWeightBySku } = require('../services/API/Shopify/products');
 const { checkIfReturnOrderExist, createReturnOrder } = require('../services/API/Shippingbo/Gma/returnOrdersCRUD');
 const { sendReturnDataToSAV } = require('../services/sendMails/mailForTeam');
@@ -194,7 +194,7 @@ router.post('/checkIfsReturnPossible', async (req, res) => {
         for(const sku of productSkuCalc) {
           totalAsset += sku.unit_price * sku.quantity;
         }
-        const groupedItems = groupReturnedItemsByShipment(shipments, filteredItems, quantitiesByRefs);
+        const groupedItems = getGroupedItemsForRefund(shipments, filteredItems, quantitiesByRefs);
         priceByWeight = await calculateShippingCostForGroupedItems(groupedItems, shipments);
         totalRefund = totalAsset - priceByWeight;
       }
@@ -361,7 +361,7 @@ router.post('/returnProduct', async (req, res) => {
           console.log("Retour d'un produit avec plusieurs quantités");
  
           const returnQuantities = { [productSku[0].product_user_ref]: productSku[0].quantity };
-          const groupedItemsByShipment = groupReturnedItemsByShipment2(shipments, filteredItems, returnQuantities);
+          const groupedItemsByShipment = getGroupedItemsForLabels(shipments, filteredItems, returnQuantities);
            
           for (const shipmentId in groupedItemsByShipment) {
             const itemsInShipment = groupedItemsByShipment[shipmentId];
@@ -396,7 +396,7 @@ router.post('/returnProduct', async (req, res) => {
             return acc;
         }, {});
         
-        const groupedItemsByShipment = groupReturnedItemsByShipment2(shipments, filteredItems, returnQuantities);
+        const groupedItemsByShipment = getGroupedItemsForLabels(shipments, filteredItems, returnQuantities);
         for (const shipmentId in groupedItemsByShipment) {
           const itemsInShipment = groupedItemsByShipment[shipmentId];
       

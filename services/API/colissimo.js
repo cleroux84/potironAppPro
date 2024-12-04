@@ -128,7 +128,7 @@ const calculateTotalShippingCost = async (shipments, filteredItems) => {
     return totalShippingCost.toFixed(2);
 };
 
-const groupReturnedItemsByShipment = (shipments, filteredItems, returnQuantities) => {
+const getGroupedItemsForRefund = (shipments, filteredItems, returnQuantities) => {
     const groupedItems = {};
  
     for (const shipment of shipments) {
@@ -180,7 +180,7 @@ const calculateShippingCostForGroupedItems = async (itemsGrouped, shipments) => 
     return totalShippingCost.toFixed(2);
 };
 
-function groupReturnedItemsByShipment2(shipments, filteredItems, returnQuantities) {
+function getGroupedItemsForLabels(shipments, filteredItems, returnQuantities) {
     const groupedItems = {};
  
     shipments.forEach(shipment => {
@@ -212,7 +212,7 @@ module.exports = {
     createLabel,
     getShippingPrice,
     calculateTotalShippingCost,
-    groupReturnedItemsByShipment,
+    getGroupedItemsForRefund,
     calculateShippingCostForGroupedItems,
-    groupReturnedItemsByShipment2
+    getGroupedItemsForLabels
 };
