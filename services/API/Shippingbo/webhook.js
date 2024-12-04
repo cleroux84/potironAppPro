@@ -14,10 +14,12 @@ const setupShippingboWebhook = async () => {
 
     const webhookUrl = `https://app.shippingbo.com/update_hooks`;
     const webhookPayload = {
-        object_class: 'ReturnOrder',
-        endpoint_url: 'https://potironapppro.onrender.com/returnOrder/returnOrderCancel',
+        object_class: 'Order',
+        endpoint_url: 'https://potironapppro.onrender.com/proOrder/updateDraftOrder',
         activated: true,
-        field: 'state'
+        field: 'tags',
+        from_value: 'Commande PRO',
+        to_value: 'Commande PRO'
     };
     const webhookOptions = {
         method: 'POST',

@@ -9,6 +9,13 @@ const { getShippingboOrderDetails, cancelShippingboDraft, updateShippingboOrder 
 const { getWarehouseOrderDetails, updateWarehouseOrder } = require('../services/API/Shippingbo/Gma/ordersCRUD');
 const { getCustomerMetafields } = require('../services/API/Shopify/customers');
 
+
+//trigger on shippingbo webhook (create order)
+router.post('/updateDraftOrder', async (req, res) => {
+  console.log("creation draft order", req.body);
+  console.log("si Commande Pro et ref d'origine contient provisoire -> update state for waiting_for_payments")
+})
+
 //create draft order from cart page if b2B is connected
 router.post('/create-pro-draft-order', async (req, res) => {
     try {
