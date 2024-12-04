@@ -36,7 +36,7 @@ app.use('/proOrder', proOrderRoute);
 // Initialisation des tokens 
 initializeTokens();
 // deleteAllWebhooks();
-// setupShippingboWebhook();
+setupShippingboWebhook();
 getWebhooks();
 
 //CHECK Scheduled emails in DB every day

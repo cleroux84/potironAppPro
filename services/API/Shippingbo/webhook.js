@@ -17,9 +17,9 @@ const setupShippingboWebhook = async () => {
         object_class: 'Order',
         endpoint_url: 'https://potironapppro.onrender.com/proOrder/updateDraftOrder',
         activated: true,
-        field: 'tags',
-        from_value: 'Commande PRO',
-        to_value: 'Commande PRO'
+        field: 'status',
+        from_value: 'created',
+        to_value: 'created'
     };
     const webhookOptions = {
         method: 'POST',
