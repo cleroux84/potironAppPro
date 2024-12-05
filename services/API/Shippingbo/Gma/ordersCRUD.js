@@ -101,7 +101,7 @@ const getWarehouseOrderDetails = async (accessTokenWarehouse, shippingboId) => {
 
     const updateOrderUrl = `https://app.shippingbo.com/orders/${shippingboOrderId}`;
     const updateOrderOptions = {
-      method: 'PATCH',
+      method: 'PATCH', 
       headers: {
         'Content-type': 'application/json',
         Accept: 'application/json',
