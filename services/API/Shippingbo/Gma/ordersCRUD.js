@@ -92,13 +92,13 @@ const getWarehouseOrderDetails = async (accessTokenWarehouse, shippingboId) => {
   // update warehouse draft order with state waiting for payments 
   const updateWarehouseOrderPayments = async (accessTokenWarehouse, shippingboOrderId) => {
     console.log("PPL updated", shippingboOrderId);
-    const updatedOrder= {
+    const updatedOrder = {
       order: {
         id: shippingboOrderId,
         state: 'waiting_for_payment'
       }
-  }
-  
+  };
+
     const updateOrderUrl = `https://app.shippingbo.com/orders/${shippingboOrderId}`;
     const updateOrderOptions = {
       method: 'PATCH',
@@ -112,8 +112,12 @@ const getWarehouseOrderDetails = async (accessTokenWarehouse, shippingboId) => {
       body: JSON.stringify(updatedOrder)
     };
     try{
+          console.log('body being sent: ', JSON.stringify(updatedOrder));
           const response = await fetch(updateOrderUrl, updateOrderOptions);
           const data = await response.json();
+          console.log('data status', response.status);
+          console.log('statustext', response.statusText);
+          console.log('data tadam', data);
           if(response.ok) {
             console.log('pro order updated in shippingbo warehouse: ', shippingboOrderId);
           }
