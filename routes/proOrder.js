@@ -14,11 +14,12 @@ const { getCustomerMetafields } = require('../services/API/Shopify/customers');
 router.post('/updateDraftOrder', async (req, res) => {
   const createdOrder= req.body;
   let accessTokenWarehouse = getAccessTokenWarehouseFromDb();
+  console.log('state here', createdOrder.object.state);
   if(createdOrder.object.origin === 'Potironpro' && (createdOrder.object.origin_ref).includes('provisoire') && createdOrder.object.state !== "canceled") {
     console.log('order update waiting_for_payment in 5 minutes', createdOrder.object.id);
     let shippingboId = createdOrder.object.id; 
-    // setTimeout (updateWarehouseOrderPayments, 5 * 60 * 1000, accessTokenWarehouse, shippingboId);
-    await updateWarehouseOrderPayments(accessTokenWarehouse, shippingboId);
+    setTimeout (updateWarehouseOrderPayments, 5 * 60 * 1000, accessTokenWarehouse, shippingboId);
+    // await updateWarehouseOrderPayments(accessTokenWarehouse, shippingboId);
   }
 })
 
