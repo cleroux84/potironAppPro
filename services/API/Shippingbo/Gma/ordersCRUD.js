@@ -107,8 +107,7 @@ const getWarehouseOrderDetails = async (accessTokenWarehouse, shippingboId) => {
         Accept: 'application/json',
         'X-API-VERSION' : '1',
         'X-API-APP-ID': API_APP_WAREHOUSE_ID,
-        Authorization: `Bearer ${accessTokenWarehouse}`,
-        'User-Agent': 'Node.js/Fetch'
+        Authorization: `Bearer ${accessTokenWarehouse}`
       },
       body: JSON.stringify(updatedOrder)
     };
