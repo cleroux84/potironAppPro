@@ -93,9 +93,12 @@ const getWarehouseOrderDetails = async (accessTokenWarehouse, shippingboId) => {
   const updateWarehouseOrderPayments = async (accessTokenWarehouse, shippingboOrderId) => {
     console.log("PPL updated", shippingboOrderId);
     const updatedOrder= {
-      id: shippingboOrderId,
-      state: 'waiting_for_payment'
+      order: {
+        id: shippingboOrderId,
+        state: 'waiting_for_payment'
+      }
   }
+  
     const updateOrderUrl = `https://app.shippingbo.com/orders/${shippingboOrderId}`;
     const updateOrderOptions = {
       method: 'PATCH',
