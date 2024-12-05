@@ -64,10 +64,10 @@ const createDraftOrder = async (draftOrder, accessToken) => {
             "Préference(s) de livraison : " + deliveryPref.value
           ]
         }
-        let accessTokenMS365 = getAccessTokenMS365();
+        let accessTokenMS365 = await getAccessTokenMS365();
         if(!accessTokenMS365) {
-          refreshMS365AccessToken();
-          accessTokenMS365 = getAccessTokenMS365();
+          await refreshMS365AccessToken();
+          accessTokenMS365 = await getAccessTokenMS365();
         }
         await sendNewDraftOrderMail(accessTokenMS365, firstnameCustomer, nameCustomer, draftOrderId, customerMail, customerPhone, shippingAddress, deliveryPref.value, paletteEquipmentValue, appointmentValue, paletteNotesValue);
         
