@@ -117,7 +117,7 @@ const getWarehouseOrderDetails = async (accessTokenWarehouse, shippingboId) => {
           const data = await response.json();
           console.log('data status', response.status);
           console.log('statustext', response.statusText);
-          console.log('data tadam', data);
+          console.log('headers', response.headers.raw());
           if(response.ok) {
             console.log('pro order updated in shippingbo warehouse: ', shippingboOrderId);
           }
