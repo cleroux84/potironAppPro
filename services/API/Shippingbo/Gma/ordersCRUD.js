@@ -91,8 +91,6 @@ const getWarehouseOrderDetails = async (accessTokenWarehouse, shippingboId) => {
   }
   // update warehouse draft order with state waiting for payments 
   const updateWarehouseOrderPayments = async (accessTokenWarehouse, shippingboOrderId) => {
-    console.log("PPL updated", shippingboOrderId);
-    console.log("tokenwarehouse", accessTokenWarehouse);
     const updatedOrder = {
       order: {
         id: shippingboOrderId,
@@ -116,11 +114,8 @@ const getWarehouseOrderDetails = async (accessTokenWarehouse, shippingboId) => {
           console.log('body being sent: ', JSON.stringify(updatedOrder));
           const response = await fetch(updateOrderUrl, updateOrderOptions);
           const data = await response.json();
-          console.log('data status', response.status);
-          console.log('statustext', response.statusText);
-          // console.log('headers', response.headers.raw());
           if(response.ok) {
-            console.log('pro order updated in shippingbo warehouse: ', shippingboOrderId);
+            console.log('draft order updated in shippingbo warehouse: ', shippingboOrderId);
           }
         } catch (error) {
            console.error('Error updating shippingbo order', error);

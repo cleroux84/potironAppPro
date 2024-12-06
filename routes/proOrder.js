@@ -18,7 +18,7 @@ router.post('/updateDraftOrder', async (req, res) => {
     console.log('order update waiting_for_payment : ', createdOrder.object.id);
     let shippingboId = createdOrder.object.id; 
     // setTimeout (updateWarehouseOrderPayments, 5 * 60 * 1000, accessTokenWarehouse, shippingboId);
-    await updateWarehouseOrderPayments(accessTokenWarehouse, 108299147);
+    await updateWarehouseOrderPayments(accessTokenWarehouse, shippingboId);
   }
 })
 
