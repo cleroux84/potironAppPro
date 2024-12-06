@@ -111,11 +111,10 @@ const getWarehouseOrderDetails = async (accessTokenWarehouse, shippingboId) => {
       body: JSON.stringify(updatedOrder)
     };
     try{
-          console.log('body being sent: ', JSON.stringify(updatedOrder));
           const response = await fetch(updateOrderUrl, updateOrderOptions);
           const data = await response.json();
           if(response.ok) {
-            console.log('draft order updated in shippingbo warehouse: ', shippingboOrderId);
+            console.log('draft order updated in warehouse for stocks: ', shippingboOrderId);
           }
         } catch (error) {
            console.error('Error updating shippingbo order', error);
