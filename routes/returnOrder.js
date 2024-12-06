@@ -357,6 +357,8 @@ router.post('/returnProduct', async (req, res) => {
         } else {
           console.log("si 1 produit mais plusieurs quantité") 
           const returnQuantities = { [productSku[0].product_user_ref]: productSku[0].quantity };
+          totalOrder += productSku[0].unit_price * productSku[0].quantity;
+
           const groupedItemsByShipment = getGroupedItemsForLabels(shipments, filteredItems, returnQuantities);
            
           for (const shipmentId in groupedItemsByShipment) {
@@ -417,6 +419,9 @@ router.post('/returnProduct', async (req, res) => {
                   }
               }
           }
+        }
+        for( const sku of productSku) {
+          totalOrder += sku.unit_price * sku.quantity;
         }
       }
      
