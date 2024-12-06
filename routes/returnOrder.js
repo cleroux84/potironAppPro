@@ -340,7 +340,7 @@ router.post('/returnProduct', async (req, res) => {
         if(productSku[0].quantity === 1) {
           const productFoundSku = await getProductWeightBySku(productSku[0].product_user_ref);
           weightToReturn += productFoundSku.weight * productSku[0].quantity;
-          totalOrder += productSku[0].unit_price * productSku[0].quantity;
+          // totalOrder += productSku[0].unit_price * productSku[0].quantity;
           parcel = {
             "weight": weightToReturn,
             "insuranceAmount": 0,
@@ -357,9 +357,9 @@ router.post('/returnProduct', async (req, res) => {
         } else {
           console.log("si 1 produit mais plusieurs quantité") 
           const returnQuantities = { [productSku[0].product_user_ref]: productSku[0].quantity };
-          totalOrder += productSku[0].unit_price * productSku[0].quantity;
-          console.log('unit price', productSku[0].unit_price );
-          console.log('qtéssss', productSku[0].quantity );
+          // totalOrder += productSku[0].unit_price * productSku[0].quantity;
+          // console.log('unit price', productSku[0].unit_price );
+          // console.log('qtéssss', productSku[0].quantity );
 
           const groupedItemsByShipment = getGroupedItemsForLabels(shipments, filteredItems, returnQuantities);
            
@@ -422,9 +422,9 @@ router.post('/returnProduct', async (req, res) => {
               }
           }
         }
-        for( const sku of productSku) {
-          totalOrder += sku.unit_price * sku.quantity;
-        }
+        // for( const sku of productSku) {
+        //   totalOrder += sku.unit_price * sku.quantity;
+        // }
       }
      
     totalOrder = totalOrder.toFixed(2);
