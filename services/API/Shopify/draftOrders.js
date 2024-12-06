@@ -88,7 +88,7 @@ const createDraftOrder = async (draftOrder, accessToken) => {
         shipping_address_id: data.draft_order.shipping_address.id,
         source: 'Potironpro',
         source_ref: draftOrderId,
-        state: 'waiting_for_payment',
+        state: 'dispatched',
         total_price_cents: data.draft_order.subtotal_price * 100,
         total_price_currency: 'EUR',
         tags_to_add: dataForShippingboTag
