@@ -6,7 +6,7 @@ const { getAccessTokenFromDb } = require('../services/database/tokens/potiron_sh
 const { createDraftOrder, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById } = require('../services/API/Shopify/draftOrders');
 const { getAccessTokenWarehouseFromDb } = require('../services/database/tokens/gma_shippingbo');
 const { getShippingboOrderDetails, cancelShippingboDraft, updateShippingboOrder } = require('../services/API/Shippingbo/Potiron/ordersCRUD');
-const { getWarehouseOrderDetails, updateWarehouseOrder, updateWarehouseOrderPayments } = require('../services/API/Shippingbo/Gma/ordersCRUD');
+const { getWarehouseOrderDetails, updateWarehouseOrder, updateWarehouseOrderPayments, cancelShippingboDraftWarehouse } = require('../services/API/Shippingbo/Gma/ordersCRUD');
 const { getCustomerMetafields } = require('../services/API/Shopify/customers');
 
 
@@ -137,12 +137,17 @@ router.post('/updatedDraftOrder', async (req, res) => {
       deliveryNotesTag = 'Notes : ' + deliveryNotesEncoded;
     }
     let accessToken = await getAccessTokenFromDb();
+    let accessTokenWarehouse = await getAccessTokenWarehouseFromDb();
       if (isCompleted === true && isCommandePro) {
         try {
           const draftDetails = await getShippingboOrderDetails(accessToken, draftId);
           if(draftDetails) {
             const {id: shippingboDraftId} = draftDetails;
             await cancelShippingboDraft(accessToken, shippingboDraftId);
+            const warehouseDetails = await getWarehouseOrderDetails(accessTokenWarehouse, shippingboDraftId);
+            const {id: shippingboIdwarehouse } = warehouseDetails
+            await cancelShippingboDraftWarehouse(accessTokenWarehouse, shippingboIdwarehouse);
+
           }
         } catch(err) {
           console.log('error shippingboId', err);

@@ -154,11 +154,40 @@ const getWarehouseOrderDetails = async (accessTokenWarehouse, shippingboId) => {
         }
   }
 
+  //Cancel order in Shippingbo Warehouse
+  const cancelShippingboDraftWarehouse = async (accessTokenWarehouse, shippingboOrderId) => {
+    const orderToCancel= {
+      state: 'canceled'
+  }
+    const cancelOrderUrl = `https://app.shippingbo.com/orders/${shippingboOrderId}`;
+    const cancelOrderOptions = {
+      method: 'PATCH',
+      headers: {
+        'Content-type': 'application/json',
+        Accept: 'application/json',
+        'X-API-VERSION' : '1',
+        'X-API-APP-ID': API_APP_WAREHOUSE_ID,
+        Authorization: `Bearer ${accessTokenWarehouse}`
+      },
+      body: JSON.stringify(orderToCancel)
+    };
+    try {
+          const response = await fetch(cancelOrderUrl, cancelOrderOptions);
+          const data = await response.json();
+          if(response.ok) {
+            console.log('order cancel in shippingbo GMA: ', shippingboOrderId);
+          }
+        } catch (error) {
+           console.error('Error updating shippingbo order', error);
+        }
+  }
+
 
   module.exports = {
     getWarehouseOrderDetails,
     updateWarehouseOrder,
     getWarehouseOrderToReturn,
     getshippingDetails,
-    updateWarehouseOrderPayments
+    updateWarehouseOrderPayments,
+    cancelShippingboDraftWarehouse
   }
