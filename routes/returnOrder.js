@@ -358,6 +358,8 @@ router.post('/returnProduct', async (req, res) => {
           console.log("si 1 produit mais plusieurs quantité") 
           const returnQuantities = { [productSku[0].product_user_ref]: productSku[0].quantity };
           totalOrder += productSku[0].unit_price * productSku[0].quantity;
+          console.log('unit price', productSku[0].unit_price );
+          console.log('qtéssss', productSku[0].quantity );
 
           const groupedItemsByShipment = getGroupedItemsForLabels(shipments, filteredItems, returnQuantities);
            

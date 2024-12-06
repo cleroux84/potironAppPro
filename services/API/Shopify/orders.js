@@ -37,7 +37,7 @@ const updateOrder =  async (tagsToAdd, orderId) => {
     try {
       const response = await fetch(updateUrl, updateOptions);
       const data = await response.json();
-      console.log('Order updated with tags for future discount code', data)
+      // console.log('Order updated with tags for future discount code', data)
     } catch (error) {
       console.error('error updating order with tags for future discount code', orderId);
     }

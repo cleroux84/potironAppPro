@@ -204,7 +204,7 @@ function getGroupedItemsForLabels(shipments, filteredItems, returnQuantities) {
             }
         });
     });
-    console.log("groupedItems", groupedItems);
+    // console.log("groupedItems", groupedItems);
     return groupedItems;
 }
  
