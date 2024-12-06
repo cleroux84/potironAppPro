@@ -13,7 +13,7 @@ const { getCustomerMetafields } = require('../services/API/Shopify/customers');
 //trigger on shippingbo webhook (create order)
 router.post('/updateDraftOrder', async (req, res) => {
   const createdOrder= req.body;
-  let accessTokenWarehouse = getAccessTokenWarehouseFromDb();
+  let accessTokenWarehouse = await getAccessTokenWarehouseFromDb();
   if(createdOrder.object.origin === 'Potironpro' && (createdOrder.object.origin_ref).includes('provisoire') && createdOrder.object.state === "to_be_prepared") {
     console.log('order update waiting_for_payment : ', createdOrder.object.id);
     let shippingboId = createdOrder.object.id; 
