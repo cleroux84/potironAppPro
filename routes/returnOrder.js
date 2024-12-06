@@ -460,7 +460,8 @@ router.post('/returnProduct', async (req, res) => {
         success: true,
         getOrder: warehouseOrder,
         returnOrder: returnOrderData,
-        label: createLabelData
+        label: createLabelData,
+        totalReturn: totalOrder
       })
   // } else {
   //     console.log('return order already exists : contact SAV !');
