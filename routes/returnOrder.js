@@ -155,7 +155,7 @@ router.post('/checkIfsReturnPossible', async (req, res) => {
   const itemsToReturn = return_items.split(','); 
   const quantitiesByRefs = JSON.parse(quantities);
   const reasonsByRefs = JSON.parse(reasons);  
- 
+  console.log('SKU CALC', productSkuCalc);
   console.log('qties & refs', reasonsByRefs);
  
   let accessTokenWarehouse = await getAccessTokenWarehouseFromDb();
@@ -294,7 +294,8 @@ router.post('/returnProduct', async (req, res) => {
     const initialNumberOfPackages = warehouseOrder.order.shipments.length;
     console.log('nombre de colis dans la commande initiale: ', initialNumberOfPackages);
     const shipments = warehouseOrder.order.shipments;
-
+    console.log('PRODUCT SKU', productSku);
+    console.log("FILTERED", filteredItems);
     // Create label(s) colissimo
     if(returnAll) {
       if(initialNumberOfPackages === 1) {
@@ -340,7 +341,7 @@ router.post('/returnProduct', async (req, res) => {
         if(productSku[0].quantity === 1) {
           const productFoundSku = await getProductWeightBySku(productSku[0].product_user_ref);
           weightToReturn += productFoundSku.weight * productSku[0].quantity;
-          // totalOrder += productSku[0].unit_price * productSku[0].quantity;
+          totalOrder += productSku[0].unit_price * productSku[0].quantity;
           parcel = {
             "weight": weightToReturn,
             "insuranceAmount": 0,

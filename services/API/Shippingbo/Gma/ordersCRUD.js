@@ -92,6 +92,7 @@ const getWarehouseOrderDetails = async (accessTokenWarehouse, shippingboId) => {
   // update warehouse draft order with state waiting for payments 
   const updateWarehouseOrderPayments = async (accessTokenWarehouse, shippingboOrderId) => {
     console.log("PPL updated", shippingboOrderId);
+    console.log("tokenwarehouse", accessTokenWarehouse);
     const updatedOrder = {
       order: {
         id: shippingboOrderId,
