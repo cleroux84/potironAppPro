@@ -18,8 +18,10 @@ router.post('/updateDraftOrder', async (req, res) => {
     createdOrder.object.origin === 'Potironpro' &&
     (createdOrder.object.origin_ref).includes('provisoire')
   ) {
+    console.log('createdOrder within conditions', createdOrder);
     let accessTokenWarehouse = await getAccessTokenWarehouseFromDb();
     let shippingboId = createdOrder.object.id; 
+    //TODO ajouter peut etre une condition de changement de statut il y a moins de 1 minute ?
     await updateWarehouseOrderPayments(accessTokenWarehouse, shippingboId);
   }
 })
