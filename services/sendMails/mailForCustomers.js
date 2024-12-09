@@ -141,7 +141,7 @@ async function sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfBas
 async function sendDiscountCodeAfterReturn(accessTokenMS365, customerData, orderName, discountCode, totalOrder, codeEndDate) {
     const client = initiMicrosoftGraphClient(accessTokenMS365);
     let nameNoStar = customerData.last_name.replace(/⭐/g, '').trim();
-  
+    let positiveAmount = Math.abs(totalOrder);
     const message = {
       subject: `Remboursement sur Commande ${orderName}`, 
       body: {
@@ -149,7 +149,7 @@ async function sendDiscountCodeAfterReturn(accessTokenMS365, customerData, order
         content: `
           <p>Bonjour ${customerData.first_name} ${nameNoStar}, </p>
           <p style="margin: 0;">Suite à la réception de votre colis retour concernant la commande ${orderName}</p>
-          <p style="margin: 0;">Code de réduction: ${discountCode}, d'une valeur de ${totalOrder} valable jusqu'au ${codeEndDate}</p>
+          <p style="margin: 0;">Code de réduction: ${discountCode}, d'une valeur de ${positiveAmount}€ valable jusqu'au ${codeEndDate}.</p>
           <p>Très belle journée,</p>
           <p>L'équipe de Potiron Paris</p>
           <img src='cid:signature'/>
@@ -210,6 +210,7 @@ const sendEmailDiscountReminder = async (discounCode, totalAmount, codeEndDate, 
       await refreshMS365AccessToken();
       accessTokenMS365 = await getAccessTokenMS365();
     }
+    console.log("codeenddate from db", codeEndDate);
     const discountEnd = new Date(codeEndDate);
     const formattedDate = discountEnd.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
     const client = initiMicrosoftGraphClient(accessTokenMS365);
@@ -220,7 +221,7 @@ const sendEmailDiscountReminder = async (discounCode, totalAmount, codeEndDate, 
         content: `
           <p>Bonjour, </p>
           <p style="margin: 0;">Suite à la réception de votre colis retour concernant la commande ${orderName}</p>
-          <p style="margin: 0;">Il ne vous reste plus que 15 jours pour utiliser votre code de réduction: ${discounCode}, d'une valeur de ${totalAmount} valable jusqu'au ${formattedDate}</p>
+          <p style="margin: 0;">Il ne vous reste plus que 15 jours pour utiliser votre code de réduction: ${discounCode}, d'une valeur de ${totalAmount} valable jusqu'au ${formattedDate}.</p>
           <p>Très belle journée,</p>
           <p>L'équipe de Potiron Paris</p>
           <img src='cid:signature'/>
