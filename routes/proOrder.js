@@ -15,14 +15,14 @@ router.post('/updateDraftOrder', async (req, res) => {
   const createdOrder= req.body;
   let accessTokenWarehouse = await getAccessTokenWarehouseFromDb();
   const currentOrder = await getshippingDetails(accessTokenWarehouse, createdOrder.object.id);
-  console.log('currentOrder for state', currentOrder);
+  // console.log('currentOrder for state', currentOrder);
   if(createdOrder.additional_data.from === 'waiting_for_stock' && 
     createdOrder.additional_data.to === 'to_be_prepared' &&
     createdOrder.object.origin === 'Potironpro' &&
     (createdOrder.object.origin_ref).includes('provisoire') &&
     currentOrder.order.state === 'to_be_prepared'
   ) {
-    console.log('state still prepared', currentOrder.order.state);
+    // console.log('state still prepared', currentOrder.order.state);
     let shippingboId = createdOrder.object.id; 
     //TODO ajouter peut etre une condition de changement de statut il y a moins de 1 minute ?
     await updateWarehouseOrderPayments(accessTokenWarehouse, shippingboId);
