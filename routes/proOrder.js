@@ -99,7 +99,7 @@ router.post('/proOrder', async (req, res) => {
           }
       }
     } else {
-      console.log('update order pour client non pro');
+      // console.log('update order pour client non pro');
     }
   });
 
