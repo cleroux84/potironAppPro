@@ -85,7 +85,6 @@ router.post('/proOrder', async (req, res) => {
         await cancelShippingboDraft(accessToken, shippingboDraftId);
         const warehouseOrder = await getWarehouseOrderDetails(accessTokenWarehouse, shippingboDraftId);
         const {id: ordId} = warehouseOrder;
-        console.log('ID TO REMOVE', ordId);
         await cancelShippingboDraftWarehouse(accessTokenWarehouse, ordId);
       }
       if(orderDetails) {

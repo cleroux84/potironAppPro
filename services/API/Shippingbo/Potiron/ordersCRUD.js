@@ -113,7 +113,7 @@ const cancelShippingboDraft = async (accessToken, shippingboOrderId) => {
     try { 
         const responseShippingbo = await fetch(createOrderUrl, createOrderOptions);
         const data = await responseShippingbo.json();
-        console.log('draft order created', data);
+        console.log('draft order created shippingbo Potiron', data.order.id);
         // console.log('response from shippingbo', data)
     } catch (error) {
       console.error('error in creation order from draft shopify', error);
