@@ -243,7 +243,8 @@ router.post('/checkIfsReturnPossible', async (req, res) => {
       totalWeight: totalWeight,
       orderName: orderName,
       createdOrder: createdOrder,
-      originalDiscounts: originalDiscounts
+      originalDiscounts: originalDiscounts,
+      productSkuCalc: productSkuCalc
     });
  
   } catch (error) {
@@ -295,7 +296,7 @@ router.post('/returnProduct', async (req, res) => {
     console.log('nombre de colis dans la commande initiale: ', initialNumberOfPackages);
     const shipments = warehouseOrder.order.shipments;
     console.log('PRODUCT SKU', productSku);
-    console.log("FILTERED", filteredItems);
+    // console.log("FILTERED", filteredItems);
     // Create label(s) colissimo
     if(returnAll) {
       if(initialNumberOfPackages === 1) {
