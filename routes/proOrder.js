@@ -13,10 +13,9 @@ const { getCustomerMetafields } = require('../services/API/Shopify/customers');
 //trigger on shippingbo webhook (create order)
 router.post('/updateDraftOrder', async (req, res) => {
   const createdOrder= req.body;
-  let accessTokenWarehouse = await getAccessTokenFromDb();
-  console.log("id to check state", createdOrder.object.id);
+  let accessTokenWarehouse = await getAccessTokenWarehouseFromDb();
   const currentOrder = await getshippingDetails(accessTokenWarehouse, createdOrder.object.id);
-  // console.log('currentOrder for state', currentOrder);
+  console.log('currentOrder for state', currentOrder);
   if(createdOrder.additional_data.from === 'waiting_for_stock' && 
     createdOrder.additional_data.to === 'to_be_prepared' &&
     createdOrder.object.origin === 'Potironpro' &&
@@ -24,7 +23,6 @@ router.post('/updateDraftOrder', async (req, res) => {
     currentOrder.order.state === 'to_be_prepared'
   ) {
     console.log('state still prepared', currentOrder.order.state);
-    let accessTokenWarehouse = await getAccessTokenWarehouseFromDb();
     let shippingboId = createdOrder.object.id; 
     //TODO ajouter peut etre une condition de changement de statut il y a moins de 1 minute ?
     await updateWarehouseOrderPayments(accessTokenWarehouse, shippingboId);
