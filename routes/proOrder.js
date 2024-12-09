@@ -14,6 +14,7 @@ const { getCustomerMetafields } = require('../services/API/Shopify/customers');
 router.post('/updateDraftOrder', async (req, res) => {
   const createdOrder= req.body;
   let accessTokenWarehouse = await getAccessTokenFromDb();
+  console.log("id to check state", createdOrder.object.id);
   const currentOrder = await getWarehouseOrderDetails(accessTokenWarehouse, createdOrder.object.id);
   console.log('currentOrder for state', currentOrder);
   if(createdOrder.additional_data.from === 'waiting_for_stock' && 
@@ -26,7 +27,7 @@ router.post('/updateDraftOrder', async (req, res) => {
     let accessTokenWarehouse = await getAccessTokenWarehouseFromDb();
     let shippingboId = createdOrder.object.id; 
     //TODO ajouter peut etre une condition de changement de statut il y a moins de 1 minute ?
-    await updateWarehouseOrderPayments(accessTokenWarehouse, shippingboId);
+    // await updateWarehouseOrderPayments(accessTokenWarehouse, shippingboId);
   }
 })
 
