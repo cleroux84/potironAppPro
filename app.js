@@ -41,7 +41,7 @@ getWebhooks();
 
 //CHECK Scheduled emails in DB every day
 // cron.schedule('0 9 * * *', checkScheduledEmails, { //9h00
-cron.schedule('30 16 * * *', checkScheduledEmails, { //9h00
+cron.schedule('50 16 * * *', checkScheduledEmails, { //9h00
 
 //cron.schedule('50 10 * * *', checkScheduledEmails, { //10h50
   schedule: true,

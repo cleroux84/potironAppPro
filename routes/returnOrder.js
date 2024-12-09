@@ -44,6 +44,7 @@ router.post('/returnOrderCancel', async (req, res) => {
             const discountCode = priceRules.discountData.discount_code.code;
             const discountAmount = priceRules.discountRule.price_rule.value;
             const discountEnd = priceRules.discountRule.price_rule.ends_at;
+            const discountEndDate = discountEnd.toISOString().slice(0, 19).replace('T', ' ');
             const discountDate = new Date(discountEnd);
             const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });  
            
@@ -56,7 +57,7 @@ router.post('/returnOrderCancel', async (req, res) => {
             const customerData = shopifyOrder.order.customer;
             await sendDiscountCodeAfterReturn(accessTokenMS365, customerData, orderName, discountCode, discountAmount, formattedDate);
             if(customerData.email) {
-              await saveDiscountMailData(customerData.email, orderName, discountCode, discountAmount, discountEnd, discountCodeId, priceRuleId);
+              await saveDiscountMailData(customerData.email, orderName, discountCode, discountAmount, discountEndDate, discountCodeId, priceRuleId);
             } else {
               console.log('Client sans Mail lié: ', customerData.id);
             }
