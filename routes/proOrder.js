@@ -14,7 +14,7 @@ const { getCustomerMetafields } = require('../services/API/Shopify/customers');
 router.post('/updateDraftOrder', async (req, res) => {
   const createdOrder= req.body;
   let accessTokenWarehouse = await getAccessTokenFromDb();
-  const currentOrder = await getWarehouseOrderDetails(accessTokenWarehouse, createdOrder.id);
+  const currentOrder = await getWarehouseOrderDetails(accessTokenWarehouse, createdOrder.object.id);
   console.log('currentOrder for state', currentOrder);
   if(createdOrder.additional_data.from === 'waiting_for_stock' && 
     createdOrder.additional_data.to === 'to_be_prepared' &&
