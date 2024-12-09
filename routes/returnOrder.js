@@ -55,7 +55,11 @@ router.post('/returnOrderCancel', async (req, res) => {
             }
             const customerData = shopifyOrder.order.customer;
             await sendDiscountCodeAfterReturn(accessTokenMS365, customerData, orderName, discountCode, discountAmount, formattedDate);
-            await saveDiscountMailData(customerData.email, orderName, discountCode, discountAmount, discountEnd, discountCodeId, priceRuleId);
+            if(customerData.email) {
+              await saveDiscountMailData(customerData.email, orderName, discountCode, discountAmount, discountEnd, discountCodeId, priceRuleId);
+            } else {
+              console.log('Client sans Mail lié: ', customerData.id);
+            }
           }
       } catch (error) {
         console.error("error webhook discount code", error);
