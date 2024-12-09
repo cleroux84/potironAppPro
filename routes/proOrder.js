@@ -6,7 +6,7 @@ const { getAccessTokenFromDb } = require('../services/database/tokens/potiron_sh
 const { createDraftOrder, updateDraftOrderWithDraftId, lastDraftOrder, draftOrderById } = require('../services/API/Shopify/draftOrders');
 const { getAccessTokenWarehouseFromDb } = require('../services/database/tokens/gma_shippingbo');
 const { getShippingboOrderDetails, cancelShippingboDraft, updateShippingboOrder } = require('../services/API/Shippingbo/Potiron/ordersCRUD');
-const { getWarehouseOrderDetails, updateWarehouseOrder, updateWarehouseOrderPayments, cancelShippingboDraftWarehouse } = require('../services/API/Shippingbo/Gma/ordersCRUD');
+const { getWarehouseOrderDetails, updateWarehouseOrder, updateWarehouseOrderPayments, cancelShippingboDraftWarehouse, getshippingDetails } = require('../services/API/Shippingbo/Gma/ordersCRUD');
 const { getCustomerMetafields } = require('../services/API/Shopify/customers');
 
 
@@ -15,19 +15,19 @@ router.post('/updateDraftOrder', async (req, res) => {
   const createdOrder= req.body;
   let accessTokenWarehouse = await getAccessTokenFromDb();
   console.log("id to check state", createdOrder.object.id);
-  const currentOrder = await getWarehouseOrderDetails(accessTokenWarehouse, createdOrder.object.id);
-  console.log('currentOrder for state', currentOrder);
+  const currentOrder = await getshippingDetails(accessTokenWarehouse, createdOrder.object.id);
+  // console.log('currentOrder for state', currentOrder);
   if(createdOrder.additional_data.from === 'waiting_for_stock' && 
     createdOrder.additional_data.to === 'to_be_prepared' &&
     createdOrder.object.origin === 'Potironpro' &&
     (createdOrder.object.origin_ref).includes('provisoire') &&
     currentOrder.order.state === 'to_be_prepared'
   ) {
-    // console.log('createdOrder within conditions', createdOrder);
+    console.log('state still prepared', currentOrder.order.state);
     let accessTokenWarehouse = await getAccessTokenWarehouseFromDb();
     let shippingboId = createdOrder.object.id; 
     //TODO ajouter peut etre une condition de changement de statut il y a moins de 1 minute ?
-    // await updateWarehouseOrderPayments(accessTokenWarehouse, shippingboId);
+    await updateWarehouseOrderPayments(accessTokenWarehouse, shippingboId);
   }
 })
 
