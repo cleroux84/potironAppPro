@@ -40,8 +40,8 @@ initializeTokens();
 getWebhooks();
 
 //CHECK Scheduled emails in DB every day
-cron.schedule('0 9 * * *', checkScheduledEmails, { //9h00
-//cron.schedule('50 10 * * *', checkScheduledEmails, { //10h50
+// cron.schedule('0 9 * * *', checkScheduledEmails, { //9h00
+cron.schedule('06 9 * * *', checkScheduledEmails, { //10h50
   schedule: true,
   timezone: "Europe/Paris"
 });
