@@ -313,7 +313,7 @@ router.post('/returnProduct', async (req, res) => {
 
     //Create Labels
     if(returnAll) {
-        totalAsset = (req.body.totalOrder).toFixed(2);
+        totalAsset = ((req.body.totalOrder)/100).toFixed(2);
         console.log('totalAssethere', totalAsset);
         console.log('imagine warehouse', ((warehouseOrder.order.total_price_cents) / 100).toFixed(2));
       if(initialNumberOfPackages === 1) {
