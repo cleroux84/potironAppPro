@@ -158,6 +158,7 @@ router.post('/checkIfsReturnPossible', async (req, res) => {
   const { warehouseOrderId, return_items, quantities, reasons, filteredItems, returnAllOrder, productSkuCalc, orderName, createdOrder, originalDiscounts } = req.body;
   const itemsToReturn = return_items.split(','); 
   const quantitiesByRefs = JSON.parse(quantities);
+  console.log('qtésByRefs to check', quantitiesByRefs);
   const reasonsByRefs = JSON.parse(reasons);   
   let accessTokenWarehouse = await getAccessTokenWarehouseFromDb();
  
@@ -271,6 +272,7 @@ router.post('/returnProduct', async (req, res) => {
   const filteredItems = req.body.filteredItems;
   const quantitiesByRefs = req.body.quantitiesByRefs;
   console.log('return all', returnAll);
+  console.log('juste there qtisbtrefs', quantitiesByRefs);
   if(!customerId) {
     let initialiOrder = await getOrderByShopifyId(shopifyOrderId);
     customerId = initialiOrder.order.customer.id;
@@ -390,9 +392,7 @@ router.post('/returnProduct', async (req, res) => {
           for(const sku of productSku) {
             totalOrder += sku.unit_price * sku.quantity;
           }
-          const groupedItems = getGroupedItemsForRefund(warehouseOrder.order.shipments, filteredItems, quantitiesByRefs);
-          priceByWeight = await calculateShippingCostForGroupedItems(groupedItems, warehouseOrder.order.shipments);
-          totalRefund = totalOrder - priceByWeight;
+          // const groupedItems = getGroupedItemsForRefund(warehouseOrder.order.shipments, filteredItems, quantitiesByRefs)
 
           const groupedItemsByShipment = getGroupedItemsForLabels(shipments, filteredItems, returnQuantities);
           
@@ -458,9 +458,6 @@ router.post('/returnProduct', async (req, res) => {
         for(const sku of productSku) {
           totalOrder += sku.unit_price * sku.quantity;
         }
-        const groupedItems = getGroupedItemsForRefund(warehouseOrder.order.shipments, filteredItems, quantitiesByRefs);
-        priceByWeight = await calculateShippingCostForGroupedItems(groupedItems, warehouseOrder.order.shipments);
-        totalRefund = totalOrder - priceByWeight;
       }
     totalOrder = totalOrder.toFixed(2);
     totalRefund = totalRefund.toFixed(2);
