@@ -243,7 +243,8 @@ router.post('/checkIfsReturnPossible', async (req, res) => {
       orderName: orderName,
       createdOrder: createdOrder,
       originalDiscounts: originalDiscounts,
-      productSkuCalc: productSkuCalc
+      productSkuCalc: productSkuCalc,
+      quantitiesByRefs: quantitiesByRefs
     });
  
   } catch (error) {
@@ -268,6 +269,7 @@ router.post('/returnProduct', async (req, res) => {
   const returnAll = req.body.returnAllOrder;
   const shopifyOrderId = req.body.shopifyOrderId;
   const filteredItems = req.body.filteredItems;
+  const quantitiesByRefs = req.body.quantitiesByRefs;
   console.log('return all', returnAll);
   if(!customerId) {
     let initialiOrder = await getOrderByShopifyId(shopifyOrderId);
@@ -363,16 +365,11 @@ router.post('/returnProduct', async (req, res) => {
       totalAsset = ((req.body.totalOrder)/100).toFixed(2);
       if(productSku.length === 1) {
         if(productSku[0].quantity === 1) {
-        console.log('LAAAAAAAAOUIIII');
-
           const productFoundSku = await getProductWeightBySku(productSku[0].product_user_ref);
           weightToReturn += productFoundSku.weight * productSku[0].quantity;
-          console.log('weighttoreturn', weightToReturn);
           totalOrder += productSku[0].unit_price * productSku[0].quantity;
           priceByWeight = await getShippingPrice(weightToReturn);
-          console.log('pricebyweight', priceByWeight);
           totalRefund = totalOrder - priceByWeight;
-          console.log('totalrefundhere', totalRefund);
 
           parcel = {
             "weight": weightToReturn,
@@ -393,6 +390,9 @@ router.post('/returnProduct', async (req, res) => {
           for(const sku of productSku) {
             totalOrder += sku.unit_price * sku.quantity;
           }
+          const groupedItems = getGroupedItemsForRefund(warehouseOrder.order.shipments, filteredItems, quantitiesByRefs);
+          priceByWeight = await calculateShippingCostForGroupedItems(groupedItems, warehouseOrder.order.shipments);
+          totalRefund = totalOrder - priceByWeight;
 
           const groupedItemsByShipment = getGroupedItemsForLabels(shipments, filteredItems, returnQuantities);
           
@@ -458,6 +458,9 @@ router.post('/returnProduct', async (req, res) => {
         for(const sku of productSku) {
           totalOrder += sku.unit_price * sku.quantity;
         }
+        const groupedItems = getGroupedItemsForRefund(warehouseOrder.order.shipments, filteredItems, quantitiesByRefs);
+        priceByWeight = await calculateShippingCostForGroupedItems(groupedItems, warehouseOrder.order.shipments);
+        totalRefund = totalOrder - priceByWeight;
       }
     totalOrder = totalOrder.toFixed(2);
     totalRefund = totalRefund.toFixed(2);
