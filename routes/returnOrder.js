@@ -515,7 +515,7 @@ router.post('/returnProduct', async (req, res) => {
         const shopifyId = returnOrderData.return_order.reason_ref;
         const attributes = [
           {name: "customerId", value: customerId},
-          {name: "totalOrderReturn", value: totalOrder}
+          {name: "totalOrderReturn", value: totalRefund}
         ];
         const updatedAttributes = {
           order: {
@@ -525,7 +525,7 @@ router.post('/returnProduct', async (req, res) => {
         }
       //update shopify order with attributes to have refund data for mail refund Magalie
        await updateOrder(updatedAttributes ,shopifyId);
-       
+
         //SEND MAIL RO MAGALIE
         //SEND MAIL TO customer
 
