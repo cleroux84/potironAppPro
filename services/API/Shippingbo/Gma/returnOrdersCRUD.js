@@ -69,7 +69,7 @@ const checkIfReturnOrderExist = async (accessTokenWarehouse, originalOrderId) =>
             if(optionChoose === 'option1') {
               optionChooseData = 'Retour Auto ASSET';
             } else if(optionChoose === 'option2') {
-              optionChooseData = 'Retour AUTO REFUND';
+              optionChooseData = 'Retour Auto REFUND';
             }
     const returnOrder = {
         "order_id": orderId,

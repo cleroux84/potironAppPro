@@ -73,18 +73,19 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
   }
 
 //Send email to customer with label colissmo attached
-async function sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfBase64Array, parcelNumbers, totalOrder) {
+async function sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfBase64Array, parcelNumbers, totalOrder, optionChoose) {
     const client = initiMicrosoftGraphClient(accessTokenMS365);
-    // let trackingLinks = '';
-    // for (const number of parcelNumbers) {
-    //   const packageTrack = `https://www.laposte.fr/outils/suivre-vos-envois?code=${number}`
-    //   trackingLinks += `<p>Numéro de colis : ${number} - <a href="${packageTrack}">Suivi du colis</a></p>`; 
-    // }
     let labelsText;
     if(parcelNumbers.length === 1) {
       labelsText = `l'étiquette de retour ci-jointe.`;
     } else {
       labelsText = `les étiquettes de retour ci-jointes.`;
+    }
+    let optionText;
+    if(optionChoose === 'option1') {
+      optionText = `<p>A réception de votre colis, vous recevrez par mail, le code de réduction/avoir d'une valeur de ${totalOrder}€ valable 3 mois.</p>`
+    } else if(optionChoose === 'option2') {
+      optionText = `<p>A réception de votre colis, vous recevrez le remboursement de votre commande d'une valeur de ${totalOrder}€.</p>`
     }
     const pdfAttachments = pdfBase64Array.map((pdfBase64, index) => ({  
       '@odata.type': '#microsoft.graph.fileAttachment',   
@@ -92,8 +93,6 @@ async function sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfBas
       contentType: 'application/pdf',
       contentBytes: pdfBase64.replace(/^data:application\/pdf;base64,/, '')
     }))
-    // const cleanBase64 = pdfBase64.replace(/^data:application\/pdf;base64,/, '');
-    // const packageTrack = "https://www.laposte.fr/outils/suivre-vos-envois?code=" + parcelNumber;
     const message = {
         subject: 'Votre demande de retour Potiron Paris', 
         body: {
@@ -101,9 +100,9 @@ async function sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfBas
             content: `
               <p>Bonjour ${senderCustomer.name},</p>
               <p>Votre demande de retour a bien été prise en compte.</p>
-              <p>Vous trouverez l'étiquette de retour ci-jointe, il suffit de l'imprimer pour votre colis.</p>
+              <p>Vous trouverez ${labelsText}, il suffit de l'imprimer pour votre colis.</p>
               <p>TEXTE A VOIR</p>
-              <p>A réception de votre colis retour, vous recevrez par mail, le code de réduction/remboursement d'une valeur de ${totalOrder}€ valable 3 mois.
+              ${optionText}
               <p>Très belle journée,</p>
               <p>L'équipe de Potiron Paris</p>
               <img src='cid:signature'/>

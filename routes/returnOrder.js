@@ -14,14 +14,12 @@ const { getWarehouseOrderDetails, getshippingDetails } = require('../services/AP
 const { createLabel, getShippingPrice, calculateTotalShippingCost, getGroupedItemsForRefund, calculateShippingCostForGroupedItems, getGroupedItemsForLabels } = require('../services/API/colissimo');
 const { getProductWeightBySku } = require('../services/API/Shopify/products');
 const { checkIfReturnOrderExist, createReturnOrder } = require('../services/API/Shippingbo/Gma/returnOrdersCRUD');
-const { sendReturnDataToSAV } = require('../services/sendMails/mailForTeam');
+const { sendReturnDataToSAV, sendRefundDataToSAV } = require('../services/sendMails/mailForTeam');
 const router = express.Router();
 
 //trigger on shippingbo webhook (cancel order / will become returned ?) to create and send discount code to customer
 router.post('/returnOrderCancel', async (req, res) => {
     const orderCanceled = req.body;
-    console.log("returnedCancel", orderCanceled);
-    console.log("object reason", orderCanceled.object.reason);
     if(orderCanceled.additional_data.from === 'new'
       && orderCanceled.additional_data.to ==='canceled' //TODO change for "returned" with a new webhook
     ) {
@@ -492,7 +490,7 @@ router.post('/returnProduct', async (req, res) => {
       //send email to Magalie with parcel number and shopify Id and return order GMA Id
        await sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumbers, returnOrderId, totalOrder)
       //send email to customer with labels and parcel number
-       await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfBase64, parcelNumbers, totalOrder);
+       await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfBase64, parcelNumbers, totalOrder, optionChoose);
 
        return res.status(200).json({
         success: true,
@@ -527,9 +525,10 @@ router.post('/returnProduct', async (req, res) => {
         }
       //update shopify order with attributes to have refund data for mail refund Magalie
        await updateOrder(updatedAttributes ,shopifyId);
-
-        //SEND MAIL RO MAGALIE
-        //SEND MAIL TO customer
+      //send email to Magalie with parcel number and shopify Id and return order GMA Id
+       await sendRefundDataToSAV(accessTokenMS365, senderCustomer, parcelNumbers, returnOrderId, totalRefund);
+      //send email to customer with labels and parcel number
+      await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfBase64, parcelNumbers, totalRefund, optionChoose)
 
 
       return res.status(200).json({

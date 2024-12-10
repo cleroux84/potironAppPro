@@ -137,7 +137,7 @@ async function sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileEx
     }
   }
 
-  //Send email to Magalie with parcelNumber when automated return
+  //Send email to Magalie with parcelNumber when automated return with ASSET(Avoir / discount code)
   async function sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumbers, returnOrderId, totalOrder) {
     const client = initiMicrosoftGraphClient(accessTokenMS365);
     let trackingLinks = '';
@@ -187,10 +187,61 @@ async function sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileEx
     }
   }
 
+  //Send email to Magalie with parcelNumber when automated return with REFUND(Remboursement)
+  async function sendRefundDataToSAV(accessTokenMS365, senderCustomer, parcelNumbers, returnOrderId, totalOrder) {
+    const client = initiMicrosoftGraphClient(accessTokenMS365);
+    let trackingLinks = '';
+    for (const number of parcelNumbers) {
+      const packageTrack = `https://www.laposte.fr/outils/suivre-vos-envois?code=${number}`
+      trackingLinks += `<p>Numéro de colis : ${number} - <a href="${packageTrack}">Suivi du colis</a></p>`; 
+    }
+    
+    const message = {
+      subject: 'Nouvelle demande de retour automatisé avec remboursement', 
+      body: {
+        contentType: 'HTML',
+        content: `
+          <p>Bonjour, </p>
+          <p style="margin: 0;">Une nouvelle demande de retour a été créée pour le client : ${senderCustomer.name}</p>
+          <p style="margin: 0;">Une commande retour a été créée dans Shippingbo GMA : ${returnOrderId}</p>
+          <p style="margin: 0;">La commande d'origine Shopify est : ${senderCustomer.origin_ref}.</p>
+          <p>A réception de son colis, vous recevrez un nouvel email pour effectuer un remboursement sur son compte d'une valeur de ${totalOrder}€.</p>
+          ${trackingLinks}
+          <p>Bonne journée ! </p>
+          <img src='cid:signature'/>
+        `
+      },
+      toRecipients: [
+        {
+          emailAddress: {
+            address: "c.leroux@potiron.com"
+          }
+        }
+      ],
+      bccRecipients: [
+        {
+            emailAddress: {
+                address: MAILDEV
+            }
+        }
+      ],
+      attachments: [
+        signatureAttachement
+      ]
+    };
+    try {
+      await client.api('/me/sendMail').post({ message });
+      console.log("Email SAv after automated return sucessfully sent");
+    } catch (error) {
+      console.error('error sending cotation message', error);
+    }
+  }
+
   module.exports = {
     sendEmailWithKbis,
     sendNewDraftOrderMail,
     sendReturnDataToSAV,
     signatureAttachement,
-    initiMicrosoftGraphClient
+    initiMicrosoftGraphClient,
+    sendRefundDataToSAV
   }
