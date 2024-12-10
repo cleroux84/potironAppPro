@@ -243,7 +243,8 @@ router.post('/checkIfsReturnPossible', async (req, res) => {
       orderName: orderName,
       createdOrder: createdOrder,
       originalDiscounts: originalDiscounts,
-      productSkuCalc: productSkuCalc
+      productSkuCalc: productSkuCalc,
+      quantitiesByRefs: quantitiesByRefs
     });
  
   } catch (error) {
@@ -268,6 +269,7 @@ router.post('/returnProduct', async (req, res) => {
   const returnAll = req.body.returnAllOrder;
   const shopifyOrderId = req.body.shopifyOrderId;
   const filteredItems = req.body.filteredItems;
+  const quantitiesByRefs = req.body.quantitiesByRefs;
   console.log('return all', returnAll);
   if(!customerId) {
     let initialiOrder = await getOrderByShopifyId(shopifyOrderId);
@@ -290,7 +292,10 @@ router.post('/returnProduct', async (req, res) => {
     "origin_ref": warehouseOrder.order.origin_ref
   };
   let weightToReturn = 0;
-  let totalOrder = 0;
+  let totalOrder = req.body.totalOrder;
+  totalOrder = (totalOrder / 100).toFixed(2);
+  let totalRefund = 0;
+  let priceByWeight;
   let parcel;
   let createLabelData = [];
   let parcelNumbers = [];
@@ -308,11 +313,15 @@ router.post('/returnProduct', async (req, res) => {
     const returnOrderId = returnOrderData.return_order.id;
     const shopifyId = returnOrderData.return_order.reason_ref;
 
-    //Create Labels
+    //Create Labels and calc totals
     if(returnAll) {
+      
       if(initialNumberOfPackages === 1) {
         weightToReturn = warehouseOrder.order.shipments
         .reduce((total, shipment) => total + (shipment.total_weight / 1000), 0);
+        priceByWeight = await getShippingPrice(weightToReturn);
+        totalRefund = totalOrder - priceByWeight;
+
         parcel = {
           "weight": weightToReturn,
           "insuranceAmount": 0,
@@ -328,6 +337,9 @@ router.post('/returnProduct', async (req, res) => {
         }
 
       } else { 
+        priceByWeight = await calculateTotalShippingCost(warehouseOrder.order.shipments, filteredItems);
+        totalRefund = totalOrder - priceByWeight;
+
         const parcels = shipments.map(shipment => ({
           "weight": shipment.total_weight / 1000,
           "insuranceAmount": 0,
@@ -346,14 +358,15 @@ router.post('/returnProduct', async (req, res) => {
         }
       }
       
-      totalOrder = req.body.totalOrder;
-      totalOrder = (totalOrder / 100).toFixed(2);
     } else {
       if(productSku.length === 1) {
         if(productSku[0].quantity === 1) {
           const productFoundSku = await getProductWeightBySku(productSku[0].product_user_ref);
           weightToReturn += productFoundSku.weight * productSku[0].quantity;
           totalOrder += productSku[0].unit_price * productSku[0].quantity;
+          priceByWeight = await getShippingPrice(weightToReturn);
+          totalRefund = totalOrder - priceByWeight;
+
           parcel = {
             "weight": weightToReturn,
             "insuranceAmount": 0,
@@ -375,7 +388,10 @@ router.post('/returnProduct', async (req, res) => {
           }
 
           const groupedItemsByShipment = getGroupedItemsForLabels(shipments, filteredItems, returnQuantities);
-          
+          const groupedItems = getGroupedItemsForRefund(warehouseOrder.order.shipments, filteredItems, quantitiesByRefs);
+          priceByWeight = await calculateShippingCostForGroupedItems(groupedItems, warehouseOrder.order.shipments);
+          totalRefund = totalOrder - priceByWeight;
+
           for (const shipmentId in groupedItemsByShipment) {
             const itemsInShipment = groupedItemsByShipment[shipmentId];
         
@@ -438,8 +454,10 @@ router.post('/returnProduct', async (req, res) => {
         for(const sku of productSku) {
           totalOrder += sku.unit_price * sku.quantity;
         }
+        const groupedItems = getGroupedItemsForRefund(warehouseOrder.order.shipments, filteredItems, quantitiesByRefs);
+        priceByWeight = await calculateShippingCostForGroupedItems(groupedItems, warehouseOrder.order.shipments);
+        totalRefund = totalOrder - priceByWeight;
       }
-    totalOrder = totalOrder.toFixed(2);
   }
 
     if (optionChosen === "option1") {
@@ -484,7 +502,7 @@ router.post('/returnProduct', async (req, res) => {
         getOrder: warehouseOrder,
         returnOrder: returnOrderData,
         label: createLabelData,
-        // totalReturn: totalOrder
+        totalReturn: totalRefund
       })
     }
   //  } else {
