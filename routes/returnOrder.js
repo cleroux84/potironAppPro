@@ -314,11 +314,16 @@ router.post('/returnProduct', async (req, res) => {
     //Create Labels
     if(returnAll) {
         totalAsset = (req.body.totalOrder).toFixed(2);
+        console.log('totalAssethere', totalAsset);
+        console.log('imagine warehouse', ((warehouseOrder.order.total_price_cents) / 100).toFixed(2));
       if(initialNumberOfPackages === 1) {
+        console.log('YEPPPL')
         weightToReturn = warehouseOrder.order.shipments
         .reduce((total, shipment) => total + (shipment.total_weight / 1000), 0);
         priceByWeight = await getShippingPrice(weightToReturn);
+        console.log('priceByWeight', priceByWeight);
         totalRefund = totalAsset - priceByWeight;
+        console.log('totalRefund', totalRefund);
 
         parcel = {
           "weight": weightToReturn,
