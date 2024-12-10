@@ -4,7 +4,7 @@ const express = require('express');
 const { getOrderByShopifyId, updateOrder, orderByMail } = require('../services/API/Shopify/orders');
 const { checkIfPriceRuleExists, createPriceRule, isReturnableDate } = require('../services/API/Shopify/priceRules');
 const { getAccessTokenMS365, refreshMS365AccessToken } = require('../services/API/microsoft');
-const { sendDiscountCodeAfterReturn, sendReturnDataToCustomer } = require('../services/sendMails/mailForCustomers');
+const { sendDiscountCodeAfterReturn, sendReturnDataToCustomer, sendReceiptAndWaitForRefund } = require('../services/sendMails/mailForCustomers');
 const { saveDiscountMailData } = require('../services/database/scheduled_emails');
 const { getAccessTokenFromDb } = require('../services/database/tokens/potiron_shippingbo');
 const { getAccessTokenWarehouseFromDb } = require('../services/database/tokens/gma_shippingbo');
@@ -14,14 +14,20 @@ const { getWarehouseOrderDetails, getshippingDetails } = require('../services/AP
 const { createLabel, getShippingPrice, calculateTotalShippingCost, getGroupedItemsForRefund, calculateShippingCostForGroupedItems, getGroupedItemsForLabels } = require('../services/API/colissimo');
 const { getProductWeightBySku } = require('../services/API/Shopify/products');
 const { checkIfReturnOrderExist, createReturnOrder } = require('../services/API/Shippingbo/Gma/returnOrdersCRUD');
-const { sendReturnDataToSAV, sendRefundDataToSAV } = require('../services/sendMails/mailForTeam');
+const { sendReturnDataToSAV, sendRefundDataToSAV, mailToSendRefund } = require('../services/sendMails/mailForTeam');
 const router = express.Router();
 
 //trigger on shippingbo webhook (cancel order / will become returned ?) to create and send discount code to customer
 router.post('/returnOrderCancel', async (req, res) => {
     const orderCanceled = req.body;
+    let accessTokenMS365 = await getAccessTokenMS365();
+    if(!accessTokenMS365) {
+      await refreshMS365AccessToken();
+      accessTokenMS365 = await getAccessTokenMS365();
+    }
     if(orderCanceled.additional_data.from === 'new'
       && orderCanceled.additional_data.to ==='canceled' //TODO change for "returned" with a new webhook
+      && (orderCanceled.object.reason === 'Retour Auto ASSET' || orderCanceled.object.reason === 'Retour auto REFUND')
     ) {
       const shopifyIdString = orderCanceled.object.reason_ref;
       const shopifyId = Number(shopifyIdString);
@@ -32,6 +38,9 @@ router.post('/returnOrderCancel', async (req, res) => {
       const orderName = getAttributes.order.name;
       const totalAmountAttr = noteAttributes.find(attr => attr.name === "totalOrderReturn");
       const totalAmount = totalAmountAttr ? parseFloat(totalAmountAttr.value) : null;
+      const orderCanceledId = orderCanceled.object.id;
+      const shopifyOrder = await getOrderByShopifyId(orderCanceled.object.reason_ref);   
+      const customerData = shopifyOrder.order.customer;
 
       if(orderCanceled.object.reason === 'Retour Auto ASSET') {
         try {
@@ -47,13 +56,7 @@ router.post('/returnOrderCancel', async (req, res) => {
               const discountDate = new Date(discountEnd);
               const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });  
             
-              const shopifyOrder = await getOrderByShopifyId(orderCanceled.object.reason_ref);
-              let accessTokenMS365 = await getAccessTokenMS365();
-              if(!accessTokenMS365) {
-                await refreshMS365AccessToken();
-                accessTokenMS365 = await getAccessTokenMS365();
-              }
-              const customerData = shopifyOrder.order.customer;
+              
               await sendDiscountCodeAfterReturn(accessTokenMS365, customerData, orderName, discountCode, discountAmount, formattedDate);
               if(customerData.email) {
                 await saveDiscountMailData(customerData.email, orderName, discountCode, discountAmount, discountEnd, discountCodeId, priceRuleId);
@@ -65,10 +68,10 @@ router.post('/returnOrderCancel', async (req, res) => {
           console.error("error webhook discount code", error);
         }
       } else if(orderCanceled.object.reason === 'Retour Auto REFUND') {
-        console.log('MAIL Magalie for refund', totalAmount);
-        console.log('MAIL Magalie for refund', customerId);
-        console.log('MAIL Magalie for refund', shopifyId);
-
+        //Send Mail to Magalie to send refund
+        await mailToSendRefund(accessTokenMS365, customerData, orderCanceledId, orderName, totalAmount);
+        //Send Mail to Customer to aknowledge receipt and wait for refund within 48hours ?
+        await sendReceiptAndWaitForRefund(accessTokenMS365, customerData, orderName, totalAmount);
       }
     }
     res.status(200).send('webhook reçu')

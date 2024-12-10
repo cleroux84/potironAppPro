@@ -77,9 +77,9 @@ async function sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfBas
     const client = initiMicrosoftGraphClient(accessTokenMS365);
     let labelsText;
     if(parcelNumbers.length === 1) {
-      labelsText = `l'étiquette de retour ci-jointe.`;
+      labelsText = `l'étiquette de retour ci-jointe, il suffit de l'imprimer pour votre `;
     } else {
-      labelsText = `les étiquettes de retour ci-jointes.`;
+      labelsText = `les étiquettes de retour ci-jointes, il suffit de les imprimer pour vos `;
     }
     let optionText;
     if(optionChoose === 'option1') {
@@ -100,7 +100,7 @@ async function sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfBas
             content: `
               <p>Bonjour ${senderCustomer.name},</p>
               <p>Votre demande de retour a bien été prise en compte.</p>
-              <p>Vous trouverez ${labelsText}, il suffit de l'imprimer pour votre colis.</p>
+              <p>Vous trouverez ${labelsText} colis.</p>
               <p>TEXTE A VOIR</p>
               ${optionText}
               <p>Très belle journée,</p>
@@ -255,9 +255,54 @@ const sendEmailDiscountReminder = async (discounCode, totalAmount, codeEndDate, 
     }
   }
 
+  async function sendReceiptAndWaitForRefund(accessTokenMS365, customerData, orderName, totalOrder) {
+    const client = initiMicrosoftGraphClient(accessTokenMS365);
+    let nameNoStar = customerData.last_name.replace(/⭐/g, '').trim();
+    const message = {
+        subject: 'Accusé de réception de votre commande retour', 
+        body: {
+            contentType: 'HTML',
+            content: `
+              <p>Bonjour ${customerData.first_name} ${nameNoStar},</p>
+              <p>Votre colis retour concernant la commande ${orderName}, vient d'être réceptionné.</p>
+              <p>Vous recevrez votre remboursement d'un montant de ${totalOrder}€ sous 48heures </p>
+              <p>TEXTE A VOIR</p>
+              <p>Très belle journée,</p>
+              <p>L'équipe de Potiron Paris</p>
+              <img src='cid:signature'/>
+            `
+        },
+        toRecipients: [
+            {
+                emailAddress: {
+                    address: "c.leroux@potiron.com"
+                }
+            }
+        ],
+        bccRecipients: [
+            {
+                emailAddress: {
+                    address: MAILDEV
+                }
+            }
+        ],
+        attachments: [
+            signatureAttachement
+        ]
+    };
+ 
+    try {
+        await client.api('/me/sendMail').post({ message });
+        console.log("Email for customer return order successfully sent");
+    } catch (error) {
+        console.error('Error sending return order message', error);
+    }
+}
+
   module.exports = {
     sendWelcomeMailPro,
     sendReturnDataToCustomer,
     sendDiscountCodeAfterReturn,
-    checkScheduledEmails
+    checkScheduledEmails,
+    sendReceiptAndWaitForRefund
   }

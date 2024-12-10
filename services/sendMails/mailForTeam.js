@@ -237,11 +237,54 @@ async function sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileEx
     }
   }
 
+  async function mailToSendRefund(accessTokenMS365, customerData, orderCanceledId, shopifyName, totalOrder) {
+    const client = initiMicrosoftGraphClient(accessTokenMS365);
+    
+    const message = {
+      subject: 'Remboursement à effectuer suite réception Commande Retour', 
+      body: {
+        contentType: 'HTML',
+        content: `
+          <p>Bonjour, </p>
+          <p style="margin: 0;">La commande retour ${orderCanceledId} concernant la commande Shopify ${shopifyName} de ${senderCustomer.name}, a été réceptionnée</p>
+          <p>Merci d'effectuer un remboursement sur son compte d'une valeur de ${totalOrder}€.</p>
+          ${trackingLinks}
+          <p>Bonne journée ! </p>
+          <img src='cid:signature'/>
+        `
+      },
+      toRecipients: [
+        {
+          emailAddress: {
+            address: "c.leroux@potiron.com"
+          }
+        }
+      ],
+      bccRecipients: [
+        {
+            emailAddress: {
+                address: MAILDEV
+            }
+        }
+      ],
+      attachments: [
+        signatureAttachement
+      ]
+    };
+    try {
+      await client.api('/me/sendMail').post({ message });
+      console.log("Email SAv after automated return sucessfully sent");
+    } catch (error) {
+      console.error('error sending cotation message', error);
+    }
+  }
+
   module.exports = {
     sendEmailWithKbis,
     sendNewDraftOrderMail,
     sendReturnDataToSAV,
     signatureAttachement,
     initiMicrosoftGraphClient,
-    sendRefundDataToSAV
+    sendRefundDataToSAV,
+    mailToSendRefund
   }
