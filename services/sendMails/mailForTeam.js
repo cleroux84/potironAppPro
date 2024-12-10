@@ -248,7 +248,6 @@ async function sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileEx
           <p>Bonjour, </p>
           <p style="margin: 0;">La commande retour ${orderCanceledId} concernant la commande Shopify ${shopifyName} de ${customerData.name}, a été réceptionnée</p>
           <p>Merci d'effectuer un remboursement sur son compte d'une valeur de ${totalOrder}€.</p>
-          ${trackingLinks}
           <p>Bonne journée ! </p>
           <img src='cid:signature'/>
         `
