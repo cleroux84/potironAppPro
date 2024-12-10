@@ -19,52 +19,52 @@ const router = express.Router();
 
 //trigger on shippingbo webhook (cancel order / will become returned ?) to create and send discount code to customer
 router.post('/returnOrderCancel', async (req, res) => {
-    const orderCanceled = req.body;
-    if(orderCanceled.object.reason === 'Retour automatisé en ligne'
-      && orderCanceled.additional_data.from === 'new'
-      && orderCanceled.additional_data.to ==='canceled' //TODO change for "returned" with a new webhook
-    ) 
-    {
-      try {
-        const shopifyIdString = orderCanceled.object.reason_ref;
-        const shopifyId = Number(shopifyIdString);
-        const getAttributes = await getOrderByShopifyId(shopifyId);
-        const noteAttributes = getAttributes.order.note_attributes;
-        const customerIdAttr = noteAttributes.find(attr => attr.name === "customerId");
-        const customerId = customerIdAttr ? customerIdAttr.value : null;
-        const orderName = getAttributes.order.name;
-        const totalAmountAttr = noteAttributes.find(attr => attr.name === "totalOrderReturn");
-        const totalAmount = totalAmountAttr ? parseFloat(totalAmountAttr.value) : null;
-        const ruleExists = await checkIfPriceRuleExists(orderName);
-        // Create discount code in shopify if price rule does not exist
-        if(!ruleExists) {
-            let priceRules = await createPriceRule(customerId, orderName, totalAmount);
-            const priceRuleId = priceRules.discountData.discount_code.price_rule_id;
-            const discountCodeId = priceRules.discountData.discount_code.id;
-            const discountCode = priceRules.discountData.discount_code.code;
-            const discountAmount = priceRules.discountRule.price_rule.value;
-            const discountEnd = priceRules.discountRule.price_rule.ends_at;
-            const discountDate = new Date(discountEnd);
-            const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });  
+    // const orderCanceled = req.body;
+    // if(orderCanceled.object.reason === 'Retour automatisé en ligne'
+    //   && orderCanceled.additional_data.from === 'new'
+    //   && orderCanceled.additional_data.to ==='canceled' //TODO change for "returned" with a new webhook
+    // ) 
+    // {
+    //   try {
+    //     const shopifyIdString = orderCanceled.object.reason_ref;
+    //     const shopifyId = Number(shopifyIdString);
+    //     const getAttributes = await getOrderByShopifyId(shopifyId);
+    //     const noteAttributes = getAttributes.order.note_attributes;
+    //     const customerIdAttr = noteAttributes.find(attr => attr.name === "customerId");
+    //     const customerId = customerIdAttr ? customerIdAttr.value : null;
+    //     const orderName = getAttributes.order.name;
+    //     const totalAmountAttr = noteAttributes.find(attr => attr.name === "totalOrderReturn");
+    //     const totalAmount = totalAmountAttr ? parseFloat(totalAmountAttr.value) : null;
+    //     const ruleExists = await checkIfPriceRuleExists(orderName);
+    //     // Create discount code in shopify if price rule does not exist
+    //     if(!ruleExists) {
+    //         let priceRules = await createPriceRule(customerId, orderName, totalAmount);
+    //         const priceRuleId = priceRules.discountData.discount_code.price_rule_id;
+    //         const discountCodeId = priceRules.discountData.discount_code.id;
+    //         const discountCode = priceRules.discountData.discount_code.code;
+    //         const discountAmount = priceRules.discountRule.price_rule.value;
+    //         const discountEnd = priceRules.discountRule.price_rule.ends_at;
+    //         const discountDate = new Date(discountEnd);
+    //         const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });  
            
-            const shopifyOrder = await getOrderByShopifyId(orderCanceled.object.reason_ref);
-            let accessTokenMS365 = await getAccessTokenMS365();
-            if(!accessTokenMS365) {
-              await refreshMS365AccessToken();
-              accessTokenMS365 = await getAccessTokenMS365();
-            }
-            const customerData = shopifyOrder.order.customer;
-            await sendDiscountCodeAfterReturn(accessTokenMS365, customerData, orderName, discountCode, discountAmount, formattedDate);
-            if(customerData.email) {
-              await saveDiscountMailData(customerData.email, orderName, discountCode, discountAmount, discountEnd, discountCodeId, priceRuleId);
-            } else {
-              console.log('Client sans Mail lié: ', customerData.id);
-            }
-          }
-      } catch (error) {
-        console.error("error webhook discount code", error);
-      }
-    }
+    //         const shopifyOrder = await getOrderByShopifyId(orderCanceled.object.reason_ref);
+    //         let accessTokenMS365 = await getAccessTokenMS365();
+    //         if(!accessTokenMS365) {
+    //           await refreshMS365AccessToken();
+    //           accessTokenMS365 = await getAccessTokenMS365();
+    //         }
+    //         const customerData = shopifyOrder.order.customer;
+    //         await sendDiscountCodeAfterReturn(accessTokenMS365, customerData, orderName, discountCode, discountAmount, formattedDate);
+    //         if(customerData.email) {
+    //           await saveDiscountMailData(customerData.email, orderName, discountCode, discountAmount, discountEnd, discountCodeId, priceRuleId);
+    //         } else {
+    //           console.log('Client sans Mail lié: ', customerData.id);
+    //         }
+    //       }
+    //   } catch (error) {
+    //     console.error("error webhook discount code", error);
+    //   }
+    // }
     res.status(200).send('webhook reçu')
 })
 
@@ -158,10 +158,7 @@ router.post('/checkIfsReturnPossible', async (req, res) => {
   const { warehouseOrderId, return_items, quantities, reasons, filteredItems, returnAllOrder, productSkuCalc, orderName, createdOrder, originalDiscounts } = req.body;
   const itemsToReturn = return_items.split(','); 
   const quantitiesByRefs = JSON.parse(quantities);
-  const reasonsByRefs = JSON.parse(reasons);  
-  console.log('SKU CALC', productSkuCalc);
-  console.log('qties & refs', reasonsByRefs);
- 
+  const reasonsByRefs = JSON.parse(reasons);   
   let accessTokenWarehouse = await getAccessTokenWarehouseFromDb();
  
   try {
@@ -209,9 +206,7 @@ router.post('/checkIfsReturnPossible', async (req, res) => {
         const item = shipment.order_items_shipments.find(item => item.order_item_id.toString() === ref);
         if (item) {
           const shippingMethod = shipment.shipping_method_name;
-          const reason = reasonsByRefs[ref];
-          console.log(`Ref ${ref} - Raison : "${reason}"`);
- 
+          const reason = reasonsByRefs[ref]; 
           if (shippingMethod && shippingMethod.includes("Colissimo")) {
             console.log(`Référence ${ref} trouvée dans l'expédition ${index} avec la méthode d'expédition : ${shippingMethod}`);
           } else {
@@ -258,9 +253,13 @@ router.post('/checkIfsReturnPossible', async (req, res) => {
 });
 
 router.post('/returnProduct', async (req, res) => {
+  let accessTokenMS365 = await getAccessTokenMS365();
+  if(!accessTokenMS365) {
+    await refreshMS365AccessToken();
+    accessTokenMS365 = await getAccessTokenMS365();
+  }
   let accessTokenWarehouse = await getAccessTokenWarehouseFromDb();
   let customerId;
- 
   const orderName = req.body.orderName;
   const productRefs = req.body.productRefs.split(',');
   const productSku = req.body.productSku;
@@ -276,32 +275,40 @@ router.post('/returnProduct', async (req, res) => {
   } else {
     customerId = req.body.customerId;
   }
-  if (optionChosen === "option1") {
-    //Retrieve data from initial order
-    const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId);
-    const senderCustomer = {
-      'name': warehouseOrder.order.shipping_address.fullname,
-      'address': warehouseOrder.order.shipping_address.street1,
-      'address2': warehouseOrder.order.shipping_address.street2,
-      'city': warehouseOrder.order.shipping_address.city,
-      "postalCode": warehouseOrder.order.shipping_address.zip,
-      "country": warehouseOrder.order.shipping_address.country,
-      "email": warehouseOrder.order.shipping_address.email,
-      "phone": warehouseOrder.order.shipping_address.phone1,
-      "origin_ref": warehouseOrder.order.origin_ref
-    };
-    let weightToReturn = 0;
-    let totalOrder = 0;
-    let parcel;
-    let createLabelData = [];
-    let parcelNumbers = [];
-    let pdfBase64 = [];
-    const initialNumberOfPackages = warehouseOrder.order.shipments.length;
-    console.log('nombre de colis dans la commande initiale: ', initialNumberOfPackages);
-    const shipments = warehouseOrder.order.shipments;
-    console.log('PRODUCT SKU', productSku);
-    // console.log("FILTERED", filteredItems);
-    // Create label(s) colissimo
+
+  //Retrieve data from initial order shippingbo GMA
+  const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId);
+  const senderCustomer = {
+    'name': warehouseOrder.order.shipping_address.fullname,
+    'address': warehouseOrder.order.shipping_address.street1,
+    'address2': warehouseOrder.order.shipping_address.street2,
+    'city': warehouseOrder.order.shipping_address.city,
+    "postalCode": warehouseOrder.order.shipping_address.zip,
+    "country": warehouseOrder.order.shipping_address.country,
+    "email": warehouseOrder.order.shipping_address.email,
+    "phone": warehouseOrder.order.shipping_address.phone1,
+    "origin_ref": warehouseOrder.order.origin_ref
+  };
+  let weightToReturn = 0;
+  let totalOrder = 0;
+  let parcel;
+  let createLabelData = [];
+  let parcelNumbers = [];
+  let pdfBase64 = [];
+  const initialNumberOfPackages = warehouseOrder.order.shipments.length;
+  const shipments = warehouseOrder.order.shipments;
+
+   //Check if return order exists in shippingbo warehouse
+   const returnOrderExists = await checkIfReturnOrderExist(accessTokenWarehouse, warehouseOrder.order.id);
+   console.log('returnOrderExists ?', returnOrderExists);
+
+   if(!returnOrderExists) {
+    //Create return Order in Shippingbo GMA
+    const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku, shopifyOrderId);
+    const returnOrderId = returnOrderData.return_order.id;
+    const shopifyId = returnOrderData.return_order.reason_ref;
+
+    //Create Labels
     if(returnAll) {
       if(initialNumberOfPackages === 1) {
         weightToReturn = warehouseOrder.order.shipments
@@ -368,14 +375,14 @@ router.post('/returnProduct', async (req, res) => {
           }
 
           const groupedItemsByShipment = getGroupedItemsForLabels(shipments, filteredItems, returnQuantities);
-           
+          
           for (const shipmentId in groupedItemsByShipment) {
             const itemsInShipment = groupedItemsByShipment[shipmentId];
-         
+        
             for (const item of itemsInShipment) {
                 const productWeight = await getProductWeightBySku(item.product_ref);
                 const weightPerUnit = productWeight.weight;
-         
+        
                 for (let i = 0; i < item.quantity; i++) {
                     const parcel = {
                         "weight": weightPerUnit,
@@ -384,7 +391,7 @@ router.post('/returnProduct', async (req, res) => {
                         "nonMachinable": false,
                         "returnReceipt": false
                     };
-         
+        
                     const labelData = await createLabel(senderCustomer, parcel);
                     if (labelData) {
                         createLabelData.push(labelData);
@@ -428,68 +435,59 @@ router.post('/returnProduct', async (req, res) => {
               }
           }
         }
-        console.log("productSKU for unit price", productSku);
         for(const sku of productSku) {
           totalOrder += sku.unit_price * sku.quantity;
         }
       }
-     
     totalOrder = totalOrder.toFixed(2);
   }
 
-  //Check if return order exists in shippingbo warehouse
-  const returnOrderExists = await checkIfReturnOrderExist(accessTokenWarehouse, warehouseOrder.order.id);
-  console.log('returnOrderExists ?', returnOrderExists);
-  
-  //Create Return Order in shippingbo warehouse
-  // if(!returnOrderExists) {
-      const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku, shopifyOrderId);
-      const returnOrderId = returnOrderData.return_order.id;
-      const shopifyId = returnOrderData.return_order.reason_ref;
+    if (optionChosen === "option1") {
+      // Create attributes Shopify Order for future discount code      *
       const attributes = [
-        {name: "customerId", value: customerId},
-        {name: "totalOrderReturn", value: totalOrder}
-      ];
-      const updatedAttributes = {
-        order: {
-          id: orderId,
-          note_attributes: attributes
+          {name: "customerId", value: customerId},
+          {name: "totalOrderReturn", value: totalOrder}
+        ];
+        const updatedAttributes = {
+          order: {
+            id: orderId,
+            note_attributes: attributes
+          }
         }
-      }
-    //update shopify order with attributes to have discount data for future creation
-    //TODO Check if totalOrder is enough
-      updateOrder(updatedAttributes ,shopifyId)
+      //update shopify order with attributes to have discount data for future discount code
+       await updateOrder(updatedAttributes ,shopifyId);
+      //send email to Magalie with parcel number and shopify Id and return order GMA Id
+       await sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumbers, returnOrderId, totalOrder)
+      //send email to customer with labels and parcel number
+       await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfBase64, parcelNumbers, totalOrder);
 
-      let accessTokenMS365 = await getAccessTokenMS365();
-      if(!accessTokenMS365) {
-        await refreshMS365AccessToken();
-        accessTokenMS365 = await getAccessTokenMS365();
-      }
-    //send email to Magalie with parcel number and shopify Id and return order Id
-    await sendReturnDataToSAV(accessTokenMS365, senderCustomer, parcelNumbers, returnOrderId, totalOrder)
-    //send email to customer with link to dwld label and parcel number
-    await sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfBase64, parcelNumbers, totalOrder);
-
-      return res.status(200).json({
+       return res.status(200).json({
         success: true,
+        option: "asset",
         getOrder: warehouseOrder,
         returnOrder: returnOrderData,
         label: createLabelData,
         totalReturn: totalOrder
       })
-  // } else {
-  //     console.log('return order already exists : contact SAV !');
-  //     return res.status(200).json({
-  //       success: false,
-  //       message: 'Contacter le SAV - un return order existe déjà pour cette commande'
-  //     })    
-  // }
-   
- 
-  } else if( optionChosen === "option2") {
-    console.log("generate label + remboursement ? + mail à  ??")
-  }
-  
+    // } else {
+    //     console.log('return order already exists : contact SAV !');
+    //     return res.status(200).json({
+    //       success: false,
+    //       message: 'Contacter le SAV - un return order existe déjà pour cette commande'
+    //     })    
+    // }  
+    } else if( optionChosen === "option2") {
+      console.log("generate label + remboursement ? + mail à  ??");
+      return res.status(200).json({
+        success: true,
+        option: "refund",
+        getOrder: warehouseOrder,
+        returnOrder: returnOrderData,
+        label: createLabelData,
+        // totalReturn: totalOrder
+      })
+    }
+   }
 })
 
 module.exports = router;
