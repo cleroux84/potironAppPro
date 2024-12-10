@@ -40,7 +40,7 @@ const checkIfReturnOrderExist = async (accessTokenWarehouse, originalOrderId) =>
   }
 
   //Create a new return order
-  const createReturnOrder = async (accessTokenWarehouse, orderId, returnAll, productSku, shopifyOrderId) => {
+  const createReturnOrder = async (accessTokenWarehouse, orderId, returnAll, productSku, shopifyOrderId, optionChoose) => {
     const shopifyIdString = shopifyOrderId.toString();
     console.log('shopify orderId', shopifyIdString);
 
@@ -65,10 +65,15 @@ const checkIfReturnOrderExist = async (accessTokenWarehouse, originalOrderId) =>
                     user_ref: item.product_ref
                 };
             });
- 
+            let optionChooseData;
+            if(optionChoose === 'option1') {
+              optionChooseData = 'Retour Auto ASSET';
+            } else if(optionChoose === 'option2') {
+              optionChooseData = 'Retour AUTO REFUND';
+            }
     const returnOrder = {
         "order_id": orderId,
-        "reason": "Retour automatisé en ligne",
+        "reason": optionChooseData,
         "reason_ref": shopifyIdString,
         "return_order_expected_items_attributes": returnOrderExpectedItemsAttributes,
         "return_order_type": "return_order_label",

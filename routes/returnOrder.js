@@ -19,52 +19,55 @@ const router = express.Router();
 
 //trigger on shippingbo webhook (cancel order / will become returned ?) to create and send discount code to customer
 router.post('/returnOrderCancel', async (req, res) => {
-    // const orderCanceled = req.body;
-    // if(orderCanceled.object.reason === 'Retour automatisé en ligne'
-    //   && orderCanceled.additional_data.from === 'new'
-    //   && orderCanceled.additional_data.to ==='canceled' //TODO change for "returned" with a new webhook
-    // ) 
-    // {
-    //   try {
-    //     const shopifyIdString = orderCanceled.object.reason_ref;
-    //     const shopifyId = Number(shopifyIdString);
-    //     const getAttributes = await getOrderByShopifyId(shopifyId);
-    //     const noteAttributes = getAttributes.order.note_attributes;
-    //     const customerIdAttr = noteAttributes.find(attr => attr.name === "customerId");
-    //     const customerId = customerIdAttr ? customerIdAttr.value : null;
-    //     const orderName = getAttributes.order.name;
-    //     const totalAmountAttr = noteAttributes.find(attr => attr.name === "totalOrderReturn");
-    //     const totalAmount = totalAmountAttr ? parseFloat(totalAmountAttr.value) : null;
-    //     const ruleExists = await checkIfPriceRuleExists(orderName);
-    //     // Create discount code in shopify if price rule does not exist
-    //     if(!ruleExists) {
-    //         let priceRules = await createPriceRule(customerId, orderName, totalAmount);
-    //         const priceRuleId = priceRules.discountData.discount_code.price_rule_id;
-    //         const discountCodeId = priceRules.discountData.discount_code.id;
-    //         const discountCode = priceRules.discountData.discount_code.code;
-    //         const discountAmount = priceRules.discountRule.price_rule.value;
-    //         const discountEnd = priceRules.discountRule.price_rule.ends_at;
-    //         const discountDate = new Date(discountEnd);
-    //         const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });  
-           
-    //         const shopifyOrder = await getOrderByShopifyId(orderCanceled.object.reason_ref);
-    //         let accessTokenMS365 = await getAccessTokenMS365();
-    //         if(!accessTokenMS365) {
-    //           await refreshMS365AccessToken();
-    //           accessTokenMS365 = await getAccessTokenMS365();
-    //         }
-    //         const customerData = shopifyOrder.order.customer;
-    //         await sendDiscountCodeAfterReturn(accessTokenMS365, customerData, orderName, discountCode, discountAmount, formattedDate);
-    //         if(customerData.email) {
-    //           await saveDiscountMailData(customerData.email, orderName, discountCode, discountAmount, discountEnd, discountCodeId, priceRuleId);
-    //         } else {
-    //           console.log('Client sans Mail lié: ', customerData.id);
-    //         }
-    //       }
-    //   } catch (error) {
-    //     console.error("error webhook discount code", error);
-    //   }
-    // }
+    const orderCanceled = req.body;
+    if(orderCanceled.additional_data.from === 'new'
+      && orderCanceled.additional_data.to ==='canceled' //TODO change for "returned" with a new webhook
+    ) {
+      const shopifyIdString = orderCanceled.object.reason_ref;
+      const shopifyId = Number(shopifyIdString);
+      const getAttributes = await getOrderByShopifyId(shopifyId);
+      const noteAttributes = getAttributes.order.note_attributes;
+      const customerIdAttr = noteAttributes.find(attr => attr.name === "customerId");
+      const customerId = customerIdAttr ? customerIdAttr.value : null;
+      const orderName = getAttributes.order.name;
+      const totalAmountAttr = noteAttributes.find(attr => attr.name === "totalOrderReturn");
+      const totalAmount = totalAmountAttr ? parseFloat(totalAmountAttr.value) : null;
+
+      if(orderCanceled.object.reason === 'Retour Auto ASSET') {
+        try {
+        const ruleExists = await checkIfPriceRuleExists(orderName);
+          // Create discount code in shopify if price rule does not exist
+          if(!ruleExists) {
+              let priceRules = await createPriceRule(customerId, orderName, totalAmount);
+              const priceRuleId = priceRules.discountData.discount_code.price_rule_id;
+              const discountCodeId = priceRules.discountData.discount_code.id;
+              const discountCode = priceRules.discountData.discount_code.code;
+              const discountAmount = priceRules.discountRule.price_rule.value;
+              const discountEnd = priceRules.discountRule.price_rule.ends_at;
+              const discountDate = new Date(discountEnd);
+              const formattedDate = discountDate.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });  
+            
+              const shopifyOrder = await getOrderByShopifyId(orderCanceled.object.reason_ref);
+              let accessTokenMS365 = await getAccessTokenMS365();
+              if(!accessTokenMS365) {
+                await refreshMS365AccessToken();
+                accessTokenMS365 = await getAccessTokenMS365();
+              }
+              const customerData = shopifyOrder.order.customer;
+              await sendDiscountCodeAfterReturn(accessTokenMS365, customerData, orderName, discountCode, discountAmount, formattedDate);
+              if(customerData.email) {
+                await saveDiscountMailData(customerData.email, orderName, discountCode, discountAmount, discountEnd, discountCodeId, priceRuleId);
+              } else {
+                console.log('Client sans Mail lié: ', customerData.id);
+              }
+            }
+          } catch (error) {
+          console.error("error webhook discount code", error);
+        }
+      } else if(orderCanceled.object.reason === 'Retour Auto REFUND') {
+        console.log('MAIL Magalie for refund', totalAmount, customerId, shopifyId);
+      }
+    }
     res.status(200).send('webhook reçu')
 })
 
@@ -270,8 +273,7 @@ router.post('/returnProduct', async (req, res) => {
   const shopifyOrderId = req.body.shopifyOrderId;
   const filteredItems = req.body.filteredItems;
   const quantitiesByRefs = JSON.parse(req.body.quantities);
-  console.log('QTYSBYREFS', quantitiesByRefs);
-  console.log('return all', returnAll);
+
   if(!customerId) {
     let initialiOrder = await getOrderByShopifyId(shopifyOrderId);
     customerId = initialiOrder.order.customer.id;
@@ -309,11 +311,6 @@ router.post('/returnProduct', async (req, res) => {
    console.log('returnOrderExists ?', returnOrderExists);
 
   //  if(!returnOrderExists) {
-    //Create return Order in Shippingbo GMA
-    const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku, shopifyOrderId);
-    const returnOrderId = returnOrderData.return_order.id;
-    const shopifyId = returnOrderData.return_order.reason_ref;
-
     //Create Labels
     if(returnAll) {
       totalAsset = ((req.body.totalOrder)/100).toFixed(2);
@@ -468,7 +465,13 @@ router.post('/returnProduct', async (req, res) => {
   }
 
     if (optionChosen === "option1") {
-      // Create attributes Shopify Order for future discount code      *
+        let optionChoose = "option1"
+        //Create return Order in Shippingbo GMA
+        const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku, shopifyOrderId, optionChoose);
+        const returnOrderId = returnOrderData.return_order.id;
+        const shopifyId = returnOrderData.return_order.reason_ref;
+
+      // Create attributes Shopify Order for future discount code
       const attributes = [
           {name: "customerId", value: customerId},
           {name: "totalOrderReturn", value: totalOrder}
@@ -502,7 +505,16 @@ router.post('/returnProduct', async (req, res) => {
     //     })    
     // }  
     } else if( optionChosen === "option2") {
-      console.log("generate label + remboursement ? + mail à  ??");
+      let optionChoose = "option2"
+        //Create return Order in Shippingbo GMA
+        const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku, shopifyOrderId, optionChoose);
+        const returnOrderId = returnOrderData.return_order.id;
+        const shopifyId = returnOrderData.return_order.reason_ref;
+
+        //SEND MAIL RO MAGALIE
+        //SEND MAIL TO customer
+
+
       return res.status(200).json({
         success: true,
         option: "refund",
