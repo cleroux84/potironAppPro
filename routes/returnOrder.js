@@ -27,7 +27,7 @@ router.post('/returnOrderCancel', async (req, res) => {
     }
     if(orderCanceled.additional_data.from === 'new'
       && orderCanceled.additional_data.to ==='canceled' //TODO change for "returned" with a new webhook
-      && (orderCanceled.object.reason === 'Retour Auto ASSET' || orderCanceled.object.reason === 'Retour auto REFUND')
+      && (orderCanceled.object.reason === 'Retour Auto ASSET' || orderCanceled.object.reason === 'Retour Auto REFUND')
     ) {
       const shopifyIdString = orderCanceled.object.reason_ref;
       const shopifyId = Number(shopifyIdString);

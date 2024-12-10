@@ -140,7 +140,7 @@ async function sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfBas
 async function sendDiscountCodeAfterReturn(accessTokenMS365, customerData, orderName, discountCode, totalOrder, codeEndDate) {
     const client = initiMicrosoftGraphClient(accessTokenMS365);
     let nameNoStar = customerData.last_name.replace(/⭐/g, '').trim();
-    let positiveAmount = Math.abs(totalOrder);
+    let positiveAmount = parseFloat(Math.abs(totalOrder).toFixed(2));
     const message = {
       subject: `Remboursement sur Commande ${orderName}`, 
       body: {
@@ -206,7 +206,7 @@ const sendEmailDiscountReminder = async (discounCode, totalAmount, codeEndDate, 
   let formattedDate = new Date(codeEndDate).toLocaleDateString('fr-FR', {
     day: 'numeric',     month: 'long',     year: 'numeric' 
   });
-  let positiveAmount = Math.abs(totalAmount);
+  let positiveAmount = parseFloat(Math.abs(totalAmount).toFixed(2));
 
   let accessTokenMS365 = await getAccessTokenMS365();
     if(!accessTokenMS365) {
