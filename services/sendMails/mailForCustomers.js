@@ -192,12 +192,12 @@ async function sendDiscountCodeAfterReturn(accessTokenMS365, customerData, order
     }
   
     for (const emailData of scheduledEmails) {
-      const { customer_email, order_name, discount_code, total_order, code_end, discount_code_id, price_rule_id } = emailData;
+      const { customer_email, order_name, discount_code, total_order, code_end_date, discount_code_id, price_rule_id } = emailData;
       // console.log('emailData', emailData);
       const isUsedCode = await checkDiscountCodeUsage(emailData.price_rule_id, emailData.discount_code_id);
       if(!isUsedCode) {
         console.log('send email to remind discount code and delete line in db');
-        await sendEmailDiscountReminder(emailData.discount_code, emailData.total_order, emailData.code_end, emailData.customer_email, emailData.order_name);
+        await sendEmailDiscountReminder(emailData.discount_code, emailData.total_order, emailData.code_end_date, emailData.customer_email, emailData.order_name);
       } else {
         console.log('delete discount code already used');
       }
@@ -206,7 +206,11 @@ async function sendDiscountCodeAfterReturn(accessTokenMS365, customerData, order
   }
   //Send mail to customer 15days berfore expiration date example to test : exemple
 const sendEmailDiscountReminder = async (discounCode, totalAmount, codeEndDate, customerMail, orderName) => {
-    let accessTokenMS365 = await getAccessTokenMS365();
+  let formattedDate = new Date(codeEndDate).toLocaleDateString('fr-FR', {
+    day: 'numeric',     month: 'long',     year: 'numeric' 
+  });
+
+  let accessTokenMS365 = await getAccessTokenMS365();
     if(!accessTokenMS365) {
       await refreshMS365AccessToken();
       accessTokenMS365 = await getAccessTokenMS365();
