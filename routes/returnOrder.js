@@ -56,7 +56,6 @@ router.post('/returnOrderCancel', async (req, res) => {
             const customerData = shopifyOrder.order.customer;
             await sendDiscountCodeAfterReturn(accessTokenMS365, customerData, orderName, discountCode, discountAmount, formattedDate);
             if(customerData.email) {
-              console.log('beforeSave', discountEnd);
               await saveDiscountMailData(customerData.email, orderName, discountCode, discountAmount, discountEnd, discountCodeId, priceRuleId);
             } else {
               console.log('Client sans Mail lié: ', customerData.id);

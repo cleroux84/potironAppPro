@@ -6,7 +6,6 @@ const client = require('./db.js');
 const saveDiscountMailData = async (email, orderName, discountCode, totalAmount, endDate, discountCodeId, PriceRuleId) => {
     const sendDate = new Date(endDate);
     sendDate.setDate(sendDate.getDate() - 15);
-    console.log('torecord', endDate);
     const query = `
         INSERT INTO scheduled_emails (customer_email, order_name, discount_code, total_order, code_end_date, send_date, discount_code_id, price_rule_id )
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
