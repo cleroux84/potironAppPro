@@ -184,6 +184,7 @@ async function sendDiscountCodeAfterReturn(accessTokenMS365, customerData, order
   
   const checkScheduledEmails = async () => {
     const scheduledEmails = await getDiscountMailData();
+    console.log('mail to send', scheduledEmails);
   
     if(scheduledEmails.length === 0) {
       console.log("Aucun mail programmé pour aujourd'hui");
@@ -211,8 +212,6 @@ const sendEmailDiscountReminder = async (discounCode, totalAmount, codeEndDate, 
       accessTokenMS365 = await getAccessTokenMS365();
     }
     console.log("codeenddate from db", codeEndDate);
-    const discountEnd = new Date(codeEndDate);
-    const formattedDate = discountEnd.toLocaleDateString('fr-FR', {     day: 'numeric',     month: 'long',     year: 'numeric' });
     const client = initiMicrosoftGraphClient(accessTokenMS365);
     const message = {
       subject: `Rappel Code de réduction`, 
