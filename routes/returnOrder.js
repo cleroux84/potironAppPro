@@ -65,7 +65,10 @@ router.post('/returnOrderCancel', async (req, res) => {
           console.error("error webhook discount code", error);
         }
       } else if(orderCanceled.object.reason === 'Retour Auto REFUND') {
-        console.log('MAIL Magalie for refund', totalAmount, customerId, shopifyId);
+        console.log('MAIL Magalie for refund', totalAmount);
+        console.log('MAIL Magalie for refund', customerId);
+        console.log('MAIL Magalie for refund', shopifyId);
+
       }
     }
     res.status(200).send('webhook reçu')
