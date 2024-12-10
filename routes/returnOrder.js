@@ -302,7 +302,7 @@ router.post('/returnProduct', async (req, res) => {
    const returnOrderExists = await checkIfReturnOrderExist(accessTokenWarehouse, warehouseOrder.order.id);
    console.log('returnOrderExists ?', returnOrderExists);
 
-   if(!returnOrderExists) {
+  //  if(!returnOrderExists) {
     //Create return Order in Shippingbo GMA
     const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku, shopifyOrderId);
     const returnOrderId = returnOrderData.return_order.id;
@@ -487,7 +487,10 @@ router.post('/returnProduct', async (req, res) => {
         // totalReturn: totalOrder
       })
     }
-   }
+  //  } else {
+  //   //TODO if return order already exists
+  //   console.log('return Order already exists')
+  //  }
 })
 
 module.exports = router;
