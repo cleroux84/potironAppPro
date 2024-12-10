@@ -258,6 +258,7 @@ const sendEmailDiscountReminder = async (discounCode, totalAmount, codeEndDate, 
   async function sendReceiptAndWaitForRefund(accessTokenMS365, customerData, orderName, totalOrder) {
     const client = initiMicrosoftGraphClient(accessTokenMS365);
     let nameNoStar = customerData.last_name.replace(/⭐/g, '').trim();
+    let totalOrderFixed = totalOrder.toFixed(2);
     const message = {
         subject: 'Accusé de réception de votre commande retour', 
         body: {
@@ -265,7 +266,7 @@ const sendEmailDiscountReminder = async (discounCode, totalAmount, codeEndDate, 
             content: `
               <p>Bonjour ${customerData.first_name} ${nameNoStar},</p>
               <p>Votre colis retour concernant la commande ${orderName}, vient d'être réceptionné.</p>
-              <p>Vous recevrez votre remboursement d'un montant de ${totalOrder}€ sous 48heures </p>
+              <p>Vous recevrez votre remboursement d'un montant de ${totalOrderFixed}€ sous 48heures </p>
               <p>TEXTE A VOIR</p>
               <p>Très belle journée,</p>
               <p>L'équipe de Potiron Paris</p>
