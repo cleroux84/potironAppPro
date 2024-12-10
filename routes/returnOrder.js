@@ -371,7 +371,7 @@ router.post('/returnProduct', async (req, res) => {
           totalOrder += productSku[0].unit_price * productSku[0].quantity;
           priceByWeight = await getShippingPrice(weightToReturn);
           console.log('pricebyweight', priceByWeight);
-          totalRefund = totalAsset - priceByWeight;
+          totalRefund = totalOrder - priceByWeight;
           console.log('totalrefundhere', totalRefund);
 
           parcel = {
