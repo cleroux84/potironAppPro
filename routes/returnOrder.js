@@ -358,7 +358,7 @@ router.post('/returnProduct', async (req, res) => {
       
       totalOrder = req.body.totalOrder;
       totalOrder = (totalOrder / 100).toFixed(2);
-      totalAsset = totalAsset.toFixed(2);
+      totalRefund = totalRefund.toFixed(2);
     } else {
       if(productSku.length === 1) {
         if(productSku[0].quantity === 1) {
