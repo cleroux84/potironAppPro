@@ -360,11 +360,16 @@ router.post('/returnProduct', async (req, res) => {
       totalOrder = (totalOrder / 100).toFixed(2);
       totalRefund = totalRefund.toFixed(2);
     } else {
+      totalAsset = ((req.body.totalOrder)/100).toFixed(2);
       if(productSku.length === 1) {
+        console.log('LAAAAAAAAOUIIII');
         if(productSku[0].quantity === 1) {
           const productFoundSku = await getProductWeightBySku(productSku[0].product_user_ref);
           weightToReturn += productFoundSku.weight * productSku[0].quantity;
           totalOrder += productSku[0].unit_price * productSku[0].quantity;
+          priceByWeight = await getShippingPrice(weightToReturn);
+          totalRefund = totalAsset - priceByWeight;
+
           parcel = {
             "weight": weightToReturn,
             "insuranceAmount": 0,
