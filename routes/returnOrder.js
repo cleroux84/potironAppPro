@@ -152,7 +152,6 @@ router.get('/getOrderById', async (req, res) => {
     }
   });
 
-let quantitiesByRefs;
 
 router.post('/checkIfsReturnPossible', async (req, res) => { 
   const { warehouseOrderId, return_items, quantities, reasons, filteredItems, returnAllOrder, productSkuCalc, orderName, createdOrder, originalDiscounts } = req.body;
