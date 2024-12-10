@@ -20,6 +20,8 @@ const router = express.Router();
 //trigger on shippingbo webhook (cancel order / will become returned ?) to create and send discount code to customer
 router.post('/returnOrderCancel', async (req, res) => {
     const orderCanceled = req.body;
+    console.log("returnedCancel", orderCanceled);
+    console.log("object reason", orderCanceled.object.reason);
     if(orderCanceled.additional_data.from === 'new'
       && orderCanceled.additional_data.to ==='canceled' //TODO change for "returned" with a new webhook
     ) {
