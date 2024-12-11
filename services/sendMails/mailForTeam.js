@@ -239,6 +239,7 @@ async function sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileEx
 
   async function mailToSendRefund(accessTokenMS365, customerData, orderCanceledId, shopifyName, totalOrder) {
     const client = initiMicrosoftGraphClient(accessTokenMS365);
+    let nameNoStar = customerData.last_name.replace(/⭐/g, '').trim();
     let totalOrderFixed = totalOrder.toFixed(2);
     const message = {
       subject: 'Remboursement à effectuer suite réception Commande Retour', 
@@ -246,7 +247,7 @@ async function sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileEx
         contentType: 'HTML',
         content: `
           <p>Bonjour, </p>
-          <p style="margin: 0;">La commande retour ${orderCanceledId} concernant la commande Shopify ${shopifyName} de ${customerData.name}, a été réceptionnée</p>
+          <p style="margin: 0;">La commande retour ${orderCanceledId} concernant la commande Shopify ${shopifyName} de ${customerData.first_name} ${nameNoStar}, a été réceptionnée</p>
           <p>Merci d'effectuer un remboursement sur son compte d'une valeur de ${totalOrderFixed}€.</p>
           <p>Bonne journée ! </p>
           <img src='cid:signature'/>
