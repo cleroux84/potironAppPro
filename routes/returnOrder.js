@@ -77,7 +77,7 @@ router.post('/returnOrderCancel', async (req, res) => {
     res.status(200).send('webhook reçu')
 })
 
-//Get initial Order customer want return
+//Get initial Order customer want return with mail and orderName
 router.get('/getOrderById', async (req, res) => {
   let accessToken = await getAccessTokenFromDb();
   let accessTokenWarehouse = await getAccessTokenWarehouseFromDb();
