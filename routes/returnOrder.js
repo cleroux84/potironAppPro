@@ -84,33 +84,52 @@ router.get('/getOrderById', async (req, res) => {
   const orderName = req.query.getOrder_name;
   const orderMail = req.query.getOrder_mail;
   const customerId = req.query.customer_id;
+  let successData = true;
+  let messageData;
   try {
-    // const orderData = await orderById(orderName, orderMail, 6406535905430); // pas colissimo #8021
-    // const orderData = await orderById(orderName, orderMail, 8063057985864); //4 colissimo #8012
-    // const orderData = await orderById(orderName, orderMail, 8074569285960); //2 colissimo #8058
-    // const orderData = await orderById(orderName, orderMail, 8174393917768); //4 articles identiques colissimo #8294
-    // const orderData = await orderById(orderName, orderMail, 8045312737608); //3 articles colissimo #7865
-    // const orderData = await orderById(orderName, orderMail, 8076398264648); //3 articles colissimo #8102
-      let orderData;
-      if (customerId) {
-        orderData = await orderById(orderName, orderMail, customerId); //moi livré : #6989
-      } else {
-        orderData = await orderByMail(orderName, orderMail);
-      }
+    let orderData;
+    if (customerId) {
+      orderData = await orderById(orderName, orderMail, customerId);
+    } else {
+      orderData = await orderByMail(orderName, orderMail);
+    }
+
+    if(!orderData) {
+      console.log("PPL pas d'orderData");
+      successData = false;
+      messageData = "no order";
+
+      res.status(200).json({
+        success: successData,
+        messageData: messageData,
+        orderName: orderName,
+        orderMail: orderMail
+      });
+    } else {
       const shopifyOrderId = orderData.id;
       const shippingboDataPotiron = await getShippingboOrderDetails(accessToken, shopifyOrderId); 
       const shippingboDataWarehouse = await getWarehouseOrderDetails(accessTokenWarehouse, shippingboDataPotiron.id);
       const originalOrder = await getOrderByShopifyId(shopifyOrderId);
       const closeOrderDelivery = shippingboDataWarehouse.closed_at;
-   
       const isReturnable = await isReturnableDate(closeOrderDelivery);
-      console.log("is returnable ?", isReturnable);
-   
+      if(!isReturnable) {
+        successData = false;
+        messageData = "too late";
+      }
+      if(originalOrder.order.source_name !== "web") {
+        successData = false;
+        messageData = "retailer";
+      }
+      if(orderData.tags.includes('Commande Pro')) {
+        successData = false;
+        messageData = "pro order";
+      }
+  
       const orderDetails = await getshippingDetails(accessTokenWarehouse, shippingboDataWarehouse.id);
       const shipmentDetails = orderDetails.order.shipments;
       const orderItems = orderDetails.order.order_items;
       const orderWarehouseId = orderDetails.order.id;
-   
+  
       const lineItemsForPrice = originalOrder.order.line_items;
       const lineItemsMapping = lineItemsForPrice.reduce((acc, item) => {
         acc[item.sku] = {
@@ -119,47 +138,37 @@ router.get('/getOrderById', async (req, res) => {
         };
         return acc;
       }, {});
-   
+  
       const enrichOrderItems = async (orderItems) => {
         const enrichedItems = await Promise.all(orderItems.map(async (item) => {
           const sku = item.product_ref; 
           const priceData = lineItemsMapping[sku] || { price: null };
-   
           const productVariant = await getProductWeightBySku(sku);
-   
+  
           return {
             ...item,
             price: priceData.price,
             imageUrl: productVariant?.product?.featuredImage?.url || null, 
           };
         }));
-        return enrichedItems;
-      };
-         const enrichedOrderItems = await enrichOrderItems(orderItems);
-   
-      if (orderData.tags.includes('Commande PRO')) {
-        return res.status(200).json({
-          success: false,
-          orderItems: enrichedOrderItems,
-          orderName: orderName,
-          orderDetails: orderDetails,
-          message: 'Contacter le SAV'
-        });
-      }
-   
-      res.status(200).json({
-        success: true,
-        orderItems: enrichedOrderItems,
-        orderId: orderWarehouseId,
-        orderDetails: orderDetails,
-        shopifyOrderId: shopifyOrderId,
-        originalOrder: originalOrder
-      });
-   
-    } catch (error) {
-      res.status(500).send('Error retrieving order warehouse by id');
-    }
-  });
+      return enrichedItems;
+    };
+    const enrichedOrderItems = await enrichOrderItems(orderItems);
+  
+    res.status(200).json({
+      success: successData,
+      orderItems: enrichedOrderItems,
+      orderId: orderWarehouseId,
+      orderDetails: orderDetails,
+      shopifyOrderId: shopifyOrderId,
+      originalOrder: originalOrder,
+      messageData: messageData
+    });
+  }
+  } catch (error) {
+    res.status(500).send('Error retrieving order with ordername and mail');
+  }
+});
 
 let quantitiesByRefs;
 
