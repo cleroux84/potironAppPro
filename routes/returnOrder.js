@@ -112,17 +112,19 @@ router.get('/getOrderById', async (req, res) => {
       const originalOrder = await getOrderByShopifyId(shopifyOrderId);
       const closeOrderDelivery = shippingboDataWarehouse.closed_at;
       const isReturnable = await isReturnableDate(closeOrderDelivery);
-      if(!isReturnable) {
-        successData = false;
-        messageData = "too late";
-      }
+      // if(!isReturnable) {
+      //   successData = false;
+      //   messageData = "too late";
+      // }
+     
       if(originalOrder.order.source_name !== "web") {
-        successData = false;
-        messageData = "retailer";
-      }
-      if(orderData.tags.includes('Commande Pro')) {
-        successData = false;
-        messageData = "pro order";
+        if(orderData.tags.includes('Commande Pro')) {
+          successData = false;
+          messageData = "pro order";
+        } else {
+          successData = false;
+          messageData = "retailer";
+        }
       }
   
       const orderDetails = await getshippingDetails(accessTokenWarehouse, shippingboDataWarehouse.id);
