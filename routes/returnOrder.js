@@ -95,7 +95,6 @@ router.get('/getOrderById', async (req, res) => {
     }
 
     if(!orderData) {
-      console.log("PPL pas d'orderData");
       successData = false;
       messageData = "no order";
 
@@ -118,7 +117,7 @@ router.get('/getOrderById', async (req, res) => {
       // }
      
       if(originalOrder.order.source_name !== "web") {
-        if(orderData.tags.includes('Commande Pro')) {
+        if(orderData.tags.includes('Commande PRO')) {
           successData = false;
           messageData = "pro order";
         } else {
