@@ -145,11 +145,10 @@ router.get('/getOrderById', async (req, res) => {
           const sku = item.product_ref; 
           const priceData = lineItemsMapping[sku] || { price: null };
           const productVariant = await getProductWeightBySku(sku);
-          const finalPrice = priceData.price !== null ? priceData.price : parseFloat(item.price_set/shop_money.amount);
   
           return {
             ...item,
-            price: finalPrice,
+            price: priceData.price,
             imageUrl: productVariant?.product?.featuredImage?.url || null, 
           };
         }));
