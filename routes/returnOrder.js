@@ -134,7 +134,8 @@ router.get('/getOrderById', async (req, res) => {
       const lineItemsForPrice = originalOrder.order.line_items;
       const lineItemsMapping = lineItemsForPrice.reduce((acc, item) => {
         acc[item.sku] = {
-          price: parseFloat(item.price),
+          // price: parseFloat(item.price),
+          price: item.price_set.shop_money.amount,
           currency: item.price_set.shop_money.currency_code,
         };
         return acc;
@@ -246,7 +247,8 @@ router.post('/checkIfsReturnPossible', async (req, res) => {
     if (!allItemsHaveColissimo) {
       return res.status(200).json({
         success: false,
-        message: 'Contacter le SAV'
+        message: 'no colissimo',
+        orderName: orderName
       });
     }
  
