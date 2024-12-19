@@ -134,7 +134,7 @@ router.get('/getOrderById', async (req, res) => {
         successData = false;
         messageData = 'foreigner';
       }
-      if(warehouseOrder.order.state !== "closed") {
+      if(orderDetails.order.state !== "closed") {
         successData = false;
         messageData = 'not closed';
       }
