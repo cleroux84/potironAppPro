@@ -189,7 +189,11 @@ router.post('/checkIfsReturnPossible', async (req, res) => {
     let totalWeight = 0;
     let priceByWeight;
     if(returnAllOrder) {
-      totalAsset = (warehouseOrder.order.total_price_cents / 100).toFixed(2);
+      if(initialDelivery > 0) {
+        totalAsset = ((warehouseOrder.order.total_price_cents) - initialDelivery).toFixed(2);
+      } else {
+        totalAsset = (warehouseOrder.order.total_price_cents / 100).toFixed(2);
+      }
       totalWeight = shipments.reduce((sum, shipment) => sum + (shipment.total_weight || 0), 0) / 1000;
 
       if(shipments.length === 1) {
