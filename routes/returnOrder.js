@@ -115,7 +115,6 @@ router.get('/getOrderById', async (req, res) => {
       //   successData = false;
       //   messageData = "too late";
       // }
-     
       if(originalOrder.order.source_name !== "web") {
         if(orderData.tags.includes('Commande PRO')) {
           successData = false;
@@ -130,6 +129,11 @@ router.get('/getOrderById', async (req, res) => {
       const shipmentDetails = orderDetails.order.shipments;
       const orderItems = orderDetails.order.order_items;
       const orderWarehouseId = orderDetails.order.id;
+      if(orderDetails.order.shipping_address.country !== 'FR') {
+        successData = false;
+        messageData = 'foreigner';
+      }
+
   
       const lineItemsForPrice = originalOrder.order.line_items;
       const lineItemsMapping = lineItemsForPrice.reduce((acc, item) => {
