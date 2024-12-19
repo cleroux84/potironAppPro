@@ -190,7 +190,7 @@ router.post('/checkIfsReturnPossible', async (req, res) => {
     let priceByWeight;
     if(returnAllOrder) {
       if(initialDelivery > 0) {
-        totalAsset = ((warehouseOrder.order.total_price_cents) - initialDelivery).toFixed(2);
+        totalAsset = (((warehouseOrder.order.total_price_cents) - initialDelivery)/100).toFixed(2);
       } else {
         totalAsset = (warehouseOrder.order.total_price_cents / 100).toFixed(2);
       }
