@@ -125,11 +125,7 @@ router.get('/getOrderById', async (req, res) => {
           messageData = "retailer";
         }
       }
-      if(warehouseOrder.order.state !== "closed") {
-        successData = false;
-        messageData = 'not closed';
-      }
-  
+      
       const orderDetails = await getshippingDetails(accessTokenWarehouse, shippingboDataWarehouse.id);
       const shipmentDetails = orderDetails.order.shipments;
       const orderItems = orderDetails.order.order_items;
@@ -138,7 +134,10 @@ router.get('/getOrderById', async (req, res) => {
         successData = false;
         messageData = 'foreigner';
       }
-
+      if(warehouseOrder.order.state !== "closed") {
+        successData = false;
+        messageData = 'not closed';
+      }
   
       const lineItemsForPrice = originalOrder.order.line_items;
       const lineItemsMapping = lineItemsForPrice.reduce((acc, item) => {
