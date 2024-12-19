@@ -174,7 +174,7 @@ router.get('/getOrderById', async (req, res) => {
 let quantitiesByRefs;
 
 router.post('/checkIfsReturnPossible', async (req, res) => { 
-  const { warehouseOrderId, return_items, quantities, reasons, filteredItems, returnAllOrder, productSkuCalc, orderName, createdOrder, originalDiscounts } = req.body;
+  const { warehouseOrderId, return_items, quantities, reasons, filteredItems, returnAllOrder, productSkuCalc, orderName, createdOrder, originalDiscounts, initialDelivery } = req.body;
   const itemsToReturn = return_items.split(','); 
   const quantitiesByRefs = JSON.parse(quantities);
   const reasonsByRefs = JSON.parse(reasons);   
@@ -264,7 +264,8 @@ router.post('/checkIfsReturnPossible', async (req, res) => {
       createdOrder: createdOrder,
       originalDiscounts: originalDiscounts,
       productSkuCalc: productSkuCalc,
-      quantities: quantities
+      quantities: quantities,
+      initialDelivery: initialDelivery
     });
  
   } catch (error) {
