@@ -67,7 +67,7 @@ const createLabel = async (senderCustomer, parcel) => {
         const response = await fetch(colissimoUrl, colissimoOptions);
         const buffer = await response.arrayBuffer(); 
         const textResponse = new TextDecoder().decode(buffer); 
-        // console.log('text response', textResponse);
+        console.log('text response', textResponse);
          if (textResponse.includes('%PDF')) {
             const pdfBase64 = Buffer.from(buffer).toString('base64');
             const parcelNumber = extractParcelNumber(textResponse);
