@@ -110,6 +110,7 @@ router.get('/getOrderById', async (req, res) => {
       const shippingboDataWarehouse = await getWarehouseOrderDetails(accessTokenWarehouse, shippingboDataPotiron.id);
       const originalOrder = await getOrderByShopifyId(shopifyOrderId);
       const closeOrderDelivery = shippingboDataWarehouse.closed_at;
+      
       const isReturnable = await isReturnableDate(closeOrderDelivery);
       // if(!isReturnable) {
       //   successData = false;
@@ -123,6 +124,10 @@ router.get('/getOrderById', async (req, res) => {
           successData = false;
           messageData = "retailer";
         }
+      }
+      if(warehouseOrder.order.state !== "closed") {
+        successData = false;
+        messageData = 'not closed';
       }
   
       const orderDetails = await getshippingDetails(accessTokenWarehouse, shippingboDataWarehouse.id);
