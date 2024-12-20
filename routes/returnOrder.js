@@ -360,6 +360,7 @@ router.post('/returnProduct', async (req, res) => {
     //Create Labels
     if(returnAll) {
       totalAsset = ((totalOrder)/100).toFixed(2);
+
       if(initialNumberOfPackages === 1) {
         weightToReturn = warehouseOrder.order.shipments
         .reduce((total, shipment) => total + (shipment.total_weight / 1000), 0);
@@ -383,7 +384,6 @@ router.post('/returnProduct', async (req, res) => {
       } else { 
         priceByWeight = await calculateTotalShippingCost(warehouseOrder.order.shipments, filteredItems);
         totalRefund = totalAsset - priceByWeight;
-
         const parcels = shipments.map(shipment => ({
           "weight": shipment.total_weight / 1000,
           "insuranceAmount": 0,
@@ -402,7 +402,6 @@ router.post('/returnProduct', async (req, res) => {
         }
       }
       
-      totalOrder = req.body.totalOrder;
       totalOrder = (totalOrder / 100).toFixed(2);
       totalRefund = totalRefund.toFixed(2);
     } else {
