@@ -184,11 +184,9 @@ router.get('/getOrderById', async (req, res) => {
     res.status(200).json({
       success: successData,
       orderItems: enrichedOrderItems,
-      // orderId: orderWarehouseId,
       orderWarehouse: orderDetails,
-      // shopifyOrderId: shopifyOrderId,
       originalOrder: originalOrder,
-      // messageData: messageData
+      messageData: messageData
     });
   }
   } catch (error) {
