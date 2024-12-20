@@ -197,14 +197,16 @@ router.get('/getOrderById', async (req, res) => {
 let quantitiesByRefs;
 
 router.post('/checkIfsReturnPossible', async (req, res) => { 
-  const { warehouseOrderId, return_items, quantities, reasons, filteredItems, returnAllOrder, productSkuCalc, orderName, createdOrder, originalDiscounts, initialDelivery } = req.body;
+  const { orderWarehouse, orderShopify, return_items, quantities, filteredItems, returnAllOrder, productSkuCalc } = req.body;
   const itemsToReturn = return_items.split(','); 
   const quantitiesByRefs = JSON.parse(quantities);
-  const reasonsByRefs = JSON.parse(reasons);   
-  let accessTokenWarehouse = await getAccessTokenWarehouseFromDb();
+  let initialDelivery = orderWarehouse.order.total_shipping_tax_included_cents;
+  // const reasonsByRefs = JSON.parse(reasons);   
+  // let accessTokenWarehouse = await getAccessTokenWarehouseFromDb();
  
   try {
-    const warehouseOrder = await getshippingDetails(accessTokenWarehouse, warehouseOrderId);
+    // const warehouseOrder = await getshippingDetails(accessTokenWarehouse, warehouseOrderId);
+    const warehouseOrder = orderWarehouse;
     const shipments = warehouseOrder.order.shipments;
     let allItemsHaveColissimo = true;
     let totalAsset = 0;
@@ -252,7 +254,7 @@ router.post('/checkIfsReturnPossible', async (req, res) => {
         const item = shipment.order_items_shipments.find(item => item.order_item_id.toString() === ref);
         if (item) {
           const shippingMethod = shipment.shipping_method_name;
-          const reason = reasonsByRefs[ref]; 
+          // const reason = reasonsByRefs[ref]; 
           if (shippingMethod && shippingMethod.includes("Colissimo")) {
             console.log(`Référence ${ref} trouvée dans l'expédition ${index} avec la méthode d'expédition : ${shippingMethod}`);
           } else {
@@ -273,26 +275,27 @@ router.post('/checkIfsReturnPossible', async (req, res) => {
     if (!allItemsHaveColissimo) {
       return res.status(200).json({
         success: false,
-        message: 'no colissimo',
-        orderName: orderName
+        // message: 'no colissimo',
+        // orderName: orderName
       });
     }
  
     res.json({
       success: true,
-      message: 'Articles colissimo !',
-      order: warehouseOrder,
+      // message: 'Articles colissimo !',
+      orderWarehouse: warehouseOrder,
+      orderShopify: orderShopify,
       productRefs: return_items,
       filteredItems: filteredItems,
       totalAsset: totalAsset,
       totalRefund: totalRefund,
       totalWeight: totalWeight,
-      orderName: orderName,
-      createdOrder: createdOrder,
-      originalDiscounts: originalDiscounts,
+      // orderName: orderName,
+      // createdOrder: createdOrder,
+      // originalDiscounts: originalDiscounts,
       productSkuCalc: productSkuCalc,
       quantities: quantities,
-      initialDelivery: initialDelivery
+      // initialDelivery: initialDelivery
     });
  
   } catch (error) {
