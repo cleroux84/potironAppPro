@@ -274,28 +274,25 @@ router.post('/checkIfsReturnPossible', async (req, res) => {
  
     if (!allItemsHaveColissimo) {
       return res.status(200).json({
-        success: false,
-        // message: 'no colissimo',
-        // orderName: orderName
+        success: false
       });
+    }
+
+    const returnValues = {
+      totalAsset: totalAsset,
+      totalRefund: totalRefund,
+      totalWeight: totalWeight
     }
  
     res.json({
       success: true,
-      // message: 'Articles colissimo !',
       orderWarehouse: warehouseOrder,
       orderShopify: orderShopify,
       productRefs: return_items,
       filteredItems: filteredItems,
-      totalAsset: totalAsset,
-      totalRefund: totalRefund,
-      totalWeight: totalWeight,
-      // orderName: orderName,
-      // createdOrder: createdOrder,
-      // originalDiscounts: originalDiscounts,
+      returnValues: returnValues,
       productSkuCalc: productSkuCalc,
       quantities: quantities,
-      // initialDelivery: initialDelivery
     });
  
   } catch (error) {
