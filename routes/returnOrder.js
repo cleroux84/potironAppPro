@@ -86,23 +86,23 @@ router.get('/getOrderById', async (req, res) => {
   const customerId = req.query.customer_id;
   let successData = true;
   let messageData;
+
   try {
     let orderData;
+    // Data initial order from Shopify
     if (customerId) {
       orderData = await orderById(orderName, orderMail, customerId);
     } else {
       orderData = await orderByMail(orderName, orderMail);
     }
 
-    if(!orderData) {
+    if(!orderData) { // no order with that mail/customerId and order name
       successData = false;
       messageData = "no order";
 
       res.status(200).json({
         success: successData,
         messageData: messageData,
-        orderName: orderName,
-        orderMail: orderMail
       });
     } else {
       const shopifyOrderId = orderData.id;
@@ -125,15 +125,16 @@ router.get('/getOrderById', async (req, res) => {
           messageData = "retailer";
         }
       }
-      
+      // get data order from shippingbo warehouse
       const orderDetails = await getshippingDetails(accessTokenWarehouse, shippingboDataWarehouse.id);
-      const shipmentDetails = orderDetails.order.shipments;
       const orderItems = orderDetails.order.order_items;
       const orderWarehouseId = orderDetails.order.id;
+      // check if order is from France
       if(orderDetails.order.shipping_address.country !== 'FR') {
         successData = false;
         messageData = 'foreigner';
       }
+      //check state of order 
       if(orderDetails.order.state !== "closed") {
         successData = false;
         if(orderDetails.order.state === 'canceled') {
@@ -183,11 +184,11 @@ router.get('/getOrderById', async (req, res) => {
     res.status(200).json({
       success: successData,
       orderItems: enrichedOrderItems,
-      orderId: orderWarehouseId,
-      orderDetails: orderDetails,
-      shopifyOrderId: shopifyOrderId,
+      // orderId: orderWarehouseId,
+      orderWarehouse: orderDetails,
+      // shopifyOrderId: shopifyOrderId,
       originalOrder: originalOrder,
-      messageData: messageData
+      // messageData: messageData
     });
   }
   } catch (error) {
