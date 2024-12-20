@@ -405,7 +405,7 @@ router.post('/returnProduct', async (req, res) => {
       totalOrder = (totalOrder / 100).toFixed(2);
       totalRefund = totalRefund.toFixed(2);
     } else {
-      totalAsset = ((req.body.totalOrder)/100).toFixed(2);
+      totalAsset = (totalOrder/100).toFixed(2);
       if(productSku.length === 1) {
         if(productSku[0].quantity === 1) {
           const productFoundSku = await getProductWeightBySku(productSku[0].product_user_ref);
