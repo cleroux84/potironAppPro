@@ -280,8 +280,7 @@ router.post('/checkIfsReturnPossible', async (req, res) => {
 
     const returnValues = {
       totalAsset: totalAsset,
-      totalRefund: totalRefund,
-      totalWeight: totalWeight
+      totalRefund: totalRefund
     }
  
     res.json({
@@ -308,26 +307,28 @@ router.post('/returnProduct', async (req, res) => {
     accessTokenMS365 = await getAccessTokenMS365();
   }
   let accessTokenWarehouse = await getAccessTokenWarehouseFromDb();
-  let customerId;
-  const orderName = req.body.orderName;
-  const productRefs = req.body.productRefs.split(',');
-  const productSku = req.body.productSku;
-  const optionChosen = req.body.returnOption;
-  const orderId = req.body.orderId;
-  const returnAll = req.body.returnAllOrder;
-  const shopifyOrderId = req.body.shopifyOrderId;
-  const filteredItems = req.body.filteredItems;
-  const quantitiesByRefs = JSON.parse(req.body.quantities);
+  const { orderWarehouse, orderShopify, returnOption, returnAll, productSku, filteredItems, quantities} = req.body;
+  let { totalOrder } = req.body;
+  const customerId = orderShopify.order.customer.id;
+  
+  // const productRefs = req.body.productRefs.split(',');
+  // const productSku = req.body.productSku;
+  // const optionChosen = req.body.returnOption;
+  const orderId = orderWarehouse.order.id;
+  // const returnAll = req.body.returnAllOrder;
+  const shopifyOrderId = orderShopify.order.id;
+  // const filteredItems = req.body.filteredItems;
+  const quantitiesByRefs = JSON.parse(quantities);
 
-  if(!customerId) {
-    let initialiOrder = await getOrderByShopifyId(shopifyOrderId);
-    customerId = initialiOrder.order.customer.id;
-  } else {
-    customerId = req.body.customerId;
-  }
+  // if(!customerId) {
+  //   let initialiOrder = await getOrderByShopifyId(shopifyOrderId);
+  //   customerId = initialiOrder.order.customer.id;
+  // } else {
+  //   customerId = req.body.customerId;
+  // }
 
   //Retrieve data from initial order shippingbo GMA
-  const warehouseOrder = await getshippingDetails(accessTokenWarehouse, orderId);
+  const warehouseOrder = orderWarehouse;
   const senderCustomer = {
     'name': warehouseOrder.order.shipping_address.fullname,
     'address': warehouseOrder.order.shipping_address.street1,
@@ -340,7 +341,7 @@ router.post('/returnProduct', async (req, res) => {
     "origin_ref": warehouseOrder.order.origin_ref
   };
   let weightToReturn = 0;
-  let totalOrder = 0;
+  // let totalOrder = 0;
   let totalAsset = 0;
   let priceByWeight = 0;
   let totalRefund = 0;
@@ -358,7 +359,7 @@ router.post('/returnProduct', async (req, res) => {
   //  if(!returnOrderExists) {
     //Create Labels
     if(returnAll) {
-      totalAsset = ((req.body.totalOrder)/100).toFixed(2);
+      totalAsset = ((totalOrder)/100).toFixed(2);
       if(initialNumberOfPackages === 1) {
         weightToReturn = warehouseOrder.order.shipments
         .reduce((total, shipment) => total + (shipment.total_weight / 1000), 0);
@@ -509,7 +510,7 @@ router.post('/returnProduct', async (req, res) => {
     totalRefund = totalRefund.toFixed(2);
   }
 
-    if (optionChosen === "option1") {
+    if (returnOption === "option1") {
         let optionChoose = "option1"
         //Create return Order in Shippingbo GMA
         const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku, shopifyOrderId, optionChoose);
@@ -549,7 +550,7 @@ router.post('/returnProduct', async (req, res) => {
     //       message: 'Contacter le SAV - un return order existe déjà pour cette commande'
     //     })    
     // }  
-    } else if( optionChosen === "option2") {
+    } else if( returnOption === "option2") {
       let optionChoose = "option2"
         //Create return Order in Shippingbo GMA
         const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku, shopifyOrderId, optionChoose);
