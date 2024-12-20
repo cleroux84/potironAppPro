@@ -308,7 +308,6 @@ router.post('/returnProduct', async (req, res) => {
   }
   let accessTokenWarehouse = await getAccessTokenWarehouseFromDb();
   const { orderWarehouse, orderShopify, returnOption, returnAll, productSku, filteredItems, quantities} = req.body;
-  let { totalOrder } = req.body;
   const customerId = orderShopify.order.customer.id;
   
   // const productRefs = req.body.productRefs.split(',');
@@ -341,7 +340,7 @@ router.post('/returnProduct', async (req, res) => {
     "origin_ref": warehouseOrder.order.origin_ref
   };
   let weightToReturn = 0;
-  // let totalOrder = 0;
+  let totalOrder = 0;
   let totalAsset = 0;
   let priceByWeight = 0;
   let totalRefund = 0;
@@ -359,8 +358,7 @@ router.post('/returnProduct', async (req, res) => {
   //  if(!returnOrderExists) {
     //Create Labels
     if(returnAll) {
-      totalAsset = ((totalOrder)/100).toFixed(2);
-
+      totalAsset = ((req.body.totalOrder)/100).toFixed(2);
       if(initialNumberOfPackages === 1) {
         weightToReturn = warehouseOrder.order.shipments
         .reduce((total, shipment) => total + (shipment.total_weight / 1000), 0);
@@ -384,6 +382,7 @@ router.post('/returnProduct', async (req, res) => {
       } else { 
         priceByWeight = await calculateTotalShippingCost(warehouseOrder.order.shipments, filteredItems);
         totalRefund = totalAsset - priceByWeight;
+
         const parcels = shipments.map(shipment => ({
           "weight": shipment.total_weight / 1000,
           "insuranceAmount": 0,
@@ -402,10 +401,11 @@ router.post('/returnProduct', async (req, res) => {
         }
       }
       
+      totalOrder = req.body.totalOrder;
       totalOrder = (totalOrder / 100).toFixed(2);
       totalRefund = totalRefund.toFixed(2);
     } else {
-      totalAsset = (totalOrder/100).toFixed(2);
+      totalAsset = ((req.body.totalOrder)/100).toFixed(2);
       if(productSku.length === 1) {
         if(productSku[0].quantity === 1) {
           const productFoundSku = await getProductWeightBySku(productSku[0].product_user_ref);
