@@ -81,9 +81,9 @@ router.post('/returnOrderCancel', async (req, res) => {
 router.get('/getOrderById', async (req, res) => {
   let accessToken = await getAccessTokenFromDb();
   let accessTokenWarehouse = await getAccessTokenWarehouseFromDb();
-  const orderName = req.query.getOrder_name;
-  const orderMail = req.query.getOrder_mail;
-  const customerId = req.query.customer_id;
+  const orderName = req.body.getOrder_name;
+  const orderMail = req.body.getOrder_mail;
+  const customerId = req.body.customer_id;
   let successData = true;
   let messageData;
 
@@ -309,22 +309,9 @@ router.post('/returnProduct', async (req, res) => {
   let accessTokenWarehouse = await getAccessTokenWarehouseFromDb();
   const { orderWarehouse, orderShopify, returnOption, returnAll, productSku, filteredItems, quantities} = req.body;
   const customerId = orderShopify.order.customer.id;
-  
-  // const productRefs = req.body.productRefs.split(',');
-  // const productSku = req.body.productSku;
-  // const optionChosen = req.body.returnOption;
   const orderId = orderWarehouse.order.id;
-  // const returnAll = req.body.returnAllOrder;
   const shopifyOrderId = orderShopify.order.id;
-  // const filteredItems = req.body.filteredItems;
   const quantitiesByRefs = JSON.parse(quantities);
-
-  // if(!customerId) {
-  //   let initialiOrder = await getOrderByShopifyId(shopifyOrderId);
-  //   customerId = initialiOrder.order.customer.id;
-  // } else {
-  //   customerId = req.body.customerId;
-  // }
 
   //Retrieve data from initial order shippingbo GMA
   const warehouseOrder = orderWarehouse;
@@ -356,7 +343,7 @@ router.post('/returnProduct', async (req, res) => {
    console.log('returnOrderExists ?', returnOrderExists);
 
   //  if(!returnOrderExists) {
-    //Create Labels
+    //Create Labels and set total amounts asset and refund
     if(returnAll) {
       totalAsset = ((req.body.totalOrder)/100).toFixed(2);
       if(initialNumberOfPackages === 1) {
