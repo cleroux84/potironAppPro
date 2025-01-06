@@ -81,9 +81,9 @@ router.post('/returnOrderCancel', async (req, res) => {
 router.get('/getOrderById', async (req, res) => {
   let accessToken = await getAccessTokenFromDb();
   let accessTokenWarehouse = await getAccessTokenWarehouseFromDb();
-  const orderName = req.body.getOrder_name;
-  const orderMail = req.body.getOrder_mail;
-  const customerId = req.body.customer_id;
+  const orderName = req.query.getOrder_name;
+  const orderMail = req.query.getOrder_mail;
+  const customerId = req.query.customer_id;
   let successData = true;
   let messageData;
 
