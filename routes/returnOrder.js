@@ -64,7 +64,7 @@ router.post('/returnOrderCancel', async (req, res) => {
                 console.log('Client sans Mail lié: ', customerData.id);
               }
             } else {
-              return res.status(200).send('code existant');
+              console.log('send mail to magalie and dev to alert reduc already exists')
             }
           } catch (error) {
           console.error("error webhook discount code", error);
