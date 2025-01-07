@@ -180,7 +180,54 @@ async function sendDiscountCodeAfterReturn(accessTokenMS365, customerData, order
       console.error('error sending discountcode message', error);
     }
   }
+
+  //send mail alert if discount code already exists
+  //send mail to customer with discount code after reception of return order + so retrieve customer + trigger sendEmailDiscountReminder with param
+async function sendAlertMail(accessTokenMS365, customerData, orderName, returnId) {
+  const client = initiMicrosoftGraphClient(accessTokenMS365);
+  let nameNoStar = customerData.last_name.replace(/⭐/g, '').trim();
+  const message = {
+    subject: `ALERTE discount code pour retour sur commande ${orderName}`, 
+    body: {
+      contentType: 'HTML',
+      content: `
+        <p>Bonjour, </p>
+        <p style="margin: 0;">${customerData.first_name} ${nameNoStar} a demandé un remboursement par code de réduction sur sa commande ${orderName}</p>
+        <p style="margin: 0;">La commande retour dans shippingbo est ${returnId}.</p>
+        <p style="margin: 0;">Il semble y a avoir une erreur : un code de réduction existe déjà pour cette commande !</p>
+        <p>Très belle journée,</p>
+        <p>L'équipe de Potiron Paris</p>
+        <img src='cid:signature'/>
+      `
+    },
+    //TODO : mail client : mailRecipent ?
+    toRecipients: [
+      {
+        emailAddress: {
+          address: "c.leroux@potiron.com"
+        }
+      }
+    ],
+    bccRecipients: [
+      {
+          emailAddress: {
+              address: MAILDEV
+          }
+      }
+    ],
+    attachments: [
+      signatureAttachement
+    ]
+  };
+  try {
+    await client.api('/me/sendMail').post({ message });
+    console.log("Email discountCode automated return sucessfully sent");
+  } catch (error) {
+    console.error('error sending discountcode message', error);
+  }
+}
   
+  //check if a discount code let 15 days and send reminder mail
   const checkScheduledEmails = async () => {
     const scheduledEmails = await getDiscountMailData();
   
@@ -305,5 +352,6 @@ const sendEmailDiscountReminder = async (discounCode, totalAmount, codeEndDate, 
     sendReturnDataToCustomer,
     sendDiscountCodeAfterReturn,
     checkScheduledEmails,
-    sendReceiptAndWaitForRefund
+    sendReceiptAndWaitForRefund,
+    sendAlertMail
   }

@@ -4,7 +4,7 @@ const express = require('express');
 const { getOrderByShopifyId, updateOrder, orderByMail } = require('../services/API/Shopify/orders');
 const { checkIfPriceRuleExists, createPriceRule, isReturnableDate } = require('../services/API/Shopify/priceRules');
 const { getAccessTokenMS365, refreshMS365AccessToken } = require('../services/API/microsoft');
-const { sendDiscountCodeAfterReturn, sendReturnDataToCustomer, sendReceiptAndWaitForRefund } = require('../services/sendMails/mailForCustomers');
+const { sendDiscountCodeAfterReturn, sendReturnDataToCustomer, sendReceiptAndWaitForRefund, sendAlertMail } = require('../services/sendMails/mailForCustomers');
 const { saveDiscountMailData } = require('../services/database/scheduled_emails');
 const { getAccessTokenFromDb } = require('../services/database/tokens/potiron_shippingbo');
 const { getAccessTokenWarehouseFromDb } = require('../services/database/tokens/gma_shippingbo');
@@ -64,7 +64,8 @@ router.post('/returnOrderCancel', async (req, res) => {
                 console.log('Client sans Mail lié: ', customerData.id);
               }
             } else {
-              console.log('send mail to magalie and dev to alert reduc already exists')
+              console.log('send mail to magalie and dev to alert reduc already exists');
+              await sendAlertMail(accessTokenMS365, customerData, orderName, orderCanceledId);
             }
           } catch (error) {
           console.error("error webhook discount code", error);
