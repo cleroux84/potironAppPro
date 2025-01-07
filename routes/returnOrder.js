@@ -63,6 +63,8 @@ router.post('/returnOrderCancel', async (req, res) => {
               } else {
                 console.log('Client sans Mail lié: ', customerData.id);
               }
+            } else {
+              return res.status(200).send('code existant');
             }
           } catch (error) {
           console.error("error webhook discount code", error);
