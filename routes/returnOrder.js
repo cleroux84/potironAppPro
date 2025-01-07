@@ -140,8 +140,7 @@ router.get('/getOrderById', async (req, res) => {
         if(orderDetails.order.state === 'canceled') {
           messageData = 'canceled';
         }
-        if(orderDetails.order.state === 'shipped' || 
-          orderDetails.order.state === 'to_be_prepared' || 
+        if(orderDetails.order.state === 'to_be_prepared' || 
           orderDetails.order.state === 'in_preparation' ||
           orderDetails.order.state === 'at_pickup_location' ||
           orderDetails.order.state === 'rejected' ||
