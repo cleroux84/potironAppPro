@@ -22,7 +22,8 @@ const createLabel = async (senderCustomer, parcel) => {
             "productCode": "DOM",
             "depositDate": new Date().toISOString(),
             "mailBoxPicking": false,
-            "instructions" : senderCustomer.origin_ref
+            "instructions" : "TESTOUILLE",
+            "siteId": 12345
             },
             "parcel": {
                 "weight": parcel.weight
