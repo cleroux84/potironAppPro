@@ -543,6 +543,7 @@ router.post('/returnProduct', async (req, res) => {
         //Create return Order in Shippingbo GMA
         const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku, shopifyOrderId, optionChoose);
         const returnOrderId = returnOrderData.return_order.id;
+        console.log("returnOrderIdForColissimo", returnOrderId);
         const shopifyId = returnOrderData.return_order.reason_ref;
         const attributes = [
           {name: "customerId", value: customerId},
