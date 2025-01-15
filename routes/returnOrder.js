@@ -15,15 +15,16 @@ const { createLabel, getShippingPrice, calculateTotalShippingCost, getGroupedIte
 const { getProductWeightBySku } = require('../services/API/Shopify/products');
 const { checkIfReturnOrderExist, createReturnOrder } = require('../services/API/Shippingbo/Gma/returnOrdersCRUD');
 const { sendReturnDataToSAV, sendRefundDataToSAV, mailToSendRefund } = require('../services/sendMails/mailForTeam');
-const { post } = require('./returnOrder');
+const { saveReturnContactData } = require('../services/database/return_contact');
 const router = express.Router();
 
 //give data for return order demand with contact form
-router.post('/returnContact', (req, res) => {
-  const {orderWarehouse, orderShopify, items} = req.body;
-  console.log('warehouse', orderWarehouse);
-  console.log('items to return', items);
+router.post('/returnContact', async (req, res) => {
+  const {warehouseId, shopifyId, items} = req.body;
+  // console.log('warehouse', warehouseId);
+  // console.log('items to return', items);
   console.log('here data to save in new db table');
+  await saveReturnContactData(warehouseId, shopifyId, items);
   res.status(200).send('data recorded in db new table');
 })
 
