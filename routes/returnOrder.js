@@ -23,9 +23,13 @@ router.post('/returnContact', async (req, res) => {
   const {warehouseId, shopifyId, items} = req.body;
   // console.log('warehouse', warehouseId);
   // console.log('items to return', items);
-  console.log('here data to save in new db table');
-  await saveReturnContactData(warehouseId, shopifyId, items);
-  res.status(200).send('data recorded in db new table');
+  const savedReturnData = await saveReturnContactData(warehouseId, shopifyId, items);
+  console.log('here data to save in new db table', savedReturnData);
+
+  res.status(200).json({
+    success: true,
+    returnDbId: savedReturnData,
+  });
 })
 
 //trigger on shippingbo webhook (cancel order / will become returned ?) to create and send discount code to customer

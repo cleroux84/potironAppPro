@@ -10,6 +10,8 @@ const saveReturnContactData = async (warehouseId, shopifyId, itemsToReturn) => {
     try {
         const result = await client.query(query, values);
         console.log('Data for returnContact saved in DB');
+        const returnDbId = result.id;
+        return returnDbId;
     } catch (error) {
         console.error('Error saving return data in return_contact table');
     }
