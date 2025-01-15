@@ -317,17 +317,6 @@ router.post('/returnProduct', async (req, res) => {
 
   //Retrieve data from initial order shippingbo GMA
   const warehouseOrder = orderWarehouse;
-  const senderCustomer = {
-    'name': warehouseOrder.order.shipping_address.fullname,
-    'address': warehouseOrder.order.shipping_address.street1,
-    'address2': warehouseOrder.order.shipping_address.street2,
-    'city': warehouseOrder.order.shipping_address.city,
-    "postalCode": warehouseOrder.order.shipping_address.zip,
-    "country": warehouseOrder.order.shipping_address.country,
-    "email": warehouseOrder.order.shipping_address.email,
-    "phone": warehouseOrder.order.shipping_address.phone1,
-    "origin_ref": warehouseOrder.order.origin_ref
-  };
   let weightToReturn = 0;
   let totalOrder = 0;
   let totalAsset = 0;
@@ -337,6 +326,10 @@ router.post('/returnProduct', async (req, res) => {
   let createLabelData = [];
   let parcelNumbers = [];
   let pdfBase64 = [];
+  let returnOrderData;
+  let returnOrderId;
+  let shopifyId;
+  let optionChoose;
   const initialNumberOfPackages = warehouseOrder.order.shipments.length;
   const shipments = warehouseOrder.order.shipments;
 
@@ -345,6 +338,32 @@ router.post('/returnProduct', async (req, res) => {
    console.log('returnOrderExists ?', returnOrderExists);
 
   //  if(!returnOrderExists) {
+
+    if(returnOption === "option1") {
+      optionChoose = "option1"
+      //Create return Order in Shippingbo GMA
+      returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku, shopifyOrderId, optionChoose);
+      returnOrderId = returnOrderData.return_order.id;
+      shopifyId = returnOrderData.return_order.reason_ref;
+    } else if( returnOption === "option2") {
+      optionChoose = "option2"
+      //Create return Order in Shippingbo GMA
+      returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku, shopifyOrderId, optionChoose);
+      returnOrderId = returnOrderData.return_order.id;
+      shopifyId = returnOrderData.return_order.reason_ref;
+    }
+    const senderCustomer = {
+      'name': warehouseOrder.order.shipping_address.fullname,
+      'address': warehouseOrder.order.shipping_address.street1,
+      'address2': warehouseOrder.order.shipping_address.street2,
+      'city': warehouseOrder.order.shipping_address.city,
+      "postalCode": warehouseOrder.order.shipping_address.zip,
+      "country": warehouseOrder.order.shipping_address.country,
+      "email": warehouseOrder.order.shipping_address.email,
+      "phone": warehouseOrder.order.shipping_address.phone1,
+      "origin_ref": warehouseOrder.order.origin_ref,
+      "order_id": returnOrderId
+    };
     //Create Labels and set total amounts asset and refund
     if(returnAll) {
       totalAsset = ((req.body.totalOrder)/100).toFixed(2);
@@ -499,11 +518,11 @@ router.post('/returnProduct', async (req, res) => {
   }
 
     if (returnOption === "option1") {
-        let optionChoose = "option1"
-        //Create return Order in Shippingbo GMA
-        const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku, shopifyOrderId, optionChoose);
-        const returnOrderId = returnOrderData.return_order.id;
-        const shopifyId = returnOrderData.return_order.reason_ref;
+        // let optionChoose = "option1"
+        // //Create return Order in Shippingbo GMA
+        // const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku, shopifyOrderId, optionChoose);
+        // const returnOrderId = returnOrderData.return_order.id;
+        // const shopifyId = returnOrderData.return_order.reason_ref;
 
       // Create attributes Shopify Order for future discount code
       const attributes = [
@@ -539,12 +558,11 @@ router.post('/returnProduct', async (req, res) => {
     //     })    
     // }  
     } else if( returnOption === "option2") {
-      let optionChoose = "option2"
-        //Create return Order in Shippingbo GMA
-        const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku, shopifyOrderId, optionChoose);
-        const returnOrderId = returnOrderData.return_order.id;
-        console.log("returnOrderIdForColissimo", returnOrderId);
-        const shopifyId = returnOrderData.return_order.reason_ref;
+      // let optionChoose = "option2"
+      //   //Create return Order in Shippingbo GMA
+      //   const returnOrderData = await createReturnOrder(accessTokenWarehouse, orderId, returnAll, productSku, shopifyOrderId, optionChoose);
+      //   const returnOrderId = returnOrderData.return_order.id;
+      //   const shopifyId = returnOrderData.return_order.reason_ref;
         const attributes = [
           {name: "customerId", value: customerId},
           {name: "totalOrderReturn", value: totalRefund}
