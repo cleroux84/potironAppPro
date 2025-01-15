@@ -21,12 +21,11 @@ const createLabel = async (senderCustomer, parcel) => {
             "service": {
             "productCode": "DOM",
             "depositDate": new Date().toISOString(),
-            "mailBoxPicking": false,
-            "instructions" : "TESTOUILLE",
-            "siteId": 12345
+            "mailBoxPicking": false
             },
             "parcel": {
-                "weight": parcel.weight
+                "weight": parcel.weight,
+                "instructions": "testonimo"
             },
             "sender": {
                 "address": {
