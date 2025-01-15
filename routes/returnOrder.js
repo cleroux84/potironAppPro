@@ -364,8 +364,7 @@ router.post('/returnProduct', async (req, res) => {
       "origin_ref": warehouseOrder.order.origin_ref,
       "order_id": returnOrderId
     };
-    console.log('returnOrderId', returnOrderId);
-    console.log("senderCustomerId", senderCustomer.order_id);
+    
     //Create Labels and set total amounts asset and refund
     if(returnAll) {
       totalAsset = ((req.body.totalOrder)/100).toFixed(2);
