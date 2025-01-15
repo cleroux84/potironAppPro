@@ -23,7 +23,8 @@ router.post('/returnContact', (req, res) => {
   const {orderWarehouse, orderShopify, items} = req.body;
   console.log('warehouse', orderWarehouse);
   console.log('items to return', items);
-  console.log('here data to save in new db table')
+  console.log('here data to save in new db table');
+  res.status(200).send('data recorded in db new table');
 })
 
 //trigger on shippingbo webhook (cancel order / will become returned ?) to create and send discount code to customer
