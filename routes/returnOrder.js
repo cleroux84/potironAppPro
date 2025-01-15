@@ -26,7 +26,7 @@ router.post('/returnOrderCancel', async (req, res) => {
       accessTokenMS365 = await getAccessTokenMS365();
     }
     if(orderCanceled.additional_data.from === 'new'
-      && orderCanceled.additional_data.to ==='canceled' //TODO change for "returned" with a new webhook
+      && orderCanceled.additional_data.to ==='closed'
       && (orderCanceled.object.reason === 'Retour Auto ASSET' || orderCanceled.object.reason === 'Retour Auto REFUND')
     ) {
       const shopifyIdString = orderCanceled.object.reason_ref;
