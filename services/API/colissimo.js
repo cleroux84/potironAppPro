@@ -25,10 +25,11 @@ const createLabel = async (senderCustomer, parcel) => {
             },
             "parcel": {
                 "weight": parcel.weight,
-                "instructions": `RETOUR AUTOMATIQUE A VALIDER SUR SHIPPINNGBO ${senderCustomer.order_id}`,
+                "instructions": `RETOUR AUTOMATIQUE - FERMER commande : ${senderCustomer.order_id}`,
                 "senderParcelRef": senderCustomer.order_id
             },
             "sender": {
+                "senderParcelRef": senderCustomer.order_id,
                 "address": {
                     "companyName": senderCustomer.name,
                     "line2": senderCustomer.address,
