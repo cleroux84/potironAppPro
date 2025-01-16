@@ -24,7 +24,7 @@ router.post('/returnContact', async (req, res) => {
   // console.log('warehouse', warehouseId);
   // console.log('items to return', items);
   const savedReturnData = await saveReturnContactData(warehouseId, shopifyId, items);
-  console.log('here data to save in new db table', savedReturnData);
+  console.log('Data to saved in new db table', savedReturnData);
 
   res.status(200).json({
     success: true,
