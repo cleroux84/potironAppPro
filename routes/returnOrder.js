@@ -21,10 +21,11 @@ const router = express.Router();
 //give data for return order demand with contact form
 router.post('/returnContact', async (req, res) => {
   const {warehouseId, shopifyId, items} = req.body;
-  // console.log('warehouse', warehouseId);
+  console.log('warehouse', warehouseId);
+  console.log('shopify', shopifyId);
+
   // console.log('items to return', items);
   const savedReturnData = await saveReturnContactData(warehouseId, shopifyId, items);
-  console.log('Data to saved in new db table', savedReturnData);
 
   res.status(200).json({
     success: true,
