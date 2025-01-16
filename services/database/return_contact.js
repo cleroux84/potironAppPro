@@ -17,9 +17,7 @@ const saveReturnContactData = async (warehouseId, shopifyId, itemsToReturn) => {
         // recupérer et return id in db
     } catch (error) {
         console.error('Error saving return data in return_contact table');
-    } finally {
-        await client.end();
-    }
+    } 
 }
 
 module.exports = {
