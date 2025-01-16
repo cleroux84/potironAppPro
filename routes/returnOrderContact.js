@@ -24,8 +24,8 @@ router.get('/returnForm:id', async (req, res) => {
             if(productDetails) {
                 enrichedItems.push({
                     ...item,
-                    title: productDetails.title,
-                    imageUrl: productDetails.imageUrl
+                    title: productDetails.product.title,
+                    imageUrl: productDetails.product.featuredImage.url
                 });
             } else {
                 console.error('Details du produit non trouvé')
