@@ -16,7 +16,7 @@ router.get('/returnForm:id', async (req, res) => {
         fullName: shopifyOrder.order.customer.first_name + shopifyOrder.order.customer.last_name 
     }
 
-    const items = returnDataFromDb.items;
+    const items = returnDataFromDb.items_to_return;
     const enrichItemsWithData = async (items) => {
         const enrichedItems = [];
         for(const item of items) {
