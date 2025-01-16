@@ -29,9 +29,11 @@ app.use(cors({
 const returnOrderRoute = require('./routes/returnOrder.js');
 const proCustomerRoute = require('./routes/proCustomer.js');
 const proOrderRoute = require('./routes/proOrder.js');
+const returnContactRoute = require('./routes/returnOrderContact.js');
 app.use('/returnOrder', returnOrderRoute);
 app.use('/proCustomer', proCustomerRoute);
 app.use('/proOrder', proOrderRoute);
+app.use('/returnContact', returnContactRoute);
 
 // Initialisation des tokens 
 initializeTokens();
