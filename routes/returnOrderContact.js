@@ -4,7 +4,7 @@ const { getOrderByShopifyId } = require('../services/API/Shopify/orders');
 const { getProductWeightBySku } = require('../services/API/Shopify/products');
 const router = express.Router();
 
-router.get('/returnForm:id', async (req, res) => {
+router.get('/returnForm:id', async (req, res) => { 
     const { id } = req.params;
     const returnDataFromDb = await getReturnContactData(id);
     const shopifyOrder = await getOrderByShopifyId(returnDataFromDb.shopify_id);
@@ -13,7 +13,7 @@ router.get('/returnForm:id', async (req, res) => {
         orderName : shopifyOrder.order.name,
         customerMail : shopifyOrder.order.email,
         orderCreatedAt: shopifyOrder.order.created_at,
-        fullName: shopifyOrder.order.customer.first_name + shopifyOrder.order.customer.last_name 
+        fullName: shopifyOrder.order.customer.first_name + ' ' + shopifyOrder.order.customer.last_name 
     }
 
     const items = returnDataFromDb.items_to_return;
@@ -30,13 +30,14 @@ router.get('/returnForm:id', async (req, res) => {
             } else {
                 console.error('Details du produit non trouvé')
             }
-        console.log('enrichedItems', enrichedItems);
         }
+        return enrichedItems;
     }
-    enrichItemsWithData(items);
+    const itemsToReturn = enrichItemsWithData(items);
 
 
-    console.log('dataCustomer', dataCustomer);
+    // console.log('dataCustomer', dataCustomer);
+    return { dataCustomer, itemsToReturn }
 })
 
 module.exports = router;
