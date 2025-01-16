@@ -33,11 +33,11 @@ router.get('/returnForm:id', async (req, res) => {
         }
         return enrichedItems;
     }
-    const itemsToReturn = enrichItemsWithData(items);
+    const itemsToReturn = await enrichItemsWithData(items);
 
 
     // console.log('dataCustomer', dataCustomer);
-    return { dataCustomer, itemsToReturn }
+    res.json({ dataCustomer, itemsToReturn })
 })
 
 module.exports = router;
