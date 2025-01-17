@@ -37,9 +37,10 @@ const initiMicrosoftGraphClient = (accessTokenMS365) => {
     let customerMail = customerData.customerMail;
     let emailContent = `
 <p>Bonjour,</p>
-<p style="margin: 0;">Une demande de retour a été effectuée par ${customerName} concernant la commande ${orderName}.</p>
-<p style="margin: 0;">Date de commande : ${new Date(orderCreatedAt).toLocaleDateString("fr-FR")}</p>
+<p style="margin: 0;">Une demande de retour a été effectuée par ${customerName} concernant la commande ${orderName} du ${new Date(orderCreatedAt).toLocaleDateString("fr-FR")}.</p>
 <p style="margin: 0;">Ce client est joignable par email : ${customerMail}</p>
+<p style="margin: 0;">Pour rappel, aucune commande retour n'a encore été créée.</p>
+
 <p style="margin: 0;">Merci de traiter sa demande de retour pour les produits ci-dessous : </p>
 <ul>
     `;
@@ -48,11 +49,16 @@ const initiMicrosoftGraphClient = (accessTokenMS365) => {
         const productName = product.productId; 
         const productPrice = product.price; 
         const justification = product.justification || "Pas de justification fournie."; 
+        const productTitle = product.title;
+        const productReason = product.reason;
+        const productQuantity = product.quantity;
 
         emailContent += `
-        <li><b>${productName}</b><br/>
+                <li><b>${productName} - ${productTitle}</b><br/>
+                Quantité: ${productQuantity} <br/>
                 Prix: ${productPrice} €<br/>
-                Raison du retour : ${justification}<br/>
+                Raison choisie: ${productReason}<br/>
+                Explication complémentaire : ${justification}<br/>
         `;
         product.photos.forEach((photoPath, index) => {
             const photoName = path.basename(photoPath);
