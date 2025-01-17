@@ -24,6 +24,7 @@ const uploadMultiple = multer({
 router.post('/upload-photos', uploadMultiple.array('photos', 5), async (req, res) => {
     try {
         const productInfo = JSON.parse(req.body.productInfo);
+        const customerData = JSON.parse(req.body.customerData);
         const uploadedFiles = req.files;
 
         const productData = productInfo.map(product => {
@@ -35,7 +36,7 @@ router.post('/upload-photos', uploadMultiple.array('photos', 5), async (req, res
                 .map(file => file.path),
             };
         });
-        await sendReturnRequestPictures(productData);
+        await sendReturnRequestPictures(customerData, productData);
 
         uploadedFiles.forEach(file => {
             fs.unlink(file.path, error => {

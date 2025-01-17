@@ -27,9 +27,80 @@ const initiMicrosoftGraphClient = (accessTokenMS365) => {
     });
   }
 
-  async function sendReturnRequestPictures(productData) {
-    console.log('Send pictures Data');
-  }
+  async function sendReturnRequestPictures(customerData, productData) {
+    const client = initiMicrosoftGraphClient(accessTokenMS365);
+    let customerName = customerData.fullName;
+    let orderName = customerData.orderName;
+    let orderCreatedAt = customerData.orderCreatedAt;
+    let customerMail = customerData.customerMail;
+    let emailContent = `
+<p>Bonjour,</p>
+<p style="margin: 0;">Une demande de retour a été effectuée par ${customerName} concernant la commande ${orderName}.</p>
+<p style="margin: 0;">Date de commande : ${new Date(orderCreatedAt).toLocaleDateString("fr-FR")}</p>
+<p style="margin: 0;">Ce client est joignable par email : ${customerMail}</p>
+<p style="margin: 0;">Merci de traiter sa demande de retour pour les produits ci-dessous : </p>
+<ul>
+    `;
+    const attachments = [];
+    productData.forEach((product) => {
+        const productName = product.productId; 
+        const productPrice = product.price.toFixed(2); 
+        const justification = product.justification || "Pas de justification fournie."; 
+
+        emailContent += `
+        <li><b>${productName}</b><br/>
+                Prix: ${productPrice} €<br/>
+                Raison du retour : ${justification}<br/>
+        `;
+        product.photos.forEach((photoPath, index) => {
+            const photoName = path.basename(photoPath);
+            const photoData = fs.readFileSync(photoPath); 
+ 
+            attachments.push({
+                '@odata.type': '#microsoft.graph.fileAttachment',
+                name: `photo_${productName}_${index + 1}.jpg`,  
+                contentBytes: photoData.toString('base64'), 
+                contentType: 'image/jpeg'
+            });
+ 
+            emailContent += `<img src='cid:${photoName}' /> <br/>`; 
+        });
+ 
+        emailContent += `</li>`;
+    });
+ 
+    emailContent += `</ul><p>Bonne journée !</p><img src='cid:signature'/>`;
+ 
+    const message = {
+        subject: 'Demande Retour Avec Photos',
+        body: {
+            contentType: 'HTML',
+            content: emailContent
+        },
+        toRecipients: [
+            {
+                emailAddress: {
+                    address: MAILDEV
+                }
+            }
+        ],
+        bccRecipients: [
+            {
+                emailAddress: {
+                    address: MAILDEV
+                }
+            }
+        ],
+        attachments: attachments 
+    };
+ 
+    try {
+        await client.api('/me/sendMail').post({ message: message });
+        console.log("Email envoyé avec succès");
+    } catch (error) {
+        console.error('Erreur lors de l\'envoi de l\'email :', error);
+    }
+}
 
   //Send email with kbis to Potiron Team (Magalie) from bonjour@potiron.com to check and validate company
 async function sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone, isUpgrade) {
