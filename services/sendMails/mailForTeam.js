@@ -27,7 +27,7 @@ const initiMicrosoftGraphClient = (accessTokenMS365) => {
     });
   }
 
-  async function sendReturnRequestPictures(customerData, productData) {
+  async function sendReturnRequestPictures(accessTokenMS365, customerData, productData) {
     const client = initiMicrosoftGraphClient(accessTokenMS365);
     let customerName = customerData.fullName;
     let orderName = customerData.orderName;
