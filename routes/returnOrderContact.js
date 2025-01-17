@@ -1,8 +1,53 @@
 const express = require('express');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+
 const { getReturnContactData } = require('../services/database/return_contact');
 const { getOrderByShopifyId } = require('../services/API/Shopify/orders');
 const { getProductWeightBySku } = require('../services/API/Shopify/products');
+const { sendReturnRequestPictures } = require('../services/sendMails/mailForTeam');
 const router = express.Router();
+
+
+const uploadMultiple = multer({
+    storage: multer.diskStorage({
+        destination: function(req, file, cb) {
+            cb(null, 'uploads/');
+        },
+        filename: function(req, file, cb) {
+            cb(null, `${Date.now()}-${file.originalname}`);
+        }
+    })
+});
+
+router.post('/upload-photos', uploadMultiple.array('photos', 5), async (req, res) => {
+    try {
+        const productInfo = JSON.parse(req.body.productInfo);
+        const uploadedFiles = req.files;
+
+        const productData = productInfo.map(product => {
+            return {
+                productId: product.productId,
+                justification: product.justification,
+                photos: uploadedFiles
+                .filter(file => file.originalname.startsWith(product.productId))
+                .map(file => file.path),
+            };
+        });
+        await sendReturnRequestPictures(productData);
+
+        uploadedFiles.forEach(file => {
+            fs.unlink(file.path, error => {
+                if(error) console.error(`Error deleting files ${file.path}`, error);
+            });
+        });
+        res.status(200).send('Données photos et details produits à retourner envoyés avec succès')
+    } catch (error) {
+        console.error('Error data pictures', error);
+        res.status(500).send('Error data pictures'); 
+    }
+})
 
 router.get('/returnForm:id', async (req, res) => { 
     const { id } = req.params;

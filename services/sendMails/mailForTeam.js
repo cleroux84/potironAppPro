@@ -27,6 +27,10 @@ const initiMicrosoftGraphClient = (accessTokenMS365) => {
     });
   }
 
+  async function sendReturnRequestPictures(productData) {
+    console.log('Send pictures Data');
+  }
+
   //Send email with kbis to Potiron Team (Magalie) from bonjour@potiron.com to check and validate company
 async function sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileExtension, firstnameCustomer, nameCustomer, mailCustomer, phone, isUpgrade) {
     const client = initiMicrosoftGraphClient(accessTokenMS365);
@@ -286,5 +290,6 @@ async function sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileEx
     signatureAttachement,
     initiMicrosoftGraphClient,
     sendRefundDataToSAV,
-    mailToSendRefund
+    mailToSendRefund,
+    sendReturnRequestPictures
   }
