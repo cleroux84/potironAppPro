@@ -1,6 +1,8 @@
 //Mail for Team Potiron
 
 const fs = require('fs');
+const path = require('path');
+
 require('dotenv').config();
 const {Client} = require('@microsoft/microsoft-graph-client');
 require ('isomorphic-fetch');
