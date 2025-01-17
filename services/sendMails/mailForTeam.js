@@ -47,11 +47,11 @@ const initiMicrosoftGraphClient = (accessTokenMS365) => {
     const attachments = [];
     productData.forEach((product) => {
         const productName = product.productId; 
-        const productPrice = product.price; 
+        const productPrice = product.productPrice; 
         const justification = product.justification || "Pas de justification fournie."; 
-        const productTitle = product.title;
-        const productReason = product.reason;
-        const productQuantity = product.quantity;
+        const productTitle = product.productTitle;
+        const productReason = product.productReason;
+        const productQuantity = product.productQuantity;
 
         emailContent += `
                 <li><b>${productName} - ${productTitle}</b><br/>

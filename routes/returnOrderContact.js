@@ -31,6 +31,10 @@ router.post('/upload-photos', uploadMultiple.array('photos', 5), async (req, res
         const productData = productInfo.map(product => {
             return {
                 productId: product.productId,
+                productTitle: product.title,
+                productQuantity: product.quantity,
+                productPrice: product.price,
+                productReason: product.reason,
                 justification: product.justification,
                 photos: uploadedFiles
                 .filter(file => file.originalname.startsWith(product.productId))
