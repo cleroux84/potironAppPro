@@ -69,13 +69,14 @@ const initiMicrosoftGraphClient = (accessTokenMS365) => {
                 contentBytes: photoData.toString('base64'), 
                 contentType: 'image/jpeg'
             });
+ 
+            emailContent += `<img src='cid:${photoName}' /> <br/>`; 
         });
  
         emailContent += `</li>`;
     });
  
-    emailContent += `<p>Bonne journée !</p>
-                    <img src='cid:signature'/>`;
+    emailContent += `</ul><p>Bonne journée !</p><img src='cid:signature'/>`;
  
     const message = {
         subject: 'Demande Retour Avec Photos',
@@ -97,7 +98,7 @@ const initiMicrosoftGraphClient = (accessTokenMS365) => {
                 }
             }
         ],
-        attachments: [attachments, signatureAttachement] 
+        attachments: attachments 
     };
  
     try {
