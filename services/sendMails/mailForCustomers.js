@@ -6,6 +6,7 @@ const { signatureAttachement, initiMicrosoftGraphClient } = require('./mailForTe
 const { getDiscountMailData, removeScheduledMail } = require('../database/scheduled_emails');
 const { getAccessTokenMS365, refreshMS365AccessToken } = require('../API/microsoft');
 const { checkDiscountCodeUsage } = require('../API/Shopify/priceRules');
+const path = require('path');
 require('dotenv').config();
 require ('isomorphic-fetch');
 const MAILDEV = process.env.MAILDEV;
