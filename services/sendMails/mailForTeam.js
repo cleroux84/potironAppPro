@@ -48,15 +48,14 @@ const initiMicrosoftGraphClient = (accessTokenMS365) => {
     productData.forEach((product) => {
         const productName = product.productId; 
         const productPrice = product.productPrice; 
-        const justification = product.justification || "Pas de justification fournie."; 
+        const justification = product.justification || "Pas d'explication complémentaire fournie."; 
         const productTitle = product.productTitle;
         const productReason = product.productReason;
         const productQuantity = product.productQuantity;
 
         emailContent += `
                 <li><b>${productName} - ${productTitle}</b><br/>
-                Quantité: ${productQuantity} <br/>
-                Prix: ${productPrice} €<br/>
+                Quantité: ${productQuantity} - Prix: ${productPrice}€<br/>
                 Raison choisie: ${productReason}<br/>
                 Explication complémentaire : ${justification}<br/>
         `;
@@ -70,14 +69,13 @@ const initiMicrosoftGraphClient = (accessTokenMS365) => {
                 contentBytes: photoData.toString('base64'), 
                 contentType: 'image/jpeg'
             });
- 
-            emailContent += `<img src='cid:${photoName}' /> <br/>`; 
         });
  
         emailContent += `</li>`;
     });
  
-    emailContent += `</ul><p>Bonne journée !</p><img src='cid:signature'/>`;
+    emailContent += `<p>Bonne journée !</p>
+                    <img src='cid:signature'/>`;
  
     const message = {
         subject: 'Demande Retour Avec Photos',
@@ -99,7 +97,7 @@ const initiMicrosoftGraphClient = (accessTokenMS365) => {
                 }
             }
         ],
-        attachments: attachments 
+        attachments: [attachments, signatureAttachement] 
     };
  
     try {
