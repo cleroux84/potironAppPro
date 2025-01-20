@@ -94,6 +94,8 @@ router.post('/returnOrderCancel', async (req, res) => {
       && orderCanceled.additional_data.to ==='closed'
       && (orderCanceled.object.reason === 'Retour Auto ASSET' || orderCanceled.object.reason === 'Retour Auto REFUND')
     ) {
+      const shopifyOrder = await getOrderByShopifyId(orderCanceled.object.reason_ref);   
+      const customerData = shopifyOrder.order.customer;
       //Send Mail to Magalie and Mélanie to investigate return products problems 
       await sendReturnedProductWithProblem(accessTokenMS365, customerData, orderName, orderCanceled);
     }
