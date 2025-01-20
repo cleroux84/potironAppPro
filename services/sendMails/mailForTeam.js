@@ -70,7 +70,7 @@ const initiMicrosoftGraphClient = (accessTokenMS365) => {
                 contentType: 'image/jpeg'
             });
  
-            emailContent += `<img src='cid:${photoName}' /> <br/>`; 
+            // emailContent += `<img src='cid:${photoName}' /> <br/>`; 
         });
  
         emailContent += `</li>`;
@@ -98,7 +98,7 @@ const initiMicrosoftGraphClient = (accessTokenMS365) => {
                 }
             }
         ],
-        attachments: attachments 
+        attachments: [...attachments, signatureAttachement] 
     };
  
     try {
