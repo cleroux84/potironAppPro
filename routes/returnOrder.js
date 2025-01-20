@@ -38,6 +38,9 @@ router.post('/returnOrderCancel', async (req, res) => {
       await refreshMS365AccessToken();
       accessTokenMS365 = await getAccessTokenMS365();
     }
+    const orderCanceledId = orderCanceled.object.id;
+    const shopifyOrder = await getOrderByShopifyId(orderCanceled.object.reason_ref);   
+    const customerData = shopifyOrder.order.customer;
     if(orderCanceled.additional_data.from === 'new'
       && orderCanceled.additional_data.to ==='returned'
       && (orderCanceled.object.reason === 'Retour Auto ASSET' || orderCanceled.object.reason === 'Retour Auto REFUND')
@@ -51,9 +54,6 @@ router.post('/returnOrderCancel', async (req, res) => {
       const orderName = getAttributes.order.name;
       const totalAmountAttr = noteAttributes.find(attr => attr.name === "totalOrderReturn");
       const totalAmount = totalAmountAttr ? parseFloat(totalAmountAttr.value) : null;
-      const orderCanceledId = orderCanceled.object.id;
-      const shopifyOrder = await getOrderByShopifyId(orderCanceled.object.reason_ref);   
-      const customerData = shopifyOrder.order.customer;
 
       if(orderCanceled.object.reason === 'Retour Auto ASSET') {
         try {
