@@ -94,6 +94,16 @@ router.post('/returnOrderCancel', async (req, res) => {
       && orderCanceled.additional_data.to ==='closed'
       && (orderCanceled.object.reason === 'Retour Auto ASSET' || orderCanceled.object.reason === 'Retour Auto REFUND')
     ) {
+      const shopifyIdString = orderCanceled.object.reason_ref;
+      const shopifyId = Number(shopifyIdString);
+      const getAttributes = await getOrderByShopifyId(shopifyId);
+      const noteAttributes = getAttributes.order.note_attributes;
+      const customerIdAttr = noteAttributes.find(attr => attr.name === "customerId");
+      const customerId = customerIdAttr ? customerIdAttr.value : null;
+      const orderName = getAttributes.order.name;
+      const totalAmountAttr = noteAttributes.find(attr => attr.name === "totalOrderReturn");
+      const totalAmount = totalAmountAttr ? parseFloat(totalAmountAttr.value) : null;
+      const orderCanceledId = orderCanceled.object.id;
       const shopifyOrder = await getOrderByShopifyId(orderCanceled.object.reason_ref);   
       const customerData = shopifyOrder.order.customer;
       //Send Mail to Magalie and Mélanie to investigate return products problems 
