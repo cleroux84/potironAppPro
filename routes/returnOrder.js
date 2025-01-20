@@ -89,6 +89,12 @@ router.post('/returnOrderCancel', async (req, res) => {
         //Send Mail to Customer to aknowledge receipt and wait for refund within 48hours ?
         await sendReceiptAndWaitForRefund(accessTokenMS365, customerData, orderName, totalAmount);
       }
+    } else if(
+      orderCanceled.additional_data.from === 'new'
+      && orderCanceled.additional_data.to ==='returned'
+      && (orderCanceled.object.reason === 'Retour Auto ASSET' || orderCanceled.object.reason === 'Retour Auto REFUND')
+    ) {
+      console.log("mail a magalie et melanie, probleme sur le retour");
     }
     res.status(200).send('webhook reçu')
 })
