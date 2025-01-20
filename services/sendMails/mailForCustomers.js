@@ -347,11 +347,93 @@ const sendEmailDiscountReminder = async (discounCode, totalAmount, codeEndDate, 
     }
 }
 
+async function sendAknowledgmentReturnPix(accessTokenMS365, customerData, productData) {
+  const client = initiMicrosoftGraphClient(accessTokenMS365);
+  let customerName = customerData.fullName;
+  let orderName = customerData.orderName;
+  let customerMail = customerData.customerMail;
+  let emailContent = `
+<p>Bonjour ${customerName},</p>
+<p style="margin: 0;">Nous accusons réception de votre demande de retour concernant la commande ${orderName}.</p>
+<p style="margin: 0;">Rappel des produits ci-dessous et photos en pièces jointes : </p>
+<ul>
+  `;
+  const attachments = [];
+  productData.forEach((product) => {
+      const productName = product.productId; 
+      const productPrice = product.productPrice; 
+      const justification = product.justification || "Pas d'explication complémentaire fournie."; 
+      const productTitle = product.productTitle;
+      const productReason = product.productReason;
+      const productQuantity = product.productQuantity;
+
+      emailContent += `
+              <li><b>${productName} - ${productTitle}</b><br/>
+              Quantité: ${productQuantity} - Prix: ${productPrice}€<br/>
+              Raison choisie: ${productReason}<br/>
+              Explication complémentaire : ${justification}<br/>
+      `;
+      product.photos.forEach((photoPath, index) => {
+          const photoName = path.basename(photoPath);
+          const photoData = fs.readFileSync(photoPath); 
+
+          attachments.push({
+              '@odata.type': '#microsoft.graph.fileAttachment',
+              name: `photo_${productName}_${index + 1}.jpg`,  
+              contentBytes: photoData.toString('base64'), 
+              contentType: 'image/jpeg'
+          });
+
+          // emailContent += `<img src='cid:${photoName}' /> <br/>`; 
+      });
+
+      emailContent += `</li>`;
+  });
+
+  emailContent += `</ul>
+                  <p>Vous aurez un retour dans un délai de 3 jours ouvrés.</p>
+                  <p>Très belle journée,</p>
+                  <p>L'équipe de Potiron Paris</p>
+                  <img src='cid:signature'/>`;
+
+  const message = {
+      subject: 'Accusé de réception de votre demande de retour',
+      body: {
+          contentType: 'HTML',
+          content: emailContent
+      },
+      toRecipients: [
+          {
+            //TODO mail du customer : customerMail
+              emailAddress: {
+                  address: MAILDEV
+              }
+          }
+      ],
+      bccRecipients: [
+          {
+              emailAddress: {
+                  address: MAILDEV
+              }
+          }
+      ],
+      attachments: [...attachments, signatureAttachement] 
+  };
+
+  try {
+      await client.api('/me/sendMail').post({ message: message });
+      console.log("Email envoyé avec succès");
+  } catch (error) {
+      console.error('Erreur lors de l\'envoi de l\'email AR pix:', error);
+  }
+}
+
   module.exports = {
     sendWelcomeMailPro,
     sendReturnDataToCustomer,
     sendDiscountCodeAfterReturn,
     checkScheduledEmails,
     sendReceiptAndWaitForRefund,
-    sendAlertMail
+    sendAlertMail,
+    sendAknowledgmentReturnPix
   }

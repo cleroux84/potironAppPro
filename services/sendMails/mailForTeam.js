@@ -79,7 +79,7 @@ const initiMicrosoftGraphClient = (accessTokenMS365) => {
     emailContent += `</ul><p>Bonne journée !</p><img src='cid:signature'/>`;
  
     const message = {
-        subject: 'Demande Retour Avec Photos',
+        subject: `Demande Retour Avec formulaires et photos - ${orderName}`,
         body: {
             contentType: 'HTML',
             content: emailContent

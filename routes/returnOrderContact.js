@@ -8,6 +8,7 @@ const { getOrderByShopifyId } = require('../services/API/Shopify/orders');
 const { getProductWeightBySku } = require('../services/API/Shopify/products');
 const { sendReturnRequestPictures } = require('../services/sendMails/mailForTeam');
 const { getAccessTokenMS365, refreshMS365AccessToken } = require('../services/API/microsoft');
+const { sendAknowledgmentReturnPix } = require('../services/sendMails/mailForCustomers');
 const router = express.Router();
 
 
@@ -47,6 +48,7 @@ router.post('/upload-photos', uploadMultiple.array('photos', 5), async (req, res
           accessTokenMS365 = await getAccessTokenMS365();
         }
         await sendReturnRequestPictures(accessTokenMS365, customerData, productData);
+        await sendAknowledgmentReturnPix(accessTokenMS365, customerData, productData);
 
         uploadedFiles.forEach(file => {
             fs.unlink(file.path, error => {
