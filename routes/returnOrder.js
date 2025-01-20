@@ -14,7 +14,7 @@ const { getWarehouseOrderDetails, getshippingDetails } = require('../services/AP
 const { createLabel, getShippingPrice, calculateTotalShippingCost, getGroupedItemsForRefund, calculateShippingCostForGroupedItems, getGroupedItemsForLabels } = require('../services/API/colissimo');
 const { getProductWeightBySku } = require('../services/API/Shopify/products');
 const { checkIfReturnOrderExist, createReturnOrder } = require('../services/API/Shippingbo/Gma/returnOrdersCRUD');
-const { sendReturnDataToSAV, sendRefundDataToSAV, mailToSendRefund } = require('../services/sendMails/mailForTeam');
+const { sendReturnDataToSAV, sendRefundDataToSAV, mailToSendRefund, sendReturnedProductWithProblem } = require('../services/sendMails/mailForTeam');
 const { saveReturnContactData } = require('../services/database/return_contact');
 const router = express.Router();
 
@@ -39,7 +39,7 @@ router.post('/returnOrderCancel', async (req, res) => {
       accessTokenMS365 = await getAccessTokenMS365();
     }
     if(orderCanceled.additional_data.from === 'new'
-      && orderCanceled.additional_data.to ==='closed'
+      && orderCanceled.additional_data.to ==='returned'
       && (orderCanceled.object.reason === 'Retour Auto ASSET' || orderCanceled.object.reason === 'Retour Auto REFUND')
     ) {
       const shopifyIdString = orderCanceled.object.reason_ref;
@@ -91,10 +91,11 @@ router.post('/returnOrderCancel', async (req, res) => {
       }
     } else if(
       orderCanceled.additional_data.from === 'new'
-      && orderCanceled.additional_data.to ==='returned'
+      && orderCanceled.additional_data.to ==='closed'
       && (orderCanceled.object.reason === 'Retour Auto ASSET' || orderCanceled.object.reason === 'Retour Auto REFUND')
     ) {
-      console.log("mail a magalie et melanie, probleme sur le retour");
+      //Send Mail to Magalie and Mélanie to investigate return products problems 
+      await sendReturnedProductWithProblem(accessTokenMS365, customerData, orderName, orderCanceled);
     }
     res.status(200).send('webhook reçu')
 })

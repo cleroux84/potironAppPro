@@ -361,6 +361,49 @@ async function sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileEx
     }
   }
 
+  //mail for Mélanie and Magalie to alert on problem with order
+  async function sendReturnedProductWithProblem(accessTokenMS365, customerData, orderName, orderCanceled) {
+    const client = initiMicrosoftGraphClient(accessTokenMS365);
+    let nameNoStar = customerData.last_name.replace(/⭐/g, '').trim();
+    const message = {
+      subject: `Problème Retour Commande ${orderName}`, 
+      body: {
+        contentType: 'HTML',
+        content: `
+          <p>Bonjour Mélanie et Magalie, </p>
+          <p style="margin: 0;">La commande retour ${orderCanceled.object.id} concernant la commande Shopify ${orderName} de ${customerData.first_name} ${nameNoStar}, a été réceptionnée et fermée.</p>
+          <p>Cela signifie que les produits ne peuvent être remis en stock. Je vous laisse investiguer ensemble quant à la suite de ce retour.</p>
+          <p>Pour rappel, aucun remboursement ni code de réduction n'a été envoyé.</p>
+          <p>Bonne journée ! </p>
+          <img src='cid:signature'/>
+        `
+      },
+      toRecipients: [
+        {
+          emailAddress: {
+            address: "c.leroux@potiron.com"
+          }
+        }
+      ],
+      bccRecipients: [
+        {
+            emailAddress: {
+                address: MAILDEV
+            }
+        }
+      ],
+      attachments: [
+        signatureAttachement
+      ]
+    };
+    try {
+      await client.api('/me/sendMail').post({ message });
+      console.log("Email closed return order sucessfully sent");
+    } catch (error) {
+      console.error('error sending cotation message', error);
+    }
+  }
+
   module.exports = {
     sendEmailWithKbis,
     sendNewDraftOrderMail,
@@ -369,5 +412,6 @@ async function sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileEx
     initiMicrosoftGraphClient,
     sendRefundDataToSAV,
     mailToSendRefund,
-    sendReturnRequestPictures
+    sendReturnRequestPictures,
+    sendReturnedProductWithProblem
   }
