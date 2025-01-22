@@ -112,6 +112,24 @@ router.post('/returnOrderCancel', async (req, res) => {
     res.status(200).send('webhook reçu')
 })
 
+//Get closedAt and isReturnable for account order
+router.get('/getClosedOrder', async (req, res) => {
+  let accessToken = await getAccessTokenFromDb();
+  const shopifyId = req.query.shopifyId;
+  try {
+    const shippingboDataPotiron = await getShippingboOrderDetails(accessToken, shopifyId);
+    const closeOrderDelivery = shippingboDataPotiron.closed_at;
+    const isReturnable = await isReturnableDate(closeOrderDelivery);
+    console.log('PPL returnable');
+    res.status(200).json({closeOrderDelivery: closeOrderDelivery, isReturnable: isReturnable}) 
+
+  } catch (error) {
+    console.error("Error checking if is returnable", error) 
+  }
+  
+
+})
+
 //Get initial Order customer want return with mail and orderName
 router.get('/getOrderById', async (req, res) => {
   let accessToken = await getAccessTokenFromDb();

@@ -314,7 +314,7 @@ const sendEmailDiscountReminder = async (discounCode, totalAmount, codeEndDate, 
             content: `
               <p>Bonjour ${customerData.first_name} ${nameNoStar},</p>
               <p>Votre colis retour concernant la commande ${orderName}, vient d'être réceptionné.</p>
-              <p>Vous recevrez votre remboursement d'un montant de ${totalOrderFixed}€ sous 48heures </p>
+              <p>Vous recevrez votre remboursement d'un montant de ${totalOrderFixed}€ sous 5 jours ouvrés. </p>
               <p>TEXTE A VOIR</p>
               <p>Très belle journée,</p>
               <p>L'équipe de Potiron Paris</p>
