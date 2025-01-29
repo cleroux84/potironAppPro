@@ -22,12 +22,8 @@ const getProductWeightBySku = async (sku) => {
                 node {
                   id
                   sku
+                  weight
                   price
-                  inventoryItems {
-                    id
-                    weight
-                    weightUnit
-                  }
                   product {
                     id
                     title
