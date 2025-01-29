@@ -120,7 +120,6 @@ router.get('/getClosedOrder', async (req, res) => {
     const shippingboDataPotiron = await getShippingboOrderDetails(accessToken, shopifyId);
     const closeOrderDelivery = shippingboDataPotiron.closed_at;
     const isReturnable = await isReturnableDate(closeOrderDelivery);
-    console.log('PPL returnable');
     res.status(200).json({closeOrderDelivery: closeOrderDelivery, isReturnable: isReturnable}) 
 
   } catch (error) {
