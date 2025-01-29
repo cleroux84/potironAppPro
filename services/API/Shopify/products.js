@@ -33,6 +33,9 @@ const getProductWeightBySku = async (sku) => {
                           product {
                               id
                               title
+                              featuredImage {
+                                originalSrc
+                              }
                           }
                       }
                   }
@@ -48,7 +51,7 @@ const getProductWeightBySku = async (sku) => {
 
       const data = await response.json();
       console.log("Réponse de l'API :", data);
-console.log("other", data.data?.productVariants);
+      console.log("other", data.data?.productVariants);
       const productVariant = data.data?.productVariants?.edges[0]?.node;
       console.log("productVariant", productVariant)
       if (!productVariant) {
