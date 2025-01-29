@@ -225,7 +225,7 @@ router.get('/getOrderById', async (req, res) => {
           return {
             ...item,
             price: priceData.price,
-            imageUrl: productVariant?.product?.featuredImage?.originalSrc || null, 
+            imageUrl: productVariant?.product?.featuredImage?.url || null, 
           };
         }));
       return enrichedItems;
@@ -285,7 +285,7 @@ router.post('/checkIfsReturnPossible', async (req, res) => {
           const productFound = await getProductWeightBySku(sku.product_user_ref);
           if(productFound) {
             totalAsset += sku.unit_price * sku.quantity;
-            totalWeight += productFound.inventoryItem.measurement.weight.value * sku.quantity;
+            totalWeight += productFound.weight * sku.quantity;
             priceByWeight = await getShippingPrice(totalWeight);
             totalRefund = totalAsset - priceByWeight;
           }
@@ -467,7 +467,7 @@ router.post('/returnProduct', async (req, res) => {
       if(productSku.length === 1) {
         if(productSku[0].quantity === 1) {
           const productFoundSku = await getProductWeightBySku(productSku[0].product_user_ref);
-          weightToReturn += productFoundSku.inventoryItem.measurement.weight.value* productSku[0].quantity;
+          weightToReturn += productFoundSku.weight * productSku[0].quantity;
           totalOrder += productSku[0].unit_price * productSku[0].quantity;
           priceByWeight = await getShippingPrice(weightToReturn);
           totalRefund = totalOrder - priceByWeight;
@@ -502,7 +502,7 @@ router.post('/returnProduct', async (req, res) => {
         
             for (const item of itemsInShipment) {
                 const productWeight = await getProductWeightBySku(item.product_ref);
-                const weightPerUnit = productWeight.inventoryItem.measurement.weight.value;
+                const weightPerUnit = productWeight.weight;
         
                 for (let i = 0; i < item.quantity; i++) {
                     const parcel = {
@@ -536,7 +536,7 @@ router.post('/returnProduct', async (req, res) => {
       
           for (const item of itemsInShipment) {
               const productWeight = await getProductWeightBySku(item.product_ref);
-              const weightPerUnit = productWeight.inventoryItem.measurement.weight.value;
+              const weightPerUnit = productWeight.weight;
       
               for (let i = 0; i < item.quantity; i++) {
                   const parcel = {

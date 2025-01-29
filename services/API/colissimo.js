@@ -120,7 +120,7 @@ const calculateTotalShippingCost = async (shipments, filteredItems) => {
             if (matchedItem) {
                 const productRef = matchedItem.product_ref;
                 const productWeight = await getProductWeightBySku(productRef);
-                const shippingPrice = await getShippingPrice(productWeight.inventoryItem.measurement.weight.value);
+                const shippingPrice = await getShippingPrice(productWeight.weight);
                 // console.log(productRef, shippingPrice);
                 totalShippingCost += parseFloat(shippingPrice);
             }
@@ -169,7 +169,7 @@ const calculateShippingCostForGroupedItems = async (itemsGrouped, shipments) => 
  
         for (const item of items) {
             const productWeight = await getProductWeightBySku(item.product_ref);
-            shipmentWeight += productWeight.inventoryItem.measurement.weight.value * item.returnQuantity;
+            shipmentWeight += productWeight.weight * item.returnQuantity;
         }
  
         const shipmentDetails = shipments.find(shipment => shipment.id === parseInt(shipmentId, 10));
