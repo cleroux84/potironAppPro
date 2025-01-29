@@ -17,23 +17,22 @@ const getProductWeightBySku = async (sku) => {
     body: JSON.stringify({
       query: `
         query {
-          products(first: 1, query: "sku:${sku}") {
+          productVariants(first: 1, query: "sku:${sku}") {
             edges {
               node {
                 id
-                title
-                variants(first: 1, query: "sku:${sku}") {
-                  edges {
-                    node {
-                      id
-                      sku
-                      weight
-                      price
-                    }
+                sku
+                inventoryItem {
+                  measurement {
+                    weight
                   }
                 }
-                featuredImage {
-                  url
+                product {
+                  id
+                  title
+                  featuredImage {
+                    url
+                  }
                 }
               }
             }
@@ -47,21 +46,18 @@ const getProductWeightBySku = async (sku) => {
     const response = await fetch(getProductDetailsUrl, getProductDetailsOptions);
     if (!response.ok) throw new Error(`Erreur lors de la récupération du produit par SKU : ${response.statusText}`);
     const data = await response.json();
-    const product = data.data.products.edges[0]?.node;
- 
-    if (!product || !product.variants.edges[0]) {
+    const productVariant = data.data.productVariants.edges[0]?.node;
+    if (!productVariant) {
       console.log("Aucun produit trouvé pour ce SKU");
       return null;
     }
- 
-    const productVariant = product.variants.edges[0].node;
+    const weight = productVariant.inventoryItem?.measurement?.weight;
     return {
       id: productVariant.id,
       sku: productVariant.sku,
-      weight: productVariant.weight,
-      price: productVariant.price,
-      title: product.title,
-      featuredImage: product.featuredImage ? product.featuredImage.url : null,
+      weight: weight,
+      title: productVariant.product?.title,
+      featuredImage: productVariant.product?.featuredImage?.url,
     };
  
   } catch (error) {
