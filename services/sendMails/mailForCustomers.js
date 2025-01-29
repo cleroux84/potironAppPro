@@ -78,9 +78,9 @@ async function sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfBas
     const client = initiMicrosoftGraphClient(accessTokenMS365);
     let labelsText;
     if(parcelNumbers.length === 1) {
-      labelsText = `l'étiquette de retour ci-jointe, à poser sur votre `;
+      labelsText = `l'étiquette de retour ci-jointe, à coller sur votre `;
     } else {
-      labelsText = `les étiquettes de retour ci-jointes, à poser sur vos `;
+      labelsText = `les étiquettes de retour ci-jointes, à coller sur vos `;
     }
     let optionText;
     if(optionChoose === 'option1') {
@@ -100,28 +100,29 @@ async function sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfBas
             contentType: 'HTML',
             content: `
               <p>Bonjour ${senderCustomer.name},</p>
-              <p style="margin: 0;>Votre demande de retour a bien été prise en compte.</p>
-              <p style="margin: 0;>Vous trouverez ${labelsText} colis.</p>
-              <p style="margin: 0;>Merci de respecter la procédure suivante pour le retour de votre commande :</p>
+              <p style="margin: 0;">Votre demande de retour a bien été prise en compte.</p>
+              <p style="margin: 0;">Vous trouverez ${labelsText} colis.</p>
+              <p style="margin: 0;">Merci de respecter la procédure suivante pour le retour de votre commande :</p>
               <div>
-                <p style="margin: 0;>1. Préparer et protéger soigneusement votre colis :</p>
+                <p style="margin: 0;">1. Préparer et protéger soigneusement votre colis :</p>
                 <ul>
-                  <li style="margin: 0;> Restituer l'ensemble du contenu du colis d’origine (carton, notice, pièces détachées etc.)</li>
-                  <li style="margin: 0;> Protéger l'emballage d'origine de votre colis</li>
-                  <li style="margin: 0;> Coller l'étiquette de retour sur le carton servant au retour (étiquette de gauche)</li>
-                  <li style="margin: 0;> Écrivez à la main la raison de votre retour (défectueux ou rétractation) dans le 2e encadré à droite après la mention "Motif retour"</li>            
+                  <li style="margin: 0;"> Restituer l'ensemble du contenu du colis d’origine (carton, notice, pièces détachées etc.)</li>
+                  <li style="margin: 0;"> Protéger l'emballage d'origine de votre colis</li>
+                  <li style="margin: 0;"> Coller l'étiquette de retour sur le carton servant au retour (étiquette de gauche)</li>
+                  <li style="margin: 0;"> Écrivez à la main la raison de votre retour (défectueux ou rétractation) dans le 2e encadré à droite après la mention "Motif retour"</li>            
                 </ul>
-                <p style="margin: 0;>2. Déposer votre colis en bureau de Poste ou chez un commerçant du réseau La Poste</p>
-                <p style="margin: 0;>3. Conserver la partie droite du bordereau qui vous sera tamponnée par le partenaire du réseau, au moment de la remise de votre colis. Celui-ci vous servira de preuve de dépôt.</p>
+                <p style="margin: 0;">2. Déposer votre colis en bureau de Poste ou chez un commerçant du réseau La Poste</p>
+                <p style="margin: 0;">3. Conserver la partie droite du bordereau qui vous sera tamponnée par le partenaire du réseau, au moment de la remise de votre colis. Celui-ci vous servira de preuve de dépôt.</p>
               </div>
               ${optionText}
-              <p style="margin: 0;>Pour rappel, la commande doit nous être retournée en parfait état et dans l’emballage d’origine.</p>
-              <p style="margin: 0;>Restant à votre entière disposition</p>
-              <p style="margin: 0;>Très belle journée,</p>
+              <p style="margin: 0;">Pour rappel, la commande doit nous être retournée en parfait état et dans l’emballage d’origine.</p>
+              <p style="margin: 0;">Restant à votre entière disposition</p>
+              <p style="margin: 0;">Très belle journée,</p>
               <p>L'équipe de Potiron Paris</p>
               <img src='cid:signature'/>
             `
         },
+        //senderCustomer.email
         toRecipients: [
             {
                 emailAddress: {
