@@ -16,24 +16,20 @@ const getProductWeightBySku = async (sku) => {
     },
     body: JSON.stringify({
       query: `
-        query {
-          products(first: 5, query: "sku:${sku}") {
+        {
+          productVariants(first: 1, query: "sku:${sku}") {
             edges {
               node {
                 id
-                title
-                featuredImage {
-                  url
-                }
-                variants(first: 10) {
-                  edges {
-                    node {
-                      id
-                      sku
-                      inventoryItem {
-                        measurement {
-                          weight
-                        }
+                sku
+                product {
+                  id
+                  title
+                  inventoryItem {
+                    measurement {
+                      weight {
+                        unit
+                        value
                       }
                     }
                   }
@@ -45,37 +41,19 @@ const getProductWeightBySku = async (sku) => {
       `,
     }),
   };
- 
+
   try {
     const response = await fetch(getProductDetailsUrl, getProductDetailsOptions);
     if (!response.ok) throw new Error(`Erreur lors de la récupération du produit par SKU : ${response.statusText}`);
     const data = await response.json();
- 
-    const product = data.data.products.edges[0]?.node;
- 
-    if (!product) {
+    const productVariant = data.data.productVariants.edges[0]?.node;
+    if (!productVariant) {
       console.log("Aucun produit trouvé pour ce SKU");
       return null;
     }
- 
-    // Rechercher la variante avec le SKU spécifié
-    const productVariant = product.variants.edges.find(variant => variant.node.sku === sku)?.node;
- 
-    if (!productVariant) {
-      console.log("Aucune variante trouvée avec ce SKU");
-      return null;
-    }
- 
-    const weight = productVariant.inventoryItem?.measurement?.weight;
- 
-    return {
-      id: productVariant.id,
-      sku: productVariant.sku,
-      weight: weight,
-      title: product.title,
-      featuredImage: product.featuredImage?.url,
-    };
- 
+
+    console.log("Produit trouvé :", productVariant);
+    return productVariant;
   } catch (error) {
     console.error("Erreur lors de la récupération du produit par SKU :", error);
   }
