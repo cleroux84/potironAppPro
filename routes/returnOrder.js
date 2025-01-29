@@ -284,6 +284,7 @@ router.post('/checkIfsReturnPossible', async (req, res) => {
         for(const sku of productSkuCalc) {
           const productFound = await getProductWeightBySku(sku.product_user_ref);
           if(productFound) {
+            console.log('productFound weight', productFound.inventoryItem.measurement.weight.value);
             totalAsset += sku.unit_price * sku.quantity;
             totalWeight += productFound.weight * sku.quantity;
             priceByWeight = await getShippingPrice(totalWeight);
