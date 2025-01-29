@@ -16,15 +16,18 @@ const getProductWeightBySku = async (sku) => {
     },
     body: JSON.stringify({
       query: `
-        {
-          productVariants(first: 1, query: "sku:${sku}") {
-            edges {
-              node {
+      {
+        productVariants(first: 1, query: "sku:${sku}") {
+          edges {
+            node {
+              id
+              sku
+              product {
                 id
-                sku
-                product {
+                title
+                variants {
                   id
-                  title
+                  sku
                   inventoryItem {
                     measurement {
                       weight {
@@ -38,7 +41,8 @@ const getProductWeightBySku = async (sku) => {
             }
           }
         }
-      `,
+      }
+    `,
     }),
   };
 
