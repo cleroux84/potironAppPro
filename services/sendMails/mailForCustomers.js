@@ -86,7 +86,7 @@ async function sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfBas
     if(optionChoose === 'option1') {
       optionText = `<p>Après réception et vérification de votre colis retour, vous recevrez par e-mail un avoir d’un montant de ${totalOrder}€, valable pendant 3 mois.</p>`
     } else if(optionChoose === 'option2') {
-      optionText = `<p>A réception de votre colis, vous recevrez le remboursement de votre commande d'une valeur de ${totalOrder}€.</p>`
+      optionText = `<p>Dès réception et contrôle du colis retour, nous procéderons au remboursement de votre commande déduit des frais de livraison, d'un montant de ${totalOrder}€.</p>`
     }
     const pdfAttachments = pdfBase64Array.map((pdfBase64, index) => ({  
       '@odata.type': '#microsoft.graph.fileAttachment',   
