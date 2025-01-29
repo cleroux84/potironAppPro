@@ -225,7 +225,7 @@ router.get('/getOrderById', async (req, res) => {
           return {
             ...item,
             price: priceData.price,
-            imageUrl: productVariant?.product?.featuredImage?.url || null, 
+            imageUrl: productVariant?.product?.featuredImage?.originalSrc || null, 
           };
         }));
       return enrichedItems;
