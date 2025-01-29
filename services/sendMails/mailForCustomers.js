@@ -162,9 +162,11 @@ async function sendDiscountCodeAfterReturn(accessTokenMS365, customerData, order
         contentType: 'HTML',
         content: `
           <p>Bonjour ${customerData.first_name} ${nameNoStar}, </p>
-          <p style="margin: 0;">Suite à la réception de votre colis retour concernant la commande ${orderName}</p>
-          <p style="margin: 0;">Code de réduction: ${discountCode}, d'une valeur de ${positiveAmount}€ valable jusqu'au ${codeEndDate}.</p>
-          <p>Très belle journée,</p>
+          <p style="margin: 0;">Nous vous confirmons le retour et le contrôle de votre colis retour.</p>
+          <p style="margin: 0;">Nous vous offrons donc le code promo ${discountCode}, correspondant à un avoir d'une valeur de ${positiveAmount}€.</p>
+          <p style="margin: 0;">Attention, cet avoir est à usage unique et il est valable uniquement jusqu'au ${codeEndDate}.</p>
+          <p style="margin: 0;">Restant à votre disposition.</p>
+          <p style="margin: 0;">Bien à vous,</p>
           <p>L'équipe de Potiron Paris</p>
           <img src='cid:signature'/>
         `
@@ -283,10 +285,10 @@ const sendEmailDiscountReminder = async (discounCode, totalAmount, codeEndDate, 
         contentType: 'HTML',
         content: `
           <p>Bonjour, </p>
-          <p style="margin: 0;">Suite à la réception de votre colis retour concernant la commande ${orderName}</p>
-          <p style="margin: 0;">Il ne vous reste plus que 15 jours pour utiliser votre code de réduction: ${discounCode}, d'une valeur de ${positiveAmount}€ valable jusqu'au ${formattedDate}.</p>
-          <p>Très belle journée,</p>
-          <p>L'équipe de Potiron Paris</p>
+          <p style="margin: 0;">À la suite de votre demande de retour pour la commande ${orderName}, nous avions eu le plaisir de vous offre le code promo ${discounCode}, qui vous permet de bénéficier d'un avoir d'une valeur de ${positiveAmount}€.</p>
+          <p style="margin: 0;">C'est l'occasion idéale pour découvrir nos dernières nouveautés !</p>
+          <p style="margin: 0;">Attention, cet avoir est valable uniquement jusqu'au ${formattedDate}, alors ne tardez pas à en profiter !</p>
+          <p>À très bientôt sur Potiron Paris</p>
           <img src='cid:signature'/>
         `
       },
@@ -327,10 +329,11 @@ const sendEmailDiscountReminder = async (discounCode, totalAmount, codeEndDate, 
             contentType: 'HTML',
             content: `
               <p>Bonjour ${customerData.first_name} ${nameNoStar},</p>
-              <p>Votre colis retour concernant la commande ${orderName}, vient d'être réceptionné.</p>
-              <p>Vous recevrez votre remboursement d'un montant de ${totalOrderFixed}€ sous 5 jours ouvrés. </p>
-              <p>TEXTE A VOIR</p>
-              <p>Très belle journée,</p>
+              <p  style="margin: 0;">Nous vous confirmons le retour et le contrôle de votre colis retour.</p>
+              <p  style="margin: 0;">Nous venons donc de procéder au remboursement de votre commande d'un montant de ${totalOrderFixed}€.</p>
+              <p  style="margin: 0;">Pour information, l'argent sera disponible sur votre compte bancaire dans un délai de 10 à 15 jours ouvrés.</p>
+              <p style="margin: 0;">Restant à votre disposition.</p>
+              <p style="margin: 0;">Bien à vous,</p>
               <p>L'équipe de Potiron Paris</p>
               <img src='cid:signature'/>
             `
