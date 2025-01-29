@@ -22,7 +22,6 @@ const getProductWeightBySku = async (sku) => {
               node {
                 id
                 sku
-                price
                 inventoryItem {
                   id
                   weight
@@ -31,8 +30,12 @@ const getProductWeightBySku = async (sku) => {
                 product {
                   id
                   title
-                  featuredImage {
-                    url
+                  images(first: 1) {
+                    edges {
+                      node {
+                        url
+                      }
+                    }
                   }
                 }
               }
@@ -51,8 +54,14 @@ const getProductWeightBySku = async (sku) => {
       console.log("Aucun produit trouvé pour ce SKU");
       return null;
     }
-    // console.log("Produit trouvé :", productVariant);
-    return productVariant;
+
+    // Récupérer l'URL correcte de l'image
+    const featuredImageUrl = productVariant?.product?.images?.edges[0]?.node?.url || null;
+
+    return {
+      ...productVariant,
+      featuredImageUrl
+    };
   } catch (error) {
     console.error("Erreur lors de la récupération du produit par SKU :", error);
   }
