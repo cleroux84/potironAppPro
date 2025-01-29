@@ -7,7 +7,7 @@ const fetch = require('node-fetch');
 
 //Get a product by Sku (PP-)
 const getProductWeightBySku = async (sku) => {
-    const getProductDetailsUrl = 'https://potiron2021.myshopify.com/admin/api/2024-07/graphql.json';
+    const getProductDetailsUrl = 'https://potiron2021.myshopify.com/admin/api/2024-04/graphql.json';
     const getProductDetailsOptions = {
       method: "POST",
       headers: {
