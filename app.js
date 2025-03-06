@@ -6,7 +6,7 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 300;
 const { initializeTokens } = require('./services/API/manageTokens.js');
-const { setupShippingboWebhook, deleteWebhook, deleteAllWebhooks, getWebhooks } = require('./services/API/Shippingbo/webhook.js');
+const { setupShippingboWebhook, deleteWebhook, deleteAllWebhooks, getWebhooks, getWebhooksWarehouse } = require('./services/API/Shippingbo/webhook.js');
 const { checkScheduledEmails } = require('./services/sendMails/mailForCustomers.js');
 
 const corsOptions = {
@@ -40,8 +40,9 @@ app.use('/allOrders', allOrdersRoute);
 // Initialisation des tokens 
 initializeTokens();
 // deleteAllWebhooks();
-// setupShippingboWebhook();
+setupShippingboWebhook();
 getWebhooks();
+getWebhooksWarehouse();
 
 //CHECK Scheduled emails in DB every day
 cron.schedule('0 9 * * *', checkScheduledEmails, { //9h00

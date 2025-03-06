@@ -13,7 +13,6 @@ const { getCustomerMetafields } = require('../services/API/Shopify/customers');
 //trigger on shippingbo webhook (create order)
 router.post('/updateDraftOrder', async (req, res) => {
   const createdOrder= req.body;
-  console.log('new ?', createdOrder);
   let accessTokenWarehouse = await getAccessTokenWarehouseFromDb();
   const currentOrder = await getshippingDetails(accessTokenWarehouse, createdOrder.object.id);
   // console.log('currentOrder for state', currentOrder);

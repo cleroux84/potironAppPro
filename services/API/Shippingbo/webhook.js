@@ -2,22 +2,26 @@
 
 const fetch = require('node-fetch');
 const { refreshAccessTokenWarehouse } = require('./Gma/auth.js');
+const { refreshAccessToken } = require('./Potiron/auth.js');
 const API_APP__WAREHOUSE_ID = process.env.API_APP_WAREHOUSE_ID;
+const API_APP_ID = process.env.API_APP_ID
 let accessTokenWarehouse;
 let refreshTokenWarehouse;
+let accessToken;
+let refreshToken;
 
 
 const setupShippingboWebhook = async () => {
-    const tokensWarehouse = await refreshAccessTokenWarehouse();
-    accessTokenWarehouse = tokensWarehouse.accessTokenWarehouse;
-    refreshTokenWarehouse = tokensWarehouse.refreshTokenWarehouse;
+    const tokens = await refreshAccessToken();
+    accessToken = tokens.accessToken;
+    refreshToken = tokens.refreshToken;
 
     const webhookUrl = `https://app.shippingbo.com/update_hooks`;
     const webhookPayload = {
         object_class: 'Order',
         endpoint_url: 'https://potironapppro.onrender.com/allOrders/sendInvoice',
         activated: true,
-        field: 'source'
+        field: 'state'
     };
     const webhookOptions = {
         method: 'POST',
@@ -25,8 +29,8 @@ const setupShippingboWebhook = async () => {
             'Content-type': 'application/json',
             Accept: 'application/json',
             'X-API-VERSION': '1',
-            'X-API-APP-ID': API_APP__WAREHOUSE_ID,
-            Authorization: `Bearer ${accessTokenWarehouse}`
+            'X-API-APP-ID': API_APP_ID,
+            Authorization: `Bearer ${accessToken}`
         },
         body: JSON.stringify(webhookPayload)
     };
@@ -66,7 +70,7 @@ const deleteWebhook = async (webhookId) => {
     }
 }
 
-async function getWebhooks() {
+async function getWebhooksWarehouse() {
     const tokensWarehouse = await refreshAccessTokenWarehouse();
     accessTokenWarehouse = tokensWarehouse.accessTokenWarehouse;
     refreshTokenWarehouse = tokensWarehouse.refreshTokenWarehouse;
@@ -87,6 +91,35 @@ async function getWebhooks() {
       }
    
       const data = await response.json();
+      console.log('nombre de webhooks warehouse: ', data.update_hooks.length);
+      return data; // retourne les webhooks pour une analyse ultérieure si nécessaire
+   
+    } catch (error) {
+      console.error('Erreur lors de la récupération des webhooks :', error);
+    }
+  }
+
+  async function getWebhooks() {
+    const tokens = await refreshAccessToken();
+    accessToken = tokens.accessToken;
+    refreshToken = tokens.refreshToken;
+    try {
+      const response = await fetch('https://app.shippingbo.com/update_hooks', {
+        method: 'GET',
+        headers: {
+          'Content-type': 'application/json',
+          Accept: 'application/json',
+          'X-API-VERSION': '1',
+          'X-API-APP-ID': API_APP_ID,
+          Authorization: `Bearer ${accessToken}`
+        }
+      });
+   
+      if (!response.ok) {
+        console.log('error getwbehooks')
+      }
+   
+      const data = await response.json();
       console.log('nombre de webhooks: ', data.update_hooks.length);
       return data; // retourne les webhooks pour une analyse ultérieure si nécessaire
    
@@ -94,6 +127,7 @@ async function getWebhooks() {
       console.error('Erreur lors de la récupération des webhooks :', error);
     }
   }
+
 
 async function deleteAllWebhooks () {
     const allWebhooks = await getWebhooks();
@@ -114,5 +148,6 @@ module.exports = {
     setupShippingboWebhook,
     deleteWebhook,
     deleteAllWebhooks,
-    getWebhooks
+    getWebhooks,
+    getWebhooksWarehouse
 }
