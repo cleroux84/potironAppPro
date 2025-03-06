@@ -310,7 +310,7 @@ function extractInfoFromNote(note, infoLabel) {
   }
 });
 
-//webhook on customer update : https://potironapppro.onrender.com/updatekBis
+//webhook on customer update : https://potironapppro.onrender.com/proCustomer/updatekBis
 //send mail to b2B client to confirm his activation and update his account with tags
 router.post('/updateKbis', async (req, res) => {
   var updatedData = req.body;

@@ -30,10 +30,12 @@ const returnOrderRoute = require('./routes/returnOrder.js');
 const proCustomerRoute = require('./routes/proCustomer.js');
 const proOrderRoute = require('./routes/proOrder.js');
 const returnContactRoute = require('./routes/returnOrderContact.js');
+const allOrdersRoute = require('./routes/allOrders.js');
 app.use('/returnOrder', returnOrderRoute);
 app.use('/proCustomer', proCustomerRoute);
 app.use('/proOrder', proOrderRoute);
 app.use('/returnContact', returnContactRoute);
+app.use('/allOrders', allOrdersRoute);
 
 // Initialisation des tokens 
 initializeTokens();

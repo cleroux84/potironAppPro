@@ -15,9 +15,9 @@ const setupShippingboWebhook = async () => {
     const webhookUrl = `https://app.shippingbo.com/update_hooks`;
     const webhookPayload = {
         object_class: 'Order',
-        endpoint_url: 'https://potironapppro.onrender.com/proOrder/updateDraftOrder',
+        endpoint_url: 'https://potironapppro.onrender.com/allOrders/sendInvoice',
         activated: true,
-        field: 'state'
+        field: 'source'
     };
     const webhookOptions = {
         method: 'POST',

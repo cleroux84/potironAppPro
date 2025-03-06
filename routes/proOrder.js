@@ -13,6 +13,7 @@ const { getCustomerMetafields } = require('../services/API/Shopify/customers');
 //trigger on shippingbo webhook (create order)
 router.post('/updateDraftOrder', async (req, res) => {
   const createdOrder= req.body;
+  console.log('new ?', createdOrder);
   let accessTokenWarehouse = await getAccessTokenWarehouseFromDb();
   const currentOrder = await getshippingDetails(accessTokenWarehouse, createdOrder.object.id);
   // console.log('currentOrder for state', currentOrder);
@@ -63,7 +64,6 @@ router.post('/create-pro-draft-order', async (req, res) => {
 //webhook on order update : https://potironapppro.onrender.com/proOrder
 //Check if a tag starts with "draft" to update shippingbo Potiron Paris AND GMA Entrepôt order and cancel shippingbo draft order 
 router.post('/proOrder', async (req, res) => {
-    console.log('check new order', req.body);
     var orderData = req.body;
     var orderId = orderData.id;
     var orderTags = orderData.tags;
