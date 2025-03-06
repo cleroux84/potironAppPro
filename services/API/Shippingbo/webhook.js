@@ -3,14 +3,16 @@
 const fetch = require('node-fetch');
 const { refreshAccessTokenWarehouse } = require('./Gma/auth.js');
 const API_APP__WAREHOUSE_ID = process.env.API_APP_WAREHOUSE_ID;
+const API_APP_ID = process.env.API_APP_ID;
 let accessTokenWarehouse;
 let refreshTokenWarehouse;
 
 
 const setupShippingboWebhook = async () => {
-    const tokensWarehouse = await refreshAccessTokenWarehouse();
-    accessTokenWarehouse = tokensWarehouse.accessTokenWarehouse;
-    refreshTokenWarehouse = tokensWarehouse.refreshTokenWarehouse;
+    // const tokensWarehouse = await refreshAccessTokenWarehouse();
+    // accessTokenWarehouse = tokensWarehouse.accessTokenWarehouse;
+    // refreshTokenWarehouse = tokensWarehouse.refreshTokenWarehouse;
+    let accessToken = await getAccessTokenFromDb();
 
     const webhookUrl = `https://app.shippingbo.com/update_hooks`;
     const webhookPayload = {
@@ -25,8 +27,8 @@ const setupShippingboWebhook = async () => {
             'Content-type': 'application/json',
             Accept: 'application/json',
             'X-API-VERSION': '1',
-            'X-API-APP-ID': API_APP__WAREHOUSE_ID,
-            Authorization: `Bearer ${accessTokenWarehouse}`
+            'X-API-APP-ID': API_APP_ID,
+            Authorization: `Bearer ${accessToken}`
         },
         body: JSON.stringify(webhookPayload)
     };
