@@ -23,7 +23,7 @@ const getAccessTokenWarehouseFromDb = async () => {
     }
   }
 
-  //savec access and refresh token in DB
+  //save access and refresh token in DB
   const saveAccessAndRefreshTokenWarehouseDb = async (tokenWarehouse, refreshTokenWarehouse) => {
     try {
       await client.query('UPDATE tokens SET refresh_token_warehouse = $1 WHERE id = 1', [refreshTokenWarehouse]);

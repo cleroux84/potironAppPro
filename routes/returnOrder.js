@@ -30,7 +30,7 @@ router.post('/returnContact', async (req, res) => {
   });
 })
 
-//trigger on shippingbo webhook (cancel order / will become returned ?) to create and send discount code to customer
+//trigger on shippingbo webhookto create and send discount code to customer
 router.post('/returnOrderCancel', async (req, res) => {
     const orderCanceled = req.body;
     let accessTokenMS365 = await getAccessTokenMS365();

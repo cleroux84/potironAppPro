@@ -63,6 +63,7 @@ router.post('/create-pro-draft-order', async (req, res) => {
 //webhook on order update : https://potironapppro.onrender.com/proOrder
 //Check if a tag starts with "draft" to update shippingbo Potiron Paris AND GMA Entrepôt order and cancel shippingbo draft order 
 router.post('/proOrder', async (req, res) => {
+    console.log('check new order', req.body);
     var orderData = req.body;
     var orderId = orderData.id;
     var orderTags = orderData.tags;
