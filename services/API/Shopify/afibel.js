@@ -2,7 +2,8 @@ const SHOPIFYAPPTOKEN = process.env.SHOPIFYAPPTOKEN;
 const shopify = require('shopify-api-node');
 const fetch = require('node-fetch');
 
-//create order in Shopify
+//create order in Shopify SI FTP fonctionne pas !
+
 const createOrderFromCSV = async () => {
     //Arg with order to create extracted from csv if ok
     console.log('PPL createOrderFromCSV')
@@ -46,7 +47,6 @@ const createOrderFromCSV = async () => {
                 {
                     kind: "sale",
                     status: "success",
-                    amount: 0
                 }
             ],
             total_tax: 0,

@@ -44,7 +44,7 @@ initializeTokens();
 // setupShippingboWebhook();
 getWebhooks();
 
-createOrderFromCSV();
+// createOrderFromCSV();
 
 //CHECK Scheduled emails in DB every day
 cron.schedule('0 9 * * *', checkScheduledEmails, { //9h00
