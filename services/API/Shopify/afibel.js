@@ -10,7 +10,7 @@ const createOrderFromCSV = async () => {
         order: {
             line_items : [
                 {
-                    sku: "PP-24300610",
+                    variant_id: "49885847421256",
                     quantity: 2
                 }
             ],
@@ -36,7 +36,7 @@ const createOrderFromCSV = async () => {
             ],
             total_tax: 10.00,
             currency: "EUR",
-            tags_to_add: ["afibel_order"]
+            tags: "afibel_order"
         }
     }
     console.log('object to create', orderToCreate)
@@ -51,7 +51,8 @@ const createOrderFromCSV = async () => {
       }
       try {
         const response = await fetch(createUrl, createOptions);
-        console.log('order afibel created', response.data);
+        const data = await response.json();
+        console.log('order afibel created', data);
       } catch (error) {
         console.error('Error creating order afibel', error.response?.data || error.mesage)
       }
