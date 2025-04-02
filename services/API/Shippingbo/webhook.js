@@ -2,7 +2,6 @@
 
 const fetch = require('node-fetch');
 const { refreshAccessTokenWarehouse } = require('./Gma/auth.js');
-const { getAccessTokenFromDb } = require('../../database/tokens/potiron_shippingbo.js');
 const API_APP__WAREHOUSE_ID = process.env.API_APP_WAREHOUSE_ID;
 const API_APP_ID = process.env.API_APP_ID;
 let accessTokenWarehouse;
