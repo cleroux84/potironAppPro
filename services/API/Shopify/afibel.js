@@ -2,7 +2,7 @@ const SHOPIFYAPPTOKEN = process.env.SHOPIFYAPPTOKEN;
 const shopify = require('shopify-api-node');
 const fetch = require('node-fetch');
 
-//create order
+//create order in Shopify
 const createOrderFromCSV = async () => {
     //Arg with order to create extracted from csv if ok
     console.log('PPL createOrderFromCSV')
@@ -11,7 +11,14 @@ const createOrderFromCSV = async () => {
             line_items: [
                 {
                     variant_id: 49885847421256,
-                    quantity: 2
+                    quantity: 2,
+                    price: 0,
+                    tax_lines : [
+                        {
+                            price: 0,
+                            rate: 0,
+                        }
+                    ]
                 }
             ],
             customer: {
@@ -23,7 +30,15 @@ const createOrderFromCSV = async () => {
                 first_name: "Test",
                 last_name: "Name",
                 address1: "1 rue du test",
-                city: "Test",
+                city: "Rodez",
+                zip: "12000",
+                country: "FR"
+            },
+            billing_addresse : {
+                first_name: "Test",
+                last_name: "Name",
+                address1: "1 rue du test",
+                city: "Rodez",
                 zip: "12000",
                 country: "FR"
             },
@@ -31,14 +46,14 @@ const createOrderFromCSV = async () => {
                 {
                     kind: "sale",
                     status: "success",
-                    amount: 100.00
+                    amount: 0
                 }
             ],
-            total_tax: 10.00,
+            total_tax: 0,
             currency: "EUR",
             tags: "afibel_order",
-            financial_status: "paid",  // ✅ Ajouté pour forcer la synchro avec Shippingbo
-            fulfillment_status: "unfulfilled"  // ✅ Ajouté pour Shippingbo
+            financial_status: "paid",  
+            fulfillment_status: "unfulfilled"
         }
     };
     console.log('object to create', orderToCreate)
