@@ -8,9 +8,9 @@ const createOrderFromCSV = async () => {
     console.log('PPL createOrderFromCSV')
     const orderToCreate = {
         order: {
-            line_items : [
+            line_items: [
                 {
-                    variant_id: "49885847421256",
+                    variant_id: 49885847421256,
                     quantity: 2
                 }
             ],
@@ -36,9 +36,11 @@ const createOrderFromCSV = async () => {
             ],
             total_tax: 10.00,
             currency: "EUR",
-            tags: "afibel_order"
+            tags: "afibel_order",
+            financial_status: "paid",  // ✅ Ajouté pour forcer la synchro avec Shippingbo
+            fulfillment_status: "unfulfilled"  // ✅ Ajouté pour Shippingbo
         }
-    }
+    };
     console.log('object to create', orderToCreate)
     const createUrl = 'https://potiron2021.myshopify.com/admin/api/2025-04/orders.json';
     const createOptions = {
