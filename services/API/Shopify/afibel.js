@@ -32,7 +32,12 @@ const getAfibelOrders = async () => {
         const data = await response.json();
         if(data.orders && data.orders.length > 0) {
             allOrders.push(...data.orders);
-            page++;
+            if(allOrders.length >= 10) {
+                allOrders.length = 10;
+                keepGoing = false;
+            } else {
+                page++;
+            }
         } else {
             keepGoing = false;
         }
