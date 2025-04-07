@@ -3,11 +3,15 @@ const shopify = require('shopify-api-node');
 const fetch = require('node-fetch');
 const { getAccessTokenFromDb } = require('../../database/tokens/potiron_shippingbo');
 const API_APP_ID = process.env.API_APP_ID;
+const path = require('path');
+const {writeToPath} = require('@fast-csv/format');
+
+let accessToken;;
 
 
 //Retrieve order and select tagged Afibel
 const getAfibelOrders = async () => {
-    let accessToken = await getAccessTokenFromDb();
+    accessToken = await getAccessTokenFromDb();
     // const getOrderUrl = `https://app.shippingbo.com/orders?search[joins][order_tags][value__eq]=AFIBEL`;    
     const getOrderUrl = `https://app.shippingbo.com/orders?search[joins][order_tags][value__eq]=BAZARCHIC`;    
     const getOrderOptions = {
@@ -33,11 +37,57 @@ const getAfibelOrders = async () => {
             keepGoing = false;
         }
     }
-    console.log('allOrders', allOrders);
+    // console.log('allOrders', allOrders);
     return allOrders;
 
 } 
 
+const getAfibelTrackings = async (id) => {
+    accessToken = await getAccessTokenFromDb();
+    const getUrl = `https://app.shippingbo.com/orders/${id}`;
+    const getOptions = {
+        method: 'GET',
+        headers: {
+          'Content-type': 'application/json',
+          Accept: 'application/json',
+          'X-API-VERSION': '1',
+          'X-API-APP-ID': API_APP_ID,
+          Authorization: `Bearer ${accessToken}`
+        },
+      };
+      const response = await fetch(getUrl, getOptions);
+      const data = await response.json();
+      console.log("data shipments", data)
+      return {
+        order_id: data.source_ref,
+        email: data.shipping_address.email,
+        created_at: data.created_at,
+        name: data.shipping_address?.fullname,
+        tracking_number: data.shipments?.[0]?.shipping_ref || '',
+        tracking_url: data.shipments?[0]?.tracking_url : "",
+        carrier: data.shipments?[0].carrier_name : '',
+        shipped_at: data.shipped_at
+      }
+}
+
+const generateCsv = async () => {
+    const orders = await getAfibelOrders();
+    console.log(`${orders.length} commandes Afibel`);
+    const result = [];
+
+    for(const order of orders) {
+        const fullOrder = await getAfibelTrackings(order.id);
+        result.push(fullOrder);
+        await new Promise(resolve => setTimeout(resolve, 300));
+    }
+
+    const outputPath = path.join(__dirname, 'afibel_tracking.csv');
+    writeToPath(outputPath, result, {headers: true})
+    .on('finish', () => {
+        console.log(`CSV exported : ${outputPath}`)
+    })
+
+}
 
 
 //create order in Shopify SI FTP fonctionne pas !
@@ -111,4 +161,4 @@ const createOrderFromCSV = async () => {
         console.error('Error creating order afibel', error.response?.data || error.mesage)
       }
 }
-module.exports = { createOrderFromCSV, getAfibelOrders }
+module.exports = { createOrderFromCSV, generateCsv }

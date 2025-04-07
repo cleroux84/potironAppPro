@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "@azure/msal-node": "^2.13.1",
+    "@fast-csv/format": "^5.0.2",
     "@microsoft/microsoft-graph-client": "^3.0.7",
     "axios": "^1.6.8",
     "body-parser": "^1.20.2",
