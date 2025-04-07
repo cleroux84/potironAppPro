@@ -80,6 +80,7 @@ const getAfibelTrackings = async (id) => {
 const generateCsv = async () => {
     const orders = await getAfibelOrders();
     let accessTokenMS365 = await getAccessTokenMS365();
+    console.log("token ms365" , accessTokenMS365)
     console.log(`${orders.length} commandes Afibel`);
     const result = [];
 
@@ -89,7 +90,7 @@ const generateCsv = async () => {
         await new Promise(resolve => setTimeout(resolve, 300));
     }
 
-    const outputPath = path.join(__dirname, 'afibel_tracking.csv');
+    const outputPath = path.join('/tmp', 'afibel_tracking.csv');
     writeToPath(outputPath, result, {headers: true})
     .on('finish', () => {
         console.log(`CSV exported : ${outputPath}`)
