@@ -3,6 +3,7 @@ const shopify = require('shopify-api-node');
 const fetch = require('node-fetch');
 const { getAccessTokenFromDb } = require('../../database/tokens/potiron_shippingbo');
 const API_APP_ID = process.env.API_APP_ID;
+const fs = require('fs');
 const path = require('path');
 const {writeToPath} = require('@fast-csv/format');
 const { mailCSV } = require('../../sendMails/mailForTeam');
@@ -93,7 +94,7 @@ const generateCsv = async () => {
     .on('finish', () => {
         console.log(`CSV exported : ${outputPath}`)
     })
-    fstat.readFile(outputPath, { encoding: 'base64' }, async (err, fileContent) => {
+    fs.readFile(outputPath, { encoding: 'base64' }, async (err, fileContent) => {
         if(err) {
             console.error("Error reading CSV File", err);
         }
