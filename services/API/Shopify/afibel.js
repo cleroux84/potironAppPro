@@ -60,7 +60,6 @@ const getAfibelTrackings = async (id) => {
       console.log("data shipments", data)
       return {
         order_id: data.source_ref,
-        email: data.shipping_address.email,
         created_at: data.created_at,
         name: data.shipping_address?.fullname,
         tracking_number: data.shipments?.[0]?.shipping_ref || '',
