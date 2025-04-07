@@ -406,12 +406,12 @@ async function sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileEx
 
   //Test mail with CSV
   async function mailCSV(accessTokenMS365, fileCSV) {
-    const base64CSV = Buffer.from(fileCSV).toString('base64');
+    // const base64CSV = Buffer.from(fileCSV).toString('base64');
     const attachments = [];
     attachments.push({
       '@odata.type': '#microsoft.graph.fileAttachment',
       name: `orders_afibel.csv`,  
-      contentBytes: base64CSV, 
+      contentBytes: fileCSV, 
       contentType: 'text/csv'
   });
     const client = initiMicrosoftGraphClient(accessTokenMS365);
