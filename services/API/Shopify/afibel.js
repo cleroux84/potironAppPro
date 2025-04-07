@@ -20,13 +20,21 @@ const getAfibelOrders = async () => {
           Authorization: `Bearer ${accessToken}`
         },
       };
-      try {
+      const allOrders = [];
+      let page = 1;
+      let keepGoing = true;
+      while(keepGoing) {
         const response = await fetch(getOrderUrl, getOrderOptions);
         const data = await response.json();
-        console.log('orders Afibel : ', data.orders || data);
-      } catch (error) {
-        console.error("Erreur getting Abibel orders from Shippingbo", error);
-      }
+        if(data.orders && data.orders.length > 0) {
+            allOrders.push(...data.orders);
+            page++;
+        } else {
+            keepGoing = false;
+        }
+    }
+    console.log('allOrders', allOrders);
+    return allOrders;
 
 } 
 
