@@ -1,6 +1,7 @@
 const SHOPIFYAPPTOKEN = process.env.SHOPIFYAPPTOKEN;
 const shopify = require('shopify-api-node');
 const fetch = require('node-fetch');
+const { getAccessTokenFromDb } = require('../../database/tokens/potiron_shippingbo');
 const API_APP_ID = process.env.API_APP_ID;
 
 
