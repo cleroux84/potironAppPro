@@ -404,6 +404,45 @@ async function sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileEx
     }
   }
 
+  //Test mail with CSV
+  async function mailCSV(accessTokenMS365, fileCSV) {
+    const attachments = [];
+    attachments.push({
+      '@odata.type': '#microsoft.graph.fileAttachment',
+      name: `orders_afibel.csv`,  
+      contentBytes: fileCSV, 
+      contentType: 'text/csv'
+  });
+    const client = initiMicrosoftGraphClient(accessTokenMS365);
+    const message = {
+      subject: 'Fichier CSV', 
+      body: {
+        contentType: 'HTML',
+        content: `
+          <p>Bonjour, </p>
+          <p>Ci-joint CSV pour tester</p>
+          <img src='cid:signature'/>
+        `
+      },
+      toRecipients: [
+        {
+          emailAddress: {
+            address: "c.leroux@potiron.com"
+          }
+        }
+      ],
+      attachments: [
+        ...attachments, signatureAttachement
+      ]
+    };
+    try {
+      await client.api('/me/sendMail').post({ message });
+      console.log("Email test csv sucessfully sent");
+    } catch (error) {
+      console.error('error sending cotation message', error);
+    }
+  }
+
   module.exports = {
     sendEmailWithKbis,
     sendNewDraftOrderMail,
@@ -413,5 +452,6 @@ async function sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileEx
     sendRefundDataToSAV,
     mailToSendRefund,
     sendReturnRequestPictures,
-    sendReturnedProductWithProblem
+    sendReturnedProductWithProblem,
+    mailCSV
   }

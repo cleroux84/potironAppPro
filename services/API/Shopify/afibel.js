@@ -5,8 +5,10 @@ const { getAccessTokenFromDb } = require('../../database/tokens/potiron_shipping
 const API_APP_ID = process.env.API_APP_ID;
 const path = require('path');
 const {writeToPath} = require('@fast-csv/format');
+const { mailCSV } = require('../../sendMails/mailForTeam');
+const { getAccessTokenMS365 } = require('../microsoft');
 
-let accessToken;;
+let accessToken;
 
 
 //Retrieve order and select tagged Afibel
@@ -76,6 +78,7 @@ const getAfibelTrackings = async (id) => {
 
 const generateCsv = async () => {
     const orders = await getAfibelOrders();
+    let accessTokenMS365 = await getAccessTokenMS365();
     console.log(`${orders.length} commandes Afibel`);
     const result = [];
 
@@ -89,6 +92,12 @@ const generateCsv = async () => {
     writeToPath(outputPath, result, {headers: true})
     .on('finish', () => {
         console.log(`CSV exported : ${outputPath}`)
+    })
+    fstat.readFile(outputPath, { encoding: 'base64' }, async (err, fileContent) => {
+        if(err) {
+            console.error("Error reading CSV File", err);
+        }
+        await mailCSV(accessTokenMS365, fileContent);
     })
 
 }
