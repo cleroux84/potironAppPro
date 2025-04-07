@@ -1,14 +1,13 @@
 const SHOPIFYAPPTOKEN = process.env.SHOPIFYAPPTOKEN;
 const shopify = require('shopify-api-node');
 const fetch = require('node-fetch');
-const { getAccessTokenFromDb } = require('../../database/tokens/potiron_shippingbo');
 const API_APP_ID = process.env.API_APP_ID;
 
 
-//Retrieve order and select tagged by Afibel or origin Afibel
+//Retrieve order and select tagged Afibel
 const getAfibelOrders = async () => {
     let accessToken = await getAccessTokenFromDb();
-    const getOrderUrl = `https://app.shippingbo.com/orders/118380189`;    
+    const getOrderUrl = `https://app.shippingbo.com/orders?search[joins][order_tags][value__eq]=AFIBEL`;    
     const getOrderOptions = {
         method: 'GET',
         headers: {
