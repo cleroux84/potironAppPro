@@ -7,10 +7,10 @@ const fs = require('fs');
 const path = require('path');
 const {writeToPath} = require('@fast-csv/format');
 const { mailCSV } = require('../../sendMails/mailForTeam');
-const { getAccessTokenMS365 } = require('../microsoft');
+const { getAccessTokenMS365, setAccessTokenMS365, refreshMS365AccessToken } = require('../microsoft');
 
 let accessToken;
-
+let accessTokenMS365;
 
 //Retrieve order and select tagged Afibel
 const getAfibelOrders = async () => {
@@ -79,7 +79,8 @@ const getAfibelTrackings = async (id) => {
 
 const generateCsv = async () => {
     const orders = await getAfibelOrders();
-    let accessTokenMS365 = await getAccessTokenMS365();
+    await refreshMS365AccessToken();
+    accessTokenMS365 = await getAccessTokenMS365();
     console.log("token ms365" , accessTokenMS365)
     console.log(`${orders.length} commandes Afibel`);
     const result = [];
@@ -89,8 +90,8 @@ const generateCsv = async () => {
         result.push(fullOrder);
         await new Promise(resolve => setTimeout(resolve, 300));
     }
-
-    const outputPath = path.join('/tmp', 'afibel_tracking.csv');
+    const uploadDir = path.join(__dirname, 'uploads');
+    const outputPath = path.join(uploadDir, 'afibel_tracking.csv');
     writeToPath(outputPath, result, {headers: true})
     .on('finish', () => {
         console.log(`CSV exported : ${outputPath}`)
