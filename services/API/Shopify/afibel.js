@@ -1,9 +1,35 @@
 const SHOPIFYAPPTOKEN = process.env.SHOPIFYAPPTOKEN;
 const shopify = require('shopify-api-node');
 const fetch = require('node-fetch');
+const API_APP_ID = process.env.API_APP_ID;
+
+
+//Retrieve order and select tagged by Afibel or origin Afibel
+const getAfibelOrders = async (accessToken) => {
+    const getOrderUrl = `https://app.shippingbo.com/orders?search[source_ref__eq][]=Ftp-9746&search[joins][order_tags][value__eq]=AFIBEL`;    
+    const getOrderOptions = {
+        method: 'GET',
+        headers: {
+          'Content-type': 'application/json',
+          Accept: 'application/json',
+          'X-API-VERSION': '1',
+          'X-API-APP-ID': API_APP_ID,
+          Authorization: `Bearer ${accessToken}`
+        },
+      };
+      try {
+        const response = await fetch(getOrderUrl, getOrderOptions);
+        const data = await response.json();
+        console.log('orders Afibel : ', data.orders || data);
+      } catch (error) {
+        console.error("Erreur getting Abibel orders from Shippingbo", error);
+      }
+
+} 
+
+
 
 //create order in Shopify SI FTP fonctionne pas !
-
 const createOrderFromCSV = async () => {
     //Arg with order to create extracted from csv if ok
     console.log('PPL createOrderFromCSV')
@@ -74,4 +100,4 @@ const createOrderFromCSV = async () => {
         console.error('Error creating order afibel', error.response?.data || error.mesage)
       }
 }
-module.exports = { createOrderFromCSV }
+module.exports = { createOrderFromCSV, getAfibelOrders }
