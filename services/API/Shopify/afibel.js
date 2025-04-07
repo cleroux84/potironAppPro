@@ -90,7 +90,7 @@ const generateCsv = async () => {
         result.push(fullOrder);
         await new Promise(resolve => setTimeout(resolve, 300));
     }
-    const uploadDir = path.join(__dirname, 'uploads');
+    const uploadDir = path.join(__dirname, '..', 'uploads');
     const outputPath = path.join(uploadDir, 'afibel_tracking.csv');
     writeToPath(outputPath, result, {headers: true})
     .on('finish', () => {
