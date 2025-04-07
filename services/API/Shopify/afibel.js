@@ -67,13 +67,13 @@ const getAfibelTrackings = async (id) => {
       const data = await response.json();
       console.log("data shipments", data)
       return {
-        order_id: data.source_ref,
-        created_at: data.created_at,
-        name: data.shipping_address?.fullname,
-        tracking_number: data.shipments?.[0]?.shipping_ref || '',
-        tracking_url: data.shipments?[0]?.tracking_url : "",
-        carrier: data.shipments?[0].carrier_name : '',
-        shipped_at: data.shipped_at
+        order_id: data.order.source_ref,
+        created_at: data.order.created_at,
+        name: data.order.shipping_address?.fullname,
+        tracking_number: data.order.shipments?.[0]?.shipping_ref || '',
+        tracking_url: data.order.shipments?[0]?.tracking_url : "",
+        carrier: data.order.shipments?[0].carrier_name : '',
+        shipped_at: data.order.shipped_at
       }
 }
 
