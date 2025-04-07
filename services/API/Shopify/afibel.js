@@ -8,7 +8,8 @@ const API_APP_ID = process.env.API_APP_ID;
 //Retrieve order and select tagged Afibel
 const getAfibelOrders = async () => {
     let accessToken = await getAccessTokenFromDb();
-    const getOrderUrl = `https://app.shippingbo.com/orders?search[joins][order_tags][value__eq]=AFIBEL`;    
+    // const getOrderUrl = `https://app.shippingbo.com/orders?search[joins][order_tags][value__eq]=AFIBEL`;    
+    const getOrderUrl = `https://app.shippingbo.com/orders?search[joins][order_tags][value__eq]=BAZARCHIC`;    
     const getOrderOptions = {
         method: 'GET',
         headers: {
