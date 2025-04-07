@@ -81,28 +81,38 @@ const generateCsv = async () => {
     const orders = await getAfibelOrders();
     await refreshMS365AccessToken();
     accessTokenMS365 = await getAccessTokenMS365();
-    console.log("token ms365" , accessTokenMS365)
+    console.log("token ms365", accessTokenMS365);
     console.log(`${orders.length} commandes Afibel`);
     const result = [];
-
-    for(const order of orders) {
+ 
+    for (const order of orders) {
         const fullOrder = await getAfibelTrackings(order.id);
         result.push(fullOrder);
-        await new Promise(resolve => setTimeout(resolve, 300));
+        await new Promise(resolve => setTimeout(resolve, 300));  // Pour limiter le taux de requêtes
     }
+ 
+    // Export du CSV
     const uploadDir = path.join(__dirname, '..', 'uploads');
     const outputPath = path.join(uploadDir, 'afibel_tracking.csv');
-    writeToPath(outputPath, result, {headers: true})
-    .on('finish', () => {
-        console.log(`CSV exported : ${outputPath}`)
-    })
-    fs.readFile(outputPath, { encoding: 'base64' }, async (err, fileContent) => {
-        if(err) {
-            console.error("Error reading CSV File", err);
-        }
-        await mailCSV(accessTokenMS365, fileContent);
-    })
-
+    console.log("Chemin du fichier CSV : ", outputPath);
+ 
+    writeToPath(outputPath, result, { headers: true })
+        .on('finish', () => {
+            console.log(`CSV exported : ${outputPath}`);
+            // Lecture du fichier CSV après export
+            fs.readFile(outputPath, { encoding: 'base64' }, async (err, fileContent) => {
+                if (err) {
+                    console.error("Error reading CSV File", err);
+                    return;
+                }
+ 
+                console.log("Fichier CSV lu, envoi par email...");
+                await mailCSV(accessTokenMS365, fileContent);
+            });
+        })
+        .on('error', (err) => {
+            console.error("Error writing CSV File", err);
+        });
 }
 
 
