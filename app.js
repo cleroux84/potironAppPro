@@ -31,7 +31,7 @@ const proCustomerRoute = require('./routes/proCustomer.js');
 const proOrderRoute = require('./routes/proOrder.js');
 const returnContactRoute = require('./routes/returnOrderContact.js');
 const allOrdersRoute = require('./routes/allOrders.js');
-const { createOrderFromCSV, getAfibelOrders, generateCsv } = require('./services/API/Shopify/afibel.js');
+const { createOrderFromCSV, getAfibelOrders, generateCsv, sendCSVToShippingbo } = require('./services/API/Shopify/afibel.js');
 app.use('/returnOrder', returnOrderRoute);
 app.use('/proCustomer', proCustomerRoute);
 app.use('/proOrder', proOrderRoute);
@@ -44,7 +44,8 @@ initializeTokens();
 // setupShippingboWebhook();
 getWebhooks();
 
-generateCsv();
+// generateCsv();
+sendCSVToShippingbo();
 
 //CHECK Scheduled emails in DB every day
 cron.schedule('0 9 * * *', checkScheduledEmails, { //9h00
