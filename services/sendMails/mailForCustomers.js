@@ -7,6 +7,7 @@ const { getDiscountMailData, removeScheduledMail } = require('../database/schedu
 const { getAccessTokenMS365, refreshMS365AccessToken } = require('../API/microsoft');
 const { checkDiscountCodeUsage } = require('../API/Shopify/priceRules');
 const path = require('path');
+const { getInvoiceFile } = require('../API/Shippingbo/Potiron/ordersCRUD');
 require('dotenv').config();
 require ('isomorphic-fetch');
 const MAILDEV = process.env.MAILDEV;
@@ -446,6 +447,60 @@ async function sendAknowledgmentReturnPix(accessTokenMS365, customerData, produc
   }
 }
 
+//Send invoice shippingbo for new order potiron.com
+async function sendAutomaticInvoice(accessTokenMS365, accessToken, orderDetails) {
+    const client = initiMicrosoftGraphClient(accessTokenMS365);
+    let orderInvoiceId = orderDetails.order_document[0].id;
+    let pdfInvoice = await getInvoiceFile(accessToken, orderInvoiceId);
+    let recipient = orderDetails.shipping_address.email;
+    console.log('envoyé à', recipient);
+    const attachments = [
+      {
+        name: `facture.pdf`,
+        contentBytes: pdfInvoice.toString('base64'),
+        contentType: 'application/pdf'
+      }
+    ]
+    const message = {
+      subject: 'Accusé de réception de votre commande retour', 
+      body: {
+          contentType: 'HTML',
+          content: `
+            <p>Bonjour,</p>
+            <p  style="margin: 0;">Veuillez trouver ci-joint votre facture.</p>
+            <p style="margin: 0;">Restant à votre disposition.</p>
+            <p style="margin: 0;">Bien à vous,</p>
+            <p>L'équipe de Potiron Paris</p>
+            <img src='cid:signature'/>
+          `
+      },
+      toRecipients: [
+          {
+              emailAddress: {
+                  address: "c.leroux@potiron.com" //recipient
+              }
+          }
+      ],
+      bccRecipients: [
+          {
+              emailAddress: {
+                  address: MAILDEV
+              }
+          }
+      ],
+      attachments: [
+          ...attachments, signatureAttachement
+      ]
+  };
+  try {
+    await client.api('/me/sendMail').post({ message: message });
+      console.log("Facture envoyé avec succès");
+    } catch (error) {
+        console.error('Erreur lors de l\'envoi de la facture potiron', error);
+    }
+}
+
+
   module.exports = {
     sendWelcomeMailPro,
     sendReturnDataToCustomer,
@@ -453,5 +508,6 @@ async function sendAknowledgmentReturnPix(accessTokenMS365, customerData, produc
     checkScheduledEmails,
     sendReceiptAndWaitForRefund,
     sendAlertMail,
-    sendAknowledgmentReturnPix
+    sendAknowledgmentReturnPix,
+    sendAutomaticInvoice
   }

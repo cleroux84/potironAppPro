@@ -120,9 +120,40 @@ const cancelShippingboDraft = async (accessToken, shippingboOrderId) => {
     }
   }
 
+  const getInvoiceFile = async (accessToken, invoiceId) => {
+    const orderDocumentUrl = `https://app.shippingbo.com/order_documents/${invoiceId}/file`;
+    const orderDocumentOptions = {
+      method: 'GET',
+      headers: {
+        'Content-type': 'application/json',
+        Accept: 'application/pdf',
+        'X-API-VERSION': '1',
+        'X-API-APP-ID': API_APP_ID,
+        Authorization: `Bearer ${accessToken}`
+      },
+    };
+   
+    try {
+      console.log('PPL invoice id', invoiceId);
+   
+      const response = await fetch(orderDocumentUrl, orderDocumentOptions);
+   
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+   
+      const pdfBuffer = await response.buffer();
+      return pdfBuffer;
+   
+    } catch (error) {
+      console.error('Erreur lors de la récupération ou de l\'analyse du PDF:', error);
+    }
+  };
+
   module.exports = {
     getShippingboOrderDetails,
     updateShippingboOrder,
     cancelShippingboDraft,
-    createProDraftOrderShippingbo
+    createProDraftOrderShippingbo,
+    getInvoiceFile
   }
