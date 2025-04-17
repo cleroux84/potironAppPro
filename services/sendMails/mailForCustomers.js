@@ -456,11 +456,13 @@ async function sendAutomaticInvoice(accessTokenMS365, accessToken, orderDetails)
     console.log('envoyé à', recipient);
     const attachments = [
       {
-        name: `facture.pdf`,
-        contentBytes: pdfInvoice.toString('base64'),
-        contentType: 'application/pdf'
-      }
-    ]
+        "@odata.type": "#microsoft.graph.fileAttachment",
+        name: "facture.pdf",
+        contentType: "application/pdf",
+        contentBytes: pdfInvoice.toString('base64')
+      },
+      signatureAttachement
+    ];
     const message = {
       subject: 'Accusé de réception de votre commande retour', 
       body: {
