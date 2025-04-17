@@ -450,7 +450,7 @@ async function sendAknowledgmentReturnPix(accessTokenMS365, customerData, produc
 //Send invoice shippingbo for new order potiron.com
 async function sendAutomaticInvoice(accessTokenMS365, accessToken, orderDetails) {
     const client = initiMicrosoftGraphClient(accessTokenMS365);
-    let orderInvoiceId = orderDetails.order_document[0].id;
+    let orderInvoiceId = orderDetails.order_documents[0].id;
     let pdfInvoice = await getInvoiceFile(accessToken, orderInvoiceId);
     let recipient = orderDetails.shipping_address.email;
     console.log('envoyé à', recipient);
