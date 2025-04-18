@@ -98,6 +98,7 @@ const getAfibelTrackings = async (id) => {
       const data = await response.json();
       console.log("data shipments", data)
       return {
+        origin_id: data.order.origin_ref,
         order_id: data.order.source_ref,
         status: data.order.state,
         created_at: data.order.created_at,

@@ -44,7 +44,7 @@ initializeTokens();
 // setupShippingboWebhook();
 getWebhooks();
 
-// generateCsv();
+generateCsv();
 // sendCSVToShippingbo();
 
 //CHECK Scheduled emails in DB every day
