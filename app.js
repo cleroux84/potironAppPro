@@ -32,6 +32,7 @@ const proOrderRoute = require('./routes/proOrder.js');
 const returnContactRoute = require('./routes/returnOrderContact.js');
 const allOrdersRoute = require('./routes/allOrders.js');
 const { createOrderFromCSV, getAfibelOrders, generateCsv, sendCSVToShippingbo } = require('./services/API/Shopify/afibel.js');
+const { getOrderDetails } = require('./services/API/Shippingbo/Potiron/ordersCRUD.js');
 app.use('/returnOrder', returnOrderRoute);
 app.use('/proCustomer', proCustomerRoute);
 app.use('/proOrder', proOrderRoute);
@@ -44,6 +45,7 @@ initializeTokens();
 // setupShippingboWebhook();
 getWebhooks();
 
+getOrderDetails(119561198);
 // generateCsv();
 // sendCSVToShippingbo();
 

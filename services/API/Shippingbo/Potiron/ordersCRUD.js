@@ -1,7 +1,33 @@
 //Requests to shippingbo Potiron API
 
 const fetch = require('node-fetch');
+const { getAccessTokenFromDb } = require('../../../database/tokens/potiron_shippingbo');
 const API_APP_ID = process.env.API_APP_ID;
+
+//Check order
+const getOrderDetails = async (shopifyOrderId) => {
+  let accessToken = await getAccessTokenFromDb();
+    const getOrderUrl = `https://app.shippingbo.com/orders/${shopifyOrderId}`;
+    const getOrderOptions = {
+      method: 'GET',
+      headers: {
+        'Content-type': 'application/json',
+        Accept: 'application/json',
+        'X-API-VERSION': '1',
+        'X-API-APP-ID': API_APP_ID,
+        Authorization: `Bearer ${accessToken}`
+      },
+    };
+   
+    try {
+      const response = await fetch(getOrderUrl, getOrderOptions);
+      const data = await response.json();
+     console.log('this order', data);
+    } catch (err) {
+      console.error('Error fetching Shippingbo order ID', err);
+      return null;
+  }
+};
 
 //Get shippingbo order from Shopify Order Id
 const getShippingboOrderDetails = async (accessToken, shopifyOrderId) => {
@@ -35,7 +61,7 @@ const getShippingboOrderDetails = async (accessToken, shopifyOrderId) => {
 };
 
 //update orders with tag 'invoice_sent' when invoice is sent
-const updateOrderInvoiceSent = async (accessToken, orderId, existingTags = []) => {
+const updateOrderInvoiceSent = async (accessToken, orderId) => {
   const updatedOrder = {
     id: orderId,
     internal_notes: 'invoice_sent'
@@ -185,5 +211,6 @@ const cancelShippingboDraft = async (accessToken, shippingboOrderId) => {
     cancelShippingboDraft,
     createProDraftOrderShippingbo,
     getInvoiceFile,
-    updateOrderInvoiceSent
+    updateOrderInvoiceSent,
+    getOrderDetails
   }
