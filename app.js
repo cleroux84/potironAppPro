@@ -45,7 +45,7 @@ initializeTokens();
 // setupShippingboWebhook();
 getWebhooks();
 
-getOrderDetails(119561198);
+// getOrderDetails(119561198);
 // generateCsv();
 // sendCSVToShippingbo();
 

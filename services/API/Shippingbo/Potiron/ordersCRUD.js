@@ -61,10 +61,14 @@ const getShippingboOrderDetails = async (accessToken, shopifyOrderId) => {
 };
 
 //update orders with tag 'invoice_sent' when invoice is sent
-const updateOrderInvoiceSent = async (accessToken, orderId) => {
+const updateOrderInvoiceSent = async (accessToken, order) => {
+  const orderId = order.id;
   const updatedOrder = {
     id: orderId,
-    internal_notes: 'invoice_sent'
+    billing_address: {
+      id: order.billing_address.id,
+      instructions: 'invoice_sent'
+    } 
   }
   const updateOrderUrl = `https://app.shippingbo.com/orders/${orderId}`;
   const updateOrderOptions = {

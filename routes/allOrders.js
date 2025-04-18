@@ -14,12 +14,11 @@ router.post('/sendInvoice', async (req, res) => {
     if(newOrder.additional_data.from === 'dispatched' && 
         newOrder.additional_data.to === 'in_preparation' && 
         ['POTIRON.COM', 'Pinkconnect'].includes(newOrder.object.origin) &&
-        !newOrder.object.internal_notes?.includes('invoice_sent')
-
+        !newOrder.object.billing_adress?.instructions !== 'invoice_sent'
     ) {
         let mailSent = await sendAutomaticInvoice(accessTokenMS365, accessToken, newOrder);
         if(mailSent) {
-            console.log('mail sent with invoice and update order', newOrder.object.id)
+            console.log('mail sent with invoice and update order', newOrder.object)
             updateOrderInvoiceSent(accessToken, newOrder.object.id)
         } else {
             console.log('error when sending mail with invoice')
