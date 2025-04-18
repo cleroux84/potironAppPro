@@ -96,11 +96,11 @@ const getAfibelTrackings = async (id) => {
       };
       const response = await fetch(getUrl, getOptions);
       const data = await response.json();
-      console.log("data shipments", data.shipments)
+      console.log("data shipments", data.order.shipments)
       return {
         afibel_id: data.order.origin_ref,
         order_id: data.order.source_ref,
-        status: data.order.custom_state,
+        status: data.order.state,
         created_at: data.order.created_at,
         name: data.order.shipping_address?.fullname,
         tracking_number: data.order.shipments?.[0]?.shipping_ref || '',
