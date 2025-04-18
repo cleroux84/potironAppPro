@@ -34,6 +34,36 @@ const getShippingboOrderDetails = async (accessToken, shopifyOrderId) => {
     }
 };
 
+//update orders with tag 'invoice_sent' when invoice is sent
+const updateOrderInvoiceSent = async (accessToken, orderId, existingTags = []) => {
+  const updatedTags = [...new Set([...existingTags, 'invoice_sent'])]
+  const updatedOrder = {
+    id: orderId,
+    tags: updatedTags
+  }
+  const updateOrderUrl = `https://app.shippingbo.com/orders/${orderId}`;
+  const updateOrderOptions = {
+    method: 'PATCH',
+    headers: {
+    'Content-type': 'application/json',
+    Accept: 'application/json',
+    'X-API-VERSION' : '1',
+    'X-API-APP-ID': API_APP_ID,
+    Authorization: `Bearer ${accessToken}`
+    },
+    body: JSON.stringify(updatedOrder)
+  };
+  try{
+    const response = await fetch(updateOrderUrl, updateOrderOptions);
+    const data = await response.json();
+    if(response.ok) {
+    console.log('order updated with tag invoice_sent: ', orderId);
+    }
+  } catch (error) {
+          console.error('Error updating order with tag invoice_sent', error);
+  }
+}
+
 //update orders origin and origin ref in shippingbo Potiron Paris to add "Commande PRO" and "PRO-"
 const updateShippingboOrder = async (accessToken, shippingboOrderId, originRef) => {
     if(originRef.includes('PRO-') === false)  {
@@ -155,5 +185,6 @@ const cancelShippingboDraft = async (accessToken, shippingboOrderId) => {
     updateShippingboOrder,
     cancelShippingboDraft,
     createProDraftOrderShippingbo,
-    getInvoiceFile
+    getInvoiceFile,
+    updateOrderInvoiceSent
   }

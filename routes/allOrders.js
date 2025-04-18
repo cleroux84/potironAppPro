@@ -4,6 +4,7 @@ const express = require('express');
 const { sendAutomaticInvoice } = require('../services/sendMails/mailForCustomers');
 const { getAccessTokenMS365 } = require('../services/API/microsoft');
 const { getAccessTokenFromDb } = require('../services/database/tokens/potiron_shippingbo');
+const { updateOrderInvoiceSent } = require('../services/API/Shippingbo/Potiron/ordersCRUD');
 const router = express.Router();
 
 router.post('/sendInvoice', async (req, res) => {
@@ -18,8 +19,8 @@ router.post('/sendInvoice', async (req, res) => {
     ) {
         let mailSent = await sendAutomaticInvoice(accessTokenMS365, accessToken, newOrder);
         if(mailSent) {
-            //update order newOrder.object.id
             console.log('mail sent with invoice and update order', newOrder.object.id)
+            updateOrderInvoiceSent(accessToken, newOrder.object.id, newOrder.object.tags)
         } else {
             console.log('error when sending mail with invoice')
         }
