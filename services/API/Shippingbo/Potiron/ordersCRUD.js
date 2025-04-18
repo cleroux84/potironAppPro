@@ -39,7 +39,7 @@ const updateOrderInvoiceSent = async (accessToken, orderId, existingTags = []) =
   const updatedTags = [...new Set([...existingTags, 'invoice_sent'])]
   const updatedOrder = {
     id: orderId,
-    tags: updatedTags
+    order_tags: updatedTags
   }
   const updateOrderUrl = `https://app.shippingbo.com/orders/${orderId}`;
   const updateOrderOptions = {
