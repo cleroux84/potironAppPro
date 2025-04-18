@@ -96,7 +96,7 @@ const getAfibelTrackings = async (id) => {
       };
       const response = await fetch(getUrl, getOptions);
       const data = await response.json();
-      console.log("data shipments", data.order.shipments)
+    //   console.log("data shipments", data.order.shipments)
       return {
         afibel_id: data.order.origin_ref,
         order_id: data.order.source_ref,
