@@ -104,8 +104,8 @@ const getAfibelTrackings = async (id) => {
         created_at: data.order.created_at,
         name: data.order.shipping_address?.fullname,
         tracking_number: data.order.shipments?.[0]?.shipping_ref || '',
-        tracking_url: data.order.shipments?[0]?.tracking_url : "",
-        carrier: data.order.shipments?[0].carrier_name : '',
+        tracking_url: data.order.shipments?.[0]?.tracking_url || "",
+        carrier: data.order.shipments?.[0]?.carrier_name || '',
         shipped_at: data.order.shipped_at
       }
 }
