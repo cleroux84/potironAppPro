@@ -17,6 +17,9 @@ const setAccessTokenMS365 = (token) => {
 }
 
 const getAccessTokenMS365 = async () => {
+    if(!accessTokenMS365) {
+        await refreshMS365AccessToken();
+    }
     return accessTokenMS365;
 }
 
