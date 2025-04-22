@@ -60,18 +60,14 @@ const getShippingboOrderDetails = async (accessToken, shopifyOrderId) => {
     }
 };
 
-//update orders with tag 'invoice_sent' when invoice is sent
-const updateOrderInvoiceSent = async (accessToken, order) => {
-  const orderId = order.id;
-  const updatedOrder = {
-    id: orderId,
-    billing_address: {
-      id: order.billing_address.id,
-      instructions: 'invoice_sent'
-    } 
+//update billing adresse with instructions 'invoice_sent + orderId' when invoice is sent
+const updateOrderInvoiceSent = async (accessToken, billingAdressId, instructionToAdd) => {
+  const updatedAddress = {
+    id: billingAdressId,
+    instructions: instructionToAdd
   }
-  const updateOrderUrl = `https://app.shippingbo.com/orders/${orderId}`;
-  const updateOrderOptions = {
+  const updateAddressUrl = `https://app.shippingbo.com/addresses/${billingAdressId}`;
+  const updateAddressOptions = {
     method: 'PATCH',
     headers: {
     'Content-type': 'application/json',
@@ -80,13 +76,13 @@ const updateOrderInvoiceSent = async (accessToken, order) => {
     'X-API-APP-ID': API_APP_ID,
     Authorization: `Bearer ${accessToken}`
     },
-    body: JSON.stringify(updatedOrder)
+    body: JSON.stringify(updatedAddress)
   };
   try{
-    const response = await fetch(updateOrderUrl, updateOrderOptions);
+    const response = await fetch(updateAddressUrl, updateAddressOptions);
     const data = await response.json();
     if(response.ok) {
-    console.log('order updated with tag invoice_sent: ', orderId);
+    console.log('order updated with tag invoice_sent: ', instructionToAdd);
     }
   } catch (error) {
           console.error('Error updating order with tag invoice_sent', error);
