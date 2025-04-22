@@ -16,7 +16,7 @@ const setAccessTokenMS365 = (token) => {
     accessTokenMS365 = token;
 }
 
-const getAccessTokenMS365 = () => {
+const getAccessTokenMS365 = async () => {
     return accessTokenMS365;
 }
 

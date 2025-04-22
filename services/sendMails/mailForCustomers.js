@@ -449,9 +449,21 @@ async function sendAknowledgmentReturnPix(accessTokenMS365, customerData, produc
 
 //Send invoice shippingbo for new order potiron.com
 async function sendAutomaticInvoice(accessTokenMS365, accessToken, orderDetails) {
+    if(!accessTokenMS365) {
+      console.error('Graph token not found');
+      return false;
+    }
     const client = initiMicrosoftGraphClient(accessTokenMS365);
     let orderInvoiceId = orderDetails.object.order_documents[0].id;
+    if(!orderInvoiceId) {
+      console.error('id missing in order_documents');
+      return false;
+    }
     let pdfInvoice = await getInvoiceFile(accessToken, orderInvoiceId);
+    if(!pdfInvoice) {
+      console.error('PDF invoice not found');
+      return false;
+    }
     let recipient = orderDetails.object.shipping_address.email;
     console.log('envoyé à', recipient);
     const attachments = [
@@ -499,7 +511,7 @@ async function sendAutomaticInvoice(accessTokenMS365, accessToken, orderDetails)
       console.log("Facture envoyé avec succès");
       return true;
     } catch (error) {
-        console.error('Erreur lors de l\'envoi de la facture potiron', error);
+        console.error('Erreur lors de l\'envoi de la facture potiron', orderDetails.object.id, error);
     }
 }
 
