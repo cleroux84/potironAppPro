@@ -63,7 +63,6 @@ const getShippingboOrderDetails = async (accessToken, shopifyOrderId) => {
 //update billing adresse with instructions 'invoice_sent + orderId' when invoice is sent
 const updateOrderInvoiceSent = async (accessToken, billingAdressId, instructionToAdd) => {
   const updatedAddress = {
-    id: billingAdressId,
     instructions: instructionToAdd
   }
   const updateAddressUrl = `https://app.shippingbo.com/addresses/${billingAdressId}`;
