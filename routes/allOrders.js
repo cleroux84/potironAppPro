@@ -19,7 +19,7 @@ router.post('/sendInvoice', async (req, res) => {
         let mailSent = await sendAutomaticInvoice(accessTokenMS365, accessToken, newOrder);
         if(mailSent) {
             console.log('mail sent with invoice and update order', newOrder.object)
-            updateOrderInvoiceSent(accessToken, newOrder.object.id)
+            // updateOrderInvoiceSent(accessToken, newOrder.object.id)
         } else {
             console.log('error when sending mail with invoice')
         }
