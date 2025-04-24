@@ -508,7 +508,7 @@ async function sendAutomaticInvoice(accessTokenMS365, accessToken, orderDetails)
   };
   try {
     await client.api('/me/sendMail').post({ message: message });
-      console.log("Facture envoyé avec succès");
+      // console.log("Facture envoyé avec succès");
       return true;
     } catch (error) {
         console.error('Erreur lors de l\'envoi de la facture potiron', orderDetails.object.id, error);
