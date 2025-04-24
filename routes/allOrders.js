@@ -19,7 +19,7 @@ router.post('/sendInvoice', async (req, res) => {
     : invoiceInstruction;
     if(newOrder.additional_data.from === 'dispatched' && 
         newOrder.additional_data.to === 'in_preparation' && 
-        ['POTIRON.COM', 'Pinkconnect', 'Maisons du monde (new)', 'La redoute mirakl'].includes(newOrder.object.origin) &&
+        ['POTIRON.COM', 'Pinkconnect'].includes(newOrder.object.origin) &&
         updatedInstructions
     ) {
         let mailSent = await sendAutomaticInvoice(accessTokenMS365, accessToken, newOrder);
