@@ -81,7 +81,7 @@ const updateOrderInvoiceSent = async (accessToken, billingAdressId, instructionT
     const response = await fetch(updateAddressUrl, updateAddressOptions);
     const data = await response.json();
     if(response.ok) {
-    console.log('order updated with tag invoice_sent: ', instructionToAdd);
+    // console.log('order updated with tag invoice_sent: ', instructionToAdd);
     }
   } catch (error) {
           console.error('Error updating order with tag invoice_sent', error);
@@ -188,7 +188,7 @@ const cancelShippingboDraft = async (accessToken, shippingboOrderId) => {
     };
    
     try {
-      console.log('PPL invoice id', invoiceId);
+      // console.log('PPL invoice id', invoiceId);
    
       const response = await fetch(orderDocumentUrl, orderDocumentOptions);
    

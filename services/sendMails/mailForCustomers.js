@@ -465,7 +465,7 @@ async function sendAutomaticInvoice(accessTokenMS365, accessToken, orderDetails)
       return false;
     }
     let recipient = orderDetails.object.shipping_address.email;
-    console.log('envoyé à', recipient);
+    // console.log('envoyé à', recipient);
     const attachments = [
       {
         "@odata.type": "#microsoft.graph.fileAttachment",
@@ -476,7 +476,7 @@ async function sendAutomaticInvoice(accessTokenMS365, accessToken, orderDetails)
       signatureAttachement
     ];
     const message = {
-      subject: 'Accusé de réception de votre commande retour', 
+      subject: 'Votre facture Potiron Paris', 
       body: {
           contentType: 'HTML',
           content: `
@@ -491,7 +491,7 @@ async function sendAutomaticInvoice(accessTokenMS365, accessToken, orderDetails)
       toRecipients: [
           {
               emailAddress: {
-                  address: "c.leroux@potiron.com" //recipient
+                  address: recipient
               }
           }
       ],
