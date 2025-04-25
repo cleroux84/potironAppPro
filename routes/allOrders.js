@@ -7,16 +7,17 @@ const { getAccessTokenFromDb } = require('../services/database/tokens/potiron_sh
 const { updateOrderInvoiceSent } = require('../services/API/Shippingbo/Potiron/ordersCRUD');
 const router = express.Router();
 
+//unused cause too complex for nothing but can be used it's webhook shippingbo !
 router.post('/sendInvoice', async (req, res) => {
-    let accessTokenMS365 = await getAccessTokenMS365();
-    let accessToken = await getAccessTokenFromDb();
-    const newOrder = req.body;
-    const orderId = newOrder.object.id;
-    const existingInstructions = newOrder.object.billing_address?.instructions || '';
-    const invoiceInstruction = `invoice_sent_${orderId}`;
-    const updatedInstructions = existingInstructions
-    ? `${existingInstructions} | ${invoiceInstruction}`
-    : invoiceInstruction;
+    // let accessTokenMS365 = await getAccessTokenMS365();
+    // let accessToken = await getAccessTokenFromDb();
+    // const newOrder = req.body;
+    // const orderId = newOrder.object.id;
+    // const existingInstructions = newOrder.object.billing_address?.instructions || '';
+    // const invoiceInstruction = `invoice_sent_${orderId}`;
+    // const updatedInstructions = existingInstructions
+    // ? `${existingInstructions} | ${invoiceInstruction}`
+    // : invoiceInstruction;
 
     // console.log('order id', newOrder.object.id)
     // console.log("→ Dispatch status:", newOrder.additional_data.from, "→", newOrder.additional_data.to);
@@ -27,12 +28,12 @@ router.post('/sendInvoice', async (req, res) => {
     // console.log("→ Match found:", existingInstructions.includes(invoiceInstruction));
     // console.log("→ Should send mail:", 'shouldSend');
 
-    if(newOrder.additional_data.from === 'dispatched' && 
-        newOrder.additional_data.to === 'in_preparation' && 
-        ['POTIRON.COM', 'Pinkconnect'].includes(newOrder.object.origin) &&
-        !existingInstructions.includes(invoiceInstruction)
-    ) {
-        console.log("mail sent !", newOrder.object.id)
+    // if(newOrder.additional_data.from === 'dispatched' && 
+    //     newOrder.additional_data.to === 'in_preparation' && 
+    //     ['POTIRON.COM', 'Pinkconnect'].includes(newOrder.object.origin) &&
+    //     !existingInstructions.includes(invoiceInstruction)
+    // ) {
+    //     console.log("mail sent !", newOrder.object.id)
         // let mailSent = await sendAutomaticInvoice(accessTokenMS365, accessToken, newOrder);
         // if(mailSent) {
         //     // console.log('mail sent with invoice and update order', newOrder.object.id)
@@ -40,7 +41,7 @@ router.post('/sendInvoice', async (req, res) => {
         // } else {
         //     console.log('error when sending mail with invoice')
         // }
-    }
+    // }
 }) 
 
 module.exports = router;
