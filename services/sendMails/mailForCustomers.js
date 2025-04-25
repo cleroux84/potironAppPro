@@ -465,7 +465,7 @@ async function sendAutomaticInvoice(accessTokenMS365, accessToken, orderDetails)
       return false;
     }
     let recipient = orderDetails.object.shipping_address.email;
-    console.log('envoyé à', recipient);
+    // console.log('envoyé à', recipient);
     const attachments = [
       {
         "@odata.type": "#microsoft.graph.fileAttachment",
@@ -491,7 +491,7 @@ async function sendAutomaticInvoice(accessTokenMS365, accessToken, orderDetails)
       toRecipients: [
           {
               emailAddress: {
-                  address: recipient
+                  address: 'c.leroux@potiron.com' //recipient
               }
           }
       ],
