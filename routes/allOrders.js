@@ -23,7 +23,7 @@ router.post('/sendInvoice', async (req, res) => {
     console.log("→ Origin:", newOrder.object.origin);
     console.log("→ Existing instructions:", existingInstructions);
     console.log("→ Looking for:", invoiceInstruction);
-    console.log('instructions actual:', newOrder.object.billing_address.instructions)
+    console.log('instructions actual:', newOrder.object.billing_address)
     console.log("→ Match found:", existingInstructions.includes(invoiceInstruction));
     // console.log("→ Should send mail:", 'shouldSend');
 
@@ -32,13 +32,14 @@ router.post('/sendInvoice', async (req, res) => {
         ['POTIRON.COM', 'Pinkconnect'].includes(newOrder.object.origin) &&
         !existingInstructions.includes(invoiceInstruction)
     ) {
-        let mailSent = await sendAutomaticInvoice(accessTokenMS365, accessToken, newOrder);
-        if(mailSent) {
-            // console.log('mail sent with invoice and update order', newOrder.object.id)
-            updateOrderInvoiceSent(accessToken, newOrder.object.billing_address.id, invoiceInstruction)
-        } else {
-            console.log('error when sending mail with invoice')
-        }
+        console.log("mail sent !", newOrder.object.id)
+        // let mailSent = await sendAutomaticInvoice(accessTokenMS365, accessToken, newOrder);
+        // if(mailSent) {
+        //     // console.log('mail sent with invoice and update order', newOrder.object.id)
+        //     updateOrderInvoiceSent(accessToken, newOrder.object.billing_address.id, invoiceInstruction)
+        // } else {
+        //     console.log('error when sending mail with invoice')
+        // }
     }
 }) 
 
