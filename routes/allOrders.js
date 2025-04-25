@@ -18,13 +18,13 @@ router.post('/sendInvoice', async (req, res) => {
     ? `${existingInstructions} | ${invoiceInstruction}`
     : invoiceInstruction;
 
-    console.log('order id', newOrder.object.id)
-    console.log("→ Dispatch status:", newOrder.additional_data.from, "→", newOrder.additional_data.to);
-    console.log("→ Origin:", newOrder.object.origin);
-    console.log("→ Existing instructions:", existingInstructions);
-    console.log("→ Looking for:", invoiceInstruction);
-    console.log('instructions actual:', newOrder.object.billing_address)
-    console.log("→ Match found:", existingInstructions.includes(invoiceInstruction));
+    // console.log('order id', newOrder.object.id)
+    // console.log("→ Dispatch status:", newOrder.additional_data.from, "→", newOrder.additional_data.to);
+    // console.log("→ Origin:", newOrder.object.origin);
+    // console.log("→ Existing instructions:", existingInstructions);
+    // console.log("→ Looking for:", invoiceInstruction);
+    // console.log('instructions actual:', newOrder.object.billing_address)
+    // console.log("→ Match found:", existingInstructions.includes(invoiceInstruction));
     // console.log("→ Should send mail:", 'shouldSend');
 
     if(newOrder.additional_data.from === 'dispatched' && 
