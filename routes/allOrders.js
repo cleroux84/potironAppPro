@@ -24,7 +24,7 @@ router.post('/sendInvoice', async (req, res) => {
     console.log("→ Existing instructions:", existingInstructions);
     console.log("→ Looking for:", invoiceInstruction);
     console.log("→ Match found:", existingInstructions.includes(invoiceInstruction));
-    console.log("→ Should send mail:", shouldSend);
+    console.log("→ Should send mail:", 'shouldSend');
 
     if(newOrder.additional_data.from === 'dispatched' && 
         newOrder.additional_data.to === 'in_preparation' && 
