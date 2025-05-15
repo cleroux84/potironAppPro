@@ -155,8 +155,8 @@ const getAfibelTrackings = async (id) => {
 //generate CSV tracking file 
 const generateCsv = async () => {
     const orders = await getAfibelOrders();
-    // await refreshMS365AccessToken();
-    // accessTokenMS365 = await getAccessTokenMS365();
+    await refreshMS365AccessToken();
+    accessTokenMS365 = await getAccessTokenMS365();
     // console.log("token ms365", accessTokenMS365);
     // console.log(`${orders.length} commandes Afibel`);
     const result = [];
