@@ -9,41 +9,78 @@ const {writeToPath} = require('@fast-csv/format');
 const { mailCSV } = require('../../sendMails/mailForTeam');
 const { getAccessTokenMS365, setAccessTokenMS365, refreshMS365AccessToken } = require('../microsoft');
 let Client = require('ssh2-sftp-client');
-let sftp = new Client();
+let sftpSbo = new Client(); // SFTP Shippingbo
+let sftpAfibel = new Client(); //SFTP Afibel
 let accessToken;
 let accessTokenMS365;
 
 //Config SFTP Shippingbo To Send CSV new Orders file
-const config = {
+const configSbo = {
     host: process.env.HOST_FTP_SBO,
     port: process.env.PORT_FTP_SBO,
     username: process.env.USERNAME_FTP_SBO,
     password: process.env.PASSWORD_FTP_SBO
 }
 
-//Send csv file in shippingbo FTP
-const sendCSVToShippingbo = async () => {
-    const localPath = path.join(__dirname, 'forwards', 'afibel_orders_08-04.csv')
-    const remotePath = `/orders/afibel_orders_08-04.csv`;
+//Config SFTP Afibel 
+const configAfibel = {
+    host: process.env.HOST_FTP_AFIBEL,
+    port: process.env.PORT_FTP_AFIBEL,
+    username: process.env.USERNAME_FTP_AFIBEL,
+    password: process.env.PASSWORD_FTP_AFIBEL
+}
 
+//Send csv file in shippingbo FTP
+const sendCSVToShippingbo = async (localPath, fileName) => {
+    // const localPath = path.join(__dirname, 'forwards', 'afibel_orders_08-04.csv')
+    // const remotePath = `/orders/afibel_orders_08-04.csv`;
+    const remotePath = `/orders/${fileName}`;
     try {
-        await sftp.connect(config);
+        await sftpSbo.connect(configSbo);
         console.log('Connecté au serveur SFTP');
-        await sftp.put(localPath, remotePath);
+        await sftpSbo.put(localPath, remotePath);
         console.log(`File send to ${remotePath}` );
-        await sftp.end();
+        await sftpSbo.end();
         console.log('Sftp closed');
 
+        //Remove file
+        fs.unlinkSync(localPath);
+
     } catch (error) {
-        console.error("Error during sftp transfer", error);        
+        console.error("Error during sftp transfer", error);     
+        try {await sftpSbo.end(); } catch {}   
     }
 }
 
 //Get new orders file from Afibel sftp
 const getNewOrdersFile = async () => {
     console.log('FUNCTION TO RETRIEVE NEW ORDERS FILE AFIBEL SFTP');
-}
+    try {
+        await sftpAfibel.connect(configAfibel);
+        console.log("Connected to Afibel Sftp");
 
+        const remoteFiles = await sftpAfibel.list('/potiron/IN');
+        const afibelFile = remoteFiles.find(file => file.name.startsWith('new_order_afibel'));
+
+        if(!afibelFile) {
+            console.log('No file in Afibel IN folder');
+            await sftpAfibel.end();
+            return;
+        }
+
+        const remoteAfibelPath = `/potiron/IN/${afibelFile.name}`;
+        const localPath = path.join(__dirname, 'forwards', afibelFile.name);
+        await sftpAfibel.get(remoteAfibelPath, localPath);
+        console.log(`file from Afibel ${afibelFile.name}`);
+        await sftpAfibel.end()
+
+        await sendCSVToShippingbo(localPath, afibelFile.name);
+
+    } catch (error) {
+        console.error('error getting file from Afibel SFTP', error);
+        try { await sftpAfibel.end(); } catch {}
+    }
+}
 
 
 //Retrieve order and select tagged Afibel
