@@ -59,7 +59,7 @@ const getNewOrdersFile = async () => {
         await sftpAfibel.connect(configAfibel);
         console.log("Connected to Afibel Sftp");
 
-        const remoteFiles = await sftpAfibel.list('/Potiron/IN');
+        const remoteFiles = await sftpAfibel.list('/IN');
         const afibelFile = remoteFiles.find(file => file.name.startsWith('new_order_afibel'));
 
         if(!afibelFile) {
@@ -68,7 +68,7 @@ const getNewOrdersFile = async () => {
             return;
         }
 
-        const remoteAfibelPath = `/potiron/IN/${afibelFile.name}`;
+        const remoteAfibelPath = `/IN/${afibelFile.name}`;
         const localPath = path.join(__dirname, 'forwards', afibelFile.name);
         await sftpAfibel.get(remoteAfibelPath, localPath);
         console.log(`file from Afibel ${afibelFile.name}`);
@@ -199,7 +199,7 @@ const generateCsv = async () => {
 }
 
 const sendTrackingToAfibel = async (localPath, fileName) => {
-    const remotePath = `/Potiron/OUT/${fileName}`;
+    const remotePath = `/OUT/${fileName}`;
 
     try {
         await sftpAfibel.connect(configAfibel);
