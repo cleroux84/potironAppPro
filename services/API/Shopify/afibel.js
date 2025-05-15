@@ -86,8 +86,8 @@ const getNewOrdersFile = async () => {
 //Retrieve order and select tagged Afibel
 const getAfibelOrders = async () => {
     accessToken = await getAccessTokenFromDb();
-    // const getOrderUrl = `https://app.shippingbo.com/orders?search[joins][order_tags][value__eq]=AFIBEL`;    
-    const getOrderUrl = `https://app.shippingbo.com/orders?search[joins][order_tags][value__eq]=BAZARCHIC`;    
+    const getOrderUrl = `https://app.shippingbo.com/orders?search[joins][order_tags][value__eq]=AFIBEL`;    
+    // const getOrderUrl = `https://app.shippingbo.com/orders?search[joins][order_tags][value__eq]=BAZARCHIC`;    
     const getOrderOptions = {
         method: 'GET',
         headers: {
@@ -152,10 +152,11 @@ const getAfibelTrackings = async (id) => {
       }
 }
 
+//generate CSV tracking file 
 const generateCsv = async () => {
     const orders = await getAfibelOrders();
-    await refreshMS365AccessToken();
-    accessTokenMS365 = await getAccessTokenMS365();
+    // await refreshMS365AccessToken();
+    // accessTokenMS365 = await getAccessTokenMS365();
     // console.log("token ms365", accessTokenMS365);
     // console.log(`${orders.length} commandes Afibel`);
     const result = [];
@@ -180,22 +181,39 @@ const generateCsv = async () => {
                     return;
                 }
  
-                // console.log("Fichier CSV lu, envoi par email...");
-//TODO send to FTP instead of send by mail and REMOVE the file from uploads !
+                await sendTrackingToAfibel(outputPath, path.basename(outputPath));
                 await mailCSV(accessTokenMS365, fileContent);
-                fs.unlink(outputPath, (err) => {
-                    if(err) {
-                        console.error('Error removing csv fil from uploads dir', err)
-                    } else {
-                        console.log('CSV file removed');
-                    }
+                // fs.unlink(outputPath, (err) => {
+                //     if(err) {
+                //         console.error('Error removing csv fil from uploads dir', err)
+                //     } else {
+                //         console.log('CSV file removed');
+                //     }
 
-                })
+                // })
             });
         })
         .on('error', (err) => {
             console.error("Error writing CSV File", err);
         });
+}
+
+const sendTrackingToAfibel = async (localPath, fileName) => {
+    const remotePath = `/potiron/OUT/${fileName}`;
+
+    try {
+        await sftpAfibel.connect(configAfibel);
+        console.log('Connected to Afibel SFTP to send csv tracking file');
+        await sftpAfibel.put(localPath, remotePath);
+        console.log('tracking File sent ');
+        await sftpAfibel.end();
+
+        fs.unlinkSync(localPath);
+        console.log('CSV rm')
+    } catch (error) {
+        console.error('Error sending tracking file', error);
+        try { await sftpAfibel.end(); } catch {}
+    }
 }
 
 // 1- programmer cette récup
