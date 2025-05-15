@@ -31,7 +31,7 @@ const proCustomerRoute = require('./routes/proCustomer.js');
 const proOrderRoute = require('./routes/proOrder.js');
 const returnContactRoute = require('./routes/returnOrderContact.js');
 const allOrdersRoute = require('./routes/allOrders.js');
-const { createOrderFromCSV, getAfibelOrders, generateCsv, sendCSVToShippingbo } = require('./services/API/Shopify/afibel.js');
+const { createOrderFromCSV, getAfibelOrders, generateCsv, sendCSVToShippingbo, getNewOrdersFile } = require('./services/API/Shopify/afibel.js');
 const { getOrderDetails } = require('./services/API/Shippingbo/Potiron/ordersCRUD.js');
 app.use('/returnOrder', returnOrderRoute);
 app.use('/proCustomer', proCustomerRoute);
@@ -55,6 +55,11 @@ cron.schedule('0 9 * * *', checkScheduledEmails, { //9h00
   schedule: true,
   timezone: "Europe/Paris"
 });
+//GET NEW ORDERS FROM AFIBEL every day 
+cron.schedule('0 9 * * *', getNewOrdersFile, { //9h00
+    schedule: true,
+    timezone: "Europe/Paris"
+  });
 
 app.listen(PORT, () => {
   console.log(`Serveur en cours d'écoute sur le port ${PORT}`);
