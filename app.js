@@ -50,16 +50,31 @@ getWebhooks();
 // sendCSVToShippingbo();
 
 //CHECK Scheduled emails in DB every day
-cron.schedule('0 9 * * *', checkScheduledEmails, { //9h00
-// cron.schedule('50 10 * * *', checkScheduledEmails, { //10h50
-  schedule: true,
+// cron.schedule('0 9 * * *', checkScheduledEmails, { //9h00
+// // cron.schedule('50 10 * * *', checkScheduledEmails, { //10h50
+//   schedule: true,
+//   timezone: "Europe/Paris"
+// });
+// //GET NEW ORDERS FROM AFIBEL every day 
+// cron.schedule('58 8 * * *', getNewOrdersFile, { //9h00
+//     schedule: true,
+//     timezone: "Europe/Paris"
+//   });
+
+
+cron.schedule('12 9 * * *', () => {
+  console.log("⏰ getNewOrdersFile déclenché à : ", new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' }));
+  getNewOrdersFile();
+}, {
   timezone: "Europe/Paris"
 });
-//GET NEW ORDERS FROM AFIBEL every day 
-cron.schedule('0 9 * * *', getNewOrdersFile, { //9h00
-    schedule: true,
-    timezone: "Europe/Paris"
-  });
+
+cron.schedule('10 9 * * *', () => {
+  console.log("⏰ checkScheduledEmails déclenché à : ", new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' }));
+  checkScheduledEmails();
+}, {
+  timezone: "Europe/Paris"
+});
 
 app.listen(PORT, () => {
   console.log(`Serveur en cours d'écoute sur le port ${PORT}`);
