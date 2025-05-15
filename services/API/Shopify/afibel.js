@@ -60,7 +60,7 @@ const getNewOrdersFile = async () => {
         console.log("Connected to Afibel Sftp");
 
         const remoteFiles = await sftpAfibel.list('/IN');
-        const afibelFile = remoteFiles.find(file => file.name.startsWith('new_order_afibel'));
+        const afibelFile = remoteFiles.find(file => file.name.startsWith('new_orders_afibel'));
 
         if(!afibelFile) {
             console.log('No file in Afibel IN folder');
