@@ -54,32 +54,32 @@ const sendCSVToShippingbo = async (localPath, fileName) => {
 
 //Get new orders file from Afibel sftp
 const getNewOrdersFile = async () => {
-    console.log('FUNCTION TO RETRIEVE NEW ORDERS FILE AFIBEL SFTP');
-    // try {
-    //     await sftpAfibel.connect(configAfibel);
-    //     console.log("Connected to Afibel Sftp");
+    // console.log('FUNCTION TO RETRIEVE NEW ORDERS FILE AFIBEL SFTP');
+    try {
+        await sftpAfibel.connect(configAfibel);
+        console.log("Connected to Afibel Sftp");
 
-    //     const remoteFiles = await sftpAfibel.list('/IN');
-    //     const afibelFile = remoteFiles.find(file => file.name.startsWith('new_orders_afibel'));
+        const remoteFiles = await sftpAfibel.list('/IN');
+        const afibelFile = remoteFiles.find(file => file.name.startsWith('new_orders_afibel'));
 
-    //     if(!afibelFile) {
-    //         console.log('No file in Afibel IN folder');
-    //         await sftpAfibel.end();
-    //         return;
-    //     }
+        if(!afibelFile) {
+            console.log('No file in Afibel IN folder');
+            await sftpAfibel.end();
+            return;
+        }
 
-    //     const remoteAfibelPath = `/IN/${afibelFile.name}`;
-    //     const localPath = path.join(__dirname, 'forwards', afibelFile.name);
-    //     await sftpAfibel.get(remoteAfibelPath, localPath);
-    //     console.log(`file from Afibel ${afibelFile.name}`);
-    //     await sftpAfibel.end()
+        const remoteAfibelPath = `/IN/${afibelFile.name}`;
+        const localPath = path.join(__dirname, 'forwards', afibelFile.name);
+        await sftpAfibel.get(remoteAfibelPath, localPath);
+        console.log(`file from Afibel ${afibelFile.name}`);
+        await sftpAfibel.end()
 
-    //     await sendCSVToShippingbo(localPath, afibelFile.name);
+        await sendCSVToShippingbo(localPath, afibelFile.name);
 
-    // } catch (error) {
-    //     console.error('error getting file from Afibel SFTP', error);
-    //     try { await sftpAfibel.end(); } catch {}
-    // }
+    } catch (error) {
+        console.error('error getting file from Afibel SFTP', error);
+        try { await sftpAfibel.end(); } catch {}
+    }
 }
 
 
