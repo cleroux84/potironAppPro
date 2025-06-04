@@ -122,6 +122,27 @@ const getAfibelOrders = async () => {
 
 } 
 
+//Translate status
+const stateTranslations = {
+    at_pickup_location: "En point relais",
+    back_from_client: "Retour client",
+    canceled: "Annulé",
+    closed: "Clôturé",
+    dispatched: "Expédié",
+    handed_to_carrier: "Remis au transporteur",
+    in_preparation: "En préparation",
+    in_trouble: "Problème",
+    merged: "Fusionné",
+    partially_shipped: "Partiellement expédié",
+    rejected: "Rejeté",
+    sent_to_logistics: "Envoyé en logistique",
+    shipped: "Expédié",
+    splitted: "Scindé",
+    to_be_prepared: "À préparer",
+    waiting_for_payment: "En attente de paiement",
+    waiting_for_stock: "En attente de stock"
+  };
+
 // Retrieve and select shipments data for each order bt id
 const getAfibelTrackings = async (id) => {
     accessToken = await getAccessTokenFromDb();
@@ -142,7 +163,7 @@ const getAfibelTrackings = async (id) => {
       return {
         afibel_id: data.order.origin_ref,
         order_id: data.order.source_ref,
-        status: data.order.state,
+        status: stateTranslations[data.order.state] || data.order.state,
         created_at: data.order.created_at,
         name: data.order.shipping_address?.fullname,
         tracking_number: data.order.shipments?.[0]?.shipping_ref || '',
