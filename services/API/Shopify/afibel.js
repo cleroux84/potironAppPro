@@ -60,7 +60,7 @@ const getNewOrdersFile = async () => {
         console.log("Connected to Afibel Sftp");
 
         const remoteFiles = await sftpAfibel.list('/IN');
-        const afibelFile = remoteFiles.find(file => file.name.startsWith('new_orders_afibel')); 
+        const afibelFile = remoteFiles.find(file => file.name.startsWith('new_orders_afibel'));
 
         if(!afibelFile) {
             console.log('No file in Afibel IN folder');
@@ -83,7 +83,7 @@ const getNewOrdersFile = async () => {
 }
 
 
-//Retrieve order and select tagged Afibel for TRACKING
+//Retrieve order and select tagged Afibel
 const getAfibelOrders = async () => {
     accessToken = await getAccessTokenFromDb();
     const getOrderUrl = `https://app.shippingbo.com/orders?search[joins][order_tags][value__eq]=AFIBEL`;    
@@ -169,7 +169,6 @@ const generateCsv = async () => {
  
     const date = new Date().toISOString().split('T')[0];
     const fileName = `afibel_tracking_${date}.csv`;
-
     // Export CSV
     const uploadDir = path.join(__dirname, '..', 'uploads');
     const outputPath = path.join(uploadDir, fileName);
@@ -185,7 +184,15 @@ const generateCsv = async () => {
                 }
  
                 await sendTrackingToAfibel(outputPath, path.basename(outputPath));
-                // await mailCSV(accessTokenMS365, fileContent);
+                await mailCSV(accessTokenMS365, fileContent);
+                // fs.unlink(outputPath, (err) => {
+                //     if(err) {
+                //         console.error('Error removing csv fil from uploads dir', err)
+                //     } else {
+                //         console.log('CSV file removed');
+                //     }
+
+                // })
             });
         })
         .on('error', (err) => {
