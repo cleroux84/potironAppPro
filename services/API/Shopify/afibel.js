@@ -168,7 +168,7 @@ const generateCsv = async () => {
     }
  
     const date = new Date().toISOString().split('T')[0];
-    const fileName = `afibel_tracking_${date}`;
+    const fileName = `afibel_tracking_${date}.csv`;
 
     // Export CSV
     const uploadDir = path.join(__dirname, '..', 'uploads');
