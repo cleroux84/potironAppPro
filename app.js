@@ -64,8 +64,8 @@ getWebhooks();
 
 cron.schedule('35 14  * * *', () => {
   console.log("⏰ getNewOrdersFile déclenché à : ", new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' }));
-  getNewOrdersFile();
-  // generateCsv();
+  // getNewOrdersFile();
+  generateCsv();
 }, {
   timezone: "Europe/Paris"
 });
