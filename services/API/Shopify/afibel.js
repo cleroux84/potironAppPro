@@ -60,7 +60,7 @@ const getNewOrdersFile = async () => {
         console.log("Connected to Afibel Sftp");
 
         const remoteFiles = await sftpAfibel.list('/IN');
-        const afibelFile = remoteFiles.find(file => file.name.startsWith('new_orders_afibel'));
+        const afibelFile = remoteFiles.find(file => file.name.startsWith('new_orders_afibel')); 
 
         if(!afibelFile) {
             console.log('No file in Afibel IN folder');
@@ -83,7 +83,7 @@ const getNewOrdersFile = async () => {
 }
 
 
-//Retrieve order and select tagged Afibel
+//Retrieve order and select tagged Afibel for TRACKING
 const getAfibelOrders = async () => {
     accessToken = await getAccessTokenFromDb();
     const getOrderUrl = `https://app.shippingbo.com/orders?search[joins][order_tags][value__eq]=AFIBEL`;    
@@ -167,9 +167,12 @@ const generateCsv = async () => {
         await new Promise(resolve => setTimeout(resolve, 300));
     }
  
+    const date = new Date().toISOString().split('T')[0];
+    const fileName = `afibel_tracking_${date}`;
+
     // Export CSV
     const uploadDir = path.join(__dirname, '..', 'uploads');
-    const outputPath = path.join(uploadDir, 'afibel_tracking.csv');
+    const outputPath = path.join(uploadDir, fileName);
     // console.log("Chemin du fichier CSV : ", outputPath);
  
     writeToPath(outputPath, result, { headers: true })
@@ -181,16 +184,8 @@ const generateCsv = async () => {
                     return;
                 }
  
-                await sendTrackingToAfibel(outputPath, path.basename(outputPath));
-                await mailCSV(accessTokenMS365, fileContent);
-                // fs.unlink(outputPath, (err) => {
-                //     if(err) {
-                //         console.error('Error removing csv fil from uploads dir', err)
-                //     } else {
-                //         console.log('CSV file removed');
-                //     }
-
-                // })
+                await sendTrackingToAfibel(outputPath, fileName);
+                // await mailCSV(accessTokenMS365, fileContent);
             });
         })
         .on('error', (err) => {
