@@ -126,19 +126,19 @@ const getAfibelOrders = async () => {
 const stateTranslations = {
     at_pickup_location: "En point relais",
     back_from_client: "Retour client",
-    canceled: "Annulé",
-    closed: "Clôturé",
-    dispatched: "Expédié",
+    canceled: "Annule",
+    closed: "Cloture",
+    dispatched: "Expedie",
     handed_to_carrier: "Remis au transporteur",
-    in_preparation: "En préparation",
-    in_trouble: "Problème",
-    merged: "Fusionné",
-    partially_shipped: "Partiellement expédié",
+    in_preparation: "En preparation",
+    in_trouble: "Probleme",
+    merged: "Fusionne",
+    partially_shipped: "Partiellement expedie",
     rejected: "Rejeté",
-    sent_to_logistics: "Envoyé en logistique",
-    shipped: "Expédié",
-    splitted: "Scindé",
-    to_be_prepared: "À préparer",
+    sent_to_logistics: "Envoye en logistique",
+    shipped: "Expedie",
+    splitted: "Scinde",
+    to_be_prepared: "A preparer",
     waiting_for_payment: "En attente de paiement",
     waiting_for_stock: "En attente de stock"
   };
@@ -159,8 +159,8 @@ const getAfibelTrackings = async (id) => {
       };
       const response = await fetch(getUrl, getOptions);
       const data = await response.json();
-      console.log("STATE reçu de Shippingbo :", data.order.state);
-      console.log('translation', stateTranslations[data.order.state]);
+    //   console.log("STATE reçu de Shippingbo :", data.order.state);
+    //   console.log('translation', stateTranslations[data.order.state]);
 
     //   console.log("data shipments", data.order.shipments)
       return {
