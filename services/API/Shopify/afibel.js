@@ -37,7 +37,7 @@ const sendCSVToShippingbo = async (localPath, fileName) => {
     const remotePath = `/orders/${fileName}`;
     try {
         await sftpSbo.connect(configSbo);
-        console.log('Connecté au serveur SFTP');
+        console.log('Connecté au serveur SFTP Shippingbo');
         await sftpSbo.put(localPath, remotePath);
         console.log(`File send to ${remotePath}` );
         await sftpSbo.end();
