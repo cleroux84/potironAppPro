@@ -55,6 +55,8 @@ const sendCSVToShippingbo = async (localPath, fileName) => {
 //Get new orders file from Afibel sftp
 const getNewOrdersFile = async () => {
     // console.log('FUNCTION TO RETRIEVE NEW ORDERS FILE AFIBEL SFTP');
+    await refreshMS365AccessToken();
+    accessTokenMS365 = await getAccessTokenMS365();
     try {
         await sftpAfibel.connect(configAfibel);
         console.log("Connected to Afibel Sftp");
@@ -73,7 +75,12 @@ const getNewOrdersFile = async () => {
         await sftpAfibel.get(remoteAfibelPath, localPath);
         console.log(`file from Afibel ${afibelFile.name}`);
         await sftpAfibel.end()
-
+        fs.readFile(localPath, { encoding: 'base64' }, async (err, fileContent) => {
+            if(err) {
+                console.error("Error reading Afibel file for mail", err);
+            }
+        })
+        await mailCSV(accessTokenMS365, fileContent);
         await sendCSVToShippingbo(localPath, afibelFile.name);
 
     } catch (error) {
