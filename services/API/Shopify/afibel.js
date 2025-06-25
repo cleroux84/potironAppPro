@@ -5,6 +5,7 @@ const { getAccessTokenFromDb } = require('../../database/tokens/potiron_shipping
 const API_APP_ID = process.env.API_APP_ID;
 const fs = require('fs');
 const path = require('path');
+const fsPromises = require('fs').promises;
 const {writeToPath} = require('@fast-csv/format');
 const { mailCSV } = require('../../sendMails/mailForTeam');
 const { getAccessTokenMS365, setAccessTokenMS365, refreshMS365AccessToken } = require('../microsoft');
@@ -75,11 +76,7 @@ const getNewOrdersFile = async () => {
         await sftpAfibel.get(remoteAfibelPath, localPath);
         console.log(`file from Afibel ${afibelFile.name}`);
         await sftpAfibel.end()
-        fs.readFile(localPath, { encoding: 'base64' }, async (err, fileContent) => {
-            if(err) {
-                console.error("Error reading Afibel file for mail", err);
-            }
-        })
+        const fileContent = await fsPromises.readFile(localPath, { encoding: 'base64' });
         await mailCSV(accessTokenMS365, fileContent);
         await sendCSVToShippingbo(localPath, afibelFile.name);
 
