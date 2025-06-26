@@ -89,15 +89,9 @@ const getNewOrdersFile = async () => {
 
 //Retrieve order and select tagged Afibel
 const getAfibelOrders = async () => {
-    const accessToken = await getAccessTokenFromDb();
-    const startDate = '2025-06-25';
-    const allOrders = [];
-    let page = 1;
-    let keepGoing = true;
-   
-    while (keepGoing) {
-      const getOrderUrl = `https://app.shippingbo.com/orders?page=${page}&search[joins][order_tags][value__eq]=AFIBEL&search[created_at][value__gte]=${startDate}`;
-      const getOrderOptions = {
+    accessToken = await getAccessTokenFromDb();
+    const getOrderUrl = `https://app.shippingbo.com/orders?search[joins][order_tags][value__eq]=AFIBEL`;    
+    const getOrderOptions = {
         method: 'GET',
         headers: {
           'Content-type': 'application/json',
@@ -107,20 +101,28 @@ const getAfibelOrders = async () => {
           Authorization: `Bearer ${accessToken}`
         },
       };
-   
-      const response = await fetch(getOrderUrl, getOrderOptions);
-      const data = await response.json();
-   
-      if (data.orders && data.orders.length > 0) {
-        allOrders.push(...data.orders);
-        page++; // continue to next page
-      } else {
-        keepGoing = false; // no more orders
-      }
+      const allOrders = [];
+      let page = 1;
+      let keepGoing = true;
+      while(keepGoing) {
+        const response = await fetch(getOrderUrl, getOrderOptions);
+        const data = await response.json();
+        if(data.orders && data.orders.length > 0) {
+            allOrders.push(...data.orders);
+            if(allOrders.length >= 10) {
+                allOrders.length = 10;
+                keepGoing = false;
+            } else {
+                page++;
+            }
+        } else {
+            keepGoing = false;
+        }
     }
-   
+    // console.log('allOrders', allOrders);
     return allOrders;
-  };
+
+} 
 
 //Translate status
 const stateTranslations = {
