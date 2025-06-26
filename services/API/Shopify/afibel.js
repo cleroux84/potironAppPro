@@ -90,7 +90,14 @@ const getNewOrdersFile = async () => {
 //Retrieve order and select tagged Afibel
 const getAfibelOrders = async () => {
     const accessToken = await getAccessTokenFromDb();
+    const API_APP_ID = 'TON_APP_ID_ICI'; // Assure-toi qu'il est défini
+   
     const baseUrl = 'https://app.shippingbo.com/orders';
+    const params = new URLSearchParams({
+      'search[joins][order_tags][value__eq]': 'AFIBEL',
+      'search[created_at][gt]': '2025-06-25T00:00:00Z',
+    });
+   
     const getOrderOptions = {
       method: 'GET',
       headers: {
@@ -98,38 +105,33 @@ const getAfibelOrders = async () => {
         Accept: 'application/json',
         'X-API-VERSION': '1',
         'X-API-APP-ID': API_APP_ID,
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`
       },
     };
    
-    const allOrdersMap = new Map();
-    const createdAfter = new Date('2025-06-25T00:00:00Z');
+    const allOrders = [];
     let page = 1;
     let keepGoing = true;
    
     while (keepGoing) {
-      const url = `${baseUrl}?search[joins][order_tags][value__eq]=AFIBEL&page=${page}`;
+      const url = `${baseUrl}?${params.toString()}&page=${page}`;
       const response = await fetch(url, getOrderOptions);
       const data = await response.json();
    
       if (data.orders && data.orders.length > 0) {
-        for (const order of data.orders) {
-          const createdAt = new Date(order.created_at);
-          if (createdAt > createdAfter && !allOrdersMap.has(order.id)) {
-            allOrdersMap.set(order.id, order);
-            if (allOrdersMap.size >= 50) {
-              keepGoing = false;
-              break;
-            }
-          }
+        allOrders.push(...data.orders);
+        if (allOrders.length >= 50) {
+          allOrders.length = 50;
+          keepGoing = false;
+        } else {
+          page++;
         }
-        page++;
       } else {
         keepGoing = false;
       }
     }
    
-    return Array.from(allOrdersMap.values());
+    return allOrders;
   };
 
 //Translate status
