@@ -89,10 +89,15 @@ const getNewOrdersFile = async () => {
 
 //Retrieve order and select tagged Afibel
 const getAfibelOrders = async () => {
-    accessToken = await getAccessTokenFromDb();
-    const getOrderUrl = `https://app.shippingbo.com/orders?search[joins][order_tags][value__eq]=AFIBEL`;    
-    // const getOrderUrl = `https://app.shippingbo.com/orders?search[joins][order_tags][value__eq]=BAZARCHIC`;    
-    const getOrderOptions = {
+    const accessToken = await getAccessTokenFromDb();
+    const startDate = '2025-06-25';
+    const allOrders = [];
+    let page = 1;
+    let keepGoing = true;
+   
+    while (keepGoing) {
+      const getOrderUrl = `https://app.shippingbo.com/orders?page=${page}&search[joins][order_tags][value__eq]=AFIBEL&search[created_at][value__gte]=${startDate}`;
+      const getOrderOptions = {
         method: 'GET',
         headers: {
           'Content-type': 'application/json',
@@ -102,29 +107,20 @@ const getAfibelOrders = async () => {
           Authorization: `Bearer ${accessToken}`
         },
       };
-      const allOrders = [];
-      let page = 1;
-      let keepGoing = true;
-      while(keepGoing) {
-        const response = await fetch(getOrderUrl, getOrderOptions);
-        const data = await response.json();
-        if(data.orders && data.orders.length > 0) {
-            allOrders.push(...data.orders);
-//TODO no limit to 10 ?
-            if(allOrders.length >= 10) {
-                allOrders.length = 10;
-                keepGoing = false;
-            } else {
-                page++;
-            }
-        } else {
-            keepGoing = false;
-        }
+   
+      const response = await fetch(getOrderUrl, getOrderOptions);
+      const data = await response.json();
+   
+      if (data.orders && data.orders.length > 0) {
+        allOrders.push(...data.orders);
+        page++; // continue to next page
+      } else {
+        keepGoing = false; // no more orders
+      }
     }
-    // console.log('allOrders', allOrders);
+   
     return allOrders;
-
-} 
+  };
 
 //Translate status
 const stateTranslations = {
@@ -185,8 +181,7 @@ const generateCsv = async () => {
     const orders = await getAfibelOrders();
     await refreshMS365AccessToken();
     accessTokenMS365 = await getAccessTokenMS365();
-    // console.log("token ms365", accessTokenMS365);
-    // console.log(`${orders.length} commandes Afibel`);
+
     const result = [];
  
     for (const order of orders) {
