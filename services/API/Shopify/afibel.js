@@ -89,53 +89,56 @@ const getNewOrdersFile = async () => {
 
 //Retrieve order and select tagged Afibel
 const getAfibelOrders = async () => {
-    const accessToken = await getAccessTokenFromDb();
-    const getOrderUrl = `https://app.shippingbo.com/orders?search[joins][order_tags][value__eq]=AFIBEL`;
-    const getOrderOptions = {
-      method: 'GET',
-      headers: {
-        'Content-type': 'application/json',
-        Accept: 'application/json',
-        'X-API-VERSION': '1',
-        'X-API-APP-ID': API_APP_ID,
-        Authorization: `Bearer ${accessToken}`
-      },
-    };
+    try {
+      const accessToken = await getAccessTokenFromDb();
+      let getOrderUrl = `https://app.shippingbo.com/orders?search[joins][order_tags][value__eq]=AFIBEL`;
+      const getOrderOptions = {
+        method: 'GET',
+        headers: {
+          'Content-type': 'application/json',
+          Accept: 'application/json',
+          'X-API-VERSION': '1',
+          'X-API-APP-ID': API_APP_ID,
+          Authorization: `Bearer ${accessToken}`
+        },
+      };
    
-    const allOrders = [];
-    let keepGoing = true;
-    let page = 1;
+      const allOrders = [];
+      let keepGoing = true;
+      let page = 1;
    
-    while (keepGoing) {
-      // Ajoute la pagination si nécessaire, par exemple en modifiant l'URL pour inclure le numéro de page
-      const response = await fetch(getOrderUrl, getOrderOptions);
-      const data = await response.json();
+      while (keepGoing) {
+        const response = await fetch(getOrderUrl, getOrderOptions);
+        const data = await response.json();
+        console.log('API Response:', data); // Log the API response
    
-      if (data.orders && data.orders.length > 0) {
-        // Filtrer les commandes créées le 25/06/2025
-        const filteredOrders = data.orders.filter(order => {
-          const createdAt = new Date(order.created_at);
-          const targetDate = new Date('2025-06-25T00:00:00+00:00');
+        if (data.orders && data.orders.length > 0) {
+          const filteredOrders = data.orders.filter(order => {
+            const createdAt = new Date(order.created_at);
+            const targetDate = new Date('2025-06-25T00:00:00+00:00');
+            return createdAt.toDateString() === targetDate.toDateString();
+          });
    
-          return createdAt.toDateString() === targetDate.toDateString();
-        });
+          allOrders.push(...filteredOrders);
+          console.log(`Filtered Orders for page ${page}:`, filteredOrders); // Log filtered orders
    
-        allOrders.push(...filteredOrders);
-   
-        // Vérifie s'il y a plus de pages à récupérer
-        if (data.orders.length < data.orders_per_page) {
-          keepGoing = false;
+          // Check if there are more pages to fetch
+          if (data.orders.length < data.orders_per_page) {
+            keepGoing = false;
+          } else {
+            page++;
+            getOrderUrl = `https://app.shippingbo.com/orders?page=${page}&search[joins][order_tags][value__eq]=AFIBEL`;
+          }
         } else {
-          page++;
-          // Mettre à jour l'URL avec le nouveau numéro de page si nécessaire
-          // Par exemple : `https://app.shippingbo.com/orders?page=${page}&search[joins][order_tags][value__eq]=AFIBEL`
+          keepGoing = false;
         }
-      } else {
-        keepGoing = false;
       }
-    }
    
-    return allOrders;
+      return allOrders;
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      return [];
+    }
   };
 
 //Translate status
