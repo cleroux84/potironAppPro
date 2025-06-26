@@ -91,8 +91,6 @@ const getNewOrdersFile = async () => {
 const getAfibelOrders = async () => {
     const accessToken = await getAccessTokenFromDb();
     const uniqueOrders = new Map();
-    let page = 1;
-    let keepGoing = true;
    
     const getOrderOptions = {
       method: 'GET',
@@ -105,7 +103,15 @@ const getAfibelOrders = async () => {
       },
     };
    
-    while (keepGoing) {
+    // D'abord, on récupère la 1ère page pour connaître le nombre total de pages
+    const baseUrl = `https://app.shippingbo.com/orders?search[joins][order_tags][value__eq]=AFIBEL&search[created_at__gt]=2025-06-25T00:00:00&page=1`;
+    const initialResponse = await fetch(baseUrl, getOrderOptions);
+    const initialData = await initialResponse.json();
+   
+    const totalPages = initialData.pagination?.total_pages || 1;
+    const startPage = Math.max(1, totalPages - 9); // Limite à 10 dernières pages
+   
+    for (let page = startPage; page <= totalPages; page++) {
       const getOrderUrl = `https://app.shippingbo.com/orders?search[joins][order_tags][value__eq]=AFIBEL&search[created_at__gt]=2025-06-25T00:00:00&page=${page}`;
       const response = await fetch(getOrderUrl, getOrderOptions);
       const data = await response.json();
@@ -115,14 +121,10 @@ const getAfibelOrders = async () => {
           if (!uniqueOrders.has(order.id)) {
             uniqueOrders.set(order.id, order);
             if (uniqueOrders.size >= 50) {
-              keepGoing = false;
-              break;
+              return Array.from(uniqueOrders.values());
             }
           }
         }
-        page++;
-      } else {
-        keepGoing = false;
       }
     }
    
