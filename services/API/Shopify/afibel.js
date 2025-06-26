@@ -116,8 +116,8 @@ const getAfibelOrders = async () => {
         const filteredOrders = data.orders.filter(order => new Date(order.created_at) > cutoffDate);
         allOrders.push(...filteredOrders);
    
-        if (allOrders.length >= 10) {
-          allOrders.length = 10; // Trim to exactly 10 if we've gone over
+        if (allOrders.length >= 50) {
+          allOrders.length = 50; 
           keepGoing = false;
         } else {
           page++;
