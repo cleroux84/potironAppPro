@@ -90,7 +90,8 @@ const getNewOrdersFile = async () => {
 //Retrieve order and select tagged Afibel
 const getAfibelOrders = async () => {
     const accessToken = await getAccessTokenFromDb();
-    const getOrderUrl = `https://app.shippingbo.com/orders?search[joins][order_tags][value__eq]=AFIBEL&search[created_at__gte]>2025-06-25`;
+    // Base URL avec les paramètres de recherche
+    const baseUrl = `https://app.shippingbo.com/orders?search[joins][order_tags][value__eq]=AFIBEL&search[created_at__gte]=2025-06-25&sort=-created_at`;
     const getOrderOptions = {
       method: 'GET',
       headers: {
@@ -101,36 +102,38 @@ const getAfibelOrders = async () => {
         Authorization: `Bearer ${accessToken}`
       },
     };
-   
+  
     const allOrders = [];
     let page = 1;
     let keepGoing = true;
-   
+  
     while (keepGoing) {
-      const response = await fetch(getOrderUrl, getOrderOptions);
+      // Ajout dynamique de la pagination
+      const currentUrl = `${baseUrl}&page=${page}`;
+      const response = await fetch(currentUrl, getOrderOptions);
       const data = await response.json();
-   
-      if (data.orders && data.orders.length > 0) {
+  
+      if (data.orders?.length > 0) {
         allOrders.push(...data.orders);
-   
+        
+        // Arrêt si on atteint 10 commandes
         if (allOrders.length >= 10) {
-          allOrders.length = 10;
+          allOrders.length = 10; // Tronquer à 10 commandes
           keepGoing = false;
         } else {
-          page++;
-          // Mettre à jour l'URL avec le nouveau numéro de page si nécessaire
-          // Par exemple : `https://app.shippingbo.com/orders?page=${page}&search[joins][order_tags][value__eq]=AFIBEL&search[created_at__gte]=2025-06-25`
+          page++; // Page suivante
         }
       } else {
-        keepGoing = false;
+        keepGoing = false; // Plus de commandes
       }
     }
-   
-    // Trier les commandes par date de création, de la plus récente à la plus ancienne
+  
+    // Tri par date de création (décroissant)
     allOrders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-   
+    
     return allOrders;
   };
+  
 
 //Translate status
 const stateTranslations = {
