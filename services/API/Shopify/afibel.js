@@ -117,7 +117,7 @@ const getAfibelOrders = async () => {
         allOrders.push(...filteredOrders);
    
         if (allOrders.length >= 50) {
-          allOrders.length = 50; 
+          allOrders.length = 50; // Coupe à 50 max
           keepGoing = false;
         } else {
           page++;
