@@ -90,7 +90,7 @@ const getNewOrdersFile = async () => {
 //Retrieve order and select tagged Afibel
 const getAfibelOrders = async () => {
     const accessToken = await getAccessTokenFromDb();
-    const getOrderUrl = `https://app.shippingbo.com/orders?search[joins][order_tags][value__eq]=AFIBEL`;
+    let getOrderUrl = `https://app.shippingbo.com/orders?search[joins][order_tags][value__eq]=AFIBEL`;
     const getOrderOptions = {
       method: 'GET',
       headers: {
@@ -107,7 +107,7 @@ const getAfibelOrders = async () => {
     let keepGoing = true;
     const targetDate = new Date('2025-06-25T00:00:00+00:00');
    
-    while (keepGoing) {
+    while (keepGoing && allOrders.length < 50) {
       const response = await fetch(getOrderUrl, getOrderOptions);
       const data = await response.json();
    
@@ -118,18 +118,23 @@ const getAfibelOrders = async () => {
           return createdAt >= targetDate;
         });
    
+        // Ajouter les commandes filtrées à la liste
         allOrders.push(...filteredOrders);
    
-        // Arrêter si nous avons déjà 10 commandes ou plus
+        // Si nous avons atteint ou dépassé 50 commandes, nous arrêtons
         if (allOrders.length >= 50) {
           allOrders.length = 50;
           keepGoing = false;
+        } else if (filteredOrders.length < data.orders_per_page) {
+          // Si le nombre de commandes filtrées est inférieur au nombre par page, il n'y a plus de pages
+          keepGoing = false;
         } else {
+          // Passer à la page suivante
           page++;
-          // Mettre à jour l'URL avec le nouveau numéro de page si nécessaire
-          // Par exemple : `https://app.shippingbo.com/orders?page=${page}&search[joins][order_tags][value__eq]=AFIBEL`
+          getOrderUrl = `https://app.shippingbo.com/orders?page=${page}&search[joins][order_tags][value__eq]=AFIBEL`;
         }
       } else {
+        // Si aucune commande n'est retournée, nous arrêtons la boucle
         keepGoing = false;
       }
     }
