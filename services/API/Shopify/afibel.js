@@ -121,8 +121,8 @@ const getAfibelOrders = async () => {
         allOrders.push(...filteredOrders);
    
         // Arrêter si nous avons déjà 10 commandes ou plus
-        if (allOrders.length >= 10) {
-          allOrders.length = 10;
+        if (allOrders.length >= 50) {
+          allOrders.length = 50;
           keepGoing = false;
         } else {
           page++;
