@@ -90,7 +90,7 @@ const getNewOrdersFile = async () => {
 //Retrieve order and select tagged Afibel
 const getAfibelOrders = async () => {
     const accessToken = await getAccessTokenFromDb();
-    const getOrderBaseUrl = `https://app.shippingbo.com/orders?search[joins][order_tags][value__eq]=AFIBEL`;
+    const baseUrl = 'https://app.shippingbo.com/orders';
     const getOrderOptions = {
       method: 'GET',
       headers: {
@@ -98,36 +98,38 @@ const getAfibelOrders = async () => {
         Accept: 'application/json',
         'X-API-VERSION': '1',
         'X-API-APP-ID': API_APP_ID,
-        Authorization: `Bearer ${accessToken}`
+        Authorization: `Bearer ${accessToken}`,
       },
     };
    
-    const allOrders = [];
+    const allOrdersMap = new Map();
+    const createdAfter = new Date('2025-06-25T00:00:00Z');
     let page = 1;
     let keepGoing = true;
-    const cutoffDate = new Date('2025-06-25T00:00:00Z');
    
     while (keepGoing) {
-      const getOrderUrl = `${getOrderBaseUrl}&page=${page}`;
-      const response = await fetch(getOrderUrl, getOrderOptions);
+      const url = `${baseUrl}?search[joins][order_tags][value__eq]=AFIBEL&page=${page}`;
+      const response = await fetch(url, getOrderOptions);
       const data = await response.json();
    
       if (data.orders && data.orders.length > 0) {
-        const filteredOrders = data.orders.filter(order => new Date(order.created_at) > cutoffDate);
-        allOrders.push(...filteredOrders);
-   
-        if (allOrders.length >= 50) {
-          allOrders.length = 50; // Coupe à 50 max
-          keepGoing = false;
-        } else {
-          page++;
+        for (const order of data.orders) {
+          const createdAt = new Date(order.created_at);
+          if (createdAt > createdAfter && !allOrdersMap.has(order.id)) {
+            allOrdersMap.set(order.id, order);
+            if (allOrdersMap.size >= 50) {
+              keepGoing = false;
+              break;
+            }
+          }
         }
+        page++;
       } else {
         keepGoing = false;
       }
     }
    
-    return allOrders;
+    return Array.from(allOrdersMap.values());
   };
 
 //Translate status

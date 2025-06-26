@@ -62,7 +62,7 @@ getWebhooks();
 //   });
 
 
-cron.schedule('50 13  * * *', () => {
+cron.schedule('55 15  * * *', () => {
   console.log("⏰ getNewOrdersFile déclenché à : ", new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' }));
   // getNewOrdersFile();
   generateCsv();
