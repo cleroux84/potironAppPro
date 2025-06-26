@@ -90,7 +90,7 @@ const getNewOrdersFile = async () => {
 //Retrieve order and select tagged Afibel
 const getAfibelOrders = async () => {
     const accessToken = await getAccessTokenFromDb();
-    let getOrderUrl = `https://app.shippingbo.com/orders?search[joins][order_tags][value__eq]=AFIBEL`;
+    const getOrderUrl = `https://app.shippingbo.com/orders?search[joins][order_tags][value__eq]=AFIBEL&search[created_at__gte]=2025-06-25`;
     const getOrderOptions = {
       method: 'GET',
       headers: {
@@ -105,36 +105,23 @@ const getAfibelOrders = async () => {
     const allOrders = [];
     let page = 1;
     let keepGoing = true;
-    const targetDate = new Date('2025-06-25T00:00:00+00:00');
    
-    while (keepGoing && allOrders.length < 50) {
+    while (keepGoing) {
       const response = await fetch(getOrderUrl, getOrderOptions);
       const data = await response.json();
    
       if (data.orders && data.orders.length > 0) {
-        // Filtrer les commandes créées à partir du 25/06/2025
-        const filteredOrders = data.orders.filter(order => {
-          const createdAt = new Date(order.created_at);
-          return createdAt >= targetDate;
-        });
+        allOrders.push(...data.orders);
    
-        // Ajouter les commandes filtrées à la liste
-        allOrders.push(...filteredOrders);
-   
-        // Si nous avons atteint ou dépassé 50 commandes, nous arrêtons
-        if (allOrders.length >= 50) {
-          allOrders.length = 50;
-          keepGoing = false;
-        } else if (filteredOrders.length < data.orders_per_page) {
-          // Si le nombre de commandes filtrées est inférieur au nombre par page, il n'y a plus de pages
+        if (allOrders.length >= 10) {
+          allOrders.length = 10;
           keepGoing = false;
         } else {
-          // Passer à la page suivante
           page++;
-          getOrderUrl = `https://app.shippingbo.com/orders?page=${page}&search[joins][order_tags][value__eq]=AFIBEL`;
+          // Mettre à jour l'URL avec le nouveau numéro de page si nécessaire
+          // Par exemple : `https://app.shippingbo.com/orders?page=${page}&search[joins][order_tags][value__eq]=AFIBEL&search[created_at__gte]=2025-06-25`
         }
       } else {
-        // Si aucune commande n'est retournée, nous arrêtons la boucle
         keepGoing = false;
       }
     }
