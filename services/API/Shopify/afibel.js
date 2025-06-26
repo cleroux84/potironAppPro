@@ -90,7 +90,7 @@ const getNewOrdersFile = async () => {
 //Retrieve order and select tagged Afibel
 const getAfibelOrders = async () => {
     const accessToken = await getAccessTokenFromDb();
-    let getOrderUrl = `https://app.shippingbo.com/orders?search[joins][order_tags][value__eq]=AFIBEL`;
+    const getOrderUrl = `https://app.shippingbo.com/orders?search[joins][order_tags][value__eq]=AFIBEL`;
     const getOrderOptions = {
       method: 'GET',
       headers: {
@@ -103,8 +103,8 @@ const getAfibelOrders = async () => {
     };
    
     const allOrders = [];
-    let keepGoing = true;
     let page = 1;
+    let keepGoing = true;
     const targetDate = new Date('2025-06-25T00:00:00+00:00');
    
     while (keepGoing) {
@@ -112,6 +112,7 @@ const getAfibelOrders = async () => {
       const data = await response.json();
    
       if (data.orders && data.orders.length > 0) {
+        // Filtrer les commandes créées à partir du 25/06/2025
         const filteredOrders = data.orders.filter(order => {
           const createdAt = new Date(order.created_at);
           return createdAt >= targetDate;
@@ -119,11 +120,14 @@ const getAfibelOrders = async () => {
    
         allOrders.push(...filteredOrders);
    
-        if (filteredOrders.length === 0 || data.orders.length < data.orders_per_page) {
+        // Arrêter si nous avons déjà 10 commandes ou plus
+        if (allOrders.length >= 10) {
+          allOrders.length = 10;
           keepGoing = false;
         } else {
           page++;
-          getOrderUrl = `https://app.shippingbo.com/orders?page=${page}&search[joins][order_tags][value__eq]=AFIBEL`;
+          // Mettre à jour l'URL avec le nouveau numéro de page si nécessaire
+          // Par exemple : `https://app.shippingbo.com/orders?page=${page}&search[joins][order_tags][value__eq]=AFIBEL`
         }
       } else {
         keepGoing = false;
@@ -133,10 +137,7 @@ const getAfibelOrders = async () => {
     // Trier les commandes par date de création, de la plus récente à la plus ancienne
     allOrders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
    
-    // Sélectionner les 10 dernières commandes
-    const lastTenOrders = allOrders.slice(0, 10);
-   
-    return lastTenOrders;
+    return allOrders;
   };
 
 //Translate status
