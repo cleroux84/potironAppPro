@@ -89,40 +89,45 @@ const getNewOrdersFile = async () => {
 
 //Retrieve order and select tagged Afibel
 const getAfibelOrders = async () => {
-    accessToken = await getAccessTokenFromDb();
-    const getOrderUrl = `https://app.shippingbo.com/orders?search[joins][order_tags][value__eq]=AFIBEL&search[created_at__gt]=2025-06-25T00:00:00`;    
+    const accessToken = await getAccessTokenFromDb();
+    const uniqueOrders = new Map();
+    let page = 1;
+    let keepGoing = true;
+   
     const getOrderOptions = {
-        method: 'GET',
-        headers: {
-          'Content-type': 'application/json',
-          Accept: 'application/json',
-          'X-API-VERSION': '1',
-          'X-API-APP-ID': API_APP_ID,
-          Authorization: `Bearer ${accessToken}`
-        },
-      };
-      const allOrders = [];
-      let page = 1;
-      let keepGoing = true;
-      while(keepGoing) {
-        const response = await fetch(getOrderUrl, getOrderOptions);
-        const data = await response.json();
-        if(data.orders && data.orders.length > 0) {
-            allOrders.push(...data.orders);
-            if(allOrders.length >= 50) {
-                allOrders.length = 50;
-                keepGoing = false;
-            } else {
-                page++;
+      method: 'GET',
+      headers: {
+        'Content-type': 'application/json',
+        Accept: 'application/json',
+        'X-API-VERSION': '1',
+        'X-API-APP-ID': API_APP_ID,
+        Authorization: `Bearer ${accessToken}`
+      },
+    };
+   
+    while (keepGoing) {
+      const getOrderUrl = `https://app.shippingbo.com/orders?search[joins][order_tags][value__eq]=AFIBEL&search[created_at__gt]=2025-06-25T00:00:00&page=${page}`;
+      const response = await fetch(getOrderUrl, getOrderOptions);
+      const data = await response.json();
+   
+      if (data.orders && data.orders.length > 0) {
+        for (const order of data.orders) {
+          if (!uniqueOrders.has(order.id)) {
+            uniqueOrders.set(order.id, order);
+            if (uniqueOrders.size >= 50) {
+              keepGoing = false;
+              break;
             }
-        } else {
-            keepGoing = false;
+          }
         }
+        page++;
+      } else {
+        keepGoing = false;
+      }
     }
-    // console.log('allOrders', allOrders);
-    return allOrders;
-
-} 
+   
+    return Array.from(uniqueOrders.values());
+  };
 
 //Translate status
 const stateTranslations = {
