@@ -102,27 +102,20 @@ const getAfibelOrders = async () => {
           Authorization: `Bearer ${accessToken}`
         },
       };
-   
       const allOrders = [];
       let keepGoing = true;
       let page = 1;
-   
       while (keepGoing) {
         const response = await fetch(getOrderUrl, getOrderOptions);
         const data = await response.json();
-        // console.log('API Response:', data); // Log the API response
-   
         if (data.orders && data.orders.length > 0) {
+          const targetDate = new Date('2025-06-25T00:00:00+00:00');
           const filteredOrders = data.orders.filter(order => {
             const createdAt = new Date(order.created_at);
-            const targetDate = new Date('2025-06-25T00:00:00+00:00');
-            return createdAt.toDateString() === targetDate.toDateString();
+            return createdAt >= targetDate;
           });
-   
           allOrders.push(...filteredOrders);
-        //   console.log(`Filtered Orders for page ${page}:`, filteredOrders); // Log filtered orders
-   
-          // Check if there are more pages to fetch
+          console.log(`Page ${page}: Found ${filteredOrders.length} orders created from the target date.`);
           if (data.orders.length < data.orders_per_page) {
             keepGoing = false;
           } else {
@@ -133,7 +126,7 @@ const getAfibelOrders = async () => {
           keepGoing = false;
         }
       }
-   
+      console.log(`Total orders from the target date: ${allOrders.length}`);
       return allOrders;
     } catch (error) {
       console.error('Error fetching orders:', error);
