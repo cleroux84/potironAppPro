@@ -112,7 +112,7 @@ const getAfibelOrders = async () => {
     const startPage = Math.max(1, totalPages - 9); // Limite à 10 dernières pages
    
     for (let page = startPage; page <= totalPages; page++) {
-      const getOrderUrl = `https://app.shippingbo.com/orders?search[joins][order_tags][value__eq]=AFIBEL&search[created_at__gt]=2025-06-25T00:00:00&page=${page}`;
+      const getOrderUrl = `https://app.shippingbo.com/orders?search[joins][order_tags][value__eq]=AFIBEL&search[created_at__gt]=2025-06-26T00:00:00&page=${page}`;
       const response = await fetch(getOrderUrl, getOrderOptions);
       const data = await response.json();
    
