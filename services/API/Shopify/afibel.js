@@ -90,7 +90,7 @@ const getNewOrdersFile = async () => {
 //Retrieve order and select tagged Afibel
 const getAfibelOrders = async () => {
     const accessToken = await getAccessTokenFromDb();
-    const getOrderUrl = `https://app.shippingbo.com/orders?search[joins][order_tags][value__eq]=AFIBEL&search[created_at__gte]=2025-06-25`;
+    const getOrderUrl = `https://app.shippingbo.com/orders?search[joins][order_tags][value__eq]=AFIBEL&search[created_at__gte]>2025-06-25`;
     const getOrderOptions = {
       method: 'GET',
       headers: {
