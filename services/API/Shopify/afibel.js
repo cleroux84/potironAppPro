@@ -110,7 +110,7 @@ const getAfibelOrders = async () => {
       while (keepGoing) {
         const response = await fetch(getOrderUrl, getOrderOptions);
         const data = await response.json();
-        console.log('API Response:', data); // Log the API response
+        // console.log('API Response:', data); // Log the API response
    
         if (data.orders && data.orders.length > 0) {
           const filteredOrders = data.orders.filter(order => {
@@ -120,7 +120,7 @@ const getAfibelOrders = async () => {
           });
    
           allOrders.push(...filteredOrders);
-          console.log(`Filtered Orders for page ${page}:`, filteredOrders); // Log filtered orders
+        //   console.log(`Filtered Orders for page ${page}:`, filteredOrders); // Log filtered orders
    
           // Check if there are more pages to fetch
           if (data.orders.length < data.orders_per_page) {
