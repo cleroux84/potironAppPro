@@ -89,51 +89,41 @@ const getNewOrdersFile = async () => {
 
 //Retrieve order and select tagged Afibel
 const getAfibelOrders = async () => {
-    const accessToken = await getAccessTokenFromDb();
-    // Base URL avec les paramètres de recherche
-    const baseUrl = `https://app.shippingbo.com/orders?search[joins][order_tags][value__eq]=AFIBEL&search[created_at__gte]=2025-06-25&sort=-created_at`;
+    accessToken = await getAccessTokenFromDb();
+    const getOrderUrl = `https://app.shippingbo.com/orders?search[joins][order_tags][value__eq]=AFIBEL`;    
     const getOrderOptions = {
-      method: 'GET',
-      headers: {
-        'Content-type': 'application/json',
-        Accept: 'application/json',
-        'X-API-VERSION': '1',
-        'X-API-APP-ID': API_APP_ID,
-        Authorization: `Bearer ${accessToken}`
-      },
-    };
-  
-    const allOrders = [];
-    let page = 1;
-    let keepGoing = true;
-  
-    while (keepGoing) {
-      // Ajout dynamique de la pagination
-      const currentUrl = `${baseUrl}&page=${page}`;
-      const response = await fetch(currentUrl, getOrderOptions);
-      const data = await response.json();
-  
-      if (data.orders?.length > 0) {
-        allOrders.push(...data.orders);
-        
-        // Arrêt si on atteint 10 commandes
-        if (allOrders.length >= 10) {
-          allOrders.length = 10; // Tronquer à 10 commandes
-          keepGoing = false;
+        method: 'GET',
+        headers: {
+          'Content-type': 'application/json',
+          Accept: 'application/json',
+          'X-API-VERSION': '1',
+          'X-API-APP-ID': API_APP_ID,
+          Authorization: `Bearer ${accessToken}`
+        },
+      };
+      const allOrders = [];
+      let page = 1;
+      let keepGoing = true;
+      while(keepGoing) {
+        const response = await fetch(getOrderUrl, getOrderOptions);
+        const data = await response.json();
+        if(data.orders && data.orders.length > 0) {
+            console.log('here', data.orders);
+            allOrders.push(...data.orders);
+            if(allOrders.length >= 10) {
+                allOrders.length = 10;
+                keepGoing = false;
+            } else {
+                page++;
+            }
         } else {
-          page++; // Page suivante
+            keepGoing = false;
         }
-      } else {
-        keepGoing = false; // Plus de commandes
-      }
     }
-  
-    // Tri par date de création (décroissant)
-    allOrders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-    
+    // console.log('allOrders', allOrders);
     return allOrders;
-  };
-  
+
+} 
 
 //Translate status
 const stateTranslations = {
