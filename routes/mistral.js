@@ -47,8 +47,4 @@ app.post('/chat', async (req, res) => {
   }
 });
 
-app.listen(3000, () => {
-  console.log('Chatbot Mistral API disponible sur http://localhost:3000');
-});
-
 module.exports = router;
