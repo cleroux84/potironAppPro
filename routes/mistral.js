@@ -2,15 +2,14 @@ const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
 require('dotenv').config();
-
-const app = express();
-app.use(cors());
-app.use(express.json());
 const router = express.Router();
+
+router.use(cors());
+router.use(express.json());
 
 const apiKey = process.env.MISTRAL_API_KEY; 
 
-app.post('/chat', async (req, res) => {
+router.post('/chat', async (req, res) => {
   const userMessage = req.body.message;
 
   try {
