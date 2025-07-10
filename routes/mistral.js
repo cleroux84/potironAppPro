@@ -6,6 +6,7 @@ require('dotenv').config();
 const app = express();
 app.use(cors());
 app.use(express.json());
+const router = express.Router();
 
 const apiKey = process.env.MISTRAL_API_KEY; 
 
@@ -49,3 +50,5 @@ app.post('/chat', async (req, res) => {
 app.listen(3000, () => {
   console.log('Chatbot Mistral API disponible sur http://localhost:3000');
 });
+
+module.exports = router;
