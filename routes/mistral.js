@@ -37,6 +37,7 @@ router.post('/chat', async (req, res) => {
     );
 
     const assistantReply = response.data.choices[0].message.content;
+    console.log("PPL");
     res.json({ reply: assistantReply });
 
   } catch (error) {
