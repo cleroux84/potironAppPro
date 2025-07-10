@@ -104,7 +104,7 @@ const getAfibelOrders = async () => {
     };
    
     // D'abord, on récupère la 1ère page pour connaître le nombre total de pages
-    const baseUrl = `https://app.shippingbo.com/orders?search[joins][order_tags][value__eq]=AFIBEL&search[created_at__gt]=2025-06-25T00:00:00&page=1`;
+    const baseUrl = `https://app.shippingbo.com/orders?search[joins][order_tags][value__eq]=AFIBEL&search[created_at__gt]=2025-06-27T00:00:00&page=1`;
     const initialResponse = await fetch(baseUrl, getOrderOptions);
     const initialData = await initialResponse.json();
    
