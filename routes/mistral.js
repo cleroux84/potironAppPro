@@ -9,7 +9,7 @@ app.use(express.json());
 
 const apiKey = process.env.MISTRAL_API_KEY; 
 
-app.post('/api/chat', async (req, res) => {
+app.post('/chat', async (req, res) => {
   const userMessage = req.body.message;
 
   try {

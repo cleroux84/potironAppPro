@@ -31,6 +31,7 @@ const proCustomerRoute = require('./routes/proCustomer.js');
 const proOrderRoute = require('./routes/proOrder.js');
 const returnContactRoute = require('./routes/returnOrderContact.js');
 const allOrdersRoute = require('./routes/allOrders.js');
+const testIA = require('./routes/mistral.js');
 const { createOrderFromCSV, getAfibelOrders, generateCsv, sendCSVToShippingbo, getNewOrdersFile } = require('./services/API/Shopify/afibel.js');
 const { getOrderDetails } = require('./services/API/Shippingbo/Potiron/ordersCRUD.js');
 app.use('/returnOrder', returnOrderRoute);
@@ -38,7 +39,7 @@ app.use('/proCustomer', proCustomerRoute);
 app.use('/proOrder', proOrderRoute);
 app.use('/returnContact', returnContactRoute);
 app.use('/allOrders', allOrdersRoute);
-
+app.use('/test', testIA);
 // Initialisation des tokens 
 initializeTokens();
 // deleteAllWebhooks();
