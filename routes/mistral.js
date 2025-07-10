@@ -20,7 +20,7 @@ router.post('/chat', async (req, res) => {
         messages: [
           {
             role: 'system',
-            content: 'Tu es un assistant service client pour la boutique Potiron Paris : potiron.com Réponds avec clarté et amabilité.'
+            content: 'Tu es un assistant service client pour la boutique Potiron Paris : potiron.com. Réponds avec clarté et amabilité de façon concise.'
           },
           {
             role: 'user',
@@ -37,7 +37,6 @@ router.post('/chat', async (req, res) => {
     );
 
     const assistantReply = response.data.choices[0].message.content;
-    console.log('PPL Back');
     res.json({ reply: assistantReply });
 
   } catch (error) {
