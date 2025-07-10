@@ -20,7 +20,7 @@ router.post('/chat', async (req, res) => {
         messages: [
           {
             role: 'system',
-            content: 'Tu es un assistant service client pour la boutique Shopify X. Réponds avec clarté et amabilité.'
+            content: 'Tu es un assistant service client pour la boutique Potiron Paris : potiron.com Réponds avec clarté et amabilité.'
           },
           {
             role: 'user',
