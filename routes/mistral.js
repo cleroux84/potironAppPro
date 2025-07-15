@@ -14,6 +14,10 @@ router.use(express.json());
  
 /* ---------- FONCTION utilitaire ------------- */
 async function getShopifyOrder(orderNumber, email) {
+  const num  = orderNumber.replace(/^#/, '').trim();
+  const mail = email.trim().toLowerCase();
+  console.log('PPL', orderNumber);
+
   const query = `
     query($search: String!) {
       orders(first: 1, query: $search) {
@@ -26,8 +30,9 @@ async function getShopifyOrder(orderNumber, email) {
         }}
       }
     }`;
-  const variables = { search: `name:${orderNumber} AND email:${email}` };
- 
+    const variables = {
+      search: `(name:#${num} OR order_number:${num}) AND email:${mail}`
+    }; 
   const { data } = await axios.post(
     'https://potiron.myshopify.com/admin/api/2024-01/graphql.json',
     { query, variables },
