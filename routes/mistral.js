@@ -1,21 +1,28 @@
 const express = require('express');
-const axios   = require('axios');
-const router  = express.Router();
+const cors = require('cors');
+const axios = require('axios');
+require('dotenv').config();
+const router = express.Router();
+
+router.use(cors());
+router.use(express.json());
+
+const apiKey = process.env.MISTRAL_API_KEY; 
+const SHOPIFYAPPTOKEN = process.env.SHOPIFYAPPTOKEN;
+
 router.use(express.json());
  
-const apiKey          = process.env.MISTRAL_API_KEY;
-const SHOPIFYAPPTOKEN = process.env.SHOPIFYAPPTOKEN;
- 
-/* ------- util ------- */
+/* ---------- FONCTION utilitaire ------------- */
 async function getShopifyOrder(orderNumber, email) {
   const num  = orderNumber.replace(/^#/, '').trim();
   const mail = email.trim().toLowerCase();
- 
-  const q = `
-    query($search:String!){
-      orders(first:1, query:$search){
-        edges{node{
-          name displayFulfillmentStatus
+  console.log('PPL', orderNumber);
+
+  const query = `
+    query($search: String!) {
+      orders(first: 1, query: $search) {
+        edges { node {
+          name email displayFulfillmentStatus
           fulfillments(first:1){
             trackingInfo{url number}
             estimatedDeliveryAt
@@ -23,79 +30,98 @@ async function getShopifyOrder(orderNumber, email) {
         }}
       }
     }`;
-  const vars = { search:`(name:#${num} OR order_number:${num}) AND email:${mail}` };
- 
+    const variables = {
+      search: `(name:#${num} OR order_number:${num}) AND email:${mail}`
+    }; 
   const { data } = await axios.post(
     'https://potiron2021.myshopify.com/admin/api/2024-01/graphql.json',
-    { query:q, variables:vars },
-    { headers:{'X-Shopify-Access-Token':SHOPIFYAPPTOKEN}}
+    { query, variables },
+    { headers: { 'X-Shopify-Access-Token': SHOPIFYAPPTOKEN } }
   );
  
   const edge = data.data.orders.edges[0];
   if (!edge) return null;
   const o = edge.node, f = o.fulfillments[0] || {}, t = (f.trackingInfo||[{}])[0];
- 
+  console.log('search', o);
+  console.log('dump', JSON.stringify(f, null, 2));
+  console.log('lien', t.url);
+  
   return {
-    name   : o.name,
-    status : o.displayFulfillmentStatus,        // ex FULFILLED
-    url    : t.url || null,
-    eta    : f.estimatedDeliveryAt || null
+    name : o.name,
+    status : o.displayFulfillmentStatus,
+    trackingUrl : t.url || null,
+    trackingNumber : t.number || null,
+    eta : f.estimatedDeliveryAt || null,
   };
 }
-/* -------------------- */
+/* ------------------------------------------- */
  
 router.post('/chat', async (req, res) => {
   let { message, orderNumber, email } = req.body;
+ /* --- Extraction auto si champs manquants --- */
+if (!orderNumber || !email) {
+  const numMatch  = message.match(/#?\d{4,}/);                             // ex : #10262
+  const mailMatch = message.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
+  if (numMatch)  orderNumber = numMatch[0];
+  if (mailMatch) email       = mailMatch[0].toLowerCase();
+}
+/* ------------------------------------------- */
+  /* 1. Construire le promptSystem de base */
+  let promptSystem = 'Tu es un assistant SAV et déco de la boutique Potiron. ' +
+                     'Réponds brièvement et amicalement.';
  
-  /* extraction auto si besoin */
-  if (!orderNumber) {
-    const m = message.match(/#?\d{4,}/);
-    if (m) orderNumber = m[0];
-  }
-  if (!email) {
-    const e = message.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
-    if (e) email = e[0].toLowerCase();
-  }
- 
-  /* ---- CAS 1 : on a n° + mail -> réponse SAV directe ---- */
+  /* 2. Si le client a fourni n° + email, on ajoute l’info commande */
   if (orderNumber && email) {
     try {
-      const ord = await getShopifyOrder(orderNumber, email);
-      if (ord) {
-        const reply =
-          `Suivi de votre colis : ${ord.url ?? 'non disponible'}\n` +
-          `Statut : ${ord.status.toLowerCase()}` +
-          (ord.eta ? ` — livraison estimée le ${new Date(ord.eta).toLocaleDateString('fr-FR')}` : '');
-        return res.json({ reply });          // ⬅️ on NE passe PAS par Mistral
+      let oNum = orderNumber, mail = email;
+ 
+if (!oNum || !mail) {
+  const m  = message.match(/#?\d{3,}/);          // n° probable
+  const em = message.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
+  if (m)   oNum = m[0];
+  if (em)  mail = em[0].toLowerCase();
+}
+ 
+if (oNum && mail) {
+
+      const order = await getShopifyOrder(orderNumber, email);
+      if (order) {
+        promptSystem += `
+Commande : ${order.name}
+Statut    : ${order.status}
+Suivi     : ${order.trackingUrl || '—'}
+Livraison estimée : ${order.eta || '—'}
+ 
+Utilise ces informations si la question concerne la commande.`;
       }
-      return res.json({ reply: "Je ne trouve pas cette commande. Vérifiez le numéro ou l'e‑mail." });
+      } else {
+        promptSystem += `
+Le client a fourni la commande ${orderNumber}, mais je ne l’ai pas trouvée
+(vérifie n° ou email).`;
+      }
     } catch (err) {
       console.error('Lookup Shopify :', err.message);
-      return res.status(500).json({ reply:"Erreur de consultation Shopify." });
     }
   }
  
-  /* ---- CAS 2 : question générale -> on laisse Mistral répondre ---- */
-  const promptSystem =
-    "Tu es un assistant SAV et déco de la boutique Potiron. " +
-    "Réponds brièvement et amicalement.";
- 
+  /* 3. Appel Mistral */
   try {
     const { data } = await axios.post(
       'https://api.mistral.ai/v1/chat/completions',
       {
-        model:'mistral-small',
-        messages:[
-          { role:'system', content: promptSystem },
-          { role:'user',   content: message }
+        model: 'mistral-small',
+        messages: [
+          { role: 'system', content: promptSystem },
+          { role: 'user',   content: message }
         ]
       },
-      { headers:{ Authorization:`Bearer ${apiKey}`}}
+      { headers:{ Authorization:`Bearer ${apiKey}` } }
     );
+ 
     res.json({ reply: data.choices[0].message.content });
   } catch (err) {
     console.error('Mistral :', err.message);
-    res.status(500).json({ reply:"Erreur Mistral." });
+    res.status(500).json({ error:'Erreur Mistral' });
   }
 });
  
