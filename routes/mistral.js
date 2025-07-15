@@ -63,6 +63,17 @@ router.post('/chat', async (req, res) => {
   /* 2. Si le client a fourni n° + email, on ajoute l’info commande */
   if (orderNumber && email) {
     try {
+      let oNum = orderNumber, mail = email;
+ 
+if (!oNum || !mail) {
+  const m  = message.match(/#?\d{3,}/);          // n° probable
+  const em = message.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
+  if (m)   oNum = m[0];
+  if (em)  mail = em[0].toLowerCase();
+}
+ 
+if (oNum && mail) {
+
       const order = await getShopifyOrder(orderNumber, email);
       if (order) {
         promptSystem += `
@@ -72,6 +83,7 @@ Suivi     : ${order.trackingUrl || '—'}
 Livraison estimée : ${order.eta || '—'}
  
 Utilise ces informations si la question concerne la commande.`;
+      }
       } else {
         promptSystem += `
 Le client a fourni la commande ${orderNumber}, mais je ne l’ai pas trouvée
