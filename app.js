@@ -10,11 +10,12 @@ const { setupShippingboWebhook, deleteWebhook, deleteAllWebhooks, getWebhooks } 
 const { checkScheduledEmails } = require('./services/sendMails/mailForCustomers.js');
 
 const corsOptions = {
-  origin: ["https://potiron.com", "https://0l56kborkbvdteo2-57473073302.shopifypreview.com"],
+  origin: ["https://potiron.com", "https://0l56kborkbvdteo2-57473073302.shopifypreview.com", "https://0vuuz9hitbvs7bcp-57473073302.shopifypreview.com"],
   method: 'GET, HEAD, PUT, PATCH, POST, DELETE',
   credentials: true,
   optionSuccessStatus: 204
 }
+
 
 app.set('appName', 'potironAppPro');
 app.use(cors(corsOptions));
