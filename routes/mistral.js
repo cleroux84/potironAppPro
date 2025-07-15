@@ -34,7 +34,7 @@ async function getShopifyOrder(orderNumber, email) {
       search: `(name:#${num} OR order_number:${num}) AND email:${mail}`
     }; 
   const { data } = await axios.post(
-    'https://potiron.myshopify.com/admin/api/2024-01/graphql.json',
+    'https://potiron2021.myshopify.com/admin/api/2024-01/graphql.json',
     { query, variables },
     { headers: { 'X-Shopify-Access-Token': SHOPIFYAPPTOKEN } }
   );
