@@ -50,8 +50,7 @@ async function getShopifyOrder(orderNumber, email) {
     name : o.name,
     status : o.displayFulfillmentStatus,
     trackingUrl : t.url || null,
-    trackingNumber : t.number || null,
-    eta : f.estimatedDeliveryAt || null,
+    trackingNumber : t.number || null
   };
 }
 /* ------------------------------------------- */
@@ -59,11 +58,13 @@ async function getShopifyOrder(orderNumber, email) {
 router.post('/chat', async (req, res) => {
   let { message, orderNumber, email } = req.body;
  /* --- Extraction auto si champs manquants --- */
-if (!orderNumber || !email) {
-  const numMatch  = message.match(/#?\d{4,}/);                             // ex : #10262
-  const mailMatch = message.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
-  if (numMatch)  orderNumber = numMatch[0];
-  if (mailMatch) email       = mailMatch[0].toLowerCase();
+ if (!orderNumber) {
+  const m = message.match(/#?\d{4,}/);
+  if (m) orderNumber = m[0];
+}
+if (!email) {
+  const e = message.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
+  if (e) email = e[0].toLowerCase();
 }
 /* ------------------------------------------- */
   /* 1. Construire le promptSystem de base */
@@ -73,27 +74,15 @@ if (!orderNumber || !email) {
   /* 2. Si le client a fourni n° + email, on ajoute l’info commande */
   if (orderNumber && email) {
     try {
-      let oNum = orderNumber, mail = email;
- 
-if (!oNum || !mail) {
-  const m  = message.match(/#?\d{3,}/);          // n° probable
-  const em = message.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
-  if (m)   oNum = m[0];
-  if (em)  mail = em[0].toLowerCase();
-}
- 
-if (oNum && mail) {
-
-      const order = await getShopifyOrder(orderNumber, email);
+       const order = await getShopifyOrder(orderNumber, email);
       if (order) {
         promptSystem += `
 Commande : ${order.name}
 Statut    : ${order.status}
 Suivi     : ${order.trackingUrl || '—'}
-Livraison estimée : ${order.eta || '—'}
  
 Utilise ces informations si la question concerne la commande.`;
-      }
+      
       } else {
         promptSystem += `
 Le client a fourni la commande ${orderNumber}, mais je ne l’ai pas trouvée
