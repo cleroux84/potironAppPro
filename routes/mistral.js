@@ -76,10 +76,11 @@ if (!email) {
     try {
        const order = await getShopifyOrder(orderNumber, email);
       if (order) {
+        console.log("order here", order);
         promptSystem += `
 Commande : ${order.name}
 Statut    : ${order.status}
-Suivi     : ${order.trackingUrl || '—'}
+Suivi     : ${order.trackingUrl}
  
 Utilise ces informations si la question concerne la commande.`;
       
