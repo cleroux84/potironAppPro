@@ -82,7 +82,7 @@ Commande : ${order.name}
 Statut    : ${order.status}
 Suivi     : ${order.trackingUrl}
  
-Utilise ces informations si la question concerne la commande.`;
+Utilise ces informations si la question concerne la commande, n'oublie pas de mettre le Statut et le Suivi exactement comme reçu`;
       
       } else {
         promptSystem += `
