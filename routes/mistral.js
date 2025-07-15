@@ -43,6 +43,9 @@ async function getShopifyOrder(orderNumber, email) {
   if (!edge) return null;
   const o = edge.node, f = o.fulfillments[0] || {}, t = (f.trackingInfo||[{}])[0];
   console.log('search', o);
+  console.log('dump', JSON.stringify(f, null, 2));
+  console.log('lien', t.url);
+  
   return {
     name : o.name,
     status : o.displayFulfillmentStatus,
