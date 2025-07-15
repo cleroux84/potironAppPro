@@ -82,7 +82,7 @@ Commande : ${order.name}
 Statut    : ${order.status}
 Suivi     : ${order.trackingUrl}
  
-Utilise ces informations si la question concerne la commande, n'oublie pas de mettre le Statut et le Suivi exactement comme reçu`;
+Utilise ces informations si la question concerne la commande, si un lien de suivi existe, donne le au client. le client doit pouvoir cliquer dessus. Ne l'invente pas. `;
       
       } else {
         promptSystem += `
