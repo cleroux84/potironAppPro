@@ -54,8 +54,15 @@ async function getShopifyOrder(orderNumber, email) {
 /* ------------------------------------------- */
  
 router.post('/chat', async (req, res) => {
-  const { message, orderNumber, email } = req.body;
- 
+  let { message, orderNumber, email } = req.body;
+ /* --- Extraction auto si champs manquants --- */
+if (!orderNumber || !email) {
+  const numMatch  = message.match(/#?\d{4,}/);                             // ex : #10262
+  const mailMatch = message.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
+  if (numMatch)  orderNumber = numMatch[0];
+  if (mailMatch) email       = mailMatch[0].toLowerCase();
+}
+/* ------------------------------------------- */
   /* 1. Construire le promptSystem de base */
   let promptSystem = 'Tu es un assistant SAV et déco de la boutique Potiron. ' +
                      'Réponds brièvement et amicalement.';
