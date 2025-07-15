@@ -10,7 +10,7 @@ router.use(express.json());
 const apiKey = process.env.MISTRAL_API_KEY; 
 const SHOPIFYAPPTOKEN = process.env.SHOPIFYAPPTOKEN;
 
-rrouter.use(express.json());
+router.use(express.json());
  
 /* ---------- FONCTION utilitaire ------------- */
 async function getShopifyOrder(orderNumber, email) {
