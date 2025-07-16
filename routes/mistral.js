@@ -105,31 +105,32 @@ if (demandeSuivi && (!session.orderNumber || !session.email)) {
   if (!session.email) infosManquantes.push("l’adresse e-mail utilisée lors de l’achat");
  
   const missingPrompt = `Pour vous aider à localiser votre commande, j’ai besoin de ${infosManquantes.join(' et ')}. Merci de me les communiquer`;
+  session.messages.push({ role: 'assistant', content: missingPrompt });
+  updateSession(sessionId, session);
   return res.json({ reply: missingPrompt });
 }
 /* ------------------------------------------- */
   /* 1. Construire le promptSystem de base */
-  let promptSystem = 'Tu es un assistant SAV et déco de la boutique Potiron. ' +
-                     'Réponds brièvement et amicalement.' + 
-                     'Le client peut demander des informations sur sa commande avec des phrases comme : "Où est ma commande ?", "Quand vais-je recevoir mon colis ?", "Puis-je avoir un suivi ?"' +
-                     'Si les données de suivi sont disponibles, donne-les avec un lien cliquable.' + 
-                     "Si les informations sont manquantes, explique-lui poliment que tu as besoin de son numéro de commande et de l'adresse e-mail utilisée lors de l'achat." + 
-                     "Si tu donnes un lien, sois sûr qu'il existe, n'invente pas d'url et mets toujours un lien cliquable dans une balise a avec un href";
-  
+  let promptSystem = `Tu es un assistant du service client (SAV) de la boutique Potiron.
+  Ta mission est de répondre brièvement, chaleureusement et uniquement en français, même si la question est en anglais. Tu n’utilises jamais l’anglais dans ta réponse.
+  Si le client demande où est sa commande ou des infos sur la livraison, et que les données de suivi sont disponibles, tu les donnes avec un lien HTML cliquable.
+  Si les informations sont manquantes (numéro ou mail), tu les demandes poliment.
+  N’invente jamais de lien, d’information ou d’étapes de suivi.`;
+
   /* 2. Si le client a fourni n° + email, on ajoute l’info commande */
   if (session.orderNumber && session.email) {
     try {
        const order = await getShopifyOrder(session.orderNumber, session.email);
      if (order) {
   const trackingLine = order.trackingUrl
-    ? `Lien de suivi : ${order.trackingUrl}`
-    : 'Lien de suivi : non disponible';
+    ? `Lien de suivi : <a href="${order.trackingUrl}" target=_blank>Suivre la livraison</a>`
+    : "Aucun lien de suivi n'est disponible actuellement";
  
   promptSystem += `
   Réponds dans la langue dans laquelle on t'a parlé. Si ce n'est pas défini, réponds en français.
   N'invente jamais de lien.
   Si tu fourni un lien existant, donne-le dans un format cliquable.
-  
+
   Le client a fourni une commande : ${order.name}
   Statut actuel : ${order.status}
   ${trackingLine}
@@ -169,7 +170,9 @@ Le client a fourni la commande ${session.orderNumber}, mais je ne l’ai pas tro
 const reply = data.choices[0].message.content;
 session.messages.push({ role: 'assistant', content: reply });
 updateSession(sessionId, session);
+
 res.json({ reply });
+
   } catch (err) {
     console.error('Mistral :', err.message);
     res.status(500).json({ error:'Erreur Mistral' });
