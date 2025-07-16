@@ -42,9 +42,9 @@ async function getShopifyOrder(orderNumber, email) {
   const edge = data.data.orders.edges[0];
   if (!edge) return null;
   const o = edge.node, f = o.fulfillments[0] || {}, t = (f.trackingInfo||[{}])[0];
-  console.log('search', o);
-  console.log('dump', JSON.stringify(f, null, 2));
-  console.log('lien', t.url);
+  // console.log('search', o);
+  // console.log('dump', JSON.stringify(f, null, 2));
+  // console.log('lien', t.url);
   
   return {
     name : o.name,
@@ -68,14 +68,13 @@ if (!email) {
 }
 /* ------------------------------------------- */
   /* 1. Construire le promptSystem de base */
-  let order = null;
   let promptSystem = 'Tu es un assistant SAV et déco de la boutique Potiron. ' +
                      'Réponds brièvement et amicalement.';
- 
+ let order = null;
   /* 2. Si le client a fourni n° + email, on ajoute l’info commande */
   if (orderNumber && email) {
     try {
-       order = await getShopifyOrder(orderNumber, email);
+      order = await getShopifyOrder(orderNumber, email);
       if (order) {
         console.log("order here", order);
         promptSystem += `
@@ -83,7 +82,7 @@ Commande : ${order.name}
 Statut    : ${order.status}
 Suivi     : Vous pouvez suivre votre colis en utilisant ce clien : ${order.trackingUrl}
  
-Utilise ces informations si la question concerne la commande.`;
+Utilise ces informations si la question concerne la commande`;
       
       } else {
         promptSystem += `
@@ -94,7 +93,8 @@ Le client a fourni la commande ${orderNumber}, mais je ne l’ai pas trouvée
       console.error('Lookup Shopify :', err.message);
     }
   }
- 
+ console.log('order here', order);
+    console.log('trcking here', order.trackingUrl);
   /* 3. Appel Mistral */
   try {
     const { data } = await axios.post(
@@ -108,12 +108,9 @@ Le client a fourni la commande ${orderNumber}, mais je ne l’ai pas trouvée
       },
       { headers:{ Authorization:`Bearer ${apiKey}` } }
     );
-    let replyContent = data.choices[0].message.content;
-    console.log('order là', order)
-    if(order && order.trackingUrl) {
-      replyContent += ` Vous pouvez suivre votre colis : ${order.trackingNumber}, en utilisant ce lien : ${order.trackingUrl}`
-    }
-    res.json({ reply: replyContent });
+    console.log('order da', order);
+    console.log('trcking da', order.trackingUrl);
+    res.json({ reply: data.choices[0].message.content });
   } catch (err) {
     console.error('Mistral :', err.message);
     res.status(500).json({ error:'Erreur Mistral' });
