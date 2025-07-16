@@ -58,18 +58,33 @@ async function getShopifyOrder(orderNumber, email) {
 router.post('/chat', async (req, res) => {
   let { message, orderNumber, email } = req.body;
  /* --- Extraction auto si champs manquants --- */
- if (!orderNumber) {
-  const m = message.match(/#?\d{4,}/);
-  if (m) orderNumber = m[0];
+if (!orderNumber) {
+  const m = message.match(/#?\d{4,6}/);
+  if (m) orderNumber = m[0].replace(/^#/, '');
 }
+ 
 if (!email) {
   const e = message.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
   if (e) email = e[0].toLowerCase();
 }
+
+if (!orderNumber || !email) {
+  const infosManquantes = [];
+  if (!orderNumber) infosManquantes.push("le numéro de commande");
+  if (!email) infosManquantes.push("l’adresse e-mail associée à la commande");
+ 
+  const missingPrompt = `Pour vous aider à localiser votre commande, j’ai besoin de ${infosManquantes.join(' et ')}. 
+Merci de les indiquer dans votre message.`;
+ 
+  return res.json({ reply: missingPrompt });
+}
 /* ------------------------------------------- */
   /* 1. Construire le promptSystem de base */
   let promptSystem = 'Tu es un assistant SAV et déco de la boutique Potiron. ' +
-                     'Réponds brièvement et amicalement.';
+                     'Réponds brièvement et amicalement.' + 
+                     'Le client peut demander des informations sur sa commande avec des phrases comme : "Où est ma commande ?", "Quand vais-je recevoir mon colis ?", "Puis-je avoir un suivi ?"' +
+                     'Si les données de suivi sont disponibles, donne-les avec un lien cliquable.' + 
+                     "Si les informations sont manquantes, explique-lui poliment que tu as besoin de son numéro de commande et de l'adresse e-mail utilisée lors de l'achat.";
   
   /* 2. Si le client a fourni n° + email, on ajoute l’info commande */
   if (orderNumber && email) {
