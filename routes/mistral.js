@@ -68,7 +68,7 @@ if (!email) {
   if (e) email = e[0].toLowerCase();
 }
 
-const demandeSuivi = /où.*(commande|colis)|suivi|statut|expédiée|livraison/i.test(message);
+const demandeSuivi = /\b(où|ou)?\b.*\b(command|colis|suivi|statut|livraison|expédié|expedie|reçu|reception)\b/i.test(message);
  
 // Si la demande semble concerner une commande MAIS infos manquantes
 if (demandeSuivi && (!orderNumber || !email)) {
