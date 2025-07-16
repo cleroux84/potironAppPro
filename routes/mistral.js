@@ -124,15 +124,15 @@ if (demandeSuivi) {
     try {
        const order = await getShopifyOrder(session.orderNumber, session.email);
      if (order) {
-  const trackingLine = order.trackingUrl
-    ? `Lien de suivi : <a href="${order.trackingUrl}" target=_blank>Suivre la livraison</a>`
-    : "Aucun lien de suivi n'est disponible actuellement";
+      let trackingLine = 'Lien de suivi : non disponible';
+      if (order.trackingUrl) {
+        trackingLine = `Lien de suivi : <a href="${order.trackingUrl}">${order.trackingUrl}</a>`;
+      }
  
   promptSystem += `
-  Réponds dans la langue dans laquelle on t'a parlé. Si ce n'est pas défini, réponds en français.
+  Tu réponds dans la même langue que l'utilisateur. Si ce n’est pas clair, tu parles français.
   N'invente jamais de lien.
-  Si tu fourni un lien existant, donne-le dans un format cliquable.
-
+  Tu ne dois jamais inventer de lien. Si tu n’as pas de lien fourni explicitement ci-dessus, ne fais pas semblant qu’il existe.
   Le client a fourni une commande : ${order.name}
   Statut actuel : ${order.status}
   ${trackingLine}
