@@ -85,7 +85,8 @@ if (demandeSuivi && (!orderNumber || !email)) {
                      'Réponds brièvement et amicalement.' + 
                      'Le client peut demander des informations sur sa commande avec des phrases comme : "Où est ma commande ?", "Quand vais-je recevoir mon colis ?", "Puis-je avoir un suivi ?"' +
                      'Si les données de suivi sont disponibles, donne-les avec un lien cliquable.' + 
-                     "Si les informations sont manquantes, explique-lui poliment que tu as besoin de son numéro de commande et de l'adresse e-mail utilisée lors de l'achat.";
+                     "Si les informations sont manquantes, explique-lui poliment que tu as besoin de son numéro de commande et de l'adresse e-mail utilisée lors de l'achat." + 
+                     "Si tu donnes un lien, mets toujours un lien cliquable dans une balise a avec un href";
   
   /* 2. Si le client a fourni n° + email, on ajoute l’info commande */
   if (orderNumber && email) {
