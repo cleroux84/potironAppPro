@@ -70,21 +70,24 @@ if (!email) {
   /* 1. Construire le promptSystem de base */
   let promptSystem = 'Tu es un assistant SAV et déco de la boutique Potiron. ' +
                      'Réponds brièvement et amicalement.';
- let order= null;
+  
   /* 2. Si le client a fourni n° + email, on ajoute l’info commande */
   if (orderNumber && email) {
     try {
-       order = await getShopifyOrder(orderNumber, email);
+       const order = await getShopifyOrder(orderNumber, email);
       if (order) {
-        console.log("order here", order);
-        promptSystem += `
-Commande : ${order.name}
-Statut    : ${order.status}
-Suivi     : ${order.trackingUrl}
- 
-Utilise ces informations si la question concerne la commande, si un lien de suivi existe, donne le au client: ${order.trackingUrl} le client doit pouvoir cliquer dessus. Ne l'invente pas. Le numéro de suivi doit aussi être donné : ${order.trackingNumber} `;
-      
-      } else {
+  promptSystem += `
+    Le client a fourni une commande : ${order.name}
+    Statut actuel : ${order.status}
+    
+    Lien de suivi (si le client le demande) : ${order.trackingUrl || 'non disponible'}
+    Numéro de suivi : ${order.trackingNumber || 'non disponible'}
+    
+    Si la question concerne cette commande :
+    - Donne les infos utiles (statut, suivi, etc.)
+    - Si le lien de suivi est disponible, donne-le clairement pour que le client puisse cliquer dessus.
+    - Reste naturel, bref et amical (comme un vrai conseiller SAV).`;
+    } else {
         promptSystem += `
 Le client a fourni la commande ${orderNumber}, mais je ne l’ai pas trouvée
 (vérifie n° ou email).`;
@@ -93,7 +96,7 @@ Le client a fourni la commande ${orderNumber}, mais je ne l’ai pas trouvée
       console.error('Lookup Shopify :', err.message);
     }
   }
- console.log('order1', order);
+ 
   /* 3. Appel Mistral */
   try {
     const { data } = await axios.post(
@@ -107,8 +110,7 @@ Le client a fourni la commande ${orderNumber}, mais je ne l’ai pas trouvée
       },
       { headers:{ Authorization:`Bearer ${apiKey}` } }
     );
- console.log('order2', order);
-
+ 
     res.json({ reply: data.choices[0].message.content });
   } catch (err) {
     console.error('Mistral :', err.message);
