@@ -68,14 +68,15 @@ if (!email) {
   if (e) email = e[0].toLowerCase();
 }
 
-if (!orderNumber || !email) {
+const demandeSuivi = /où.*(commande|colis)|suivi|statut|expédiée|livraison/i.test(message);
+ 
+// Si la demande semble concerner une commande MAIS infos manquantes
+if (demandeSuivi && (!orderNumber || !email)) {
   const infosManquantes = [];
   if (!orderNumber) infosManquantes.push("le numéro de commande");
-  if (!email) infosManquantes.push("l’adresse e-mail associée à la commande");
+  if (!email) infosManquantes.push("l’adresse e-mail utilisée lors de l’achat");
  
-  const missingPrompt = `Pour vous aider à localiser votre commande, j’ai besoin de ${infosManquantes.join(' et ')}. 
-Merci de les indiquer dans votre message.`;
- 
+  const missingPrompt = `Pour vous aider à localiser votre commande, merci de me préciser ${infosManquantes.join(" et ")}. 😊`;
   return res.json({ reply: missingPrompt });
 }
 /* ------------------------------------------- */
