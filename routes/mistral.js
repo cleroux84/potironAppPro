@@ -124,10 +124,9 @@ if (demandeSuivi) {
     try {
        const order = await getShopifyOrder(session.orderNumber, session.email);
      if (order) {
-      let trackingLine = 'Lien de suivi : non disponible';
-      if (order.trackingUrl) {
-        trackingLine = `Lien de suivi : <a href="${order.trackingUrl}">${order.trackingUrl}</a>`;
-      }
+      const trackingLine = order.trackingUrl
+      ? `Lien de suivi : <a href="${order.trackingUrl}" target=_blank>Suivre la livraison</a>`
+      : "Aucun lien de suivi n'est disponible actuellement";
  
   promptSystem += `
   Tu réponds dans la même langue que l'utilisateur. Si ce n’est pas clair, tu parles français.
