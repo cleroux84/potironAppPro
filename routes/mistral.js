@@ -75,19 +75,24 @@ if (!email) {
   if (orderNumber && email) {
     try {
        const order = await getShopifyOrder(orderNumber, email);
-      if (order) {
+     if (order) {
+  const trackingLine = order.trackingUrl
+    ? `Lien de suivi : [Suivre la livraison](${order.trackingUrl})`
+    : 'Lien de suivi : non disponible';
+ 
   promptSystem += `
-    Le client a fourni une commande : ${order.name}
-    Statut actuel : ${order.status}
-    
-    Lien de suivi (si le client le demande) : ${order.trackingUrl || 'non disponible'}
-    Numéro de suivi : ${order.trackingNumber || 'non disponible'}
-    
-    Si la question concerne cette commande :
-    - Donne les infos utiles (statut, suivi, etc.)
-    - Si le lien de suivi est disponible, donne-le clairement pour que le client puisse cliquer dessus.
-    - Reste naturel, bref et amical (comme un vrai conseiller SAV).`;
-    } else {
+Le client a fourni une commande : ${order.name}
+Statut actuel : ${order.status}
+${trackingLine}
+Numéro de suivi : ${order.trackingNumber || 'non disponible'}
+ 
+Si la question concerne cette commande :
+- Donne les infos utiles.
+- Si le lien de suivi est disponible, donne-le dans un format cliquable.
+- Ne l’invente jamais.
+- même si certaines informations comme le statut sont en anglais (ex: "FULLUFILLED"), traduis-les automatiquement en français dans ta réponse.
+- Sois chaleureux et pro, façon SAV.`;
+} else {
         promptSystem += `
 Le client a fourni la commande ${orderNumber}, mais je ne l’ai pas trouvée
 (vérifie n° ou email).`;
