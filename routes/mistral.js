@@ -126,6 +126,7 @@ if (demandeSuivi && (!session.orderNumber || !session.email)) {
     : 'Lien de suivi : non disponible';
  
   promptSystem += `
+  Parle en français !
 Le client a fourni une commande : ${order.name}
 Statut actuel : ${order.status}
 ${trackingLine}
