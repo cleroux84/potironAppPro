@@ -80,9 +80,9 @@ if (!email) {
         promptSystem += `
 Commande : ${order.name}
 Statut    : ${order.status}
-Suivi     : ${order.trackingUrl}
+Suivi     : Vous pouvez suivre votre colis en utilisant ce clien : ${order.trackingUrl}
  
-Utilise ces informations si la question concerne la commande, si un lien de suivi existe, donne le au client: ${order.trackingUrl} le client doit pouvoir cliquer dessus. Ne l'invente pas. Le numéro de suivi doit aussi être donné : ${order.trackingNumber} `;
+Utilise ces informations si la question concerne la commande.`;
       
       } else {
         promptSystem += `
