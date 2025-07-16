@@ -98,16 +98,18 @@ updateSession(sessionId, session);
 
 const demandeSuivi = /\b(où|ou)?\b.*\b(command|colis|suivi|statut|livraison|expédié|expedie|reçu|reception)\b/i.test(message);
  
-// Si la demande semble concerner une commande MAIS infos manquantes
-if (demandeSuivi && (!session.orderNumber || !session.email)) {
-  const infosManquantes = [];
-  if (!session.orderNumber) infosManquantes.push("le numéro de commande");
-  if (!session.email) infosManquantes.push("l’adresse e-mail utilisée lors de l’achat");
+// Si le client parle de commande mais n’a pas fourni toutes les infos
+if (demandeSuivi) {
+  if (!session.orderNumber || !session.email) {
+    const infosManquantes = [];
+    if (!session.orderNumber) infosManquantes.push("le numéro de commande");
+    if (!session.email) infosManquantes.push("l’adresse e-mail utilisée lors de l’achat");
  
-  const missingPrompt = `Pour vous aider à localiser votre commande, j’ai besoin de ${infosManquantes.join(' et ')}. Merci de me les communiquer`;
-  session.messages.push({ role: 'assistant', content: missingPrompt });
-  updateSession(sessionId, session);
-  return res.json({ reply: missingPrompt });
+    const missingPrompt = `Pour vous aider à localiser votre commande, j’ai besoin de ${infosManquantes.join(' et ')}. Merci de me les communiquer.`;
+    session.messages.push({ role: 'assistant', content: missingPrompt });
+    updateSession(sessionId, session);
+    return res.json({ reply: missingPrompt });
+  }
 }
 /* ------------------------------------------- */
   /* 1. Construire le promptSystem de base */
