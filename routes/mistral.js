@@ -9,8 +9,31 @@ router.use(express.json());
 
 const apiKey = process.env.MISTRAL_API_KEY; 
 const SHOPIFYAPPTOKEN = process.env.SHOPIFYAPPTOKEN;
+const sessionStore = new Map();
 
 router.use(express.json());
+
+
+// session to memorise 5 last questions
+function getSession(req) {
+  const sessionId = req.headers['x-session-id'] || req.ip;
+  if(!sessionStore.has(sessionId)) {
+    sessionStore.set(sessionId, {
+      messages: [],
+      email: null,
+      orderNumber: null,
+    });
+  }
+  return { sessionId, data: sessionStore.get(sessionId) };
+}
+
+function updateSession(sessionId, data) {
+  sessionStore.set(sessionId, {
+    ...sessionStore.get(sessionId),
+    ...data
+  });
+}
+
  
 /* ---------- FONCTION utilitaire ------------- */
 async function getShopifyOrder(orderNumber, email) {
@@ -56,27 +79,32 @@ async function getShopifyOrder(orderNumber, email) {
 /* ------------------------------------------- */
  
 router.post('/chat', async (req, res) => {
-  let { message, orderNumber, email } = req.body;
+  // let { message, orderNumber, email } = req.body;
+  let {message} = req.body;
+  const { sessionId, data: session } = getSession(req);
+  
+  session.messages.push({ role: 'user', content: message });
  /* --- Extraction auto si champs manquants --- */
-if (!orderNumber) {
+if (!session.orderNumber) {
   const m = message.match(/#?\d{4,6}/);
-  if (m) orderNumber = m[0].replace(/^#/, '');
+  if (m) session.orderNumber = m[0].replace(/^#/, '');
 }
  
-if (!email) {
+if (!session.email) {
   const e = message.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
-  if (e) email = e[0].toLowerCase();
+  if (e) session.email = e[0].toLowerCase();
 }
+updateSession(sessionId, session);
 
 const demandeSuivi = /\b(où|ou)?\b.*\b(command|colis|suivi|statut|livraison|expédié|expedie|reçu|reception)\b/i.test(message);
  
 // Si la demande semble concerner une commande MAIS infos manquantes
-if (demandeSuivi && (!orderNumber || !email)) {
+if (demandeSuivi && (!session.orderNumber || !session.email)) {
   const infosManquantes = [];
-  if (!orderNumber) infosManquantes.push("le numéro de commande");
-  if (!email) infosManquantes.push("l’adresse e-mail utilisée lors de l’achat");
+  if (!session.orderNumber) infosManquantes.push("le numéro de commande");
+  if (!session.email) infosManquantes.push("l’adresse e-mail utilisée lors de l’achat");
  
-  const missingPrompt = `Pour vous aider à localiser votre commande, merci de me préciser ${infosManquantes.join(" et ")}. 😊`;
+  const missingPrompt = `Pour vous aider à localiser votre commande, j’ai besoin de ${infosManquantes.join(' et ')}. Merci de me les communiquer`;
   return res.json({ reply: missingPrompt });
 }
 /* ------------------------------------------- */
@@ -89,9 +117,9 @@ if (demandeSuivi && (!orderNumber || !email)) {
                      "Si tu donnes un lien, sois sûr qu'il existe, n'invente pas d'url et mets toujours un lien cliquable dans une balise a avec un href";
   
   /* 2. Si le client a fourni n° + email, on ajoute l’info commande */
-  if (orderNumber && email) {
+  if (session.orderNumber && session.email) {
     try {
-       const order = await getShopifyOrder(orderNumber, email);
+       const order = await getShopifyOrder(session.orderNumber, session.email);
      if (order) {
   const trackingLine = order.trackingUrl
     ? `Lien de suivi : ${order.trackingUrl}`
@@ -112,7 +140,7 @@ Si la question concerne cette commande :
 - Sois chaleureux et pro, façon SAV.`;
 } else {
         promptSystem += `
-Le client a fourni la commande ${orderNumber}, mais je ne l’ai pas trouvée
+Le client a fourni la commande ${session.orderNumber}, mais je ne l’ai pas trouvée
 (vérifie n° ou email).`;
       }
     } catch (err) {
@@ -128,13 +156,17 @@ Le client a fourni la commande ${orderNumber}, mais je ne l’ai pas trouvée
         model: 'mistral-small',
         messages: [
           { role: 'system', content: promptSystem },
-          { role: 'user',   content: message }
+          // { role: 'user',   content: message }
+          ...session.messages.slice(-7)
         ]
       },
       { headers:{ Authorization:`Bearer ${apiKey}` } }
     );
  
-    res.json({ reply: data.choices[0].message.content });
+const reply = data.choices[0].message.content;
+session.messages.push({ role: 'assistant', content: reply });
+updateSession(sessionId, session);
+res.json({ reply });
   } catch (err) {
     console.error('Mistral :', err.message);
     res.status(500).json({ error:'Erreur Mistral' });
