@@ -68,13 +68,14 @@ if (!email) {
 }
 /* ------------------------------------------- */
   /* 1. Construire le promptSystem de base */
+  let order = null;
   let promptSystem = 'Tu es un assistant SAV et déco de la boutique Potiron. ' +
                      'Réponds brièvement et amicalement.';
  
   /* 2. Si le client a fourni n° + email, on ajoute l’info commande */
   if (orderNumber && email) {
     try {
-       const order = await getShopifyOrder(orderNumber, email);
+       order = await getShopifyOrder(orderNumber, email);
       if (order) {
         console.log("order here", order);
         promptSystem += `
@@ -107,8 +108,11 @@ Le client a fourni la commande ${orderNumber}, mais je ne l’ai pas trouvée
       },
       { headers:{ Authorization:`Bearer ${apiKey}` } }
     );
- 
-    res.json({ reply: data.choices[0].message.content });
+    let replyContent = data.choices[0].message.content;
+    if(order && order.trackingUrl) {
+      replyContent += ` Vous pouvez suivre votre colis : ${order.trackingNumber}, en utilisant ce lien : ${order.trackingUrl}`
+    }
+    res.json({ reply: replyContent });
   } catch (err) {
     console.error('Mistral :', err.message);
     res.status(500).json({ error:'Erreur Mistral' });
