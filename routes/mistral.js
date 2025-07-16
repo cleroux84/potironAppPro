@@ -77,7 +77,7 @@ if (!email) {
        const order = await getShopifyOrder(orderNumber, email);
      if (order) {
   const trackingLine = order.trackingUrl
-    ? `Lien de suivi : [Suivre la livraison](${order.trackingUrl})`
+    ? `Lien de suivi : ${order.trackingUrl}`
     : 'Lien de suivi : non disponible';
  
   promptSystem += `
@@ -90,7 +90,8 @@ Si la question concerne cette commande :
 - Donne les infos utiles.
 - Si le lien de suivi est disponible, donne-le dans un format cliquable.
 - Ne l’invente jamais.
-- même si certaines informations comme le statut sont en anglais (ex: "FULLUFILLED"), traduis-les automatiquement en français dans ta réponse.
+- Même si certaines informations comme le statut sont en anglais (ex: "FULLUFILLED"), traduis-les automatiquement en français dans ta réponse.
+- Quand tu communiques le lien au client, écris-le avec une balise HTML cliquable comme : <a href="URL" target="_blank">Suivre la livraison</a>.
 - Sois chaleureux et pro, façon SAV.`;
 } else {
         promptSystem += `
