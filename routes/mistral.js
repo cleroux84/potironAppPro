@@ -109,6 +109,7 @@ Le client a fourni la commande ${orderNumber}, mais je ne l’ai pas trouvée
       { headers:{ Authorization:`Bearer ${apiKey}` } }
     );
     let replyContent = data.choices[0].message.content;
+    console.log('order là', order)
     if(order && order.trackingUrl) {
       replyContent += ` Vous pouvez suivre votre colis : ${order.trackingNumber}, en utilisant ce lien : ${order.trackingUrl}`
     }
