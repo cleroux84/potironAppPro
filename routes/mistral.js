@@ -115,8 +115,8 @@ async function fetchProducts() {
 
     console.log(`🛍️ Catalogue complet chargé : ${allProducts.length} produits`);
     return allProducts
-    .filter(p => p.status === 'active' && p.published_at) // uniquement les produits actifs et publiés
-    .filter(p => p.variants?.some(v => v.inventory_quantity > 0)) // avec stock dispo
+    .filter(p => p.status === 'active' && p.published_at) 
+    .filter(p => p.variants?.some(v => v.inventory_quantity > 0))
     .map(p => ({
       id: p.id,
       title: p.title,
@@ -126,28 +126,10 @@ async function fetchProducts() {
       image: p.image?.src || null,
       url: `https://potiron2021.myshopify.com/products/${p.handle}`
     }));
-    console.log('all products active', allProducts);
   } catch (error) {
     console.error('❌ Erreur récupération produits Shopify :', error.message);
     return [];
   }
-}
-
-function normalizeWord(word) {
-  return word
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '') // accents
-    .replace(/[^\w\s]/g, '') // ponctuation
-    .replace(/(es|s|e)$/, ''); // simplifieur de fin
-}
-
-function normalizeAll(str) {
-  return str
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^\w\s]/g, '');
 }
 
 
@@ -166,7 +148,7 @@ setInterval(refreshProductCache, 6 * 60 * 60 * 1000);
 async function findProductsWithAI(query) {
   try {
     // On sélectionne un échantillon du catalogue pour ne pas dépasser les limites de contexte
-    const candidates = productCache.slice(0, 100).map(p => ({
+    const candidates = productCache.map(p => ({
       title: p.title,
       // description: p.description || '',
       url: p.url
