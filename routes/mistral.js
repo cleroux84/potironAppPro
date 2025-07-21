@@ -13,6 +13,7 @@ const sessionStore = new Map();
 
 router.use(express.json());
 
+let productCache = [];
 
 // session to memorise 5 last questions
 function getSession(req) {
@@ -36,6 +37,7 @@ function updateSession(sessionId, data) {
 
  
 /* ---------- FONCTION utilitaire ------------- */
+//Récupère une commande 
 async function getShopifyOrder(orderNumber, email) {
   const num  = orderNumber.replace(/^#/, '').trim();
   const mail = email.trim().toLowerCase();
@@ -76,6 +78,54 @@ async function getShopifyOrder(orderNumber, email) {
     trackingNumber : t.number || null
   };
 }
+
+//Récupère les produits du catalogue
+async function fetchProducts() {
+  try {
+    const res = await axios.get('https://potiron2021.myshopify.com/admin/api/2024-01/products.json', {
+      headers: {
+        'X-Shopify-Access-Token': SHOPIFYAPPTOKEN,
+        'Content-Type': 'application/json'
+      }
+    });
+    return res.data.products.map(p => ({
+      id: p.id,
+      title: p.title,
+      tags: p.tags ? p.tags.split(',').map(tag => tag.trim().toLowerCase()) : [],
+      handle: p.handle,
+      description: p.body_html,
+      image: p.image?.src || null,
+      url: `https://potiron2021.myshopify.com/products/${p.handle}`
+    }))
+  } catch (error) {
+    console.error('Erreur récupération produits Shopify :', error.message);
+    return [];
+  }
+}
+
+async function refreshProductCache() {
+  console.log('lauch fetch products');
+  productCache = await fetchProducts();
+  console.log(`🛍️ Catalogue Shopify chargé : ${productCache.length} produits`);
+}
+
+// Lancer au démarrage
+refreshProductCache();
+
+// Recharger toutes les 6h
+setInterval(refreshProductCache, 6 * 60 * 60 * 1000);
+
+function findProductsFromQuery(query) {
+  const q = query.toLowerCase();
+
+  return productCache.filter(p =>
+    p.title.toLowerCase().includes(q) ||
+    p.description.toLowerCase().includes(q) ||
+    p.tags.some(tag => q.includes(tag) || tag.includes(q))
+  ).slice(0, 5); // max 5 résultats
+}
+
+
 /* ------------------------------------------- */
  
 router.post('/chat', async (req, res) => {
@@ -103,8 +153,13 @@ if (emailMatch) {
 }
 updateSession(sessionId, session);
 
-const demandeSuivi = /\b(où|ou)?\b.*\b(command|colis|suivi|statut|livraison|expédié|expedie|reçu|reception)\b/i.test(message);
- 
+// const demandeSuivi = /\b(où|ou)?\b.*\b(command|colis|suivi|statut|livraison|expédié|expedie|reçu|reception)\b/i.test(message);
+ const demandeSuivi = /\b(où est|suivre|statut|livraison|colis|expédiée|envoyée|reçu[e]?)\b/i.test(message);
+// --- Détection d'intention produit ---
+const isRechercheProduit = /\b(avez[- ]?vous|proposez[- ]?vous|je cherche|est[- ]?ce que vous avez|vous vendez).*\b(chaise|canapé|vase|table|décoration|meuble|produit|article|coussin|lampe|miroir|tapis|rideau|buffet|console|tabouret)\b/i.test(message);
+
+
+
 // Si le client parle de commande mais n’a pas fourni toutes les infos
 if (demandeSuivi) {
   if (!session.orderNumber || !session.email) {
@@ -117,6 +172,14 @@ if (demandeSuivi) {
     updateSession(sessionId, session);
     return res.json({ reply: missingPrompt });
   }
+} else if (isRechercheProduit) {
+  const matchingProducts = findProductsFromQuery(message);
+  const productReply = generateProductLinks(matchingProducts);
+
+  session.messages.push({ role: 'assistant', content: productReply });
+  updateSession(sessionId, session);
+  return res.json({ reply: productReply });
+
 }
 /* ------------------------------------------- */
   /* 1. Construire le promptSystem de base */
@@ -194,7 +257,7 @@ Informe-le poliment que la commande n’a pas été retrouvée, et invite-le à 
         messages: [
           { role: 'system', content: promptSystem },
           // { role: 'user',   content: message }
-          ...session.messages.slice(-7)
+          ...session.messages.slice(-10)
         ]
       },
       { headers:{ Authorization:`Bearer ${apiKey}` } }
