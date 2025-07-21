@@ -161,48 +161,57 @@ refreshProductCache();
 setInterval(refreshProductCache, 6 * 60 * 60 * 1000);
 
 async function findProductsWithAI(query) {
-  try {
-    // On sélectionne un échantillon du catalogue pour ne pas dépasser les limites de contexte
-    const candidates = productCache.slice(0, 100).map(p => ({
-      title: p.title,
-      // description: p.description || '',
-      url: p.url
-    }));
+  const batchSize = 100;
+  const matches = [];
 
-   console.log('candidates', candidates)
-
-    const { data } = await axios.post(
-      'https://api.mistral.ai/v1/chat/completions',
-      {
-        model: 'mistral-small',
-        messages: [
-          {
-            role: 'system',
-            content: `Voici une liste de produits (titre + description). Donne uniquement ceux qui correspondent à la recherche : "${query}". Réponds avec un JSON d’objets : [{ "title": ..., "url": ... }]. Ne réponds rien si aucun match.`
-          },
-          {
-            role: 'user',
-            content: JSON.stringify(candidates)
-          }
-        ]
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${apiKey}`
-        }
-      }
-    );
-
-    const raw = data.choices[0].message.content;
-    console.log('📨 Réponse brute de Mistral :\n', raw);
-
-    const matches = JSON.parse(raw);
-    return matches;
-  } catch (err) {
-    console.error('❌ Erreur Mistral (produit matching) :', err.message);
-    return [];
+  const batches = [];
+  for (let i = 0; i < productCache.length; i += batchSize) {
+    batches.push(productCache.slice(i, i + batchSize));
   }
+
+  for (const [index, batch] of batches.entries()) {
+    try {
+      console.log(`🔎 Analyse du batch ${index + 1}/${batches.length}`);
+      const response = await axios.post(
+        'https://api.mistral.ai/v1/chat/completions',
+        {
+          model: 'mistral-small',
+          messages: [
+            {
+              role: 'system',
+              content: `Tu reçois une liste de produits avec titre et description. Retourne uniquement ceux qui correspondent à la recherche : "${query}". Réponds avec un tableau JSON [{ "title": ..., "url": ... }]. Ne réponds rien si aucun match.`
+            },
+            {
+              role: 'user',
+              content: JSON.stringify(batch.map(p => ({
+                title: p.title,
+                description: p.description || '',
+                url: p.url
+              })))
+            }
+          ]
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${apiKey}`
+          }
+        }
+      );
+
+      const raw = response.data.choices[0].message.content;
+      console.log(`📦 Résultats batch ${index + 1}:\n`, raw);
+
+      const batchMatches = JSON.parse(raw);
+      matches.push(...batchMatches);
+    } catch (err) {
+      console.error(`❌ Erreur batch ${index + 1}:`, err.message);
+      continue; // on saute ce batch
+    }
+  }
+
+  return matches.slice(0, 5); // max 5 à afficher
 }
+
 
 
 
