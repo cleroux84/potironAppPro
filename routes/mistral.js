@@ -161,77 +161,64 @@ refreshProductCache();
 setInterval(refreshProductCache, 6 * 60 * 60 * 1000);
 
 async function findProductsWithAI(query) {
-  const qWords = query.toLowerCase().split(/\s+/).filter(w => w.length > 2); // ex: ['cherche', 'vase', 'bleu']
-
-  const shortlist = productCache.filter(p => {
-    const text = `${p.title} ${p.description || ''}`.toLowerCase();
-    return qWords.every(word => text.includes(word));
-  }).slice(0, 100); 
-
-  if (shortlist.length === 0) return [];
-
-  const productList = shortlist.map((p, i) =>
-    `${i + 1}. ${p.title} : ${p.description?.slice(0, 100).replace(/\n/g, ' ') || ''}`
-  ).join('\n');
-
-  const prompt = `
-Voici une liste de produits de décoration et mobilier :
-
-${productList}
-
-Un client cherche : "${query}"
-
-Quels sont les produits de la liste qui correspondent vraiment à sa recherche ?
-Réponds uniquement avec la liste des titres exacts.`;
-
   try {
+    // On envoie jusqu'à 50 produits maximum pour rester performant
+    const candidates = productCache.slice(0, 50).map(p => ({
+      title: p.title,
+      description: p.description || '',
+      url: p.url
+    }));
+
     console.log('🧠 Prompt envoyé à Mistral :');
-console.log(JSON.stringify({
-  model: 'mistral-small',
-  messages: [
-    {
-      role: 'system',
-      content: `Voici une liste de produits (titre + description). Donne uniquement ceux qui correspondent à la recherche : "${query}". Réponds avec un JSON d’objets : [{ title, url }]. Ne réponds rien si aucun match.`
-    },
-    {
-      role: 'user',
-      content: JSON.stringify(filtered.map(p => ({
-        title: p.title,
-        description: p.description,
-        url: p.url
-      })))
-    }
-  ]
-}, null, 2));
+    console.log(JSON.stringify({
+      model: 'mistral-small',
+      messages: [
+        {
+          role: 'system',
+          content: `Voici une liste de produits (titre + description). Donne uniquement ceux qui correspondent à la recherche : "${query}". Réponds avec un JSON d’objets : [{ title, url }]. Ne réponds rien si aucun match.`
+        },
+        {
+          role: 'user',
+          content: JSON.stringify(candidates)
+        }
+      ]
+    }, null, 2));
 
     const { data } = await axios.post(
-      
       'https://api.mistral.ai/v1/chat/completions',
       {
         model: 'mistral-small',
         messages: [
-          { role: 'system', content: 'Tu es un moteur de recherche intelligent pour une boutique de décoration. Tu ne réponds qu’avec les titres exacts.' },
-          { role: 'user', content: prompt }
+          {
+            role: 'system',
+            content: `Voici une liste de produits (titre + description). Donne uniquement ceux qui correspondent à la recherche : "${query}". Réponds avec un JSON d’objets : [{ title, url }]. Ne réponds rien si aucun match.`
+          },
+          {
+            role: 'user',
+            content: JSON.stringify(candidates)
+          }
         ]
       },
-      { headers: { Authorization: `Bearer ${apiKey}` } }
+      {
+        headers: {
+          Authorization: `Bearer ${apiKey}`
+        }
+      }
     );
 
+    const raw = data.choices[0].message.content;
     console.log('📨 Réponse brute Mistral :');
-console.log(data.choices[0].message.content);
+    console.log(raw);
 
-    const responseText = data.choices[0].message.content;
-    const matchingTitles = shortlist.filter(p =>
-      responseText.includes(p.title)
-    );
-
-    return matchingTitles;
-
+    // On tente de parser le JSON renvoyé
+    const matches = JSON.parse(raw);
+    return matches;
   } catch (err) {
-    console.error('Erreur IA recherche produits :', err.message);
+    console.error('❌ Erreur Mistral AI (produit matching) :', err.message);
     return [];
   }
 }
+
 
 
 function generateProductLinks(products, query) {
