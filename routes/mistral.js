@@ -185,7 +185,27 @@ Quels sont les produits de la liste qui correspondent vraiment à sa recherche ?
 Réponds uniquement avec la liste des titres exacts.`;
 
   try {
+    console.log('🧠 Prompt envoyé à Mistral :');
+console.log(JSON.stringify({
+  model: 'mistral-small',
+  messages: [
+    {
+      role: 'system',
+      content: `Voici une liste de produits (titre + description). Donne uniquement ceux qui correspondent à la recherche : "${query}". Réponds avec un JSON d’objets : [{ title, url }]. Ne réponds rien si aucun match.`
+    },
+    {
+      role: 'user',
+      content: JSON.stringify(filtered.map(p => ({
+        title: p.title,
+        description: p.description,
+        url: p.url
+      })))
+    }
+  ]
+}, null, 2));
+
     const { data } = await axios.post(
+      
       'https://api.mistral.ai/v1/chat/completions',
       {
         model: 'mistral-small',
@@ -196,6 +216,9 @@ Réponds uniquement avec la liste des titres exacts.`;
       },
       { headers: { Authorization: `Bearer ${apiKey}` } }
     );
+
+    console.log('📨 Réponse brute Mistral :');
+console.log(data.choices[0].message.content);
 
     const responseText = data.choices[0].message.content;
     const matchingTitles = shortlist.filter(p =>
