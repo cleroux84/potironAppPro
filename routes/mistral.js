@@ -148,7 +148,7 @@ function findProductsFromQuery(query) {
 
   productCache.filter(p =>
     p.title.toLowerCase().includes(q) ||
-    p.description.toLowerCase().includes(q) ||
+    (p.description || '').toLowerCase().includes(q) ||
     p.tags.some(tag => q.includes(tag) || tag.includes(q))
   ).slice(0, 5); // max 5 résultats
   console.log('cache products', productCache);
