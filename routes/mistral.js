@@ -130,6 +130,15 @@ async function fetchProducts() {
   }
 }
 
+function normalize(str) {
+  return str
+    .toLowerCase()
+    .normalize("NFD") // enlève accents
+    .replace(/[\u0300-\u036f]/g, '') // supprime les diacritiques
+    .replace(/s\b/g, '') // supprime les pluriels simples
+    .replace(/e\b/g, ''); // simplifie le féminin (bleue -> bleu)
+}
+
 
 async function refreshProductCache() {
   console.log('lauch fetch products');
@@ -144,12 +153,26 @@ refreshProductCache();
 setInterval(refreshProductCache, 6 * 60 * 60 * 1000);
 
 function findProductsFromQuery(query) {
-  const mots = query.toLowerCase().split(/\s+/).filter(w => w.length > 2); 
-  return productCache.filter(p => {
-    const titre = p.title.toLowerCase();
-    return mots.every(mot => titre.includes(mot));
+  const mots = normalize(query).split(/\s+/).filter(w => w.length > 2);
+  console.log('🧠 Mots recherchés (normalisés) :', mots);
+
+  const matching = productCache.filter(p => {
+    const texte = normalize(`${p.title} ${p.description || ''}`);
+    const match = mots.every(mot => texte.includes(mot));
+
+    if (match) {
+      console.log(`✅ MATCH "${p.title}" avec mots :`, mots);
+    } else {
+      console.log(`❌ NO MATCH "${p.title}"`);
+    }
+
+    return match;
   }).slice(0, 5);
+
+  console.log('🔎 Produits trouvés :', matching.map(p => p.title));
+  return matching;
 }
+
 function generateProductLinks(products, query) {
   if (products.length === 0) {
     return `Désolé, je n’ai trouvé aucun produit correspondant à "${query}". 😕`;
