@@ -152,18 +152,21 @@ refreshProductCache();
 setInterval(refreshProductCache, 6 * 60 * 60 * 1000);
 
 function findProductsFromQuery(query) {
-  const queryWords = normalize(query).split(/\s+/).filter(w => w.length > 2);
-  console.log('🔍 Recherche stricte des mots :', queryWords);
+  const queryWords = normalize(query).split(/\s+/).filter(w => w !== 'je' && w !== 'un' && w !== 'une' && w !== 'le' && w !== 'la' && w !== 'des' && w !== 'de');
+
+  console.log('🔍 Mots recherchés :', queryWords);
 
   const results = productCache.filter(p => {
     const title = normalize(p.title);
-    const matchesAll = queryWords.every(word => title.includes(word));
+    const match = queryWords.every(word => {
+      return title.includes(word) || title.split(/\s+/).some(w => w.startsWith(word));
+    });
 
-    console.log(`${matchesAll ? '✅' : '❌'} "${p.title}" — contient tous les mots ?`, matchesAll);
-    return matchesAll;
+    console.log(`${match ? '✅' : '❌'} "${p.title}" — contient tous les mots ?`, match);
+    return match;
   }).slice(0, 5);
 
-  console.log('🎯 Produits trouvés :', results.map(p => p.title));
+  console.log('🎯 Résultats trouvés :', results.map(p => p.title));
   return results;
 }
 
