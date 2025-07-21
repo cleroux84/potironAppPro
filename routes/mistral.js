@@ -92,7 +92,7 @@ async function fetchProducts() {
           'Content-Type': 'application/json'
         },
         params: {
-          limit: 250,
+          limit: 1000,
           ...(nextPageInfo ? { page_info: nextPageInfo } : {})
         }
       });
