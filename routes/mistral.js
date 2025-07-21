@@ -82,52 +82,39 @@ async function getShopifyOrder(orderNumber, email) {
 //Récupère les produits du catalogue
 async function fetchProducts() {
   const allProducts = [];
-  let page = 1;
-  let hasMore = true;
+  let nextPageInfo = null;
 
   try {
-    while (hasMore) {
-      const res = axios.get('https://potiron2021.myshopify.com/admin/api/2024-01/products.json', {
+    do {
+      const response = await axios.get('https://potiron2021.myshopify.com/admin/api/2024-01/products.json', {
         headers: {
           'X-Shopify-Access-Token': SHOPIFYAPPTOKEN,
           'Content-Type': 'application/json'
         },
         params: {
-          limit: 250, // max autorisé par Shopify
-          page: page++
+          limit: 250,
+          ...(nextPageInfo ? { page_info: nextPageInfo } : {})
         }
       });
 
-      const products = res.data.products;
+      const products = response.data.products || [];
       allProducts.push(...products);
 
-      hasMore = products.length === 250;
-    }
+      // Lire le header Link pour pagination
+      const linkHeader = response.headers.link;
+      const nextMatch = linkHeader?.match(/<([^>]+)>; rel="next"/);
 
-    return allProducts.map(p => ({
-      id: p.id,
-      title: p.title,
-      tags: p.tags ? p.tags.split(',').map(tag => tag.trim().toLowerCase()) : [],
-      handle: p.handle,
-      description: p.body_html || '',
-      image: p.image?.src || null,
-      url: `https://potiron2021.myshopify.com/products/${p.handle}`
-    }));
-
-  } catch (err) {
-    console.error('❌ Erreur récupération produits Shopify :', err.message);
-    return [];
-  }
-}
-
-  try {
-    const res = await axios.get('https://potiron2021.myshopify.com/admin/api/2024-01/products.json', {
-      headers: {
-        'X-Shopify-Access-Token': SHOPIFYAPPTOKEN,
-        'Content-Type': 'application/json'
+      if (nextMatch) {
+        const url = new URL(nextMatch[1]);
+        nextPageInfo = url.searchParams.get("page_info");
+      } else {
+        nextPageInfo = null;
       }
-    });
-    return res.data.products.map(p => ({
+
+    } while (nextPageInfo);
+
+    console.log(`🛍️ Catalogue complet chargé : ${allProducts.length} produits`);
+    return allProducts.map(p => ({
       id: p.id,
       title: p.title,
       tags: p.tags ? p.tags.split(',').map(tag => tag.trim().toLowerCase()) : [],
@@ -135,16 +122,19 @@ async function fetchProducts() {
       description: p.body_html,
       image: p.image?.src || null,
       url: `https://potiron2021.myshopify.com/products/${p.handle}`
-    }))
+    }));
+
   } catch (error) {
-    console.error('Erreur récupération produits Shopify :', error.message);
+    console.error('❌ Erreur récupération produits Shopify :', error.message);
     return [];
   }
+}
 
 
 async function refreshProductCache() {
+  console.log('lauch fetch products');
   productCache = await fetchProducts();
-  console.log(`🛍️ Catalogue Shopify rechargé : ${productCache.length} produits`);
+  console.log(`🛍️ Catalogue Shopify chargé : ${productCache.length} produits`);
 }
 
 // Lancer au démarrage
@@ -156,13 +146,12 @@ setInterval(refreshProductCache, 6 * 60 * 60 * 1000);
 function findProductsFromQuery(query) {
   const q = query.toLowerCase();
 
-  productCache =  productCache.filter(p =>
+  productCache.filter(p =>
     p.title.toLowerCase().includes(q) ||
     p.description.toLowerCase().includes(q) ||
     p.tags.some(tag => q.includes(tag) || tag.includes(q))
   ).slice(0, 5); // max 5 résultats
   console.log('cache products', productCache);
-  return productCache;
 }
 function generateProductLinks(products, query) {
   if (products.length === 0) {
@@ -209,6 +198,8 @@ updateSession(sessionId, session);
  const demandeSuivi = /\b(où est|suivre|statut|livraison|colis|expédiée|envoyée|reçu[e]?)\b/i.test(message);
 // --- Détection d'intention produit ---
 const isRechercheProduit = /\b(avez[- ]?vous|proposez[- ]?vous|je cherche|est[- ]?ce que vous avez|vous vendez).*\b(chaise|canapé|vase|table|décoration|meuble|produit|article|coussin|lampe|miroir|tapis|rideau|buffet|console|tabouret)\b/i.test(message);
+
+
 
 // Si le client parle de commande mais n’a pas fourni toutes les infos
 if (demandeSuivi) {
