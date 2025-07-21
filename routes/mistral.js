@@ -93,7 +93,6 @@ async function fetchProducts() {
         },
         params: {
           limit: 250,
-           published_status: 'published',
           ...(nextPageInfo ? { page_info: nextPageInfo } : {})
         }
       });
