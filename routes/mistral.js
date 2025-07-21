@@ -93,8 +93,8 @@ async function fetchProducts() {
         },
         params: {
           limit: 250,
-          ...(nextPageInfo ? { page_info: nextPageInfo } : {}),
-           published_status: 'published'
+           published_status: 'published',
+          ...(nextPageInfo ? { page_info: nextPageInfo } : {})
         }
       });
 
