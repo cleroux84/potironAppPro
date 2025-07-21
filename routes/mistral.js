@@ -146,12 +146,14 @@ setInterval(refreshProductCache, 6 * 60 * 60 * 1000);
 function findProductsFromQuery(query) {
   const q = query.toLowerCase();
 
-  productCache.filter(p =>
+  const matching = productCache.filter(p =>
     p.title.toLowerCase().includes(q) ||
     (p.description || '').toLowerCase().includes(q) ||
     p.tags.some(tag => q.includes(tag) || tag.includes(q))
   ).slice(0, 5); // max 5 résultats
-  console.log('cache products', productCache);
+  console.log('cache products', matching.map(p => `- ${p.title}`));
+
+  return matching;
 }
 function generateProductLinks(products, query) {
   if (products.length === 0) {
