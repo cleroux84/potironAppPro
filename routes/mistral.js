@@ -160,25 +160,56 @@ refreshProductCache();
 // Recharger toutes les 6h
 setInterval(refreshProductCache, 6 * 60 * 60 * 1000);
 
-function findProductsFromQuery(query) {
-  const queryWords = query
-    .split(/\s+/)
-    .map(normalizeWord)
-    .filter(w => w.length > 1 && !['je', 'un', 'une', 'le', 'la', 'les', 'des', 'de'].includes(w));
+async function findProductsWithAI(query) {
+  const qWords = query.toLowerCase().split(/\s+/).filter(w => w.length > 2); // ex: ['cherche', 'vase', 'bleu']
 
-  console.log('🔍 Mots recherchés (normalisés):', queryWords);
+  const shortlist = productCache.filter(p => {
+    const text = `${p.title} ${p.description || ''}`.toLowerCase();
+    return qWords.every(word => text.includes(word));
+  }).slice(0, 100); 
 
-  const results = productCache.filter(p => {
-    const titleWords = normalizeAll(p.title).split(/\s+/).map(normalizeWord);
-    const match = queryWords.every(q => titleWords.includes(q));
+  if (shortlist.length === 0) return [];
 
-    console.log(`${match ? '✅' : '❌'} "${p.title}" — contient tous les mots ?`, match);
-    return match;
-  }).slice(0, 5);
+  const productList = shortlist.map((p, i) =>
+    `${i + 1}. ${p.title} : ${p.description?.slice(0, 100).replace(/\n/g, ' ') || ''}`
+  ).join('\n');
 
-  console.log('🎯 Produits trouvés :', results.map(p => p.title));
-  return results;
+  const prompt = `
+Voici une liste de produits de décoration et mobilier :
+
+${productList}
+
+Un client cherche : "${query}"
+
+Quels sont les produits de la liste qui correspondent vraiment à sa recherche ?
+Réponds uniquement avec la liste des titres exacts.`;
+
+  try {
+    const { data } = await axios.post(
+      'https://api.mistral.ai/v1/chat/completions',
+      {
+        model: 'mistral-small',
+        messages: [
+          { role: 'system', content: 'Tu es un moteur de recherche intelligent pour une boutique de décoration. Tu ne réponds qu’avec les titres exacts.' },
+          { role: 'user', content: prompt }
+        ]
+      },
+      { headers: { Authorization: `Bearer ${apiKey}` } }
+    );
+
+    const responseText = data.choices[0].message.content;
+    const matchingTitles = shortlist.filter(p =>
+      responseText.includes(p.title)
+    );
+
+    return matchingTitles;
+
+  } catch (err) {
+    console.error('Erreur IA recherche produits :', err.message);
+    return [];
+  }
 }
+
 
 function generateProductLinks(products, query) {
   if (products.length === 0) {
@@ -241,7 +272,7 @@ if (demandeSuivi) {
     return res.json({ reply: missingPrompt });
   }
 } else if (isRechercheProduit) {
-  const matchingProducts = findProductsFromQuery(message);
+  const matchingProducts = await findProductsWithAI(message);
   const productReply = generateProductLinks(matchingProducts, message);
 
   session.messages.push({ role: 'assistant', content: productReply });
