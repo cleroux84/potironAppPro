@@ -162,8 +162,8 @@ setInterval(refreshProductCache, 6 * 60 * 60 * 1000);
 
 async function findProductsWithAI(query) {
   try {
-    // On envoie jusqu'à 50 produits maximum pour rester performant
-    const candidates = productCache.slice(0, 50).map(p => ({
+    // On sélectionne un échantillon du catalogue pour ne pas dépasser les limites de contexte
+    const candidates = productCache.slice(0, 100).map(p => ({
       title: p.title,
       description: p.description || '',
       url: p.url
@@ -175,7 +175,7 @@ async function findProductsWithAI(query) {
       messages: [
         {
           role: 'system',
-          content: `Voici une liste de produits (titre + description). Donne uniquement ceux qui correspondent à la recherche : "${query}". Réponds avec un JSON d’objets : [{ title, url }]. Ne réponds rien si aucun match.`
+          content: `Voici une liste de produits (titre + description). Donne uniquement ceux qui correspondent à la recherche : "${query}". Réponds avec un JSON d’objets : [{ "title": ..., "url": ... }]. Ne réponds rien si aucun match.`
         },
         {
           role: 'user',
@@ -191,7 +191,7 @@ async function findProductsWithAI(query) {
         messages: [
           {
             role: 'system',
-            content: `Voici une liste de produits (titre + description). Donne uniquement ceux qui correspondent à la recherche : "${query}". Réponds avec un JSON d’objets : [{ title, url }]. Ne réponds rien si aucun match.`
+            content: `Voici une liste de produits (titre + description). Donne uniquement ceux qui correspondent à la recherche : "${query}". Réponds avec un JSON d’objets : [{ "title": ..., "url": ... }]. Ne réponds rien si aucun match.`
           },
           {
             role: 'user',
@@ -207,17 +207,16 @@ async function findProductsWithAI(query) {
     );
 
     const raw = data.choices[0].message.content;
-    console.log('📨 Réponse brute Mistral :');
-    console.log(raw);
+    console.log('📨 Réponse brute de Mistral :\n', raw);
 
-    // On tente de parser le JSON renvoyé
     const matches = JSON.parse(raw);
     return matches;
   } catch (err) {
-    console.error('❌ Erreur Mistral AI (produit matching) :', err.message);
+    console.error('❌ Erreur Mistral (produit matching) :', err.message);
     return [];
   }
 }
+
 
 
 
@@ -288,8 +287,8 @@ if (demandeSuivi) {
   session.messages.push({ role: 'assistant', content: productReply });
   updateSession(sessionId, session);
   return res.json({ reply: productReply });
-
 }
+
 /* ------------------------------------------- */
   /* 1. Construire le promptSystem de base */
  let promptSystem = `Tu es un assistant du service client (SAV) de la boutique Potiron Paris.
