@@ -165,24 +165,11 @@ async function findProductsWithAI(query) {
     // On sélectionne un échantillon du catalogue pour ne pas dépasser les limites de contexte
     const candidates = productCache.slice(0, 100).map(p => ({
       title: p.title,
-      description: p.description || '',
+      // description: p.description || '',
       url: p.url
     }));
 
-    console.log('🧠 Prompt envoyé à Mistral :');
-    console.log(JSON.stringify({
-      model: 'mistral-small',
-      messages: [
-        {
-          role: 'system',
-          content: `Voici une liste de produits (titre + description). Donne uniquement ceux qui correspondent à la recherche : "${query}". Réponds avec un JSON d’objets : [{ "title": ..., "url": ... }]. Ne réponds rien si aucun match.`
-        },
-        {
-          role: 'user',
-          content: JSON.stringify(candidates)
-        }
-      ]
-    }, null, 2));
+   console.log('candidates', candidates)
 
     const { data } = await axios.post(
       'https://api.mistral.ai/v1/chat/completions',
@@ -221,6 +208,7 @@ async function findProductsWithAI(query) {
 
 
 function generateProductLinks(products, query) {
+  console.log('to generate', products)
   if (products.length === 0) {
     return `Désolé, je n’ai trouvé aucun produit correspondant à "${query}". 😕`;
   }
