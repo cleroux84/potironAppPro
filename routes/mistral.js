@@ -87,7 +87,7 @@ async function fetchProducts() {
 
   try {
     while (hasMore) {
-      const res = await axios.get('https://potiron2021.myshopify.com/admin/api/2024-01/products.json', {
+      const res = axios.get('https://potiron2021.myshopify.com/admin/api/2024-01/products.json', {
         headers: {
           'X-Shopify-Access-Token': SHOPIFYAPPTOKEN,
           'Content-Type': 'application/json'
