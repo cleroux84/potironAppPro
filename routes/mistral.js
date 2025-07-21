@@ -91,6 +91,7 @@ if (orderMatch) {
   if (newOrderNumber !== session.orderNumber) {
     session.orderNumber = newOrderNumber;
     session.messages = []; 
+  }
 }
 
 const emailMatch = message.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
