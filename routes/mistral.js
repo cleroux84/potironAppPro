@@ -130,10 +130,19 @@ async function fetchProducts() {
   }
 }
 
-function normalize(str) {
+function normalizeWord(word) {
+  return word
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // accents
+    .replace(/[^\w\s]/g, '') // ponctuation
+    .replace(/(es|s|e)$/, ''); // simplifieur de fin
+}
+
+function normalizeAll(str) {
   return str
     .toLowerCase()
-    .normalize("NFD")
+    .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/[^\w\s]/g, '');
 }
@@ -152,21 +161,22 @@ refreshProductCache();
 setInterval(refreshProductCache, 6 * 60 * 60 * 1000);
 
 function findProductsFromQuery(query) {
-  const queryWords = normalize(query).split(/\s+/).filter(w => w !== 'je' && w !== 'un' && w !== 'une' && w !== 'le' && w !== 'la' && w !== 'des' && w !== 'de');
+  const queryWords = query
+    .split(/\s+/)
+    .map(normalizeWord)
+    .filter(w => w.length > 1 && !['je', 'un', 'une', 'le', 'la', 'les', 'des', 'de'].includes(w));
 
-  console.log('🔍 Mots recherchés :', queryWords);
+  console.log('🔍 Mots recherchés (normalisés):', queryWords);
 
   const results = productCache.filter(p => {
-    const title = normalize(p.title);
-    const match = queryWords.every(word => {
-      return title.includes(word) || title.split(/\s+/).some(w => w.startsWith(word));
-    });
+    const titleWords = normalizeAll(p.title).split(/\s+/).map(normalizeWord);
+    const match = queryWords.every(q => titleWords.includes(q));
 
     console.log(`${match ? '✅' : '❌'} "${p.title}" — contient tous les mots ?`, match);
     return match;
   }).slice(0, 5);
 
-  console.log('🎯 Résultats trouvés :', results.map(p => p.title));
+  console.log('🎯 Produits trouvés :', results.map(p => p.title));
   return results;
 }
 
