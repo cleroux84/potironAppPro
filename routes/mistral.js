@@ -85,14 +85,20 @@ router.post('/chat', async (req, res) => {
   
   session.messages.push({ role: 'user', content: message });
  /* --- Extraction auto si champs manquants --- */
-if (!session.orderNumber) {
-  const m = message.match(/#?\d{4,6}/);
-  if (m) session.orderNumber = m[0].replace(/^#/, '');
+const orderMatch = message.match(/#?\d{4,6}/);
+if (orderMatch) {
+  const newOrderNumber = orderMatch[0].replace(/^#/, '');
+  if (newOrderNumber !== session.orderNumber) {
+    session.orderNumber = newOrderNumber;
+    session.messages = []; 
 }
- 
-if (!session.email) {
-  const e = message.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
-  if (e) session.email = e[0].toLowerCase();
+
+const emailMatch = message.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
+if (emailMatch) {
+  const newEmail = emailMatch[0].toLowerCase();
+  if (newEmail !== session.email) {
+    session.email = newEmail;
+  }
 }
 updateSession(sessionId, session);
 
