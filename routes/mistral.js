@@ -124,6 +124,18 @@ function findProductsFromQuery(query) {
     p.tags.some(tag => q.includes(tag) || tag.includes(q))
   ).slice(0, 5); // max 5 résultats
 }
+function generateProductLinks(products, query) {
+  if (products.length === 0) {
+    return `Désolé, je n’ai trouvé aucun produit correspondant à "${query}". 😕`;
+  }
+
+  let reply = `Voici quelques produits qui pourraient vous intéresser :<br><ul>`;
+  reply += products.map(p =>
+    `<li><a href="${p.url}" target="_blank">${p.title}</a></li>`
+  ).join('');
+  reply += `</ul>`;
+  return reply;
+}
 
 
 /* ------------------------------------------- */
@@ -174,7 +186,7 @@ if (demandeSuivi) {
   }
 } else if (isRechercheProduit) {
   const matchingProducts = findProductsFromQuery(message);
-  const productReply = generateProductLinks(matchingProducts);
+  const productReply = generateProductLinks(matchingProducts, message);
 
   session.messages.push({ role: 'assistant', content: productReply });
   updateSession(sessionId, session);
@@ -198,6 +210,10 @@ Ta mission :
 - Le client a demandé à suivre sa commande (il mentionne livraison, statut, suivi, etc.)
 - Il a fourni un numéro de commande ET une adresse e-mail
 - La commande correspondante est retrouvée
+
+✅ Tu peux répondre à une recherche de produit UNIQUEMENT si :
+- Le client a demandé un produit 
+
 
 ---
 
