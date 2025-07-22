@@ -192,17 +192,10 @@ setInterval(refreshProductCache, 6 * 60 * 60 * 1000);
 
 async function findProductsWithAI(query) {
   try {
-    // On sélectionne un échantillon du catalogue pour ne pas dépasser les limites de contexte
     const candidates = productCache.map(p => ({
       title: p.title,
-      // description: p.description || '',
       url: p.url
     }));
-
-  //  console.log('candidates', candidates);
-//    console.log("chaises",
-//   candidates.filter(p => p.title.toLowerCase().includes('chaise'))
-// );
 
     const { data } = await axios.post(
       'https://api.mistral.ai/v1/chat/completions',
@@ -229,13 +222,22 @@ async function findProductsWithAI(query) {
     const raw = data.choices[0].message.content;
     console.log('📨 Réponse brute de Mistral :\n', raw);
 
-    const matches = JSON.parse(raw);
+    // 🛠 Extraction sécurisée du JSON
+    const match = raw.match(/\[.*?\]/s); // match du premier tableau JSON trouvé (non-gourmand, supporte multiline avec /s)
+
+    if (!match) {
+      console.warn('⚠️ Aucun JSON détecté dans la réponse Mistral');
+      return [];
+    }
+
+    const matches = JSON.parse(match[0]); // match[0] est le tableau JSON
     return matches;
   } catch (err) {
     console.error('❌ Erreur Mistral (produit matching) :', err.message);
     return [];
   }
 }
+
 
 
 
