@@ -299,14 +299,18 @@ if (demandeSuivi) {
   }
 
 } else if (isRechercheProduit) {
+  console.log('yes recherche produit')
   const matchingProducts = await findProductsWithAI(message);
 
   if (matchingProducts.length > 0) {
+    console.log("nombreA", matchingProducts.length);
     const productReply = generateProductLinks(matchingProducts, message);
     session.messages.push({ role: 'assistant', content: productReply });
     updateSession(sessionId, session);
     return res.json({ reply: productReply });
   } else {
+    console.log("nombreB", matchingProducts.length);
+    
     // 🔍 Aucune correspondance produit — on cherche des collections
     const collections = getCachedCollections();
     const searchTerms = message.toLowerCase().split(/\s+/).filter(Boolean);
