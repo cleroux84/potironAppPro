@@ -299,46 +299,16 @@ if (demandeSuivi) {
   }
 
 } else if (isRechercheProduit) {
-  console.log('yes recherche produit')
   const matchingProducts = await findProductsWithAI(message);
+  console.log('number found', matchingProducts.length);
+  
+  const productReply = generateProductLinks(matchingProducts, message);
 
-  if (matchingProducts.length > 0) {
-    console.log("nombreA", matchingProducts.length);
-    const productReply = generateProductLinks(matchingProducts, message);
-    session.messages.push({ role: 'assistant', content: productReply });
-    updateSession(sessionId, session);
-    return res.json({ reply: productReply });
-  } else {
-    console.log("nombreB", matchingProducts.length);
-    
-    // 🔍 Aucune correspondance produit — on cherche des collections
-    const collections = getCachedCollections();
-    const searchTerms = message.toLowerCase().split(/\s+/).filter(Boolean);
-
-    const matchingCollections = collections.filter(col =>
-      searchTerms.every(word => col.title.toLowerCase().includes(word))
-    );
-
-    if (matchingCollections.length > 0) {
-      const suggestions = matchingCollections.slice(0, 3).map(c =>
-        `🔗 [${c.title}](https://potiron2021.myshopify.com/collections/${c.handle})`
-      ).join('\n');
-
-      const collectionReply = `Je n’ai pas trouvé de produit correspondant exactement à votre demande, mais voici quelques collections qui pourraient vous intéresser :\n${suggestions}`;
-
-      session.messages.push({ role: 'assistant', content: collectionReply });
-      updateSession(sessionId, session);
-      return res.json({ reply: collectionReply });
-    } else {
-      // 🫤 Aucun produit ni collection
-      const noResultReply = `Désolé, je n’ai trouvé aucun produit ni collection correspondant à votre demande. Vous pouvez reformuler ou préciser votre recherche.`;
-      session.messages.push({ role: 'assistant', content: noResultReply });
-      updateSession(sessionId, session);
-      return res.json({ reply: noResultReply });
-    }
-  }
+  session.messages.push({ role: 'assistant', content: productReply });
+  updateSession(sessionId, session);
+  return res.json({ reply: productReply });
+  
 }
-
 
 /* ------------------------------------------- */
   /* 1. Construire le promptSystem de base */
