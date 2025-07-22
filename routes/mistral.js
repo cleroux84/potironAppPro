@@ -184,7 +184,7 @@ function getCachedCollections() {
 
 // Lancer au démarrage
 refreshProductCache();
-await fetchAllCollections();
+fetchAllCollections();
 
 
 // Recharger toutes les 6h
