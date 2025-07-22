@@ -390,11 +390,17 @@ const collectionDescriptions = collections.map(c => `- ${c.title} : ${c.url}`).j
 
 promptSystem += `
 
-Voici les collections disponibles de la boutique, que tu peux proposer si cela correspond à la recherche du client :
+Voici les collections disponibles sur le site Potiron :
 ${collectionDescriptions}
 
-Si un client cherche un article dont une collection correspond (par exemple "je cherche une table"), tu peux lui suggérer un lien vers cette collection. Réponds de manière naturelle.
+🧠 Instructions importantes :
+- Si la demande du client correspond à une ou plusieurs collections, propose les liens HTML exacts vers ces collections.
+- Utilise le format suivant pour insérer un lien : <a href="https://URL" target="_blank">Nom de la collection</a>
+- Ne dis jamais "cliquez ici" sans inclure un vrai lien.
+- Ne fais pas de liens imaginaires : utilise seulement les URLs ci-dessus.
+- Tu peux proposer plusieurs collections si besoin.
 `;
+
 
  
   /* 3. Appel Mistral */
