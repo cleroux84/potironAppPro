@@ -299,16 +299,45 @@ if (demandeSuivi) {
   }
 
 } else if (isRechercheProduit) {
-  const matchingProducts = await findProductsWithAI(message);
-  console.log('number found', matchingProducts.length);
-  
-  const productReply = generateProductLinks(matchingProducts, message);
+  const collections = getCachedCollections();
+  const messageWords = message.toLowerCase().split(/\s+/).filter(Boolean);
 
-  session.messages.push({ role: 'assistant', content: productReply });
-  updateSession(sessionId, session);
-  return res.json({ reply: productReply });
-  
-}
+  // Détecte si un mot correspond au titre d'une collection
+  const collectionMatch = collections.find(col => 
+    messageWords.includes(col.title.toLowerCase())
+  );
+
+  // Liste de mots "spécifiques" (couleurs, matières…) → à enrichir au besoin
+  const specificWords = ['bleu', 'verte', 'céramique', 'bois', 'rotin', 'verre', 'métal', 'lot', 'ensemble'];
+
+  const isGeneralQuery = collectionMatch && !messageWords.some(word => specificWords.includes(word));
+
+  if (isGeneralQuery) {
+    const reply = `Voici la collection **${collectionMatch.title}** qui devrait vous intéresser :\n\n🔗 [${collectionMatch.title}](https://potiron2021.myshopify.com/collections/${collectionMatch.handle})`;
+
+    session.messages.push({ role: 'assistant', content: reply });
+    updateSession(sessionId, session);
+    return res.json({ reply });
+  }
+
+  // Sinon → recherche fine avec l'IA
+  const matchingProducts = await findProductsWithAI(message);
+
+  if (matchingProducts.length > 0) {
+    const productReply = generateProductLinks(matchingProducts, message);
+    session.messages.push({ role: 'assistant', content: productReply });
+    updateSession(sessionId, session);
+    return res.json({ reply: productReply });
+  }
+
+  // Aucun produit → essayer les collections approchantes
+  const similarCollections = collections.filter(col =>
+    messageWords.some(word => col.title.toLowerCase().includes(word))
+  );
+
+  if (similarCollections.length > 0) {
+    const suggestions = similarCollections.slice(0, 3).m
+
 
 /* ------------------------------------------- */
   /* 1. Construire le promptSystem de base */
