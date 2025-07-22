@@ -189,6 +189,25 @@ function getCachedCollections() {
 
 // Recharger toutes les 6h
 setInterval(refreshProductCache, 6 * 60 * 60 * 1000);
+function findMatchingCollections(query) {
+  const queryLower = query.toLowerCase();
+  return collectionCache.filter(col =>
+    col.title.toLowerCase().includes(queryLower)
+  );
+}
+
+function generateCollectionLinks(collections, query) {
+  if (collections.length === 0) {
+    return null; // Rien à dire
+  }
+
+  let reply = `Voici quelques collections qui pourraient vous intéresser pour votre recherche de "${query}" :<br><ul>`;
+  reply += collections.map(c =>
+    `<li><a href="${c.url}" target="_blank">${c.title}</a></li>`
+  ).join('');
+  reply += `</ul>`;
+  return reply;
+}
 
 async function findProductsWithAI(query) {
   try {
@@ -283,6 +302,15 @@ updateSession(sessionId, session);
 
 const demandeSuivi = /\b(où est|suivre|statut|livraison|colis|expédiée|envoyée|reçu[e]?)\b/i.test(message);
 const isRechercheProduit = /\b(avez[- ]?vous|proposez[- ]?vous|je cherche|j’aimerais|je voudrais|vous vendez|je veux).*\b(chais|canap|vase|tabl|décor|meubl|produit|article|coussin|lampe|miroir|tapis|rideau|buffet|console|tabouret)s?\b/i.test(message);
+
+const matchingCollections = findMatchingCollections(message);
+const collectionReply = generateCollectionLinks(matchingCollections, message);
+
+if (collectionReply) {
+  session.messages.push({ role: 'assistant', content: collectionReply });
+  updateSession(sessionId, session);
+  return res.json({ reply: collectionReply });
+}
 
 
 // Si le client parle de commande mais n’a pas fourni toutes les infos
