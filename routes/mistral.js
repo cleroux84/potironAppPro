@@ -267,23 +267,15 @@ async function findProductsWithAI(query) {
   }
 }
 
-async function shouldSuggestProducts(message) {
-  const systemPrompt = `
-Tu es un assistant qui aide à déterminer si une requête client est assez précise pour proposer directement des produits. 
-Si la demande contient des éléments spécifiques comme une couleur, une matière, une forme ou un style, 
-réponds uniquement par "produits".
-Si elle est plus générale, réponds uniquement par "collections".
-Ne donne aucune explication. Seulement le mot : produits ou collections.`;
-console.log('PPL');
-  const response = await callMistralAPI([
-    { role: 'system', content: systemPrompt },
-    { role: 'user', content: message }
-  ]);
+function shouldSearchProducts(message) {
+  const query = message.toLowerCase().replace(/[^\w\s]/g, '');
+  const words = query.split(/\s+/);
+  const motsUtiles = words.filter(w => !['je', 'veux', 'un', 'une', 'des', 'de', 'le', 'la', 'les', 'du', 'au', 'à', 'est', 'ce', 'cette', 'qui', 'me', 'vous', 'avez', 'tu', 'il', 'elle', 'on'].includes(w));
 
-  const decision = response.trim().toLowerCase();
-  console.log('decision', decision);
-  return decision === 'produits';
+  return motsUtiles.length > 1;
 }
+
+
 
 function generateProductLinks(products, query) {
   if (products.length === 0) {
@@ -333,13 +325,17 @@ const lowerMessage = message.toLowerCase();
 
 const demandeSuivi = /\b(où est|suivre|statut|livraison|colis|expédiée|envoyée|reçu[e]?)\b/i.test(message);
 const isRechercheProduit = /(je cherche|je veux|avez[- ]?vous|vous vendez|j’aimerais|je voudrais|proposez[- ]?vous)/.test(lowerMessage);
+const useProductSearch = isRechercheProduit && shouldSearchProducts(message);
 
-// console.log('isRechercheProduit:', isRechercheProduit);
-// console.log('message:', message);
+console.log('🔎 shouldSearchProducts:', shouldSearchProducts(message));
+
+
+console.log('isRechercheProduit:', isRechercheProduit);
+console.log('message:', message);
 
 
 const matchingCollections = findMatchingCollections(message);
-// console.log('matchoing co', matchingCollections);
+console.log('matchoing co', matchingCollections);
 const collectionReply = generateCollectionLinks(matchingCollections, message);
 
 if (collectionReply) {
@@ -363,11 +359,9 @@ if (demandeSuivi) {
   }
 
 } else if (isRechercheProduit) {
-  const shouldUseProducts = await shouldSuggestProducts(message); // 🧠 Appel IA
-
-  if (shouldUseProducts) {
+  if (useProductSearch) {
     const matchingProducts = await findProductsWithAI(message);
-    const reply = generateProductLinks(matchingProducts.slice(0, 5), message);
+    const reply = generateProductLinks(matchingProducts, message);
     session.messages.push({ role: 'assistant', content: reply });
     updateSession(sessionId, session);
     return res.json({ reply });
@@ -379,6 +373,8 @@ if (demandeSuivi) {
     return res.json({ reply });
   }
 }
+
+
 
 /* ------------------------------------------- */
   /* 1. Construire le promptSystem de base */
