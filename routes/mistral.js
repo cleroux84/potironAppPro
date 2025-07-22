@@ -281,6 +281,7 @@ Ne donne aucune explication. Seulement le mot : produits ou collections.`;
   ]);
 
   const decision = response.trim().toLowerCase();
+  console.log('decision', decision);
   return decision === 'produits';
 }
 
@@ -333,12 +334,12 @@ const lowerMessage = message.toLowerCase();
 const demandeSuivi = /\b(où est|suivre|statut|livraison|colis|expédiée|envoyée|reçu[e]?)\b/i.test(message);
 const isRechercheProduit = /(je cherche|je veux|avez[- ]?vous|vous vendez|j’aimerais|je voudrais|proposez[- ]?vous)/.test(lowerMessage);
 
-console.log('isRechercheProduit:', isRechercheProduit);
-console.log('message:', message);
+// console.log('isRechercheProduit:', isRechercheProduit);
+// console.log('message:', message);
 
 
 const matchingCollections = findMatchingCollections(message);
-console.log('matchoing co', matchingCollections);
+// console.log('matchoing co', matchingCollections);
 const collectionReply = generateCollectionLinks(matchingCollections, message);
 
 if (collectionReply) {
