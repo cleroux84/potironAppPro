@@ -240,6 +240,69 @@ async function findProductsWithAI(query) {
 }
 
 
+async function findRelevantProductsOrCollectionsWithAI(query) {
+  try {
+    const candidates = productCache.map(p => ({
+      title: p.title,
+      url: p.url
+    }));
+
+    const collections = getCachedCollections().map(c => ({
+      title: c.title,
+      url: c.url
+    }));
+
+    const { data } = await axios.post(
+      'https://api.mistral.ai/v1/chat/completions',
+      {
+        model: 'mistral-small',
+        messages: [
+          {
+            role: 'system',
+            content: `
+Tu es un assistant client de la boutique Potiron Paris. 
+Voici la liste des **collections** et des **produits disponibles**.
+Tu dois **répondre au client en français**, chaleureusement, en **suggérant uniquement des éléments existants dans les données fournies**.
+
+Règles :
+- N'invente jamais de lien.
+- Si la demande est large ("je cherche une table"), propose un lien vers une collection appropriée.
+- Si la demande est précise ("vase bleu"), propose une liste de produits existants pertinents.
+- Toujours inclure les liens fournis dans ta réponse. 
+- Si rien ne correspond, dis-le poliment et invite à reformuler.
+
+Ne pose pas de questions. Réponds directement, comme un conseiller pro mais sympa.
+            `.trim()
+          },
+          {
+            role: 'user',
+            content: `
+Demande du client : "${query}"
+
+Collections :
+${collections.map(c => `- ${c.title}: ${c.url}`).join('\n')}
+
+Produits :
+${candidates.map(p => `- ${p.title}: ${p.url}`).join('\n')}
+            `.trim()
+          }
+        ]
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${apiKey}`
+        }
+      }
+    );
+
+    const response = data.choices[0].message.content.trim();
+    return response;
+
+  } catch (err) {
+    console.error('❌ Erreur Mistral (collections/produits) :', err.message);
+    return `Désolé, une erreur est survenue. Veuillez réessayer plus tard.`;
+  }
+}
 
 
 
@@ -303,30 +366,12 @@ if (demandeSuivi) {
   }
 
 } else if (isRechercheProduit) {
-  const collections = getCachedCollections();
-  const collectionMatch = detectMatchingCollection(message, collections);
 
-  const isQueryGeneral = collectionMatch && !/\b(bleu|bois|rotin|céramique|ensemble|lot|petit|grand|design|moderne|ancien)\b/i.test(message);
+  const reply = await findRelevantProductsOrCollectionsWithAI(message);
+session.messages.push({ role: 'assistant', content: reply });
+updateSession(sessionId, session);
+return res.json({ reply });
 
-  if (isQueryGeneral) {
-    const reply = `Voici la collection **${collectionMatch.title}** qui pourrait vous intéresser :<br>🔗 <a href="${collectionMatch.url}" target="_blank">${collectionMatch.title}</a>`;
-    session.messages.push({ role: 'assistant', content: reply });
-    updateSession(sessionId, session);
-    return res.json({ reply });
-  }
-
-  const matchingProducts = await findProductsWithAI(message);
-  if (matchingProducts.length > 0) {
-    const productReply = generateProductLinks(matchingProducts, message);
-    session.messages.push({ role: 'assistant', content: productReply });
-    updateSession(sessionId, session);
-    return res.json({ reply: productReply });
-  }
-
-  const noMatchReply = `Désolé, je n’ai trouvé aucun produit correspondant à votre recherche. Vous pouvez reformuler ou préciser votre demande.`;
-  session.messages.push({ role: 'assistant', content: noMatchReply });
-  updateSession(sessionId, session);
-  return res.json({ reply: noMatchReply });
 }
 
 
