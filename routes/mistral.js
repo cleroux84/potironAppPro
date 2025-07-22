@@ -274,7 +274,7 @@ Si la demande contient des éléments spécifiques comme une couleur, une matiè
 réponds uniquement par "produits".
 Si elle est plus générale, réponds uniquement par "collections".
 Ne donne aucune explication. Seulement le mot : produits ou collections.`;
-
+console.log('PPL');
   const response = await callMistralAPI([
     { role: 'system', content: systemPrompt },
     { role: 'user', content: message }
