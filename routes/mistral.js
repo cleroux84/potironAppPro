@@ -275,6 +275,26 @@ function shouldSearchProducts(message) {
   return motsUtiles.length > 1;
 }
 
+async function shouldSuggestProducts(message) {
+  const prompt = [
+    {
+      role: 'system',
+      content: `
+Tu es un assistant pour une boutique de décoration. Ton rôle est de dire si une requête client est assez précise pour recommander des produits directement.
+
+- Si la demande contient une couleur, une matière, un style, une taille, une forme, ou toute précision : réponds "produits".
+- Si c’est une demande vague ou générique (ex : "je cherche un fauteuil"), réponds "collections".
+Ta réponse doit être soit "produits", soit "collections". Ne réponds rien d'autre.
+`
+    },
+    { role: 'user', content: message }
+  ];
+
+  const response = await callMistralAPI(prompt); // Ou autre LLM selon ton infra
+
+  const answer = response.trim().toLowerCase();
+  return answer === 'produits';
+}
 
 
 function generateProductLinks(products, query) {
@@ -359,9 +379,11 @@ if (demandeSuivi) {
   }
 
 } else if (isRechercheProduit) {
+ const useProductSearch = await shouldSuggestProducts(message);
+
   if (useProductSearch) {
     const matchingProducts = await findProductsWithAI(message);
-    const reply = generateProductLinks(matchingProducts, message);
+    const reply = generateProductLinks(matchingProducts.slice(0, 5), message);
     session.messages.push({ role: 'assistant', content: reply });
     updateSession(sessionId, session);
     return res.json({ reply });
