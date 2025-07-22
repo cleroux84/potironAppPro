@@ -177,20 +177,14 @@ async function fetchAllCollections() {
     return [];
   }
 }
-function detectMatchingCollection(message, collections) {
-  const lowerMsg = message.toLowerCase();
-  return collections.find(col => 
-    lowerMsg.includes(col.title.toLowerCase())
-  );
-}
 
 function getCachedCollections() {
   return collectionCache;
 }
 
 // Lancer au démarrage
-refreshProductCache();
-fetchAllCollections();
+ refreshProductCache();
+ fetchAllCollections();
 
 
 // Recharger toutes les 6h
@@ -198,11 +192,17 @@ setInterval(refreshProductCache, 6 * 60 * 60 * 1000);
 
 async function findProductsWithAI(query) {
   try {
+    // On sélectionne un échantillon du catalogue pour ne pas dépasser les limites de contexte
     const candidates = productCache.map(p => ({
       title: p.title,
-      description: p.description || '',
+      // description: p.description || '',
       url: p.url
     }));
+
+  //  console.log('candidates', candidates);
+//    console.log("chaises",
+//   candidates.filter(p => p.title.toLowerCase().includes('chaise'))
+// );
 
     const { data } = await axios.post(
       'https://api.mistral.ai/v1/chat/completions',
@@ -211,7 +211,7 @@ async function findProductsWithAI(query) {
         messages: [
           {
             role: 'system',
-            content: `Tu es un assistant e-commerce. On te donne une liste de produits existants (titre, description et lien). Tu dois retourner uniquement ceux qui correspondent à la recherche client : "${query}". Très important : ne jamais inventer de produits, ni de liens. Réponds uniquement avec un JSON au format : [{"title": ..., "url": ...}]. Ne rajoute aucun mot autour. Si aucun match, retourne [].`
+            content: `Voici une liste de produits (titre + description). Donne uniquement ceux qui correspondent à la recherche : "${query}". Réponds avec un JSON d’objets : [{ "title": ..., "url": ... }]. Ne réponds rien si aucun match.`
           },
           {
             role: 'user',
@@ -226,81 +226,14 @@ async function findProductsWithAI(query) {
       }
     );
 
-    const raw = data.choices[0].message.content.trim();
-    const match = raw.match(/\[.*?\]/s);
+    const raw = data.choices[0].message.content;
+    console.log('📨 Réponse brute de Mistral :\n', raw);
 
-    if (!match) return [];
-
-    return JSON.parse(match[0]);
-
+    const matches = JSON.parse(raw);
+    return matches;
   } catch (err) {
     console.error('❌ Erreur Mistral (produit matching) :', err.message);
     return [];
-  }
-}
-
-
-async function findRelevantProductsOrCollectionsWithAI(query) {
-  try {
-    const candidates = productCache.map(p => ({
-      title: p.title,
-      url: p.url
-    }));
-
-    const collections = getCachedCollections().map(c => ({
-      title: c.title,
-      url: c.url
-    }));
-
-    const { data } = await axios.post(
-      'https://api.mistral.ai/v1/chat/completions',
-      {
-        model: 'mistral-small',
-        messages: [
-          {
-            role: 'system',
-            content: `
-Tu es un assistant client de la boutique Potiron Paris. 
-Voici la liste des **collections** et des **produits disponibles**.
-Tu dois **répondre au client en français**, chaleureusement, en **suggérant uniquement des éléments existants dans les données fournies**.
-
-Règles :
-- N'invente jamais de lien.
-- Si la demande est large ("je cherche une table"), propose un lien vers une collection appropriée.
-- Si la demande est précise ("vase bleu"), propose une liste de produits existants pertinents.
-- Toujours inclure les liens fournis dans ta réponse. 
-- Si rien ne correspond, dis-le poliment et invite à reformuler.
-
-Ne pose pas de questions. Réponds directement, comme un conseiller pro mais sympa.
-            `.trim()
-          },
-          {
-            role: 'user',
-            content: `
-Demande du client : "${query}"
-
-Collections :
-${collections.map(c => `- ${c.title}: ${c.url}`).join('\n')}
-
-Produits :
-${candidates.map(p => `- ${p.title}: ${p.url}`).join('\n')}
-            `.trim()
-          }
-        ]
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${apiKey}`
-        }
-      }
-    );
-
-    const response = data.choices[0].message.content.trim();
-    return response;
-
-  } catch (err) {
-    console.error('❌ Erreur Mistral (collections/produits) :', err.message);
-    return `Désolé, une erreur est survenue. Veuillez réessayer plus tard.`;
   }
 }
 
@@ -349,7 +282,7 @@ if (emailMatch) {
 updateSession(sessionId, session);
 
 const demandeSuivi = /\b(où est|suivre|statut|livraison|colis|expédiée|envoyée|reçu[e]?)\b/i.test(message);
-const isRechercheProduit = /\b(avez[- ]?vous|proposez[- ]?vous|je cherche|est[- ]?ce que vous avez|vous vendez).*\b(chaise|canapé|vase|table|décoration|meuble|produit|article|coussin|lampe|miroir|tapis|rideau|buffet|console|tabouret)\b/i.test(message);
+const isRechercheProduit = /\b(avez[- ]?vous|proposez[- ]?vous|je cherche|j’aimerais|je voudrais|vous vendez|je veux).*\b(chais|canap|vase|tabl|décor|meubl|produit|article|coussin|lampe|miroir|tapis|rideau|buffet|console|tabouret)s?\b/i.test(message);
 
 
 // Si le client parle de commande mais n’a pas fourni toutes les infos
@@ -366,15 +299,16 @@ if (demandeSuivi) {
   }
 
 } else if (isRechercheProduit) {
+  const matchingProducts = await findProductsWithAI(message);
+  console.log('number found', matchingProducts.length);
+  
+  const productReply = generateProductLinks(matchingProducts, message);
 
-  const reply = await findRelevantProductsOrCollectionsWithAI(message);
-session.messages.push({ role: 'assistant', content: reply });
-updateSession(sessionId, session);
-return res.json({ reply });
-
+  session.messages.push({ role: 'assistant', content: productReply });
+  updateSession(sessionId, session);
+  return res.json({ reply: productReply });
+  
 }
-
-
 
 /* ------------------------------------------- */
   /* 1. Construire le promptSystem de base */
@@ -450,6 +384,18 @@ Merci de vérifier les informations et de me les renvoyer.`;
       console.error('Lookup Shopify :', err.message);
     }
   }
+  // Avant l'appel à Mistral
+const collections = getCachedCollections();
+const collectionDescriptions = collections.map(c => `- ${c.title} : ${c.url}`).join('\n');
+
+promptSystem += `
+
+Voici les collections disponibles de la boutique, que tu peux proposer si cela correspond à la recherche du client :
+${collectionDescriptions}
+
+Si un client cherche un article dont une collection correspond (par exemple "je cherche une table"), tu peux lui suggérer un lien vers cette collection. Réponds de manière naturelle.
+`;
+
  
   /* 3. Appel Mistral */
   try {
