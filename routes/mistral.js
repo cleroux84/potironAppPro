@@ -183,7 +183,7 @@ function getCachedCollections() {
 }
 
 // Lancer au démarrage
-await refreshProductCache();
+refreshProductCache();
 await fetchAllCollections();
 
 
