@@ -14,6 +14,7 @@ const sessionStore = new Map();
 router.use(express.json());
 
 let productCache = [];
+let collectionCache = [];
 
 // session to memorise 5 last questions
 function getSession(req) {
@@ -139,8 +140,52 @@ async function refreshProductCache() {
   console.log(`🛍️ Catalogue Shopify chargé : ${productCache.length} produits`);
 }
 
+//All collections
+async function fetchAllCollections() {
+  const headers = {
+    'X-Shopify-Access-Token': process.env.SHOPIFYAPPTOKEN,
+    'Content-Type': 'application/json',
+  };
+
+  try {
+    // Appel aux Smart Collections (automatiques)
+    const smartRes = await axios.get(
+      'https://potiron2021.myshopify.com/admin/api/2024-01/smart_collections.json',
+      { headers }
+    );
+    const smartCollections = smartRes.data.smart_collections || [];
+
+    // Appel aux Custom Collections (manuelles)
+    const customRes = await axios.get(
+      'https://potiron2021.myshopify.com/admin/api/2024-01/custom_collections.json',
+      { headers }
+    );
+    const customCollections = customRes.data.custom_collections || [];
+
+    // Fusionner les deux listes
+    const allCollections = [...smartCollections, ...customCollections].map(c => ({
+      id: c.id,
+      title: c.title,
+      handle: c.handle,
+      url: `https://potiron2021.myshopify.com/collections/${c.handle}`
+    }));
+
+    console.log(`📚 ${allCollections.length} collections récupérées`);
+    return allCollections;
+  } catch (err) {
+    console.error('❌ Erreur lors du fetch des collections :', err.message);
+    return [];
+  }
+}
+
+function getCachedCollections() {
+  return collectionCache;
+}
+
 // Lancer au démarrage
-refreshProductCache();
+await refreshProductCache();
+await fetchAllCollections();
+
 
 // Recharger toutes les 6h
 setInterval(refreshProductCache, 6 * 60 * 60 * 1000);
@@ -155,9 +200,9 @@ async function findProductsWithAI(query) {
     }));
 
   //  console.log('candidates', candidates);
-   console.log("chaises",
-  candidates.filter(p => p.title.toLowerCase().includes('chaise'))
-);
+//    console.log("chaises",
+//   candidates.filter(p => p.title.toLowerCase().includes('chaise'))
+// );
 
     const { data } = await axios.post(
       'https://api.mistral.ai/v1/chat/completions',
@@ -255,13 +300,41 @@ if (demandeSuivi) {
 
 } else if (isRechercheProduit) {
   const matchingProducts = await findProductsWithAI(message);
-  const productReply = generateProductLinks(matchingProducts, message);
 
-  session.messages.push({ role: 'assistant', content: productReply });
-  updateSession(sessionId, session);
-  return res.json({ reply: productReply });
-  
+  if (matchingProducts.length > 0) {
+    const productReply = generateProductLinks(matchingProducts, message);
+    session.messages.push({ role: 'assistant', content: productReply });
+    updateSession(sessionId, session);
+    return res.json({ reply: productReply });
+  } else {
+    // 🔍 Aucune correspondance produit — on cherche des collections
+    const collections = getCachedCollections();
+    const searchTerms = message.toLowerCase().split(/\s+/).filter(Boolean);
+
+    const matchingCollections = collections.filter(col =>
+      searchTerms.every(word => col.title.toLowerCase().includes(word))
+    );
+
+    if (matchingCollections.length > 0) {
+      const suggestions = matchingCollections.slice(0, 3).map(c =>
+        `🔗 [${c.title}](https://potiron2021.myshopify.com/collections/${c.handle})`
+      ).join('\n');
+
+      const collectionReply = `Je n’ai pas trouvé de produit correspondant exactement à votre demande, mais voici quelques collections qui pourraient vous intéresser :\n${suggestions}`;
+
+      session.messages.push({ role: 'assistant', content: collectionReply });
+      updateSession(sessionId, session);
+      return res.json({ reply: collectionReply });
+    } else {
+      // 🫤 Aucun produit ni collection
+      const noResultReply = `Désolé, je n’ai trouvé aucun produit ni collection correspondant à votre demande. Vous pouvez reformuler ou préciser votre recherche.`;
+      session.messages.push({ role: 'assistant', content: noResultReply });
+      updateSession(sessionId, session);
+      return res.json({ reply: noResultReply });
+    }
+  }
 }
+
 
 /* ------------------------------------------- */
   /* 1. Construire le promptSystem de base */
