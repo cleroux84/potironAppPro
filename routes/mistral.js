@@ -181,6 +181,17 @@ async function fetchAllCollections() {
 function getCachedCollections() {
   return collectionCache;
 }
+function findMatchingCollections(userQuery) {
+  const query = userQuery.toLowerCase();
+  return collectionCache.filter(c => {
+    const title = c.title.toLowerCase();
+    return (
+      query.includes(title) ||
+      title.includes(query) ||
+      query.split(/\s+/).some(word => title.includes(word))
+    );
+  });
+}
 
 // Lancer au démarrage
  refreshProductCache();
@@ -198,10 +209,10 @@ function findMatchingCollections(query) {
 
 function generateCollectionLinks(collections, query) {
   if (collections.length === 0) {
-    return null; // Rien à dire
+    return ''; // Pas de message si aucune collection trouvée
   }
 
-  let reply = `Voici quelques collections qui pourraient vous intéresser pour votre recherche de "${query}" :<br><ul>`;
+  let reply = `Voici quelques collections qui pourraient vous intéresser :<br><ul>`;
   reply += collections.map(c =>
     `<li><a href="${c.url}" target="_blank">${c.title}</a></li>`
   ).join('');
@@ -328,15 +339,27 @@ if (demandeSuivi) {
 
 } else if (isRechercheProduit) {
   const matchingProducts = await findProductsWithAI(message);
-  console.log('number found', matchingProducts.length);
-  
-  const productReply = generateProductLinks(matchingProducts, message);
+  const matchingCollections = findMatchingCollections(message);
 
-  session.messages.push({ role: 'assistant', content: productReply });
+  let combinedReply = '';
+
+  if (matchingProducts.length > 0) {
+    combinedReply += generateProductLinks(matchingProducts, message) + "<br><br>";
+  }
+
+  if (matchingCollections.length > 0) {
+    combinedReply += generateCollectionLinks(matchingCollections, message);
+  }
+
+  if (combinedReply === '') {
+    combinedReply = `Désolé, je n’ai trouvé aucun produit ni collection correspondant à "${message}". 😕`;
+  }
+
+  session.messages.push({ role: 'assistant', content: combinedReply });
   updateSession(sessionId, session);
-  return res.json({ reply: productReply });
-  
+  return res.json({ reply: combinedReply });
 }
+
 
 /* ------------------------------------------- */
   /* 1. Construire le promptSystem de base */
