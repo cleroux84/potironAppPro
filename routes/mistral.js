@@ -154,7 +154,10 @@ async function findProductsWithAI(query) {
       url: p.url
     }));
 
-   console.log('candidates', candidates)
+  //  console.log('candidates', candidates);
+   console.log("chaises",
+  candidates.filter(p => p.title.toLowerCase().includes('chaise'))
+);
 
     const { data } = await axios.post(
       'https://api.mistral.ai/v1/chat/completions',
@@ -235,9 +238,7 @@ updateSession(sessionId, session);
 
 const demandeSuivi = /\b(où est|suivre|statut|livraison|colis|expédiée|envoyée|reçu[e]?)\b/i.test(message);
 const isRechercheProduit = /\b(avez[- ]?vous|proposez[- ]?vous|je cherche|est[- ]?ce que vous avez|vous vendez).*\b(chaise|canapé|vase|table|décoration|meuble|produit|article|coussin|lampe|miroir|tapis|rideau|buffet|console|tabouret)\b/i.test(message);
-console.log("chaises",
-  candidates.filter(p => p.title.toLowerCase().includes('chaise'))
-);
+
 
 // Si le client parle de commande mais n’a pas fourni toutes les infos
 if (demandeSuivi) {
