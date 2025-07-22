@@ -177,6 +177,12 @@ async function fetchAllCollections() {
     return [];
   }
 }
+function detectMatchingCollection(message, collections) {
+  const lowerMsg = message.toLowerCase();
+  return collections.find(col => 
+    lowerMsg.includes(col.title.toLowerCase())
+  );
+}
 
 function getCachedCollections() {
   return collectionCache;
@@ -194,6 +200,7 @@ async function findProductsWithAI(query) {
   try {
     const candidates = productCache.map(p => ({
       title: p.title,
+      description: p.description || '',
       url: p.url
     }));
 
@@ -204,7 +211,7 @@ async function findProductsWithAI(query) {
         messages: [
           {
             role: 'system',
-            content: `Voici une liste de produits (titre + description). Donne uniquement ceux qui correspondent à la recherche : "${query}". Réponds avec un JSON d’objets : [{ "title": ..., "url": ... }]. Ne réponds rien si aucun match.`
+            content: `Tu es un assistant e-commerce. On te donne une liste de produits existants (titre, description et lien). Tu dois retourner uniquement ceux qui correspondent à la recherche client : "${query}". Très important : ne jamais inventer de produits, ni de liens. Réponds uniquement avec un JSON au format : [{"title": ..., "url": ...}]. Ne rajoute aucun mot autour. Si aucun match, retourne [].`
           },
           {
             role: 'user',
@@ -219,24 +226,19 @@ async function findProductsWithAI(query) {
       }
     );
 
-    const raw = data.choices[0].message.content;
-    console.log('📨 Réponse brute de Mistral :\n', raw);
+    const raw = data.choices[0].message.content.trim();
+    const match = raw.match(/\[.*?\]/s);
 
-    // 🛠 Extraction sécurisée du JSON
-    const match = raw.match(/\[.*?\]/s); // match du premier tableau JSON trouvé (non-gourmand, supporte multiline avec /s)
+    if (!match) return [];
 
-    if (!match) {
-      console.warn('⚠️ Aucun JSON détecté dans la réponse Mistral');
-      return [];
-    }
+    return JSON.parse(match[0]);
 
-    const matches = JSON.parse(match[0]); // match[0] est le tableau JSON
-    return matches;
   } catch (err) {
     console.error('❌ Erreur Mistral (produit matching) :', err.message);
     return [];
   }
 }
+
 
 
 
@@ -302,29 +304,18 @@ if (demandeSuivi) {
 
 } else if (isRechercheProduit) {
   const collections = getCachedCollections();
-  const messageWords = message.toLowerCase().split(/\s+/).filter(Boolean);
+  const collectionMatch = detectMatchingCollection(message, collections);
 
-  // Détecte si un mot correspond au titre d'une collection
-  const collectionMatch = collections.find(col => 
-    messageWords.includes(col.title.toLowerCase())
-  );
+  const isQueryGeneral = collectionMatch && !/\b(bleu|bois|rotin|céramique|ensemble|lot|petit|grand|design|moderne|ancien)\b/i.test(message);
 
-  // Liste de mots "spécifiques" (couleurs, matières…) → à enrichir au besoin
-  const specificWords = ['bleu', 'verte', 'céramique', 'bois', 'rotin', 'verre', 'métal', 'lot', 'ensemble'];
-
-  const isGeneralQuery = collectionMatch && !messageWords.some(word => specificWords.includes(word));
-
-  if (isGeneralQuery) {
-    const reply = `Voici la collection **${collectionMatch.title}** qui devrait vous intéresser :\n\n🔗 [${collectionMatch.title}](https://potiron2021.myshopify.com/collections/${collectionMatch.handle})`;
-
+  if (isQueryGeneral) {
+    const reply = `Voici la collection **${collectionMatch.title}** qui pourrait vous intéresser :<br>🔗 <a href="${collectionMatch.url}" target="_blank">${collectionMatch.title}</a>`;
     session.messages.push({ role: 'assistant', content: reply });
     updateSession(sessionId, session);
     return res.json({ reply });
   }
 
-  // Sinon → recherche fine avec l'IA
   const matchingProducts = await findProductsWithAI(message);
-
   if (matchingProducts.length > 0) {
     const productReply = generateProductLinks(matchingProducts, message);
     session.messages.push({ role: 'assistant', content: productReply });
@@ -332,29 +323,12 @@ if (demandeSuivi) {
     return res.json({ reply: productReply });
   }
 
-  // Aucun produit → essayer les collections approchantes
-  const similarCollections = collections.filter(col =>
-    messageWords.some(word => col.title.toLowerCase().includes(word))
-  );
-
-  if (similarCollections.length > 0) {
-    const suggestions = similarCollections.slice(0, 3).map(c =>
-      `🔗 [${c.title}](https://potiron2021.myshopify.com/collections/${c.handle})`
-    ).join('\n');
-
-    const fallbackReply = `Je n’ai pas trouvé de produit correspondant exactement à votre demande, mais voici des collections qui pourraient vous plaire :\n${suggestions}`;
-
-    session.messages.push({ role: 'assistant', content: fallbackReply });
-    updateSession(sessionId, session);
-    return res.json({ reply: fallbackReply });
-  }
-
-  // Dernier recours
-  const noMatchReply = `Désolé, je n’ai trouvé aucun produit ni collection correspondant à votre demande. Vous pouvez reformuler ou préciser votre recherche.`;
+  const noMatchReply = `Désolé, je n’ai trouvé aucun produit correspondant à votre recherche. Vous pouvez reformuler ou préciser votre demande.`;
   session.messages.push({ role: 'assistant', content: noMatchReply });
   updateSession(sessionId, session);
   return res.json({ reply: noMatchReply });
 }
+
 
 
 /* ------------------------------------------- */
