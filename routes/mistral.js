@@ -267,8 +267,22 @@ async function findProductsWithAI(query) {
   }
 }
 
+async function shouldSuggestProducts(message) {
+  const systemPrompt = `
+Tu es un assistant qui aide à déterminer si une requête client est assez précise pour proposer directement des produits. 
+Si la demande contient des éléments spécifiques comme une couleur, une matière, une forme ou un style, 
+réponds uniquement par "produits".
+Si elle est plus générale, réponds uniquement par "collections".
+Ne donne aucune explication. Seulement le mot : produits ou collections.`;
 
+  const response = await callMistralAPI([
+    { role: 'system', content: systemPrompt },
+    { role: 'user', content: message }
+  ]);
 
+  const decision = response.trim().toLowerCase();
+  return decision === 'produits';
+}
 
 function generateProductLinks(products, query) {
   if (products.length === 0) {
@@ -348,28 +362,22 @@ if (demandeSuivi) {
   }
 
 } else if (isRechercheProduit) {
-  const matchingProducts = await findProductsWithAI(message);
-  const matchingCollections = findMatchingCollections(message);
+  const shouldUseProducts = await shouldSuggestProducts(message); // 🧠 Appel IA
 
-  let combinedReply = '';
-
-  if (matchingProducts.length > 0) {
-    combinedReply += generateProductLinks(matchingProducts, message) + "<br><br>";
+  if (shouldUseProducts) {
+    const matchingProducts = await findProductsWithAI(message);
+    const reply = generateProductLinks(matchingProducts.slice(0, 5), message);
+    session.messages.push({ role: 'assistant', content: reply });
+    updateSession(sessionId, session);
+    return res.json({ reply });
+  } else {
+    const matchingCollections = findMatchingCollections(message);
+    const reply = generateCollectionLinks(matchingCollections, message);
+    session.messages.push({ role: 'assistant', content: reply });
+    updateSession(sessionId, session);
+    return res.json({ reply });
   }
-
-  if (matchingCollections.length > 0) {
-    combinedReply += generateCollectionLinks(matchingCollections, message);
-  }
-
-  if (combinedReply === '') {
-    combinedReply = `Désolé, je n’ai trouvé aucun produit ni collection correspondant à "${message}". 😕`;
-  }
-
-  session.messages.push({ role: 'assistant', content: combinedReply });
-  updateSession(sessionId, session);
-  return res.json({ reply: combinedReply });
 }
-
 
 /* ------------------------------------------- */
   /* 1. Construire le promptSystem de base */
