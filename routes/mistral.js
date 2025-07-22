@@ -233,12 +233,8 @@ if (emailMatch) {
 }
 updateSession(sessionId, session);
 
-// const demandeSuivi = /\b(où|ou)?\b.*\b(command|colis|suivi|statut|livraison|expédié|expedie|reçu|reception)\b/i.test(message);
- const demandeSuivi = /\b(où est|suivre|statut|livraison|colis|expédiée|envoyée|reçu[e]?)\b/i.test(message);
-// --- Détection d'intention produit ---
+const demandeSuivi = /\b(où est|suivre|statut|livraison|colis|expédiée|envoyée|reçu[e]?)\b/i.test(message);
 const isRechercheProduit = /\b(avez[- ]?vous|proposez[- ]?vous|je cherche|est[- ]?ce que vous avez|vous vendez).*\b(chaise|canapé|vase|table|décoration|meuble|produit|article|coussin|lampe|miroir|tapis|rideau|buffet|console|tabouret)\b/i.test(message);
-
-
 
 // Si le client parle de commande mais n’a pas fourni toutes les infos
 if (demandeSuivi) {
@@ -246,12 +242,13 @@ if (demandeSuivi) {
     const infosManquantes = [];
     if (!session.orderNumber) infosManquantes.push("le numéro de commande");
     if (!session.email) infosManquantes.push("l’adresse e-mail utilisée lors de l’achat");
- 
+
     const missingPrompt = `Pour vous aider à localiser votre commande, j’ai besoin de ${infosManquantes.join(' et ')}. Merci de me les communiquer.`;
     session.messages.push({ role: 'assistant', content: missingPrompt });
     updateSession(sessionId, session);
     return res.json({ reply: missingPrompt });
   }
+
 } else if (isRechercheProduit) {
   const matchingProducts = await findProductsWithAI(message);
   const productReply = generateProductLinks(matchingProducts, message);
@@ -325,7 +322,12 @@ Important :
 promptSystem += `
 Le client a fourni un numéro de commande (${session.orderNumber}), mais aucune commande correspondante n’a été trouvée avec l’e-mail indiqué (${session.email}). 
 Informe-le poliment que la commande n’a pas été retrouvée, et invite-le à vérifier les informations.`;
+ const notFoundMsg = `Je n’ai pas retrouvé de commande correspondant au numéro **${session.orderNumber}** et à l’e-mail **${session.email}**. 
+Merci de vérifier les informations et de me les renvoyer.`;
 
+  session.messages.push({ role: 'assistant', content: notFoundMsg });
+  updateSession(sessionId, session);
+  return res.json({ reply: notFoundMsg });
       }
     } catch (err) {
       console.error('Lookup Shopify :', err.message);
