@@ -182,20 +182,20 @@ function getCachedCollections() {
   return collectionCache;
 }
 function findMatchingCollections(userQuery) {
-  const query = userQuery.toLowerCase();
+  const queryWords = userQuery.toLowerCase().split(/\s+/);
   return collectionCache.filter(c => {
     const title = c.title.toLowerCase();
-    return (
-      query.includes(title) ||
-      title.includes(query) ||
-      query.split(/\s+/).some(word => title.includes(word))
-    );
+    return queryWords.some(word => title.includes(word));
   });
 }
 
+
 // Lancer au démarrage
  refreshProductCache();
- fetchAllCollections();
+fetchAllCollections().then(collections => {
+  collectionCache = collections;
+  console.log('✅ collectionCache bien chargé');
+});
 
 
 // Recharger toutes les 6h
@@ -275,8 +275,10 @@ function generateProductLinks(products, query) {
     return `Désolé, je n’ai trouvé aucun produit correspondant à "${query}". 😕`;
   }
 
+  const limited = products.slice(0, 5);
+
   let reply = `Voici quelques produits qui pourraient vous intéresser :<br><ul>`;
-  reply += products.map(p =>
+  reply += limited.map(p =>
     `<li><a href="${p.url}" target="_blank">${p.title}</a></li>`
   ).join('');
   reply += `</ul>`;
