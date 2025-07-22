@@ -314,6 +314,10 @@ updateSession(sessionId, session);
 const demandeSuivi = /\b(où est|suivre|statut|livraison|colis|expédiée|envoyée|reçu[e]?)\b/i.test(message);
 const isRechercheProduit = /\b(avez[- ]?vous|proposez[- ]?vous|je cherche|j’aimerais|je voudrais|vous vendez|je veux).*\b(chais|canap|vase|tabl|décor|meubl|produit|article|coussin|lampe|miroir|tapis|rideau|buffet|console|tabouret)s?\b/i.test(message);
 
+console.log('isRechercheProduit:', isRechercheProduit);
+console.log('message:', message);
+
+
 const matchingCollections = findMatchingCollections(message);
 const collectionReply = generateCollectionLinks(matchingCollections, message);
 
@@ -445,6 +449,10 @@ Voici les collections disponibles sur le site Potiron :
 ${collectionDescriptions}
 
 🧠 Instructions importantes :
+⛔️ Tu ne dois jamais proposer une collection ou un lien si tu n’en as pas reçu la liste.
+⛔️ Tu ne dois jamais inventer le nom ou le lien d’une collection.
+✅ Si tu veux parler d’une collection, utilise uniquement les liens et titres fournis par le système ou les messages précédents.
+
 - Si la demande du client correspond à une ou plusieurs collections, propose les liens HTML exacts vers ces collections.
 - Utilise le format suivant pour insérer un lien : <a href="https://URL" target="_blank">Nom de la collection</a>
 - Ne dis jamais "cliquez ici" sans inclure un vrai lien.
