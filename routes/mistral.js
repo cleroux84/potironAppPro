@@ -280,11 +280,14 @@ async function shouldSuggestProducts(message) {
     {
       role: 'system',
       content: `
-Tu es un assistant pour une boutique de décoration. Ton rôle est de dire si une requête client est assez précise pour recommander des produits directement.
+Tu es un assistant pour une boutique de décoration. 
+Ta tâche est de déterminer si une requête est :
 
-- Si la demande contient une couleur, une matière, un style, une taille, une forme, ou toute précision : réponds "produits".
-- Si c’est une demande vague ou générique (ex : "je cherche un fauteuil"), réponds "collections".
-Ta réponse doit être soit "produits", soit "collections". Ne réponds rien d'autre.
+- **spécifique** (contient des détails comme une couleur, matière, style, taille, forme, ou toute précision) → réponds **"produits"**
+- **générique** (contient juste le type d'objet sans détail, comme "je cherche un fauteuil") → réponds **"collections"**
+
+Réponds uniquement par le mot "produits" ou "collections".
+Ne donne aucune explication. Juste un seul mot.
 `
     },
     { role: 'user', content: message }
