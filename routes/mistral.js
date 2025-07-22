@@ -235,6 +235,9 @@ updateSession(sessionId, session);
 
 const demandeSuivi = /\b(où est|suivre|statut|livraison|colis|expédiée|envoyée|reçu[e]?)\b/i.test(message);
 const isRechercheProduit = /\b(avez[- ]?vous|proposez[- ]?vous|je cherche|est[- ]?ce que vous avez|vous vendez).*\b(chaise|canapé|vase|table|décoration|meuble|produit|article|coussin|lampe|miroir|tapis|rideau|buffet|console|tabouret)\b/i.test(message);
+console.log("chaises",
+  candidates.filter(p => p.title.toLowerCase().includes('chaise'))
+);
 
 // Si le client parle de commande mais n’a pas fourni toutes les infos
 if (demandeSuivi) {
@@ -256,6 +259,7 @@ if (demandeSuivi) {
   session.messages.push({ role: 'assistant', content: productReply });
   updateSession(sessionId, session);
   return res.json({ reply: productReply });
+  
 }
 
 /* ------------------------------------------- */
@@ -278,7 +282,6 @@ Ta mission :
 
 ✅ Tu peux répondre à une recherche de produit UNIQUEMENT si :
 - Le client a demandé un produit 
-
 
 ---
 
