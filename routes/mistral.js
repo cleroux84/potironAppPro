@@ -200,12 +200,12 @@ function findMatchingCollections(userQuery) {
 
 // Recharger toutes les 6h
 setInterval(refreshProductCache, 6 * 60 * 60 * 1000);
-function findMatchingCollections(query) {
-  const queryLower = query.toLowerCase();
-  return collectionCache.filter(col =>
-    col.title.toLowerCase().includes(queryLower)
-  );
-}
+// function findMatchingCollections(query) {
+//   const queryLower = query.toLowerCase();
+//   return collectionCache.filter(col =>
+//     col.title.toLowerCase().includes(queryLower)
+//   );
+// }
 
 function generateCollectionLinks(collections, query) {
   if (collections.length === 0) {
@@ -311,14 +311,18 @@ if (emailMatch) {
 }
 updateSession(sessionId, session);
 
+const lowerMessage = message.toLowerCase();
+
+
 const demandeSuivi = /\b(où est|suivre|statut|livraison|colis|expédiée|envoyée|reçu[e]?)\b/i.test(message);
-const isRechercheProduit = /\b(avez[- ]?vous|proposez[- ]?vous|je cherche|j’aimerais|je voudrais|vous vendez|je veux).*\b(chais|canap|vase|tabl|décor|meubl|produit|article|coussin|lampe|miroir|tapis|rideau|buffet|console|tabouret)s?\b/i.test(message);
+const isRechercheProduit = /(je cherche|je veux|avez[- ]?vous|vous vendez|j’aimerais|je voudrais|proposez[- ]?vous)/.test(lowerMessage);
 
 console.log('isRechercheProduit:', isRechercheProduit);
 console.log('message:', message);
 
 
 const matchingCollections = findMatchingCollections(message);
+console.log('matchoing co', matchingCollections);
 const collectionReply = generateCollectionLinks(matchingCollections, message);
 
 if (collectionReply) {
@@ -439,7 +443,7 @@ Merci de vérifier les informations et de me les renvoyer.`;
       console.error('Lookup Shopify :', err.message);
     }
   }
-  // Avant l'appel à Mistral
+
 const collections = getCachedCollections();
 const collectionDescriptions = collections.map(c => `- ${c.title} : ${c.url}`).join('\n');
 
