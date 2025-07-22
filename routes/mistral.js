@@ -336,7 +336,23 @@ if (demandeSuivi) {
   );
 
   if (similarCollections.length > 0) {
-    const suggestions = similarCollections.slice(0, 3).m
+    const suggestions = similarCollections.slice(0, 3).map(c =>
+      `🔗 [${c.title}](https://potiron2021.myshopify.com/collections/${c.handle})`
+    ).join('\n');
+
+    const fallbackReply = `Je n’ai pas trouvé de produit correspondant exactement à votre demande, mais voici des collections qui pourraient vous plaire :\n${suggestions}`;
+
+    session.messages.push({ role: 'assistant', content: fallbackReply });
+    updateSession(sessionId, session);
+    return res.json({ reply: fallbackReply });
+  }
+
+  // Dernier recours
+  const noMatchReply = `Désolé, je n’ai trouvé aucun produit ni collection correspondant à votre demande. Vous pouvez reformuler ou préciser votre recherche.`;
+  session.messages.push({ role: 'assistant', content: noMatchReply });
+  updateSession(sessionId, session);
+  return res.json({ reply: noMatchReply });
+}
 
 
 /* ------------------------------------------- */
