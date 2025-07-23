@@ -275,29 +275,6 @@ function shouldSearchProducts(message) {
   return motsUtiles.length > 1;
 }
 
-async function shouldSuggestProducts(message) {
-  const prompt = [
-    {
-      role: 'system',
-      content: `
-Tu es un assistant pour une boutique de décoration. 
-Ta tâche est de déterminer si une requête est :
-
-- **spécifique** (contient des détails comme une couleur, matière, style, taille, forme, ou toute précision) → réponds **"produits"**
-- **générique** (contient juste le type d'objet sans détail, comme "je cherche un fauteuil") → réponds **"collections"**
-
-Réponds uniquement par le mot "produits" ou "collections".
-Ne donne aucune explication. Juste un seul mot.
-`
-    },
-    { role: 'user', content: message }
-  ];
-
-  const response = await callMistralAPI(prompt); // Ou autre LLM selon ton infra
-
-  const answer = response.trim().toLowerCase();
-  return answer === 'produits';
-}
 
 
 function generateProductLinks(products, query) {
@@ -350,9 +327,6 @@ const demandeSuivi = /\b(où est|suivre|statut|livraison|colis|expédiée|envoy�
 const isRechercheProduit = /(je cherche|je veux|avez[- ]?vous|vous vendez|j’aimerais|je voudrais|proposez[- ]?vous)/.test(lowerMessage);
 const useProductSearch = isRechercheProduit && shouldSearchProducts(message);
 
-console.log('🔎 shouldSearchProducts:', shouldSearchProducts(message));
-
-
 console.log('isRechercheProduit:', isRechercheProduit);
 console.log('message:', message);
 
@@ -382,23 +356,27 @@ if (demandeSuivi) {
   }
 
 } else if (isRechercheProduit) {
- const useProductSearch = await shouldSuggestProducts(message);
+  const matchingProducts = await findProductsWithAI(message);
+  const matchingCollections = findMatchingCollections(message);
 
-  if (useProductSearch) {
-    const matchingProducts = await findProductsWithAI(message);
-    const reply = generateProductLinks(matchingProducts.slice(0, 5), message);
-    session.messages.push({ role: 'assistant', content: reply });
-    updateSession(sessionId, session);
-    return res.json({ reply });
-  } else {
-    const matchingCollections = findMatchingCollections(message);
-    const reply = generateCollectionLinks(matchingCollections, message);
-    session.messages.push({ role: 'assistant', content: reply });
-    updateSession(sessionId, session);
-    return res.json({ reply });
+  let combinedReply = '';
+
+  if (matchingProducts.length > 0) {
+    combinedReply += generateProductLinks(matchingProducts, message) + "<br><br>";
   }
-}
 
+  if (matchingCollections.length > 0) {
+    combinedReply += generateCollectionLinks(matchingCollections, message);
+  }
+
+  if (combinedReply === '') {
+    combinedReply = `Désolé, je n’ai trouvé aucun produit ni collection correspondant à "${message}". 😕`;
+  }
+
+  session.messages.push({ role: 'assistant', content: combinedReply });
+  updateSession(sessionId, session);
+  return res.json({ reply: combinedReply });
+}
 
 
 /* ------------------------------------------- */
