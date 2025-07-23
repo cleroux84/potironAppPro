@@ -16,6 +16,8 @@ router.use(express.json());
 let productCache = [];
 let collectionCache = [];
 
+const { getShopifyOrder } = require('../services/API/IA/utilsAI.js');
+
 // session to memorise last questions
 function getSession(req) {
   const sessionId = req.headers['x-session-id'] || req.ip;
