@@ -361,8 +361,12 @@ if (demandeSuivi) {
   }
 
 } else if (isRechercheProduit) {
+  console.log("isRechercheProduit !")
   const matchingProducts = await findProductsWithAI(message);
   const matchingCollections = findMatchingCollections(message);
+
+  console.log("matchingCollections", matchingCollections);
+  console.log("matchingProducts", matchingProducts);
 
   let combinedReply = '';
 
