@@ -208,6 +208,7 @@ setInterval(refreshProductCache, 6 * 60 * 60 * 1000);
 // }
 
 function generateCollectionLinks(collections, query) {
+  console.log('generate collection')
   if (collections.length === 0) {
     return ''; // Pas de message si aucune collection trouvée
   }
@@ -222,12 +223,17 @@ function generateCollectionLinks(collections, query) {
 
 async function findProductsWithAI(query) {
   try {
+    // On sélectionne un échantillon du catalogue pour ne pas dépasser les limites de contexte
     const candidates = productCache.map(p => ({
       title: p.title,
-      description: p.description || '',
-      tags: p.tags || [],
+      // description: p.description || '',
       url: p.url
     }));
+
+  //  console.log('candidates', candidates);
+//    console.log("chaises",
+//   candidates.filter(p => p.title.toLowerCase().includes('chaise'))
+// );
 
     const { data } = await axios.post(
       'https://api.mistral.ai/v1/chat/completions',
@@ -236,7 +242,7 @@ async function findProductsWithAI(query) {
         messages: [
           {
             role: 'system',
-            content: `Voici une liste de produits avec leurs titres, descriptions et tags. Trouvez les produits qui correspondent exactement à la recherche : "${query}". Répondez avec un JSON d’objets : [{ "title": ..., "url": ... }]. Priorisez les correspondances exactes d'attributs comme la couleur. Ne répondez rien si aucun match.`
+            content: `Voici une liste de produits (titre + description). Donne uniquement ceux qui correspondent à la recherche : "${query}". Réponds avec un JSON d’objets : [{ "title": ..., "url": ... }]. Ne réponds rien si aucun match.`
           },
           {
             role: 'user',
@@ -252,15 +258,15 @@ async function findProductsWithAI(query) {
     );
 
     const raw = data.choices[0].message.content;
-    console.log('Réponse brute de Mistral :\n', raw);
+    console.log('📨 Réponse brute de Mistral :\n', raw);
+
     const matches = JSON.parse(raw);
     return matches;
   } catch (err) {
-    console.error('Erreur Mistral (produit matching) :', err.message);
+    console.error('❌ Erreur Mistral (produit matching) :', err.message);
     return [];
   }
 }
-
 
 function shouldSearchProducts(message) {
   const query = message.toLowerCase().replace(/[^\w\s]/g, '');
@@ -273,11 +279,13 @@ function shouldSearchProducts(message) {
 
 
 function generateProductLinks(products, query) {
+  console.log("generate products")
   if (products.length === 0) {
     return `Désolé, je n’ai trouvé aucun produit correspondant à "${query}". 😕`;
   }
 
   const limited = products.slice(0, 5);
+  console.log('limited', limited)
 
   let reply = `Voici quelques produits qui pourraient vous intéresser :<br><ul>`;
   reply += limited.map(p =>
