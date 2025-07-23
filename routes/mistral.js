@@ -336,15 +336,15 @@ console.log('isRechercheProduit:', isRechercheProduit);
 console.log('message:', message);
 
 
-const matchingCollections = findMatchingCollections(message);
-console.log('matchoing co', matchingCollections);
-const collectionReply = generateCollectionLinks(matchingCollections, message);
+// const matchingCollections = findMatchingCollections(message);
+// console.log('matchoing co', matchingCollections);
+// const collectionReply = generateCollectionLinks(matchingCollections, message);
 
-if (collectionReply) {
-  session.messages.push({ role: 'assistant', content: collectionReply });
-  updateSession(sessionId, session);
-  return res.json({ reply: collectionReply });
-}
+// if (collectionReply) {
+//   session.messages.push({ role: 'assistant', content: collectionReply });
+//   updateSession(sessionId, session);
+//   return res.json({ reply: collectionReply });
+// }
 
 
 // Si le client parle de commande mais n’a pas fourni toutes les infos
