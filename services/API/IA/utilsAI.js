@@ -1,3 +1,5 @@
+const axios = require('axios');
+require('dotenv').config();
 const SHOPIFYAPPTOKEN = process.env.SHOPIFYAPPTOKEN;
 
 
