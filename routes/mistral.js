@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
-const { getShopifyOrder, fetchProducts, fetchAllCollections, generateCollectionLinks, generateProductLinks } = require('../services/API/IA/utilsAI');
+const { getShopifyOrder } = require('../services/API/IA/utilsAI');
 require('dotenv').config();
 const router = express.Router();
 
@@ -41,14 +41,101 @@ function updateSession(sessionId, data) {
 
 
 //Récupère les produits du catalogue
+async function fetchProducts() {
+  const allProducts = [];
+  let nextPageInfo = null;
 
+  try {
+    do {
+      const response = await axios.get('https://potiron2021.myshopify.com/admin/api/2024-01/products.json', {
+        headers: {
+          'X-Shopify-Access-Token': SHOPIFYAPPTOKEN,
+          'Content-Type': 'application/json'
+        },
+        params: {
+          limit: 250,
+          ...(nextPageInfo ? { page_info: nextPageInfo } : {})
+        }
+      });
+
+      const products = response.data.products || [];
+      allProducts.push(...products);
+
+      // Lire le header Link pour pagination
+      const linkHeader = response.headers.link;
+      const nextMatch = linkHeader?.match(/<([^>]+)>; rel="next"/);
+
+      if (nextMatch) {
+        const url = new URL(nextMatch[1]);
+        nextPageInfo = url.searchParams.get("page_info");
+      } else {
+        nextPageInfo = null;
+      }
+
+    } while (nextPageInfo);
+
+    console.log(`🛍️ Catalogue complet chargé : ${allProducts.length} produits`);
+    return allProducts
+    .filter(p => p.status === 'active' && p.published_at) 
+    .filter(p => p.variants?.some(v => v.inventory_quantity > 0))
+    .map(p => ({
+      id: p.id,
+      title: p.title,
+      tags: p.tags ? p.tags.split(',').map(tag => tag.trim().toLowerCase()) : [],
+      handle: p.handle,
+      description: p.body_html,
+      image: p.image?.src || null,
+      url: `https://potiron2021.myshopify.com/products/${p.handle}`
+    }));
+  } catch (error) {
+    console.error('❌ Erreur récupération produits Shopify :', error.message);
+    return [];
+  }
+}
 
 
 async function refreshProductCache() {
   productCache = await fetchProducts();
+  console.log(`🛍️ Catalogue Shopify chargé : ${productCache.length} produits`);
 }
 
+//All collections
+async function fetchAllCollections() {
+  const headers = {
+    'X-Shopify-Access-Token': process.env.SHOPIFYAPPTOKEN,
+    'Content-Type': 'application/json',
+  };
 
+  try {
+    // Appel aux Smart Collections (automatiques)
+    const smartRes = await axios.get(
+      'https://potiron2021.myshopify.com/admin/api/2024-01/smart_collections.json',
+      { headers }
+    );
+    const smartCollections = smartRes.data.smart_collections || [];
+
+    // Appel aux Custom Collections (manuelles)
+    const customRes = await axios.get(
+      'https://potiron2021.myshopify.com/admin/api/2024-01/custom_collections.json',
+      { headers }
+    );
+    const customCollections = customRes.data.custom_collections || [];
+
+    // Fusionner les deux listes
+    const allCollections = [...smartCollections, ...customCollections].map(c => ({
+      id: c.id,
+      title: c.title,
+      handle: c.handle,
+      url: `https://potiron2021.myshopify.com/collections/${c.handle}`
+    }));
+
+    console.log(`📚 ${allCollections.length} collections récupérées`);
+    return allCollections;
+  } catch (err) {
+    console.error('❌ Erreur lors du fetch des collections :', err.message);
+    return [];
+  }
+}
 
 function getCachedCollections() {
   return collectionCache;
@@ -63,14 +150,35 @@ function findMatchingCollections(userQuery) {
 
 
 // Lancer au démarrage
-refreshProductCache();
+ refreshProductCache();
 fetchAllCollections().then(collections => {
   collectionCache = collections;
+  console.log('✅ collectionCache bien chargé');
 });
 
 
 // Recharger toutes les 6h
 setInterval(refreshProductCache, 6 * 60 * 60 * 1000);
+// function findMatchingCollections(query) {
+//   const queryLower = query.toLowerCase();
+//   return collectionCache.filter(col =>
+//     col.title.toLowerCase().includes(queryLower)
+//   );
+// }
+
+function generateCollectionLinks(collections, query) {
+  console.log('generate collection')
+  if (collections.length === 0) {
+    return ''; // Pas de message si aucune collection trouvée
+  }
+
+  let reply = `Voici quelques collections qui pourraient vous intéresser :<br><ul>`;
+  reply += collections.map(c =>
+    `<li><a href="${c.url}" target="_blank">${c.title}</a></li>`
+  ).join('');
+  reply += `</ul>`;
+  return reply;
+}
 
 async function findProductsWithAI(query) {
   try {
@@ -129,7 +237,22 @@ function shouldSearchProducts(message) {
 
 
 
+function generateProductLinks(products, query) {
+  // console.log("generate products")
+  if (products.length === 0) {
+    return `Désolé, je n’ai trouvé aucun produit correspondant à "${query}". 😕`;
+  }
 
+  const limited = products.slice(0, 3);
+  // console.log('limited', limited)
+
+  let reply = `Voici quelques produits qui pourraient vous intéresser :<br><ul>`;
+  reply += limited.map(p =>
+    `<li><a href="${p.url}" target="_blank">${p.title}</a></li>`
+  ).join('');
+  reply += `</ul>`;
+  return reply;
+}
 
 
 /* ------------------------------------------- */
