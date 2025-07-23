@@ -135,7 +135,6 @@ async function fetchProducts() {
 
 
 async function refreshProductCache() {
-  console.log('lauch fetch products');
   productCache = await fetchProducts();
   console.log(`🛍️ Catalogue Shopify chargé : ${productCache.length} produits`);
 }
@@ -223,8 +222,6 @@ function generateCollectionLinks(collections, query) {
 
 async function findProductsWithAI(query) {
   try {
-    console.log('findProductWithAI');
-    console.log('prod', productCache)
     // On sélectionne un échantillon du catalogue pour ne pas dépasser les limites de contexte
     const candidates = productCache.map(p => ({
       title: p.title,
@@ -232,7 +229,7 @@ async function findProductsWithAI(query) {
       url: p.url
     }));
 
-   console.log('candidates', candidates);
+  //  console.log('candidates', candidates);
 //    console.log("chaises",
 //   candidates.filter(p => p.title.toLowerCase().includes('chaise'))
 // );
@@ -260,7 +257,7 @@ async function findProductsWithAI(query) {
     );
 
     const raw = data.choices[0].message.content;
-    console.log('📨 Réponse brute de Mistral :\n', raw);
+    // console.log('📨 Réponse brute de Mistral :\n', raw);
 
     const matches = JSON.parse(raw);
     return matches;
@@ -281,13 +278,13 @@ function shouldSearchProducts(message) {
 
 
 function generateProductLinks(products, query) {
-  console.log("generate products")
+  // console.log("generate products")
   if (products.length === 0) {
     return `Désolé, je n’ai trouvé aucun produit correspondant à "${query}". 😕`;
   }
 
   const limited = products.slice(0, 5);
-  console.log('limited', limited)
+  // console.log('limited', limited)
 
   let reply = `Voici quelques produits qui pourraient vous intéresser :<br><ul>`;
   reply += limited.map(p =>
@@ -332,20 +329,8 @@ const demandeSuivi = /\b(où est|suivre|statut|livraison|colis|expédiée|envoy�
 const isRechercheProduit = /(je cherche|je veux|avez[- ]?vous|vous vendez|j’aimerais|je voudrais|proposez[- ]?vous)/.test(lowerMessage);
 const useProductSearch = isRechercheProduit && shouldSearchProducts(message);
 
-console.log('isRechercheProduit:', isRechercheProduit);
-console.log('message:', message);
-
-
-// const matchingCollections = findMatchingCollections(message);
-// console.log('matchoing co', matchingCollections);
-// const collectionReply = generateCollectionLinks(matchingCollections, message);
-
-// if (collectionReply) {
-//   session.messages.push({ role: 'assistant', content: collectionReply });
-//   updateSession(sessionId, session);
-//   return res.json({ reply: collectionReply });
-// }
-
+// console.log('isRechercheProduit:', isRechercheProduit);
+// console.log('message:', message);
 
 // Si le client parle de commande mais n’a pas fourni toutes les infos
 if (demandeSuivi) {
@@ -361,12 +346,11 @@ if (demandeSuivi) {
   }
 
 } else if (isRechercheProduit) {
-  console.log("isRechercheProduit !")
   const matchingProducts = await findProductsWithAI(message);
   const matchingCollections = findMatchingCollections(message);
 
-  console.log("matchingCollections", matchingCollections);
-  console.log("matchingProducts", matchingProducts);
+  // console.log("matchingCollections", matchingCollections);
+  // console.log("matchingProducts", matchingProducts);
 
   let combinedReply = '';
 
