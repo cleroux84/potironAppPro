@@ -222,17 +222,12 @@ function generateCollectionLinks(collections, query) {
 
 async function findProductsWithAI(query) {
   try {
-    // On sélectionne un échantillon du catalogue pour ne pas dépasser les limites de contexte
     const candidates = productCache.map(p => ({
       title: p.title,
-      // description: p.description || '',
+      description: p.description || '',
+      tags: p.tags || [],
       url: p.url
     }));
-
-  //  console.log('candidates', candidates);
-//    console.log("chaises",
-//   candidates.filter(p => p.title.toLowerCase().includes('chaise'))
-// );
 
     const { data } = await axios.post(
       'https://api.mistral.ai/v1/chat/completions',
@@ -241,7 +236,7 @@ async function findProductsWithAI(query) {
         messages: [
           {
             role: 'system',
-            content: `Voici une liste de produits (titre + description). Donne uniquement ceux qui correspondent à la recherche : "${query}". Réponds avec un JSON d’objets : [{ "title": ..., "url": ... }]. Ne réponds rien si aucun match.`
+            content: `Voici une liste de produits avec leurs titres, descriptions et tags. Trouvez les produits qui correspondent exactement à la recherche : "${query}". Répondez avec un JSON d’objets : [{ "title": ..., "url": ... }]. Priorisez les correspondances exactes d'attributs comme la couleur. Ne répondez rien si aucun match.`
           },
           {
             role: 'user',
@@ -257,15 +252,15 @@ async function findProductsWithAI(query) {
     );
 
     const raw = data.choices[0].message.content;
-    console.log('📨 Réponse brute de Mistral :\n', raw);
-
+    console.log('Réponse brute de Mistral :\n', raw);
     const matches = JSON.parse(raw);
     return matches;
   } catch (err) {
-    console.error('❌ Erreur Mistral (produit matching) :', err.message);
+    console.error('Erreur Mistral (produit matching) :', err.message);
     return [];
   }
 }
+
 
 function shouldSearchProducts(message) {
   const query = message.toLowerCase().replace(/[^\w\s]/g, '');
