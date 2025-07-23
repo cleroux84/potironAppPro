@@ -223,6 +223,8 @@ function generateCollectionLinks(collections, query) {
 
 async function findProductsWithAI(query) {
   try {
+    console.log('findProductWithAI');
+    console.log('prod', productCache)
     // On sélectionne un échantillon du catalogue pour ne pas dépasser les limites de contexte
     const candidates = productCache.map(p => ({
       title: p.title,
@@ -230,7 +232,7 @@ async function findProductsWithAI(query) {
       url: p.url
     }));
 
-  //  console.log('candidates', candidates);
+   console.log('candidates', candidates);
 //    console.log("chaises",
 //   candidates.filter(p => p.title.toLowerCase().includes('chaise'))
 // );
