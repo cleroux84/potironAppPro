@@ -42,3 +42,7 @@ async function getShopifyOrder(orderNumber, email) {
     trackingNumber : t.number || null
   };
 }
+
+//Get all products available 
+module.exports = { getShopifyOrder };
+
