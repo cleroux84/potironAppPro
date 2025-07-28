@@ -64,19 +64,19 @@ getWebhooks();
 //   });
 
 
-// cron.schedule('0 19  * * *', () => {
-//   console.log("⏰ getNewOrdersFile déclenché à : ", new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' }));
-//   generateCsv();
-// }, {
-//   timezone: "Europe/Paris"
-// });
+cron.schedule('0 19  * * *', () => {
+  console.log("⏰ generateCsv déclenché à : ", new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' }));
+  generateCsv();
+}, {
+  timezone: "Europe/Paris"
+});
 
-// cron.schedule('30 22  * * *', () => {
-//   console.log("⏰ getNewOrdersFile déclenché à : ", new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' }));
-//   generateCsv();
-// }, {
-//   timezone: "Europe/Paris"
-// });
+cron.schedule('01 22  * * *', () => {
+  console.log("⏰ getNewOrdersFile déclenché à : ", new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' }));
+  getNewOrdersFile();
+}, {
+  timezone: "Europe/Paris"
+});
 
 cron.schedule('30 9 * * *', () => {
   console.log("⏰ checkScheduledEmails déclenché à : ", new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' }));

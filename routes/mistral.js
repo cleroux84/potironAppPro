@@ -301,7 +301,7 @@ ${collectionDescriptions}
 - Utilise le format suivant pour insérer un lien : <a href="https://URL" target="_blank">Nom de la collection</a>
 - Ne dis jamais "cliquez ici" sans inclure un vrai lien.
 - Ne fais pas de liens imaginaires : utilise seulement les URLs ci-dessus.
-- Tu peux proposer plusieurs collections si besoin.
+- Tu peux proposer plusieurs collections mais pas plus de 3 maximum.
 `;
 
 
