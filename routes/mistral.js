@@ -211,28 +211,16 @@ if (demandeSuivi) {
 
 /* ------------------------------------------- */
   /* 1. Construire le promptSystem de base */
-let promptSystem = `Tu es un assistant du service client de Potiron Paris (boutique de mobilier et décoration d'intérieur).
+ let promptSystem = `Tu es un assistant du service client (SAV) de la boutique Potiron Paris qui vend du mobilier de la décoration d'intérieur (canapé, fauteuil, chaise, luminaire, vase, miroir, etc).
 
-Tu réponds :
-- Toujours en français, même si le client écrit en anglais.
-- De manière simple, claire et concise.
-- Sans formules longues, sans signature ("cordialement", etc).
+Ta mission :
+- Répondre brièvement, chaleureusement, et uniquement en français, même si le client écrit en anglais.
+- Ne jamais inventer d'information. Si tu ne sais pas, dis-le, et propose au client de contacter le service client.
+- Ne jamais inventer de lien de suivi ou de statut de commande.
 
-Important :
-- N'invente jamais de lien ni de statut de commande.
-- Si tu ne sais pas, propose au client de contacter le service client humain.
-
-Commande :
-- Ne parle d'une commande que si le client a donné un numéro + un e-mail.
-- Si la commande est retrouvée, donne le statut, les numéros de suivi et tous les liens de suivi disponibles (s'il y en a plusieurs).
-- Si la commande n’est pas trouvée, demande poliment de vérifier les infos.
-
-Produit ou collection :
-- Réponds à une recherche de produit seulement si la demande le justifie.
-- Tu peux suggérer une ou plusieurs collections, mais ne donnes jamais plus de 3 liens de collection.
-- Ne parle jamais de lien ou de collection que tu n’as pas reçus.
-
-Tu ne signes jamais les messages.;
+⛔️ Tu NE DOIS PAS répondre à une demande de suivi de commande si les deux éléments suivants ne sont pas fournis et valides :
+1. Un numéro de commande
+2. Une adresse e-mail
 
 ✅ Tu peux répondre à une demande de suivi UNIQUEMENT si :
 - Le client a demandé à suivre sa commande (il mentionne livraison, statut, suivi, etc.)
@@ -262,32 +250,19 @@ Ne signe jamais tes messages. Tu t’exprimes comme un humain sympathique, profe
     try {
        const order = await getShopifyOrder(session.orderNumber, session.email);
      if (order) {
-    //     const trackingLine = order.trackingUrl
-    // ? `Lien de suivi : <a href="${order.trackingUrl}" target=_blank>Suivre la livraison</a>`
-    // : "Aucun lien de suivi n'est disponible actuellement";
-      let trackingInfo = '';
-
-if (Array.isArray(order.trackingUrls) && order.trackingUrls.length > 0) {
-  trackingInfo = order.trackingUrls.map((url, i) => `Suivi ${i + 1} : <a href="${url}" target="_blank">Lien de suivi</a>`).join('<br>');
-} else if (order.trackingUrl) {
-  trackingInfo = `Suivi : <a href="${order.trackingUrl}" target="_blank">Lien de suivi</a>`;
-} else {
-  trackingInfo = "Aucun lien de suivi disponible.";
-}
-
-
+        const trackingLine = order.trackingUrl
+    ? `Lien de suivi : <a href="${order.trackingUrl}" target=_blank>Suivre la livraison</a>`
+    : "Aucun lien de suivi n'est disponible actuellement";
+ 
   promptSystem += `
 
 Commande retrouvée :
 - Numéro : ${order.name}
 - Statut : ${order.status}
 - Numéro de suivi : ${order.trackingNumber || 'non disponible'}
-// - ${order.trackingUrl ? `Lien de suivi : <a href="${order.trackingUrl}" target=_blank>Suivre la livraison</a>` : "Aucun lien de suivi disponible"}
-- ${trackingInfo}
+- ${order.trackingUrl ? `Lien de suivi : <a href="${order.trackingUrl}" target=_blank>Suivre la livraison</a>` : "Aucun lien de suivi disponible"}
 
 Important :
-- Tu dois présenter toutes les infos disponibles, sans jamais inventer.
-- Traduis les statuts si besoin, mais ne change pas les autres infos.;
 - Ne donne ces informations que si le client a bien demandé le suivi de commande.
 - Ne transforme jamais ces données. Utilise exactement ce qui est fourni ici.
 - Si une info est absente (ex: pas de lien), indique-le clairement, sans jamais inventer ou deviner.
@@ -310,8 +285,7 @@ Merci de vérifier les informations et de me les renvoyer.`;
   }
 
 const collections = getCachedCollections();
-const limitedCollections = collections.slice(0, 3); // max 3
-const collectionDescriptions = limitedCollections.map(c => `- ${c.title} : ${c.url}`).join('\n');
+const collectionDescriptions = collections.map(c => `- ${c.title} : ${c.url}`).join('\n');
 
 promptSystem += `
 
