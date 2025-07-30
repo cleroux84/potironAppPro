@@ -47,24 +47,8 @@ initializeTokens();
 // setupShippingboWebhook();
 getWebhooks();
 
-// getOrderDetails(120086989);
-// generateCsv();
-// sendCSVToShippingbo();
 
-//CHECK Scheduled emails in DB every day
-// cron.schedule('0 9 * * *', checkScheduledEmails, { //9h00
-// // cron.schedule('50 10 * * *', checkScheduledEmails, { //10h50
-//   schedule: true,
-//   timezone: "Europe/Paris"
-// });
-// //GET NEW ORDERS FROM AFIBEL every day 
-// cron.schedule('58 8 * * *', getNewOrdersFile, { //9h00
-//     schedule: true,
-//     timezone: "Europe/Paris"
-//   });
-
-
-cron.schedule('0 19  * * *', () => {
+cron.schedule('40 7  * * *', () => {
   console.log("⏰ generateCsv déclenché à : ", new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' }));
   generateCsv();
 }, {
