@@ -76,9 +76,16 @@ const getNewOrdersFile = async () => {
         await sftpAfibel.get(remoteAfibelPath, localPath);
         console.log(`file from Afibel ${afibelFile.name}`);
         await sftpAfibel.end()
+
         const fileContent = await fsPromises.readFile(localPath, { encoding: 'base64' });
         await mailCSV(accessTokenMS365, fileContent);
         await sendCSVToShippingbo(localPath, afibelFile.name);
+
+        // Remove CSV new order file from Afibel FTP:
+        await sftpAfibel.connect(configAfibel);
+        await sftpAfibel.delete(remoteAfibelPath);
+        console.log(`File ${afibelFile.name} deleted from Afibel SFTP`);
+        await sftpAfibel.end();
 
     } catch (error) {
         console.error('error getting file from Afibel SFTP', error);
