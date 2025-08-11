@@ -20,7 +20,8 @@ const configSbo = {
     host: process.env.HOST_FTP_SBO,
     port: process.env.PORT_FTP_SBO,
     username: process.env.USERNAME_FTP_SBO,
-    password: process.env.PASSWORD_FTP_SBO
+    password: process.env.PASSWORD_FTP_SBO,
+    readyTimeout: 30000
 }
 
 //Config SFTP Afibel 
@@ -31,27 +32,68 @@ const configAfibel = {
     password: process.env.PASSWORD_FTP_AFIBEL
 }
 
-//Send csv file in shippingbo FTP
+//Send csv file in shippingbo FTP and retry if FTP Shippingbo do not answer
 const sendCSVToShippingbo = async (localPath, fileName) => {
-    // const localPath = path.join(__dirname, 'forwards', 'afibel_orders_08-04.csv')
-    // const remotePath = `/orders/afibel_orders_08-04.csv`;
     const remotePath = `/orders/${fileName}`;
-    try {
-        await sftpSbo.connect(configSbo);
-        console.log('Connecté au serveur SFTP Shippingbo');
-        await sftpSbo.put(localPath, remotePath);
-        console.log(`File send to ${remotePath}` );
-        await sftpSbo.end();
-        console.log('Sftp closed');
-
-        //Remove file
-        fs.unlinkSync(localPath);
-
-    } catch (error) {
-        console.error("Error during sftp transfer", error);     
-        try {await sftpSbo.end(); } catch {}   
+    const retries = 3;
+    const delayMs = 5000;
+    let uploaded = false;
+ 
+    for (let attempt = 1; attempt <= retries; attempt++) {
+        try {
+            await sftpSbo.connect(configSbo);
+            console.log(`Tentative ${attempt} : connecté au serveur SFTP Shippingbo`);
+ 
+            await sftpSbo.put(localPath, remotePath);
+            console.log(`Tentative ${attempt} : fichier envoyé vers ${remotePath}`);
+ 
+            uploaded = true;
+            break; // sortie du retry loop car succès
+        } catch (error) {
+            console.warn(`Tentative ${attempt} échouée : ${error.message}`);
+        } finally {
+            try { await sftpSbo.end(); } catch {}
+        }
+ 
+        if (!uploaded && attempt < retries) {
+            console.log(`Nouvelle tentative dans ${delayMs / 1000} secondes...`);
+            await new Promise(res => setTimeout(res, delayMs));
+        }
     }
-}
+ 
+    // Suppression du fichier local, succès ou échec
+    try {
+        fs.unlinkSync(localPath);
+        console.log(`Fichier local ${fileName} supprimé`);
+    } catch (err) {
+        console.error(`Impossible de supprimer ${fileName} :`, err.message);
+    }
+ 
+    if (!uploaded) {
+        console.error(`Échec d'envoi vers Shippingbo après ${retries} tentatives`);
+    }
+};
+
+// const sendCSVToShippingbo = async (localPath, fileName) => {
+//     // const localPath = path.join(__dirname, 'forwards', 'afibel_orders_08-04.csv')
+//     // const remotePath = `/orders/afibel_orders_08-04.csv`;
+//     const remotePath = `/orders/${fileName}`;
+//     try {
+//         await sftpSbo.connect(configSbo);
+//         console.log('Connecté au serveur SFTP Shippingbo');
+//         await sftpSbo.put(localPath, remotePath);
+//         console.log(`File send to ${remotePath}` );
+//         await sftpSbo.end();
+//         console.log('Sftp closed');
+
+//         //Remove file
+//         fs.unlinkSync(localPath);
+
+//     } catch (error) {
+//         console.error("Error during sftp transfer", error);     
+//         try {await sftpSbo.end(); } catch {}   
+//     }
+// }
 
 //Get new orders file from Afibel sftp
 const getNewOrdersFile = async () => {
