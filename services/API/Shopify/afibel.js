@@ -244,6 +244,9 @@ const generateCsv = async () => {
  
     for (const order of orders) {
         const fullOrder = await getAfibelTrackings(order.id);
+        if(fullOrder.status?.toLowerCase() === "annule" || fullOrder.status?.toLowerCase() === "canceled") {
+            continue
+        }
         result.push(fullOrder);
         await new Promise(resolve => setTimeout(resolve, 300));
     }
