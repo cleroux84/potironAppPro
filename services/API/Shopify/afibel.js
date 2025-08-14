@@ -244,7 +244,9 @@ const generateCsv = async () => {
  
     for (const order of orders) {
         const fullOrder = await getAfibelTrackings(order.id);
-        if(fullOrder.status?.toLowerCase() === "annule" || fullOrder.status?.toLowerCase() === "canceled") {
+        if(fullOrder.status?.toLowerCase() === "annule" || fullOrder.status?.toLowerCase() === "canceled"
+        || fullOrder.afibel_id === "181857161"
+    ) {
             continue
         }
         result.push(fullOrder);
@@ -301,15 +303,5 @@ const sendTrackingToAfibel = async (localPath, fileName) => {
         try { await sftpAfibel.end(); } catch {}
     }
 }
-
-// 1- programmer cette récup
-// 2- recupérer fichier new order de afibel sftp
-// 3- l'envoyer à shippingbo SFTP
-
-// 4- programmer cette recup
-// 5- recuperer orders trackings sur shippingbo 
-// 6- envoyer à afibel sftp
-
-// 7- lier sftp shippingbo et afibel pour les stocks directement sur shippingbo
 
 module.exports = { generateCsv, sendCSVToShippingbo, getNewOrdersFile }
