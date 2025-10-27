@@ -243,6 +243,7 @@ const generateCsv = async () => {
     const result = [];
  
     for (const order of orders) {
+        console.log("each order", order);
         const fullOrder = await getAfibelTrackings(order.id);
         if(fullOrder.status?.toLowerCase() === "annule" || fullOrder.status?.toLowerCase() === "canceled"
         || fullOrder.afibel_id === "181857161"
@@ -253,37 +254,37 @@ const generateCsv = async () => {
         await new Promise(resolve => setTimeout(resolve, 300));
     }
  
-    const date = new Date().toISOString().split('T')[0];
-    const fileName = `afibel_tracking_${date}.csv`;
-    // Export CSV
-    const uploadDir = path.join(__dirname, '..', 'uploads');
-    const outputPath = path.join(uploadDir, fileName);
-    // console.log("Chemin du fichier CSV : ", outputPath);
+    // const date = new Date().toISOString().split('T')[0];
+    // const fileName = `afibel_tracking_${date}.csv`;
+    // // Export CSV
+    // const uploadDir = path.join(__dirname, '..', 'uploads');
+    // const outputPath = path.join(uploadDir, fileName);
+    // // console.log("Chemin du fichier CSV : ", outputPath);
  
-    writeToPath(outputPath, result, { headers: true })
-        .on('finish', () => {
-            console.log(`CSV exported : ${outputPath}`);
-            fs.readFile(outputPath, { encoding: 'base64' }, async (err, fileContent) => {
-                if (err) {
-                    console.error("Error reading CSV File", err);
-                    return;
-                }
+    // writeToPath(outputPath, result, { headers: true })
+    //     .on('finish', () => {
+    //         console.log(`CSV exported : ${outputPath}`);
+    //         fs.readFile(outputPath, { encoding: 'base64' }, async (err, fileContent) => {
+    //             if (err) {
+    //                 console.error("Error reading CSV File", err);
+    //                 return;
+    //             }
  
-                await sendTrackingToAfibel(outputPath, path.basename(outputPath));
-                await mailCSV(accessTokenMS365, fileContent);
-                // fs.unlink(outputPath, (err) => {
-                //     if(err) {
-                //         console.error('Error removing csv fil from uploads dir', err)
-                //     } else {
-                //         console.log('CSV file removed');
-                //     }
+    //             await sendTrackingToAfibel(outputPath, path.basename(outputPath));
+    //             await mailCSV(accessTokenMS365, fileContent);
+    //             // fs.unlink(outputPath, (err) => {
+    //             //     if(err) {
+    //             //         console.error('Error removing csv fil from uploads dir', err)
+    //             //     } else {
+    //             //         console.log('CSV file removed');
+    //             //     }
 
-                // })
-            });
-        })
-        .on('error', (err) => {
-            console.error("Error writing CSV File", err);
-        });
+    //             // })
+    //         });
+    //     })
+    //     .on('error', (err) => {
+    //         console.error("Error writing CSV File", err);
+    //     });
 }
 
 const sendTrackingToAfibel = async (localPath, fileName) => {
