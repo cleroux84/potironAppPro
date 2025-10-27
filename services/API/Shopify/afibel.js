@@ -220,7 +220,7 @@ const getAfibelTrackings = async (id) => {
     //   console.log("STATE reçu de Shippingbo :", data.order.state);
     //   console.log('translation', stateTranslations[data.order.state]);
 
-      console.log("data", data)
+      console.log("data shiments", data.order.shipments)
       return {
         afibel_id: data.order.origin_ref,
         order_id: data.order.source_ref,
