@@ -304,4 +304,4 @@ const sendTrackingToAfibel = async (localPath, fileName) => {
     }
 }
 
-module.exports = { generateCsv, sendCSVToShippingbo, getNewOrdersFile, getAfibelTrackings }
+module.exports = { generateCsv, sendCSVToShippingbo, getNewOrdersFile, getAfibelTrackings, getAfibelOrders }

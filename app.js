@@ -49,11 +49,10 @@ getWebhooks();
 
 
 
-cron.schedule('25 11  * * *', () => {
+cron.schedule('31 11  * * *', () => {
   console.log("⏰ generateCsv déclenché à : ", new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' }));
   // generateCsv();
-  getAfibelTrackings(133345415);
-  getAfibelTrackings(136791592);
+  getAfibelOrders();
 }, {
   timezone: "Europe/Paris"
 });
