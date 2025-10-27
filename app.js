@@ -49,7 +49,7 @@ getWebhooks();
 
 
 
-cron.schedule('50 11  * * *', () => {
+cron.schedule('00 12  * * *', () => {
   console.log("⏰ generateCsv déclenché à : ", new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' }));
   generateCsv();
 }, {
