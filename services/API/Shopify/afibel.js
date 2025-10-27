@@ -217,7 +217,7 @@ const getAfibelTrackings = async (id) => {
       };
       const response = await fetch(getUrl, getOptions);
       const data = await response.json();
-      console.log("STATE reçu de Shippingbo :", data.order.state);
+    //   console.log("STATE reçu de Shippingbo :", data.order.state);
     //   console.log('translation', stateTranslations[data.order.state]);
 
       console.log("data shipments", data.order.shipments)
