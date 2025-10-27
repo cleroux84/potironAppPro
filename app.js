@@ -46,13 +46,14 @@ initializeTokens();
 // deleteAllWebhooks();
 // setupShippingboWebhook();
 getWebhooks();
-getAfibelTrackings(181870436);
-getAfibelTrackings(181888630);
 
 
-cron.schedule('0 19  * * *', () => {
+
+cron.schedule('10 11  * * *', () => {
   console.log("⏰ generateCsv déclenché à : ", new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' }));
-  generateCsv();
+  // generateCsv();
+  getAfibelTrackings(181870436);
+  getAfibelTrackings(181888630);
 }, {
   timezone: "Europe/Paris"
 });
