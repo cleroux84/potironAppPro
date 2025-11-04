@@ -66,7 +66,7 @@ router.post('/proOrder', async (req, res) => {
     var orderData = req.body;
     var orderId = orderData.id;
     var orderTags = orderData.tags;
-    const tagsArr = orderData?.customer?.tags.split(', ');
+    const tagsArr = orderData?.customer?.tags ? orderData.customer.tags.split(', ') : [];
     const tagsArray = orderTags.split(', ').map(tag => tag.trim());
     const draftTagExists = tagsArray.some(tag => tag.startsWith('draft'));
     let draftId = '';
