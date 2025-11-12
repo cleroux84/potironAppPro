@@ -407,6 +407,7 @@ async function sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileEx
   //Test mail with CSV
   async function mailCSV(accessTokenMS365, fileCSV) {
     // const base64CSV = Buffer.from(fileCSV).toString('base64');
+    console.log('PPL send mail')
     const attachments = [];
     attachments.push({
       '@odata.type': '#microsoft.graph.fileAttachment',
