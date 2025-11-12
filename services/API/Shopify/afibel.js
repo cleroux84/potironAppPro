@@ -239,7 +239,6 @@ const generateCsv = async () => {
     const orders = await getAfibelOrders();
     await refreshMS365AccessToken();
     accessTokenMS365 = await getAccessTokenMS365();
-    console.log('PPL generate CSV')
 
     const result = [];
  

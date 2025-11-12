@@ -48,8 +48,7 @@ initializeTokens();
 getWebhooks();
 
 
-// cron.schedule('0 19  * * *', () => {
-cron.schedule('22 9  * * *', () => {
+cron.schedule('0 19  * * *', () => {
   console.log("⏰ generateCsv déclenché à : ", new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' }));
   generateCsv();
 }, {
