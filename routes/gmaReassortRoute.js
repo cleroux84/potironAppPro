@@ -16,6 +16,7 @@ function extractInfoFromNote(note, infoLabel) {
   }
 // webhook on customer creation from gma-reassort
 router.post('/createCustomer', async (req, res) => {
+    console.log('PPL MAJ Customer')
     var data = req.body;
     // console.log('data:', data);
     const clientToUpdate = data.id;
@@ -52,7 +53,7 @@ router.post('/createCustomer', async (req, res) => {
     const updatedCustomerData = await createMetaCustomer(clientToUpdate, updatedCustomer);
     // console.log('client update', updatedCustomerData);
     res.status(200).json(updatedCustomerData);
-}) 
+});
 
 // webhook on customer update from gma-reassort
 router.post('/updateCustomer', async (req, res) => {
