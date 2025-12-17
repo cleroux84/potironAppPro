@@ -17,11 +17,11 @@ function extractInfoFromNote(note, infoLabel) {
 // webhook on customer creation from gma-reassort
 router.post('/createCustomer', async (req, res) => {
     var data = req.body;
-    console.log('data:', data);
+    // console.log('data:', data);
     const clientToUpdate = data.id;
     const company = extractInfoFromNote(data.note, 'Entreprise');
     const siret = extractInfoFromNote(data.note, 'Siret');
-    const tva = extractInfoFromNote(data.note, 'Tva');
+    const tva = extractInfoFromNote(data.note, 'TVA');
 
     const updatedCustomer = {
         customer: {
@@ -50,7 +50,7 @@ router.post('/createCustomer', async (req, res) => {
         }
     };
     const updatedCustomerData = await createMetaCustomer(clientToUpdate, updatedCustomer);
-    console.log('client update', updatedCustomerData);
+    // console.log('client update', updatedCustomerData);
     res.status(200).json(updatedCustomerData);
 }) 
 
