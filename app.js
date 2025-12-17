@@ -32,6 +32,7 @@ const proCustomerRoute = require('./routes/proCustomer.js');
 const proOrderRoute = require('./routes/proOrder.js');
 const returnContactRoute = require('./routes/returnOrderContact.js');
 const allOrdersRoute = require('./routes/allOrders.js');
+const gmaReassortRoute = require('./routes/gmaReassortRoute.js');
 const testIA = require('./routes/mistral.js');
 const { createOrderFromCSV, getAfibelOrders, generateCsv, sendCSVToShippingbo, getNewOrdersFile } = require('./services/API/Shopify/afibel.js');
 const { getOrderDetails } = require('./services/API/Shippingbo/Potiron/ordersCRUD.js');
@@ -40,6 +41,7 @@ app.use('/proCustomer', proCustomerRoute);
 app.use('/proOrder', proOrderRoute);
 app.use('/returnContact', returnContactRoute);
 app.use('/allOrders', allOrdersRoute);
+app.use('/reassort', gmaReassortRoute);
 app.use('/test', testIA);
 // Initialisation des tokens 
 initializeTokens();
@@ -47,6 +49,34 @@ initializeTokens();
 // setupShippingboWebhook();
 getWebhooks();
 
+// Get a token with dev dashboard shopify : 
+app.get('/callback', async (req, res) => {
+    const { code, state } = req.query;
+
+    if (state !== 'xyz123') return res.status(400).send('State invalide');
+
+    try {
+        const shop = 'gma-reassort.myshopify.com';
+        const client_id = process.env.SHOPIFY_CLIENT_ID;
+        const client_secret = process.env.SHOPIFY_CLIENT_SECRET;
+
+        const response = await fetch(`https://${shop}/admin/oauth/access_token`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ client_id, client_secret, code })
+        });
+
+        const data = await response.json();
+
+        console.log('Ton Shopify Access Token:', data.access_token);
+
+        res.send('Token généré ! Vérifie la console serveur pour le copier dans ton .env');
+
+    } catch (error) {
+        console.error('Erreur lors de l’échange du code contre le token :', error);
+        res.status(500).send('Erreur lors de la génération du token');
+    }
+});
 
 cron.schedule('0 19  * * *', () => {
   console.log("⏰ generateCsv déclenché à : ", new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' }));
