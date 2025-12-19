@@ -102,12 +102,16 @@ const generateInvoicePdf = async(invoiceData, outpath = 'invoice.pdf') => {
     const templateHtml = await fs.readFile(templatePath, 'utf-8');
     const template = Handlebars.compile(templateHtml);
     const finalHtml = template(invoiceData);
-    const browser = await puppeteer.launch({
-        headless: true,
-        args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-        ],
+   const browser = await puppeteer.launch({
+    headless: 'new',  // mieux sur les versions récentes
+    args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',  // important sur Render (mémoire partagée)
+        '--disable-accelerated-2d-canvas',
+        '--no-first-run',
+        '--no-zygote'
+    ]
     });
     const page = await browser.newPage();
     await page.setContent(finalHtml, { waitUntil: 'networkidle0' });
