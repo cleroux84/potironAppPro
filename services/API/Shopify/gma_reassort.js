@@ -36,6 +36,10 @@ const getCustomerMeta = async(customerId) => {
             console.log(`Error while getting meta data by customer id: ${response.statusText}`);
         }
         const data = await response.json();
+        if (!Array.isArray(data.metaobjects)) {
+            console.error("Unexpected data format:", data);
+        return {};
+        }
         const find = (key) => 
             data.find(m => m.namespace === 'custom' && m.key === key)?.value || null
         return {
