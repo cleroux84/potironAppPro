@@ -58,14 +58,7 @@ router.post('/createCustomer', async (req, res) => {
 // Webhook shopify for new order
 router.post('/newOrder', async (req, res) => {
     var order = req.body;
-    // console.log('new order', order);
-    //retrieve order
-    const Invoice = await generateInvoice(order);
-
-    // generate invoice
-    //send mail with invoice
-    //stock invoice or is in sending mail ?
-    //add tag "invoice with order id sent to send only one time !"
+    // await generateInvoice(order);
 });
 
 module.exports = router;
