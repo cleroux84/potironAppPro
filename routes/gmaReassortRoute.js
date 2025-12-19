@@ -52,6 +52,13 @@ router.post('/createCustomer', async (req, res) => {
     const updatedCustomerData = await createMetaCustomer(clientToUpdate, updatedCustomer);
     // console.log('client update', updatedCustomerData);
     res.status(200).json(updatedCustomerData);
-}) 
+});
+
+
+// Webhook shopify for new order
+router.post('/createCustomer', async (req, res) => {
+    var order = req.data;
+    console.log('new order', order);
+});
 
 module.exports = router;

@@ -49,34 +49,42 @@ initializeTokens();
 // setupShippingboWebhook();
 getWebhooks();
 
-// Get a token with dev dashboard shopify : 
-app.get('/callback', async (req, res) => {
-    const { code, state } = req.query;
+// To get a token with dev dashboard shopify - decomment, push and enter in navigation :
+//  : 
+// https://gma-reassort.myshopify.com/admin/oauth/authorize?
+// client_id= found in dev dashbord app settings
+// scope=customers,metafields&
+// redirect_uri=https://potironapppro.onrender.com/callback& //be sure it's in redirect urls in dev dashbord app
+// state=xyz123&
+// grant_options[]=per-user
 
-    if (state !== 'xyz123') return res.status(400).send('State invalide');
+// app.get('/callback', async (req, res) => {
+//     const { code, state } = req.query;
 
-    try {
-        const shop = 'gma-reassort.myshopify.com';
-        const client_id = process.env.SHOPIFY_CLIENT_ID;
-        const client_secret = process.env.SHOPIFY_CLIENT_SECRET;
+//     if (state !== 'xyz123') return res.status(400).send('State invalide');
 
-        const response = await fetch(`https://${shop}/admin/oauth/access_token`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ client_id, client_secret, code })
-        });
+//     try {
+//         const shop = 'gma-reassort.myshopify.com';
+//         const client_id = process.env.SHOPIFY_CLIENT_ID;
+//         const client_secret = process.env.SHOPIFY_CLIENT_SECRET;
 
-        const data = await response.json();
+//         const response = await fetch(`https://${shop}/admin/oauth/access_token`, {
+//             method: 'POST',
+//             headers: { 'Content-Type': 'application/json' },
+//             body: JSON.stringify({ client_id, client_secret, code })
+//         });
 
-        console.log('Ton Shopify Access Token:', data.access_token);
+//         const data = await response.json();
 
-        res.send('Token généré ! Vérifie la console serveur pour le copier dans ton .env');
+//         console.log('Ton Shopify Access Token:', data.access_token);
 
-    } catch (error) {
-        console.error('Erreur lors de l’échange du code contre le token :', error);
-        res.status(500).send('Erreur lors de la génération du token');
-    }
-});
+//         res.send('Token généré ! Vérifie la console serveur pour le copier dans ton .env');
+
+//     } catch (error) {
+//         console.error('Erreur lors de l’échange du code contre le token :', error);
+//         res.status(500).send('Erreur lors de la génération du token');
+//     }
+// });
 
 cron.schedule('0 19  * * *', () => {
   console.log("⏰ generateCsv déclenché à : ", new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' }));
