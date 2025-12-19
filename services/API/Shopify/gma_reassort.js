@@ -34,15 +34,16 @@ const getCustomerMeta = async(customerId) => {
         const response = await fetch(metaUrl, metaOptions);
         if (!response.ok) {
             console.log(`Error while getting meta data by customer id: ${response.statusText}`);
+            return {};
         }
         const data = await response.json();
-        console.log('metadata', data);
-        if (!Array.isArray(data.metaobjects)) {
+        const metafields = data.metafields;
+        if (!Array.isArray(metafields)) {
             console.error("Unexpected data format:", data);
-        return {};
+            return {};
         }
         const find = (key) => 
-            data.find(m => m.namespace === 'custom' && m.key === key)?.value || null
+            metafields.find(m => m.namespace === 'custom' && m.key === key)?.value || null
         return {
             company: find('company'),
             siret: find('siret'),
@@ -50,8 +51,10 @@ const getCustomerMeta = async(customerId) => {
         }
     } catch (error) {
       console.error('Error to retrieve meta data by customer id', error);
+      return {};
     }
 };
+
 
 const extractOrderData = async (order) => {
     const metaData = await getCustomerMeta(order.customer.id)
