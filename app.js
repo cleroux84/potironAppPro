@@ -49,15 +49,6 @@ initializeTokens();
 // setupShippingboWebhook();
 getWebhooks();
 
-// To get a token with dev dashboard shopify - decomment, push and enter in navigation :
-//  : 
-// https://gma-reassort.myshopify.com/admin/oauth/authorize?
-// client_id= found in dev dashbord app settings
-// scope=customers,metafields&
-// redirect_uri=https://potironapppro.onrender.com/callback& //be sure it's in redirect urls in dev dashbord app
-// state=xyz123&
-// grant_options[]=per-user
-
 app.get('/callback', async (req, res) => {
     const { code, state } = req.query;
 

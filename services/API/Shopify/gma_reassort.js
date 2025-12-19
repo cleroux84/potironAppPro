@@ -36,6 +36,7 @@ const getCustomerMeta = async(customerId) => {
             console.log(`Error while getting meta data by customer id: ${response.statusText}`);
         }
         const data = await response.json();
+        console.log('metadata', data);
         if (!Array.isArray(data.metaobjects)) {
             console.error("Unexpected data format:", data);
         return {};
@@ -54,6 +55,7 @@ const getCustomerMeta = async(customerId) => {
 
 const extractOrderData = async (order) => {
     const metaData = await getCustomerMeta(order.customer.id)
+    console.log('trié meta', metaData);
     const invoiceData = {
     // TODO construction of invoice number? should be unique
     invoiceNumber: `F-TEST1`,
