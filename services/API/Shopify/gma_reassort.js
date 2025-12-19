@@ -114,7 +114,7 @@ const generateInvoicePdf = async(invoiceData, outpath = 'invoice.pdf') => {
         '--no-first-run',
         '--no-zygote'
         ],
-    ignoreDefaultArgs: ['--disable-extensions']
+    // ignoreDefaultArgs: ['--disable-extensions']
     });
     const page = await browser.newPage();
     await page.setContent(finalHtml, { waitUntil: 'networkidle0' });
@@ -128,15 +128,15 @@ const generateInvoicePdf = async(invoiceData, outpath = 'invoice.pdf') => {
 
 const generateInvoice = async(orderData) => {
     const invoiceData = await extractOrderData(orderData);
-    const invoicePdfPath = await generateInvoicePdf(invoiceData);
+    // const invoicePdfPath = await generateInvoicePdf(invoiceData);
     let accessTokenMS365 = await getAccessTokenMS365();
             if(!accessTokenMS365) {
               await refreshMS365AccessToken();
               accessTokenMS365 = await getAccessTokenMS365();
             }
     try {
-        await sendInvoiceReassort(accessTokenMS365, orderData.email, invoicePdfPath);
-        await fs.remove(invoicePdfPath);
+        // await sendInvoiceReassort(accessTokenMS365, orderData.email, invoicePdfPath);
+        // await fs.remove(invoicePdfPath);
         console.log('facture rm')
     } catch (error) {
         
