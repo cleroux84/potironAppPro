@@ -58,33 +58,33 @@ getWebhooks();
 // state=xyz123&
 // grant_options[]=per-user
 
-// app.get('/callback', async (req, res) => {
-//     const { code, state } = req.query;
+app.get('/callback', async (req, res) => {
+    const { code, state } = req.query;
 
-//     if (state !== 'xyz123') return res.status(400).send('State invalide');
+    if (state !== 'xyz123') return res.status(400).send('State invalide');
 
-//     try {
-//         const shop = 'gma-reassort.myshopify.com';
-//         const client_id = process.env.SHOPIFY_CLIENT_ID;
-//         const client_secret = process.env.SHOPIFY_CLIENT_SECRET;
+    try {
+        const shop = 'gma-reassort.myshopify.com';
+        const client_id = process.env.SHOPIFY_CLIENT_ID;
+        const client_secret = process.env.SHOPIFY_CLIENT_SECRET;
 
-//         const response = await fetch(`https://${shop}/admin/oauth/access_token`, {
-//             method: 'POST',
-//             headers: { 'Content-Type': 'application/json' },
-//             body: JSON.stringify({ client_id, client_secret, code })
-//         });
+        const response = await fetch(`https://${shop}/admin/oauth/access_token`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ client_id, client_secret, code })
+        });
 
-//         const data = await response.json();
+        const data = await response.json();
 
-//         console.log('Ton Shopify Access Token:', data.access_token);
+        console.log('Ton Shopify Access Token:', data.access_token);
 
-//         res.send('Token généré ! Vérifie la console serveur pour le copier dans ton .env');
+        res.send('Token généré ! Vérifie la console serveur pour le copier dans ton .env');
 
-//     } catch (error) {
-//         console.error('Erreur lors de l’échange du code contre le token :', error);
-//         res.status(500).send('Erreur lors de la génération du token');
-//     }
-// });
+    } catch (error) {
+        console.error('Erreur lors de l’échange du code contre le token :', error);
+        res.status(500).send('Erreur lors de la génération du token');
+    }
+});
 
 cron.schedule('0 19  * * *', () => {
   console.log("⏰ generateCsv déclenché à : ", new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' }));
