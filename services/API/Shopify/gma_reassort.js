@@ -1,8 +1,8 @@
 const SHOPIFYREASSORTTOKEN = process.env.SHOPIFYREASSORTTOKEN;
 const fetch = require('node-fetch');
-import fs from 'fs-extra';
-import puppeteer from 'puppeteer';
-import Handlebars from 'handlebars';
+const fs = require('fs-extra');
+const puppeteer = require('puppeteer');
+const Handlebars = require('handlebars');
 const path = require('path');
 
 // new customer webhook to create meta data from notes
@@ -113,7 +113,7 @@ const generateInvoicePdf = async(invoiceData, outpath = 'invoice.pdf') => {
 
 const generateInvoice = async(orderData) => {
     const invoiceData = await extractOrderData(orderData);
-    console.log("invoice", invoiceData);
+    // console.log("invoice", invoiceData);
     const invoicePdf = await generateInvoicePdf(invoiceData);
 }
 
