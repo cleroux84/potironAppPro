@@ -22,7 +22,7 @@ const createMetaCustomer = async(clientToUpdate, updatedCustomer) => {
 };
 
 const getCustomerMeta = async(customerId) => {
-    const metaUrl = `https://gma-reassort.myshopify.com/admin/api/2025-01/customers/${customerId}.json?fields=id,email,first_name,last_name,metafields`
+    const metaUrl = `https://gma-reassort.myshopify.com/admin/api/2025-01/customers/${customerId}/metafields.json`
     const metaOptions = {
         method: 'GET',
         headers: {
