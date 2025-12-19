@@ -1,5 +1,5 @@
 const express = require('express');
-const { createMetaCustomer } = require('../services/API/Shopify/gma_reassort');
+const { createMetaCustomer, generateInvoice } = require('../services/API/Shopify/gma_reassort');
 
 const router = express.Router();
 
@@ -58,11 +58,14 @@ router.post('/createCustomer', async (req, res) => {
 // Webhook shopify for new order
 router.post('/newOrder', async (req, res) => {
     var order = req.body;
-    console.log('new order', order);
+    // console.log('new order', order);
+    const myInvoice = await generateInvoice(order);
+
     //retrieve order
     // generate invoice
     //send mail with invoice
     //stock invoice or is in sending mail ?
+    //add tag "invoice with order id sent to send only one time !"
 });
 
 module.exports = router;
