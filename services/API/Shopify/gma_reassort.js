@@ -1,7 +1,7 @@
 const SHOPIFYREASSORTTOKEN = process.env.SHOPIFYREASSORTTOKEN;
 const fetch = require('node-fetch');
 const fs = require('fs-extra');
-const puppeteer = require('puppeteer-core');
+const puppeteer = require('puppeteer');
 const Handlebars = require('handlebars');
 const path = require('path');
 
@@ -103,9 +103,11 @@ const generateInvoicePdf = async(invoiceData, outpath = 'invoice.pdf') => {
     const template = Handlebars.compile(templateHtml);
     const finalHtml = template(invoiceData);
     const browser = await puppeteer.launch({
-        executablePath: '/opt/render/.cache/puppeteer/chrome/linux-*/chrome',
         headless: true,
-        args: ['--no-sandbox']
+        args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+        ],
     });
     const page = await browser.newPage();
     await page.setContent(finalHtml, { waitUntil: 'networkidle0' });
