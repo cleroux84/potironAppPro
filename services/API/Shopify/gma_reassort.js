@@ -4,6 +4,8 @@ const fs = require('fs-extra');
 const puppeteer = require('puppeteer');
 const Handlebars = require('handlebars');
 const path = require('path');
+const { sendInvoiceReassort } = require('../../sendMails/mailForCustomers');
+const { getAccessTokenMS365, refreshMS365AccessToken } = require('../microsoft');
 
 // new customer webhook to create meta data from notes
 const createMetaCustomer = async(clientToUpdate, updatedCustomer) => {
@@ -119,12 +121,25 @@ const generateInvoicePdf = async(invoiceData, outpath = 'invoice.pdf') => {
     await browser.close();
 
     console.log(`PDF généré: ${outputPath}`)
+    return outputPath;
+    
 }
 
 const generateInvoice = async(orderData) => {
     const invoiceData = await extractOrderData(orderData);
-    // console.log("invoice", invoiceData);
-    const invoicePdf = await generateInvoicePdf(invoiceData);
+    const invoicePdfPath = await generateInvoicePdf(invoiceData);
+    let accessTokenMS365 = await getAccessTokenMS365();
+            if(!accessTokenMS365) {
+              await refreshMS365AccessToken();
+              accessTokenMS365 = await getAccessTokenMS365();
+            }
+    try {
+        await sendInvoiceReassort(accessTokenMS365, orderData.email, invoicePdfPath);
+        await fs.remove(invoicePdfPath);
+        console.log('facture rm')
+    } catch (error) {
+        
+    }
 }
 
 module.exports = {

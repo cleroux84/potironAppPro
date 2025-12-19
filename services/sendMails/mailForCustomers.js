@@ -74,6 +74,55 @@ async function sendWelcomeMailPro(accessTokenMS365, firstnameCustomer, nameCusto
     }  
   }
 
+async function sendInvoiceReassort(accessTokenMS365, customerMail, filePath) {
+    const client = initiMicrosoftGraphClient(accessTokenMS365);
+    const fileBuffer = fs.readFileSync(filePath);
+    const fileBase64 = fileBuffer.toString('base64');
+    
+    const message = {
+    subject: 'Votre facture GMA Réassort', 
+    body: {
+        contentType: 'HTML',
+        content: `
+          <p>Bonjour,</p>
+          <p style="margin: 0;">Test d'envoi de facture .</p>
+      
+          <p>L'équipe de GMA Réassort</p>
+          <img src='cid:signature'/>
+        `
+      },
+      //senderCustomer.email
+      toRecipients: [
+          {
+              emailAddress: {
+                  address: "c.leroux@potiron.com"
+              }
+          }
+      ],
+      // bccRecipients: [
+      //     {
+      //         emailAddress: {
+      //             address: MAILDEV
+      //         }
+      //     }
+      // ],
+      attachments: [
+        {
+          "@odata.type": "#microsoft.graph.fileAttachment",
+          name: path.basename(filePath),
+          contentBytes: fileBase64
+        }
+      ]
+  };
+    try {
+        await client.api('/me/sendMail').post({ message });
+        console.log("Email for customer invoice");
+        return true;
+    } catch (error) {
+        console.error('Error sending invoice message', error);
+    }
+}
+
 //Send email to customer with label colissmo attached
 async function sendReturnDataToCustomer(accessTokenMS365, senderCustomer, pdfBase64Array, parcelNumbers, totalOrder, optionChoose) {
     const client = initiMicrosoftGraphClient(accessTokenMS365);
@@ -524,5 +573,6 @@ async function sendAutomaticInvoice(accessTokenMS365, accessToken, orderDetails)
     sendReceiptAndWaitForRefund,
     sendAlertMail,
     sendAknowledgmentReturnPix,
-    sendAutomaticInvoice
+    sendAutomaticInvoice,
+    sendInvoiceReassort
   }
