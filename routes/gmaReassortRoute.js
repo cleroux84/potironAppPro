@@ -56,7 +56,7 @@ router.post('/createCustomer', async (req, res) => {
 
 
 // Webhook shopify for new order
-router.post('/createCustomer', async (req, res) => {
+router.post('/newOrder', async (req, res) => {
     var order = req.data;
     console.log('new order', order);
 });
