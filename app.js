@@ -9,6 +9,15 @@ const { initializeTokens } = require('./services/API/manageTokens.js');
 const { setupShippingboWebhook, deleteWebhook, deleteAllWebhooks, getWebhooks } = require('./services/API/Shippingbo/webhook.js');
 const { checkScheduledEmails } = require('./services/sendMails/mailForCustomers.js');
 
+//remove invoices gma reassort
+const fs = require('fs-extra');
+const path = require('path');
+const uploadsDir = path.join(__dirname, 'invoicesreassort');
+fs.emptyDir(uploadsDir)
+  .then(() => console.log('🧹 Dossier uploads nettoyé au démarrage'))
+  .catch(err => console.error('Erreur nettoyage uploads', err));
+//end remove
+
 const corsOptions = {
   origin: ["https://potiron.com", "https://0l56kborkbvdteo2-57473073302.shopifypreview.com", "https://6q23ttxwyorid7ah-57473073302.shopifypreview.com"],
   method: 'GET, HEAD, PUT, PATCH, POST, DELETE',

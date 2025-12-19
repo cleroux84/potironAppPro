@@ -98,7 +98,7 @@ const extractOrderData = async (order) => {
 
 const generateInvoicePdf = async(invoiceData, outpath = 'invoice.pdf') => {
 
-    const outputPath = path.join(__dirname, `../../../uploads/Invoice-${invoiceData.invoiceNumber}.pdf`);
+    const outputPath = path.join(__dirname, `../../../invoicesreassort/Invoice-${invoiceData.invoiceNumber}.pdf`);
 
     const templatePath = path.join(__dirname, '../../sendMails/invoiceTemplate.hbs');
     const templateHtml = await fs.readFile(templatePath, 'utf-8');
