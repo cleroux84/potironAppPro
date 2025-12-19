@@ -104,7 +104,6 @@ const generateInvoicePdf = async(invoiceData, outpath = 'invoice.pdf') => {
     const finalHtml = template(invoiceData);
     const browser = await puppeteer.launch({
     headless: true,
-    executablePath: '/opt/render/.cache/puppeteer/chrome/linux-<version>/chrome-linux64/chrome',
     args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
     const page = await browser.newPage();
