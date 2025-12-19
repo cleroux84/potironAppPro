@@ -59,9 +59,9 @@ router.post('/createCustomer', async (req, res) => {
 router.post('/newOrder', async (req, res) => {
     var order = req.body;
     // console.log('new order', order);
-    const myInvoice = await generateInvoice(order);
-
     //retrieve order
+    const Invoice = await generateInvoice(order);
+
     // generate invoice
     //send mail with invoice
     //stock invoice or is in sending mail ?

@@ -1,5 +1,9 @@
 const SHOPIFYREASSORTTOKEN = process.env.SHOPIFYREASSORTTOKEN;
 const fetch = require('node-fetch');
+import fs from 'fs-extra';
+import puppeteer from 'puppeteer';
+import Handlebars from 'handlebars';
+const path = require('path');
 
 // new customer webhook to create meta data from notes
 const createMetaCustomer = async(clientToUpdate, updatedCustomer) => {
@@ -58,10 +62,10 @@ const getCustomerMeta = async(customerId) => {
 
 const extractOrderData = async (order) => {
     const metaData = await getCustomerMeta(order.customer.id)
-    console.log('trié meta', metaData);
+    // console.log('trié meta', metaData);
     const invoiceData = {
     // TODO construction of invoice number? should be unique
-    invoiceNumber: `F-TEST1`,
+    invoiceNumber: `FA-${order.name}`,
     invoiceDate: new Date(order.processed_at).toLocaleDateString('fr-FR'),
 
     customer: {
@@ -88,11 +92,29 @@ const extractOrderData = async (order) => {
     }))
     }
     return invoiceData;
+};
+
+const generateInvoicePdf = async(invoiceData, outpath = 'invoice.pdf') => {
+
+    const outputPath = path.join(__dirname, `../../../uploads/Invoice-${invoiceData.invoiceNumber}.pdf`);
+
+    const templatePath = path.join(__dirname, '../../sendMails/invoiceTemplate.hbs');
+    const templateHtml = await fs.readFile(templatePath, 'utf-8');
+    const template = Handlebars.compile(templateHtml);
+    const finalHtml = template(invoiceData);
+    const browser = await puppeteer.launch({headless: true});
+    const page = await browser.newPage();
+    await page.setContent(finalHtml, { waitUntil: 'networkidle0' });
+    await page.pdf({ path: outputPath, format: 'A4', printBackground: true });
+    await browser.close();
+
+    console.log(`PDF généré: ${outputPath}`)
 }
 
 const generateInvoice = async(orderData) => {
-    const invoice = await extractOrderData(orderData);
-    console.log("invoice", invoice);
+    const invoiceData = await extractOrderData(orderData);
+    console.log("invoice", invoiceData);
+    const invoicePdf = await generateInvoicePdf(invoiceData);
 }
 
 module.exports = {
