@@ -102,19 +102,7 @@ const generateInvoicePdf = async(invoiceData, outpath = 'invoice.pdf') => {
     const templateHtml = await fs.readFile(templatePath, 'utf-8');
     const template = Handlebars.compile(templateHtml);
     const finalHtml = template(invoiceData);
-    const browser = await puppeteer.launch({
-        headless: true,
-        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
-        args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-            '--disable-accelerated-2d-canvas',
-            '--no-first-run',
-            '--no-zygote',
-            '--disable-gpu'
-        ]
-    });
+    const browser = await puppeteer.launch({headless: true});
     const page = await browser.newPage();
     await page.setContent(finalHtml, { waitUntil: 'networkidle0' });
     await page.pdf({ path: outputPath, format: 'A4', printBackground: true });
