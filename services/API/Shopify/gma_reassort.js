@@ -1,7 +1,6 @@
 const SHOPIFYREASSORTTOKEN = process.env.SHOPIFYREASSORTTOKEN;
 const fetch = require('node-fetch');
 const fs = require('fs-extra');
-const puppeteer = require('puppeteer');
 const Handlebars = require('handlebars');
 const path = require('path');
 const { sendInvoiceReassort } = require('../../sendMails/mailForCustomers');
@@ -96,47 +95,23 @@ const extractOrderData = async (order) => {
     return invoiceData;
 };
 
-const generateInvoicePdf = async(invoiceData, outpath = 'invoice.pdf') => {
+const generateInvoicePdf = async(invoiceData) => {
 
-    const outputPath = path.join(__dirname, `../../../invoicesreassort/Invoice-${invoiceData.invoiceNumber}.pdf`);
-
-    const templatePath = path.join(__dirname, '../../sendMails/invoiceTemplate.hbs');
-    const templateHtml = await fs.readFile(templatePath, 'utf-8');
-    const template = Handlebars.compile(templateHtml);
-    const finalHtml = template(invoiceData);
-   const browser = await puppeteer.launch({
-    headless: 'new', 
-    args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-accelerated-2d-canvas',
-        '--no-first-run',
-        '--no-zygote'
-        ],
-    // ignoreDefaultArgs: ['--disable-extensions']
-    });
-    const page = await browser.newPage();
-    await page.setContent(finalHtml, { waitUntil: 'networkidle0' });
-    await page.pdf({ path: outputPath, format: 'A4', printBackground: true });
-    await browser.close();
-
-    console.log(`PDF généré: ${outputPath}`)
-    return outputPath;
+    
     
 }
 
 const generateInvoice = async(orderData) => {
     const invoiceData = await extractOrderData(orderData);
-    const invoicePdfPath = await generateInvoicePdf(invoiceData);
+    // const invoicePdfPath = await generateInvoicePdf(invoiceData);
     let accessTokenMS365 = await getAccessTokenMS365();
             if(!accessTokenMS365) {
               await refreshMS365AccessToken();
               accessTokenMS365 = await getAccessTokenMS365();
             }
     try {
-        await sendInvoiceReassort(accessTokenMS365, orderData.email, invoicePdfPath);
-        await fs.remove(invoicePdfPath);
+        // await sendInvoiceReassort(accessTokenMS365, orderData.email, invoicePdfPath);
+        // await fs.remove(invoicePdfPath);
         console.log('facture rm')
     } catch (error) {
         
