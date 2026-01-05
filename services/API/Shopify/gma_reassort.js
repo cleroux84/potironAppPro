@@ -105,7 +105,7 @@ const generateInvoicePdf = async(invoiceData, outpath = 'invoice.pdf') => {
     const template = Handlebars.compile(templateHtml);
     const finalHtml = template(invoiceData);
    const browser = await puppeteer.launch({
-    headless: 'new',  // mieux sur les versions récentes
+    headless: 'new', 
     args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
@@ -128,15 +128,15 @@ const generateInvoicePdf = async(invoiceData, outpath = 'invoice.pdf') => {
 
 const generateInvoice = async(orderData) => {
     const invoiceData = await extractOrderData(orderData);
-    // const invoicePdfPath = await generateInvoicePdf(invoiceData);
+    const invoicePdfPath = await generateInvoicePdf(invoiceData);
     let accessTokenMS365 = await getAccessTokenMS365();
             if(!accessTokenMS365) {
               await refreshMS365AccessToken();
               accessTokenMS365 = await getAccessTokenMS365();
             }
     try {
-        // await sendInvoiceReassort(accessTokenMS365, orderData.email, invoicePdfPath);
-        // await fs.remove(invoicePdfPath);
+        await sendInvoiceReassort(accessTokenMS365, orderData.email, invoicePdfPath);
+        await fs.remove(invoicePdfPath);
         console.log('facture rm')
     } catch (error) {
         
