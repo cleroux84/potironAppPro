@@ -96,6 +96,7 @@ const extractOrderData = async (order) => {
     return invoiceData;
 };
 
+
 const generateInvoicePdf = async (invoiceData) => {
     const outputPath = path.join(
         __dirname,
@@ -108,51 +109,47 @@ const generateInvoicePdf = async (invoiceData) => {
         doc.pipe(stream);
 
         // ===========================
-        // HEADER : GMA Reassort + facture
+        // HEADER : GMA Reassort + facture/date
         // ===========================
-        doc
-            .fontSize(20)
-            .text('GMA Reassort', 50, 50);
+        doc.fontSize(20).text('GMA Reassort', 50, 50);
 
-        doc
-            .fontSize(12)
-            .text(`Facture : ${invoiceData.invoiceNumber}`, 400, 50, { align: 'right' })
-            .text(`Date : ${invoiceData.invoiceDate}`, 400, 70, { align: 'right' });
-
-        doc.moveDown(3);
+        doc.fontSize(12)
+           .text(`Facture : ${invoiceData.invoiceNumber}`, 400, 50, { align: 'right' })
+           .text(`Date : ${invoiceData.invoiceDate}`, 400, 70, { align: 'right' });
 
         // ===========================
-        // ADRESSES
+        // ADRESSES + SIRET / TVA
         // ===========================
-        // Adresse GMA Reassort
-        const gmaAddress = `GMA Reassort\n123 Rue Exemple\n75000 Paris`;
+        const gmaAddress = `GMA Reassort\n123 Rue Exemple\n75000 Paris\nSIRET : 123 456 789 00012\nTVA intracom : FRXX123456789`;
         doc.fontSize(10).text(gmaAddress, 50, 120);
 
-        // Adresse client : billing + shipping
-        const customerAddress = `Client : ${invoiceData.customer.name}\n`;
+        // Client
+        const customerAddress = `${invoiceData.customer.name}\n`;
         const company = invoiceData.customer.company ? invoiceData.customer.company + '\n' : '';
-        const addresses = `${customerAddress}${company}${invoiceData.customer.address1}\n${invoiceData.customer.zipCity}\nEmail : ${invoiceData.customer.email}`;
+        const address2 = `${invoiceData.customer.address1}\n${invoiceData.customer.zipCity}\n`;
+        const customerSiret = invoiceData.customer.siret ? `SIRET : ${invoiceData.customer.siret}\n` : '';
+        const customerTva = invoiceData.customer.tva ? `TVA intracom : ${invoiceData.customer.tva}\n` : '';
+        const email = `Email : ${invoiceData.customer.email}`;
 
-        doc.fontSize(10).text(addresses, 400, 120, { align: 'right' });
+        doc.fontSize(10).text(company + customerAddress + address2 + customerSiret + customerTva + email, 400, 120, { align: 'right' });
 
-        doc.moveDown(3);
+        doc.moveDown(4);
 
         // ===========================
         // TABLE HEADER
         // ===========================
-        const tableTop = 200;
-        const itemCodeX = 50;
-        const descriptionX = 100;
+        const tableTop = 220;
+        const itemX = 50;
         const qtyX = 350;
         const priceX = 400;
         const totalX = 470;
 
-        doc.fontSize(10).text('Produit', itemCodeX, tableTop, { bold: true });
+        doc.fontSize(10).text('Produit', itemX, tableTop);
         doc.text('Qté', qtyX, tableTop);
         doc.text('Prix', priceX, tableTop);
         doc.text('Total', totalX, tableTop);
 
-        // Draw a line below header
+        // Ligne séparatrice
         doc.moveTo(50, tableTop + 15)
            .lineTo(550, tableTop + 15)
            .stroke();
@@ -162,36 +159,39 @@ const generateInvoicePdf = async (invoiceData) => {
         // ===========================
         let y = tableTop + 25;
         invoiceData.items.forEach(item => {
-            doc.text(item.name, itemCodeX, y);
+            doc.text(item.name, itemX, y);
             doc.text(item.quantity, qtyX, y);
             doc.text(`${item.price} €`, priceX, y);
             doc.text(`${item.total.toFixed(2)} €`, totalX, y);
             y += 20;
         });
 
-        // Draw a line above totals
+        // Ligne avant les totaux
         doc.moveTo(50, y + 5)
            .lineTo(550, y + 5)
            .stroke();
 
         // ===========================
-        // TOTALS
+        // TOTALS encadrés
         // ===========================
         const totalsX = 400;
         y += 15;
+        const totalsHeight = 60;
+        doc.rect(totalsX - 10, y - 5, 150, totalsHeight).stroke();
+
         doc.fontSize(10)
-            .text(`Sous-total : ${invoiceData.totals.subtotal} €`, totalsX, y, { align: 'right' });
-        y += 15;
-        doc.text(`Livraison : ${invoiceData.totals.shipping} €`, totalsX, y, { align: 'right' });
-        y += 15;
-        doc.text(`TVA : ${invoiceData.totals.tax} €`, totalsX, y, { align: 'right' });
-        y += 15;
-        doc.fontSize(12)
-            .text(`TOTAL : ${invoiceData.totals.total} €`, totalsX, y, { align: 'right', bold: true });
+           .text(`Sous-total : ${invoiceData.totals.subtotal} €`, totalsX, y, { align: 'right' });
+        doc.text(`Livraison : ${invoiceData.totals.shipping} €`, totalsX, y + 15, { align: 'right' });
+        doc.text(`TVA : ${invoiceData.totals.tax} €`, totalsX, y + 30, { align: 'right' });
+        doc.fontSize(12).text(`TOTAL : ${invoiceData.totals.total} €`, totalsX, y + 45, { align: 'right', bold: true });
 
         // ===========================
-        // END
+        // MENTIONS LEGALES / PIED
         // ===========================
+        doc.fontSize(8)
+           .text('Merci pour votre confiance.\nTVA non applicable, article 293 B du CGI si micro-entreprise.\nConservez ce document pour votre comptabilité.', 50, 750, { align: 'left' });
+
+        // Fin du document
         doc.end();
 
         stream.on('finish', () => {
