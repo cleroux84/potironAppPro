@@ -58,7 +58,7 @@ router.post('/createCustomer', async (req, res) => {
 // Webhook shopify for new order
 router.post('/newOrder', async (req, res) => {
     var order = req.body;
-    // await generateInvoice(order);
+    await generateInvoice(order);
 });
 
 module.exports = router;
