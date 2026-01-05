@@ -176,8 +176,8 @@ const generateInvoicePdf = async (invoiceData) => {
         // ===========================
         const totalsX = 400;
         y += 15;
-        const totalsHeight = 60;
-        doc.rect(totalsX - 10, y - 5, 150, totalsHeight).stroke();
+        // const totalsHeight = 60;
+        // doc.rect(totalsX - 10, y - 5, 150, totalsHeight).stroke();
 
         doc.fontSize(10)
            .text(`Sous-total : ${invoiceData.totals.subtotal} €`, totalsX, y, { align: 'right' });
