@@ -96,70 +96,102 @@ const extractOrderData = async (order) => {
     return invoiceData;
 };
 
-const generateInvoicePdf = async(invoiceData) => {
-
+const generateInvoicePdf = async (invoiceData) => {
     const outputPath = path.join(
         __dirname,
         `../../../invoicesreassort/Invoice-${invoiceData.invoiceNumber}.pdf`
     );
 
     return new Promise((resolve, reject) => {
-        const doc = new PDFDocument({ margin: 50 });
+        const doc = new PDFDocument({ margin: 50, size: 'A4' });
         const stream = fs.createWriteStream(outputPath);
-
         doc.pipe(stream);
 
-        // --- Header
+        // ===========================
+        // HEADER : GMA Reassort + facture
+        // ===========================
         doc
             .fontSize(20)
-            .text('FACTURE', { align: 'right' })
-            .moveDown();
+            .text('GMA Reassort', 50, 50);
 
-        doc
-            .fontSize(10)
-            .text(`Facture : ${invoiceData.invoiceNumber}`)
-            .text(`Date : ${invoiceData.invoiceDate}`)
-            .moveDown();
-
-        // --- Customer
         doc
             .fontSize(12)
-            .text(invoiceData.customer.name)
-            .text(invoiceData.customer.company || '')
-            .text(invoiceData.customer.address1)
-            .text(invoiceData.customer.zipCity)
-            .moveDown();
+            .text(`Facture : ${invoiceData.invoiceNumber}`, 400, 50, { align: 'right' })
+            .text(`Date : ${invoiceData.invoiceDate}`, 400, 70, { align: 'right' });
 
-        // --- Table header
-        doc
-            .fontSize(10)
-            .text('Produit', 50)
-            .text('Qté', 300)
-            .text('Prix', 350)
-            .text('Total', 450);
+        doc.moveDown(3);
 
-        doc.moveDown();
+        // ===========================
+        // ADRESSES
+        // ===========================
+        // Adresse GMA Reassort
+        const gmaAddress = `GMA Reassort\n123 Rue Exemple\n75000 Paris`;
+        doc.fontSize(10).text(gmaAddress, 50, 120);
 
-        // --- Items
+        // Adresse client : billing + shipping
+        const customerAddress = `Client : ${invoiceData.customer.name}\n`;
+        const company = invoiceData.customer.company ? invoiceData.customer.company + '\n' : '';
+        const addresses = `${customerAddress}${company}${invoiceData.customer.address1}\n${invoiceData.customer.zipCity}\nEmail : ${invoiceData.customer.email}`;
+
+        doc.fontSize(10).text(addresses, 400, 120, { align: 'right' });
+
+        doc.moveDown(3);
+
+        // ===========================
+        // TABLE HEADER
+        // ===========================
+        const tableTop = 200;
+        const itemCodeX = 50;
+        const descriptionX = 100;
+        const qtyX = 350;
+        const priceX = 400;
+        const totalX = 470;
+
+        doc.fontSize(10).text('Produit', itemCodeX, tableTop, { bold: true });
+        doc.text('Qté', qtyX, tableTop);
+        doc.text('Prix', priceX, tableTop);
+        doc.text('Total', totalX, tableTop);
+
+        // Draw a line below header
+        doc.moveTo(50, tableTop + 15)
+           .lineTo(550, tableTop + 15)
+           .stroke();
+
+        // ===========================
+        // TABLE ROWS
+        // ===========================
+        let y = tableTop + 25;
         invoiceData.items.forEach(item => {
-            doc
-                .text(item.name, 50)
-                .text(item.quantity, 300)
-                .text(`${item.price} €`, 350)
-                .text(`${item.total.toFixed(2)} €`, 450);
-            doc.moveDown(0.5);
+            doc.text(item.name, itemCodeX, y);
+            doc.text(item.quantity, qtyX, y);
+            doc.text(`${item.price} €`, priceX, y);
+            doc.text(`${item.total.toFixed(2)} €`, totalX, y);
+            y += 20;
         });
 
-        doc.moveDown();
+        // Draw a line above totals
+        doc.moveTo(50, y + 5)
+           .lineTo(550, y + 5)
+           .stroke();
 
-        // --- Totals
-        doc
-            .text(`Sous-total : ${invoiceData.totals.subtotal} €`, { align: 'right' })
-            .text(`Livraison : ${invoiceData.totals.shipping} €`, { align: 'right' })
-            .text(`TVA : ${invoiceData.totals.tax} €`, { align: 'right' })
-            .fontSize(12)
-            .text(`TOTAL : ${invoiceData.totals.total} €`, { align: 'right' });
+        // ===========================
+        // TOTALS
+        // ===========================
+        const totalsX = 400;
+        y += 15;
+        doc.fontSize(10)
+            .text(`Sous-total : ${invoiceData.totals.subtotal} €`, totalsX, y, { align: 'right' });
+        y += 15;
+        doc.text(`Livraison : ${invoiceData.totals.shipping} €`, totalsX, y, { align: 'right' });
+        y += 15;
+        doc.text(`TVA : ${invoiceData.totals.tax} €`, totalsX, y, { align: 'right' });
+        y += 15;
+        doc.fontSize(12)
+            .text(`TOTAL : ${invoiceData.totals.total} €`, totalsX, y, { align: 'right', bold: true });
 
+        // ===========================
+        // END
+        // ===========================
         doc.end();
 
         stream.on('finish', () => {
@@ -169,8 +201,7 @@ const generateInvoicePdf = async(invoiceData) => {
 
         stream.on('error', reject);
     });
-    
-}
+};
 
 const generateInvoice = async(orderData) => {
     const invoiceData = await extractOrderData(orderData);
