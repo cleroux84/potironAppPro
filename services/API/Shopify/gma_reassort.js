@@ -1,7 +1,8 @@
 const SHOPIFYREASSORTTOKEN = process.env.SHOPIFYREASSORTTOKEN;
 const fetch = require('node-fetch');
-const fs = require('fs-extra');
-const Handlebars = require('handlebars');
+const PDFDocument = require('pdfkit');
+const fs = require('fs');
+// const Handlebars = require('handlebars');
 const path = require('path');
 const { sendInvoiceReassort } = require('../../sendMails/mailForCustomers');
 const { getAccessTokenMS365, refreshMS365AccessToken } = require('../microsoft');
@@ -97,21 +98,91 @@ const extractOrderData = async (order) => {
 
 const generateInvoicePdf = async(invoiceData) => {
 
-    
+    const outputPath = path.join(
+        __dirname,
+        `../../../invoicesreassort/Invoice-${invoiceData.invoiceNumber}.pdf`
+    );
+
+    return new Promise((resolve, reject) => {
+        const doc = new PDFDocument({ margin: 50 });
+        const stream = fs.createWriteStream(outputPath);
+
+        doc.pipe(stream);
+
+        // --- Header
+        doc
+            .fontSize(20)
+            .text('FACTURE', { align: 'right' })
+            .moveDown();
+
+        doc
+            .fontSize(10)
+            .text(`Facture : ${invoiceData.invoiceNumber}`)
+            .text(`Date : ${invoiceData.invoiceDate}`)
+            .moveDown();
+
+        // --- Customer
+        doc
+            .fontSize(12)
+            .text(invoiceData.customer.name)
+            .text(invoiceData.customer.company || '')
+            .text(invoiceData.customer.address1)
+            .text(invoiceData.customer.zipCity)
+            .moveDown();
+
+        // --- Table header
+        doc
+            .fontSize(10)
+            .text('Produit', 50)
+            .text('Qté', 300)
+            .text('Prix', 350)
+            .text('Total', 450);
+
+        doc.moveDown();
+
+        // --- Items
+        invoiceData.items.forEach(item => {
+            doc
+                .text(item.name, 50)
+                .text(item.quantity, 300)
+                .text(`${item.price} €`, 350)
+                .text(`${item.total.toFixed(2)} €`, 450);
+            doc.moveDown(0.5);
+        });
+
+        doc.moveDown();
+
+        // --- Totals
+        doc
+            .text(`Sous-total : ${invoiceData.totals.subtotal} €`, { align: 'right' })
+            .text(`Livraison : ${invoiceData.totals.shipping} €`, { align: 'right' })
+            .text(`TVA : ${invoiceData.totals.tax} €`, { align: 'right' })
+            .fontSize(12)
+            .text(`TOTAL : ${invoiceData.totals.total} €`, { align: 'right' });
+
+        doc.end();
+
+        stream.on('finish', () => {
+            console.log(`📄 Facture PDF générée: ${outputPath}`);
+            resolve(outputPath);
+        });
+
+        stream.on('error', reject);
+    });
     
 }
 
 const generateInvoice = async(orderData) => {
     const invoiceData = await extractOrderData(orderData);
-    // const invoicePdfPath = await generateInvoicePdf(invoiceData);
+    const invoicePdfPath = await generateInvoicePdf(invoiceData);
     let accessTokenMS365 = await getAccessTokenMS365();
             if(!accessTokenMS365) {
               await refreshMS365AccessToken();
               accessTokenMS365 = await getAccessTokenMS365();
             }
     try {
-        // await sendInvoiceReassort(accessTokenMS365, orderData.email, invoicePdfPath);
-        // await fs.remove(invoicePdfPath);
+        await sendInvoiceReassort(accessTokenMS365, orderData.email, invoicePdfPath);
+        await fs.remove(invoicePdfPath);
         console.log('facture rm')
     } catch (error) {
         
