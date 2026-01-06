@@ -1,7 +1,7 @@
 const SHOPIFYREASSORTTOKEN = process.env.SHOPIFYREASSORTTOKEN;
 const fetch = require('node-fetch');
 const PDFDocument = require('pdfkit');
-const fs = require('fs');
+const fs = require('fs-extra');
 // const Handlebars = require('handlebars');
 const path = require('path');
 const { sendInvoiceReassort } = require('../../sendMails/mailForCustomers');
