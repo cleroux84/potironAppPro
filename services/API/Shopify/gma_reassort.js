@@ -221,14 +221,20 @@ const tagOrderInvoiceSent =  async (tagsToAdd, orderId) => {
     };
     try {
       const response = await fetch(updateUrl, updateOptions);
-      const data = await response.json();
-      console.log('Order updated with tags invoice sent', data)
+    //   const data = await response.json();
+    await response.json();
+
+    //   console.log('Order updated with tags invoice sent', data)
     } catch (error) {
       console.error('error updating order with tags for invoice sent', orderId);
     }
   }
 
 const generateInvoice = async(orderData) => {
+    if(hasInvoiceSentTag(orderData.tags, `facture-FA-${orderData.name}`)) {
+        console.log('invoice already sent for', orderData.name);
+        return;
+    }
     const invoiceData = await extractOrderData(orderData);
     const invoicePdfPath = await generateInvoicePdf(invoiceData);
     let accessTokenMS365 = await getAccessTokenMS365();
@@ -260,6 +266,13 @@ const addTagToOrder = (existingTags, newTag) => {
   }
 
   return tagsArray.join(', ');
+};
+
+const hasInvoiceSentTag = (tagsString = '', tagToCheck) => {
+    return tagsString
+        .split(',')
+        .map(t => t.trim())
+        .includes(tagToCheck);
 };
 
 
