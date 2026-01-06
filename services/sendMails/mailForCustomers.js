@@ -85,7 +85,7 @@ async function sendInvoiceReassort(accessTokenMS365, customerMail, filePath) {
         contentType: 'HTML',
         content: `
           <p>Bonjour,</p>
-          <p style="margin: 0;">Test d'envoi de facture .</p>
+          <p style="margin: 0;">Votre facture GMA Réassort .</p>
       
           <p>L'équipe de GMA Réassort</p>
           <img src='cid:signature'/>
@@ -95,7 +95,7 @@ async function sendInvoiceReassort(accessTokenMS365, customerMail, filePath) {
       toRecipients: [
           {
               emailAddress: {
-                  address: "c.leroux@potiron.com"
+                  address: customerMail
               }
           }
       ],

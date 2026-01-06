@@ -203,6 +203,31 @@ const generateInvoicePdf = async (invoiceData) => {
     });
 };
 
+const tagOrderInvoiceSent =  async (tagsToAdd, orderId) => {
+    const body = {
+        order: {
+            id: orderId,
+            tags : tagsToAdd
+        }
+    }
+    const updateUrl = `https://gma-reassort.myshopify.com/admin/api/2025-01/orders/${orderId}.json`;
+    const updateOptions = {
+      method: 'PUT',
+      headers: {             
+        'Content-Type': 'application/json',             
+        'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
+      },
+      body: JSON.stringify(body)
+    };
+    try {
+      const response = await fetch(updateUrl, updateOptions);
+      const data = await response.json();
+      console.log('Order updated with tags invoice sent', data)
+    } catch (error) {
+      console.error('error updating order with tags for invoice sent', orderId);
+    }
+  }
+
 const generateInvoice = async(orderData) => {
     const invoiceData = await extractOrderData(orderData);
     const invoicePdfPath = await generateInvoicePdf(invoiceData);
@@ -215,10 +240,28 @@ const generateInvoice = async(orderData) => {
         await sendInvoiceReassort(accessTokenMS365, orderData.email, invoicePdfPath);
         await fs.remove(invoicePdfPath);
         console.log('facture rm')
+        // add tag on order
+        const existingTags = orderData.tags || "";
+        const tagsToAdd = addTagToOrder(existingTags, `facture-${invoiceData.invoiceNumber}`)
+        await tagOrderInvoiceSent(tagsToAdd, orderData.id);
     } catch (error) {
-        
+        console.error('Error generating invoice', error)
     }
 }
+
+const addTagToOrder = (existingTags, newTag) => {
+  const tagsArray = existingTags
+    .split(',')
+    .map(t => t.trim())
+    .filter(Boolean);
+
+  if (!tagsArray.includes(newTag)) {
+    tagsArray.push(newTag);
+  }
+
+  return tagsArray.join(', ');
+};
+
 
 module.exports = {
     createMetaCustomer,
