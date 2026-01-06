@@ -215,7 +215,7 @@ const tagOrderInvoiceSent =  async (tagsToAdd, orderId) => {
       method: 'PUT',
       headers: {             
         'Content-Type': 'application/json',             
-        'X-Shopify-Access-Token': SHOPIFYAPPTOKEN 
+        'X-Shopify-Access-Token': SHOPIFYREASSORTTOKEN 
       },
       body: JSON.stringify(body)
     };
