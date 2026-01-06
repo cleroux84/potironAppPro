@@ -1,5 +1,6 @@
 const express = require('express');
 const { createMetaCustomer, generateInvoice } = require('../services/API/Shopify/gma_reassort');
+const { getReassortOrder, createReassortOrder } = require('../services/database/reassort_orders');
 
 const router = express.Router();
 
@@ -57,8 +58,23 @@ router.post('/createCustomer', async (req, res) => {
 
 // Webhook shopify for new order
 router.post('/newOrder', async (req, res) => {
-    var order = req.body;
-    await generateInvoice(order);
+    const eventId = req.headers['x-shopify-event-id'];
+    const order = req.body;
+
+    if(!eventId) return res.status(400).send('Missing X-shopify-Event-Id');
+    try {
+        const existing = await getReassortOrder(eventId);
+        if(existing > 0) {
+            console.log('reassort order exists un db')
+            return res.status(200).send('Already processing')
+        } else {
+            await createReassortOrder(eventId, order.id);
+            await generateInvoice(order);
+            res.status(200).send('Invoice processed')
+        }
+    } catch (error) {
+        console.error('Error receiving new order from reassort', error)
+    }
 });
 
 module.exports = router;

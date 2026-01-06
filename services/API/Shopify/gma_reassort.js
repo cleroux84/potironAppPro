@@ -6,6 +6,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const { sendInvoiceReassort } = require('../../sendMails/mailForCustomers');
 const { getAccessTokenMS365, refreshMS365AccessToken } = require('../microsoft');
+const { getReassortOrder } = require('../../database/reassort_orders');
 
 // new customer webhook to create meta data from notes
 const createMetaCustomer = async(clientToUpdate, updatedCustomer) => {
@@ -203,40 +204,36 @@ const generateInvoicePdf = async (invoiceData) => {
     });
 };
 
-const tagOrderInvoiceSent =  async (tagsToAdd, orderId) => {
-    const body = {
-        order: {
-            id: orderId,
-            tags : tagsToAdd
-        }
-    }
-    const updateUrl = `https://gma-reassort.myshopify.com/admin/api/2025-01/orders/${orderId}.json`;
-    const updateOptions = {
-      method: 'PUT',
-      headers: {             
-        'Content-Type': 'application/json',             
-        'X-Shopify-Access-Token': SHOPIFYREASSORTTOKEN 
-      },
-      body: JSON.stringify(body)
-    };
-    try {
-      const response = await fetch(updateUrl, updateOptions);
-    //   const data = await response.json();
-    await response.json();
 
-    //   console.log('Order updated with tags invoice sent', data)
-    } catch (error) {
-      console.error('error updating order with tags for invoice sent', orderId);
-    }
-  }
+
+// const tagOrderInvoiceSent =  async (tagsToAdd, orderId) => {
+//     const body = {
+//         order: {
+//             id: orderId,
+//             tags : tagsToAdd
+//         }
+//     }
+//     const updateUrl = `https://gma-reassort.myshopify.com/admin/api/2025-01/orders/${orderId}.json`;
+//     const updateOptions = {
+//       method: 'PUT',
+//       headers: {             
+//         'Content-Type': 'application/json',             
+//         'X-Shopify-Access-Token': SHOPIFYREASSORTTOKEN 
+//       },
+//       body: JSON.stringify(body)
+//     };
+//     try {
+//       const response = await fetch(updateUrl, updateOptions);
+//     //   const data = await response.json();
+//     await response.json();
+
+//     //   console.log('Order updated with tags invoice sent', data)
+//     } catch (error) {
+//       console.error('error updating order with tags for invoice sent', orderId);
+//     }
+//   }
 
 const generateInvoice = async(orderData) => {
-    console.log('tags checked : ', `facture-FA-${orderData.name}`)
-    console.log('orderData.tags : ', orderData.tags)
-    if(hasInvoiceSentTag(orderData.tags, `facture-FA-${orderData.name}`)) {
-        console.log('invoice already sent for', orderData.name);
-        return;
-    }
     const invoiceData = await extractOrderData(orderData);
     const invoicePdfPath = await generateInvoicePdf(invoiceData);
     let accessTokenMS365 = await getAccessTokenMS365();
@@ -248,34 +245,30 @@ const generateInvoice = async(orderData) => {
         await sendInvoiceReassort(accessTokenMS365, orderData.email, invoicePdfPath);
         await fs.remove(invoicePdfPath);
         console.log('facture rm')
-        // add tag on order
-        const existingTags = orderData.tags || "";
-        const tagsToAdd = addTagToOrder(existingTags, `facture-${invoiceData.invoiceNumber}`)
-        await tagOrderInvoiceSent(tagsToAdd, orderData.id);
     } catch (error) {
         console.error('Error generating invoice', error)
     }
 }
 
-const addTagToOrder = (existingTags, newTag) => {
-  const tagsArray = existingTags
-    .split(',')
-    .map(t => t.trim())
-    .filter(Boolean);
+// const addTagToOrder = (existingTags, newTag) => {
+//   const tagsArray = existingTags
+//     .split(',')
+//     .map(t => t.trim())
+//     .filter(Boolean);
 
-  if (!tagsArray.includes(newTag)) {
-    tagsArray.push(newTag);
-  }
+//   if (!tagsArray.includes(newTag)) {
+//     tagsArray.push(newTag);
+//   }
 
-  return tagsArray.join(', ');
-};
+//   return tagsArray.join(', ');
+// };
 
-const hasInvoiceSentTag = (tagsString = '', tagToCheck) => {
-    return tagsString
-        .split(',')
-        .map(t => t.trim())
-        .includes(tagToCheck);
-};
+// const hasInvoiceSentTag = (tagsString = '', tagToCheck) => {
+//     return tagsString
+//         .split(',')
+//         .map(t => t.trim())
+//         .includes(tagToCheck);
+// };
 
 
 module.exports = {
