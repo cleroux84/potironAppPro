@@ -231,6 +231,7 @@ const tagOrderInvoiceSent =  async (tagsToAdd, orderId) => {
   }
 
 const generateInvoice = async(orderData) => {
+    console.log('tags checked : ', `facture-FA-${orderData.name}`)
     if(hasInvoiceSentTag(orderData.tags, `facture-FA-${orderData.name}`)) {
         console.log('invoice already sent for', orderData.name);
         return;
