@@ -421,7 +421,7 @@ async function sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileEx
         contentType: 'HTML',
         content: `
           <p>Bonjour, </p>
-          <p>Ci-joint CSV pour tester</p>
+          <p>Ci-joint Commandes CSV</p>
           <img src='cid:signature'/>
         `
       },
