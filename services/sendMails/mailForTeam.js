@@ -405,44 +405,43 @@ async function sendEmailWithKbis(accessTokenMS365, filePath, companyName, fileEx
   }
 
   //Test mail with CSV
-  async function mailCSV(accessTokenMS365, fileCSV) {
-    // const base64CSV = Buffer.from(fileCSV).toString('base64');
+ async function mailCSV(accessTokenMS365, fileCSV) {
+    console.log('📧 [mailCSV] Démarrage. Token présent:', !!accessTokenMS365);
+    console.log('📧 [mailCSV] CSV taille:', fileCSV?.length || 0, 'chars');
+    
+    if (!accessTokenMS365) {
+        console.error('❌ [mailCSV] PAS DE TOKEN MS365 !');
+        return;
+    }
+    
     const attachments = [];
     attachments.push({
-      '@odata.type': '#microsoft.graph.fileAttachment',
-      name: `orders_afibel.csv`,  
-      contentBytes: fileCSV, 
-      contentType: 'text/csv'
-  });
+        '@odata.type': '#microsoft.graph.fileAttachment',
+        name: `orders_afibel.csv`,
+        contentBytes: fileCSV,
+        contentType: 'text/csv'
+    });
+    
     const client = initiMicrosoftGraphClient(accessTokenMS365);
-    const message = {
-      subject: 'Fichier CSV', 
-      body: {
-        contentType: 'HTML',
-        content: `
-          <p>Bonjour, </p>
-          <p>Ci-joint Commandes CSV</p>
-          <img src='cid:signature'/>
-        `
-      },
-      toRecipients: [
-        {
-          emailAddress: {
-            address: "c.leroux@potiron.com"
-          }
-        }
-      ],
-      attachments: [
-        ...attachments, signatureAttachement
-      ]
-    };
+    console.log('📧 [mailCSV] Client MS Graph initialisé');
+    
+    const message = { /* ... pareil ... */ };
+    
     try {
-      await client.api('/me/sendMail').post({ message });
-      console.log("Email test csv sucessfully sent");
+        await client.api('/me/sendMail').post({ message });
+        console.log('✅ [mailCSV] Email envoyé avec succès');
     } catch (error) {
-      console.error('error sending cotation message', error);
+        // ⚠️ AVANT : juste console.error('error sending...')
+        // ✅ APRÈS : LOG COMPLET
+        console.error('❌ [mailCSV] ERREUR ENVOI:', {
+            message: error.message,
+            code: error.code,
+            statusCode: error.statusCode,
+            body: error.body,
+            stack: error.stack
+        });
     }
-  }
+}
 
   module.exports = {
     sendEmailWithKbis,
