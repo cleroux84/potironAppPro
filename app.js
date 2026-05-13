@@ -86,7 +86,7 @@ app.get('/callback', async (req, res) => {
     }
 });
 
-cron.schedule('22 10  * * *', () => {
+cron.schedule('32 10  * * *', () => {
   console.log("⏰ generateCsv déclenché à : ", new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' }));
   generateCsv();
 }, {
